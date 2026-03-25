@@ -1,0 +1,71 @@
+---
+interface Props {
+	title: string;
+	body: string;
+	url: string;
+	source: string;
+	date: string;
+	sentiment: 'positiva' | 'negativa' | 'neutral';
+	score: number;
+}
+
+const { title, body, url, source, date, sentiment, score } = Astro.props;
+
+const sentimentColors = {
+	positiva: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100',
+	negativa: 'border-rose-500/30 bg-rose-500/10 text-rose-100',
+	neutral: 'border-slate-500/30 bg-slate-500/10 text-slate-100',
+};
+
+const badgeColors = {
+	positiva: 'bg-emerald-500 text-white',
+	negativa: 'bg-rose-500 text-white',
+	neutral: 'bg-slate-500 text-white',
+};
+
+const sentimentIcon = {
+	positiva: '🚀',
+	negativa: '⚠️',
+	neutral: '📄',
+};
+
+const formattedDate = new Date(date).toLocaleDateString('es-ES', {
+	day: '2-digit',
+	month: 'short',
+	hour: '2-digit',
+	minute: '2-digit'
+});
+---
+
+<div class={`news-card p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-[1.02] ${sentimentColors[sentiment]}`}>
+	<div class="flex justify-between items-start mb-4">
+		<span class="text-xs font-bold uppercase tracking-wider opacity-70">{source}</span>
+		<span class={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${badgeColors[sentiment]}`}>
+			{sentimentIcon[sentiment]} {sentiment}
+		</span>
+	</div>
+	
+	<h2 class="text-xl font-bold mb-3 leading-tight group-hover:text-white">
+		<a href={url} target="_blank" rel="noopener noreferrer" class="hover:underline">
+			{title}
+		</a>
+	</h2>
+	
+	<p class="text-sm opacity-80 mb-4 line-clamp-3">
+		{body}
+	</p>
+	
+	<div class="flex justify-between items-center text-xs opacity-60 font-medium">
+		<span>{formattedDate}</span>
+		<a href={url} target="_blank" class="font-bold hover:opacity-100 text-accent">Leer más →</a>
+	</div>
+</div>
+
+<style>
+	.news-card {
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+	}
+	.text-accent {
+		color: #818cf8;
+	}
+</style>

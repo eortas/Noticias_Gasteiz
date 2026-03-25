@@ -1,0 +1,71 @@
+---
+import Layout from '../layouts/Layout.astro';
+import NewsCard from '../components/NewsCard.astro';
+import newsData from '../data/news.json';
+
+// Si no hay datos, inicializar con lista vacía
+const news = newsData || [];
+
+// Contadores para el dashboard
+const stats = {
+	total: news.length,
+	positivas: news.filter(n => n.sentiment === 'positiva').length,
+	negativas: news.filter(n => n.sentiment === 'negativa').length,
+	neutral: news.filter(n => n.sentiment === 'neutral').length,
+};
+---
+
+<Layout title="Noticias Vitoria-Gasteiz | Análisis de Sentimiento">
+	<main class="max-w-6xl mx-auto px-4 py-12">
+		<header class="mb-16 text-center">
+			<h1 class="text-5xl md:text-7xl font-black mb-4 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
+				Vitoria News Portal
+			</h1>
+			<p class="text-slate-400 text-lg max-w-2xl mx-auto font-medium">
+				Toda la actualidad de Vitoria-Gasteiz filtrada con <span class="text-white">sentimiento artificial</span> y actualización diaria.
+			</p>
+		</header>
+
+		<!-- Dashboard de Estadísticas -->
+		<section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+			<div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 text-center">
+				<div class="text-3xl font-bold">{stats.total}</div>
+				<div class="text-xs uppercase opacity-60">Noticias Hoy</div>
+			</div>
+			<div class="bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/30 text-center">
+				<div class="text-3xl font-bold text-emerald-400">{stats.positivas}</div>
+				<div class="text-xs uppercase opacity-60">Positivas</div>
+			</div>
+			<div class="bg-rose-500/10 p-4 rounded-xl border border-rose-500/30 text-center">
+				<div class="text-3xl font-bold text-rose-400">{stats.negativas}</div>
+				<div class="text-xs uppercase opacity-60">Negativas</div>
+			</div>
+			<div class="bg-slate-700/50 p-4 rounded-xl border border-slate-600 text-center">
+				<div class="text-3xl font-bold">{stats.neutral}</div>
+				<div class="text-xs uppercase opacity-60">Neutras</div>
+			</div>
+		</section>
+
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+			{news.map((item) => (
+				<NewsCard {...item} />
+			))}
+		</div>
+
+		{news.length === 0 && (
+			<div class="text-center py-20">
+				<p class="text-2xl opacity-50">Esperando la primera cosecha de noticias...</p>
+			</div>
+		)}
+
+		<footer class="mt-20 pt-8 border-t border-slate-800 text-center text-sm opacity-50">
+			Actualizado automáticamente. Fuentes: El Correo, DNA, Gasteiz Hoy.
+		</footer>
+	</main>
+</Layout>
+
+<style>
+	main {
+		min-height: 100vh;
+	}
+</style>
