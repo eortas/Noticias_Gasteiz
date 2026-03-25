@@ -99,9 +99,23 @@ class MultiScraper:
         
         # Sort by date
         sorted_news = sorted(unique_news.values(), key=lambda x: x['date'], reverse=True)
+        # Filtrar noticias con menos de 2 días de antigüedad
+        now = datetime.now()
+        latest_news = []
+        for item in sorted_news:
+            try:
+                item_date = datetime.fromisoformat(item['date'])
+                if (now - item_date).days < 2:
+                    latest_news.append(item)
+            except (ValueError, KeyError):
+                # Si no hay fecha o está mal, la mantenemos si es nueva, o la descartamos si es vieja
+                latest_news.append(item)
+        
+        # Opcional: Cap de seguridad de todas formas (ej. max 100)
+        latest_news = latest_news[:100]
         
         with open(self.data_output, 'w', encoding='utf-8') as f:
-            json.dump(list(sorted_news), f, indent=2, ensure_ascii=False)
+            json.dump(latest_news, f, indent=2, ensure_ascii=False)
 
     def _generate_hf_image(self, title, article_id):
         if not HF_API_KEY:
