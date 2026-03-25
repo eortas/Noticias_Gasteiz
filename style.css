@@ -49,12 +49,14 @@ body {
 .gradient-text { background: linear-gradient(to right, var(--indigo-400), var(--emerald-400), var(--rose-400)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .subtitle { font-size: 1.25rem; color: var(--text-muted); font-weight: 300; max-width: 600px; line-height: 1.8; }
 .italic { font-style: italic; color: white; font-weight: 500; }
-
 /* Stats */
 .stats { display: flex; flex-wrap: wrap; gap: 2rem; margin-bottom: 6rem; align-items: flex-end; }
-.stat-item { display: flex; flex-direction: column; }
+.stat-item { display: flex; flex-direction: column; transition: all 0.3s ease; padding: 0.5rem 1rem; border-radius: 1rem; margin: -0.5rem -1rem; position: relative; border: 1px solid transparent; }
+.stat-item:hover { background: rgba(255, 255, 255, 0.05); }
+.stat-active { background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); }
 .stat-label { font-size: 0.625rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.25rem; }
-.stat-value { font-size: 2.5rem; font-weight: 900; line-height: 1; }
+.stat-value { font-size: 2.5rem; font-weight: 900; line-height: 1; display: flex; align-items: center; gap: 0.75rem; }
+.filter-dot { width: 6px; height: 6px; background: var(--indigo-400); border-radius: 50%; box-shadow: 0 0 10px var(--indigo-400); }
 .stat-divider { width: 1px; height: 40px; background: rgba(255, 255, 255, 0.1); }
 .text-emerald { color: var(--emerald-400); }
 .text-rose { color: var(--rose-400); }

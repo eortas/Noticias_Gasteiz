@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const liveUpdateBadge = document.getElementById('live-update-badge');
 
     let newsData = [];
+    let currentFilter = null;
     const READ_ARTICLES_KEY = 'vitoria_read_articles';
 
     // Set today's date
@@ -37,22 +38,45 @@ document.addEventListener('DOMContentLoaded', () => {
         const negativas = newsData.filter(n => n.sentiment === 'negativa').length;
         const pctPositivas = total > 0 ? Math.round((positivas / total) * 100) : 0;
 
+        const hasFilter = currentFilter !== null;
+
         statsContainer.innerHTML = `
-            <div class="stat-item">
+            <div class="stat-item ${currentFilter === null ? 'stat-active' : ''}" id="stat-all" style="cursor:pointer">
                 <div class="stat-label">Volumen</div>
-                <div class="stat-value">${total} <span style="font-size:1rem; font-weight:600; color:var(--text-muted); letter-spacing:0">Noticias</span></div>
+                <div class="stat-value">${total} <span style="font-size:1rem; font-weight:600; color:var(--text-muted); letter-spacing:0">Noticias</span> ${currentFilter === null ? '<span class="filter-dot"></span>' : ''}</div>
             </div>
             <div class="stat-divider"></div>
-            <div class="stat-item">
+            <div class="stat-item ${currentFilter === 'positiva' ? 'stat-active' : ''}" id="stat-pos" style="cursor:pointer">
                 <div class="stat-label">Vibe Positivo</div>
-                <div class="stat-value text-emerald">${pctPositivas}%</div>
+                <div class="stat-value text-emerald">${pctPositivas}% ${currentFilter === 'positiva' ? '<span class="filter-dot"></span>' : ''}</div>
             </div>
             <div class="stat-divider"></div>
-            <div class="stat-item">
+            <div class="stat-item ${currentFilter === 'negativa' ? 'stat-active' : ''}" id="stat-neg" style="cursor:pointer">
                 <div class="stat-label">Vibe Negativo</div>
-                <div class="stat-value text-rose">${negativas}</div>
+                <div class="stat-value text-rose">${negativas} ${currentFilter === 'negativa' ? '<span class="filter-dot"></span>' : ''}</div>
             </div>
+            ${hasFilter ? `
+                <div class="stat-divider"></div>
+                <div class="stat-item" id="stat-reset" style="cursor:pointer; opacity: 0.8">
+                    <div class="stat-label" style="color:var(--indigo-400)">Reset</div>
+                    <div class="stat-value" style="font-size: 1.25rem; font-weight: 700">Ver todas</div>
+                </div>
+            ` : ''}
         `;
+
+        // Listeners for stats
+        document.getElementById('stat-all').onclick = () => setFilter(null);
+        document.getElementById('stat-pos').onclick = () => setFilter('positiva');
+        document.getElementById('stat-neg').onclick = () => setFilter('negativa');
+        if (hasFilter) {
+            document.getElementById('stat-reset').onclick = () => setFilter(null);
+        }
+    }
+
+    function setFilter(sentiment) {
+        currentFilter = sentiment;
+        renderStats();
+        renderNewsFeed();
     }
 
     function formatDate(dateStr) {
@@ -92,8 +116,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
+        
+        const filteredData = currentFilter 
+            ? newsData.filter(item => item.sentiment === currentFilter)
+            : newsData;
 
-        newsGrid.innerHTML = newsData.map(item => {
+        if (filteredData.length === 0) {
+            newsGrid.innerHTML = '<p style="color:var(--text-muted); font-weight:300; padding: 2rem;">No hay noticias con este sentimiento hoy.</p>';
+            return;
+        }
+
+        newsGrid.innerHTML = filteredData.map(item => {
             const isRead = readIds.includes(item.id);
             return `
                 <div class="card glass ${isRead ? 'card-read' : ''}" data-id="${item.id}">
