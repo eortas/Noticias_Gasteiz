@@ -6,19 +6,23 @@ PALABRAS_POSITIVAS = {
     'bueno', 'buena', 'mejor', 'excelente', 'positivo', 'éxito', 'logro', 'avanza', 'mejora', 
     'beneficio', 'alegría', 'feliz', 'oportunidad', 'crecimiento', 'esperanza', 'solución',
     'paz', 'seguro', 'impulsa', 'apoyo', 'vanguardia', 'moderno', 'eficiente', 'gratis',
-    'estrena', 'inaugura', 'récord', 'lidera', 'brilla', 'talento', 'unión', 'solidario'
+    'estrena', 'inaugura', 'récord', 'lidera', 'brilla', 'talento', 'unión', 'solidario',
+    'relevo', 'continuidad', 'tradición', 'familia', 'futuro', 'crean', 'vuelve', 'abre', 'abren'
 }
 
 PALABRAS_NEGATIVAS = {
     'malo', 'mala', 'peor', 'negativo', 'fracaso', 'error', 'problema', 'crisis', 'daño', 
     'muerte', 'fallece', 'accidente', 'robo', 'detenido', 'agresión', 'pelea', 'herido',
     'denuncia', 'corte', 'huelga', 'protesta', 'incendio', 'atropello', 'crimen', 'estafa',
-    'pérdida', 'caída', 'baja', 'tensión', 'riesgo', 'peligro', 'inseguro', 'sucio', 'abandono'
+    'pérdida', 'caída', 'baja', 'tensión', 'riesgo', 'peligro', 'inseguro', 'sucio', 'abandono',
+    'cierre', 'cierran', 'despido', 'despidos'
 }
+
+NEGACIONES = {'no', 'ni', 'nunca', 'tampoco', 'sin'}
 
 def analyze_sentiment(text):
     """
-    Analiza el sentimiento de un texto en español de forma básica.
+    Analiza el sentimiento de un texto en español con soporte básico de negación.
     Retorna 'positiva', 'negativa' o 'neutral' y un score numérico.
     """
     if not text:
@@ -27,8 +31,22 @@ def analyze_sentiment(text):
     # Tokenización simple y limpieza
     words = re.findall(r'\w+', text.lower())
     
-    pos_count = sum(1 for w in words if w in PALABRAS_POSITIVAS)
-    neg_count = sum(1 for w in words if w in PALABRAS_NEGATIVAS)
+    pos_count = 0
+    neg_count = 0
+    
+    for i, word in enumerate(words):
+        if word in PALABRAS_POSITIVAS:
+            # "No es bueno" -> negativo
+            if i > 0 and words[i-1] in NEGACIONES:
+                neg_count += 1
+            else:
+                pos_count += 1
+        elif word in PALABRAS_NEGATIVAS:
+            # "No cierran" -> positivo
+            if i > 0 and words[i-1] in NEGACIONES:
+                pos_count += 1
+            else:
+                neg_count += 1
     
     total = pos_count + neg_count
     
@@ -37,9 +55,9 @@ def analyze_sentiment(text):
     
     score = (pos_count - neg_count) / total
     
-    if score > 0.1:
+    if score > 0.05: # Umbral más bajo para captar más noticias positivas
         return 'positiva', score
-    elif score < -0.1:
+    elif score < -0.05:
         return 'negativa', score
     else:
         return 'neutral', score
