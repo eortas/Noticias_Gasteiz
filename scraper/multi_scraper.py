@@ -104,7 +104,8 @@ class MultiScraper:
         latest_news = []
         for item in sorted_news:
             try:
-                item_date = datetime.fromisoformat(item['date'])
+                # Asegurar que el objeto item_date sea naive (sin zona horaria) para evitar errores de comparación
+                item_date = datetime.fromisoformat(item['date']).replace(tzinfo=None)
                 if (now - item_date).days < 2:
                     latest_news.append(item)
             except (ValueError, KeyError):
