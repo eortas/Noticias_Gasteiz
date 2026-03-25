@@ -4,10 +4,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const statsContainer = document.getElementById('stats-container');
     const newsGrid = document.getElementById('news-grid');
     const articleContent = document.getElementById('article-content');
+    const backNav = document.getElementById('nav-back');
     const backBtn = document.getElementById('back-btn');
     const liveUpdateBadge = document.getElementById('live-update-badge');
 
     let newsData = [];
+    const READ_ARTICLES_KEY = 'vitoria_read_articles';
 
     // Set today's date
     const today = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long' });
@@ -18,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(res => res.json())
         .then(data => {
             newsData = data;
+            sortNewsByReadState();
             renderStats();
             renderNewsFeed();
         })
@@ -67,32 +70,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function sortNewsByReadState() {
+        const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
+        newsData.sort((a, b) => {
+            const aRead = readIds.includes(a.id);
+            const bRead = readIds.includes(b.id);
+            
+            // Si uno está leído y el otro no, el leído va al final
+            if (aRead && !bRead) return 1;
+            if (!aRead && bRead) return -1;
+            
+            // Si ambos están en el mismo estado, mantener orden por fecha (descendente)
+            return new Date(b.date) - new Date(a.date);
+        });
+    }
+
     function renderNewsFeed() {
         if (!newsData || newsData.length === 0) {
             newsGrid.innerHTML = '<p style="color:var(--text-muted); font-weight:300;">No hay noticias disponibles.</p>';
             return;
         }
 
-        newsGrid.innerHTML = newsData.map(item => `
-            <div class="card glass" data-id="${item.id}">
-                <div class="card-img-wrap">
-                    <img src="${item.image || ''}" alt="${item.title}" class="card-img" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
-                    <div class="img-overlay"></div>
-                    <div class="card-source-badge">
-                        <div class="sentiment-dot dot-${item.sentiment}"></div>
-                        <span class="source-text">${item.source}</span>
+        const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
+
+        newsGrid.innerHTML = newsData.map(item => {
+            const isRead = readIds.includes(item.id);
+            return `
+                <div class="card glass ${isRead ? 'card-read' : ''}" data-id="${item.id}">
+                    <div class="card-img-wrap">
+                        <img src="${item.image || ''}" alt="${item.title}" class="card-img" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
+                        <div class="img-overlay"></div>
+                        <div class="card-source-badge">
+                            <div class="sentiment-dot dot-${item.sentiment}"></div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-date">${formatDate(item.date)} ${isRead ? '<span class="read-tag">• Leído</span>' : ''}</div>
+                        <h2 class="card-title">${item.title}</h2>
+                        <div class="card-footer">
+                            <span class="read-more">Ver narrativa</span>
+                            <div class="line"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="card-content">
-                    <div class="card-date">${formatDate(item.date)}</div>
-                    <h2 class="card-title">${item.title}</h2>
-                    <div class="card-footer">
-                        <span class="read-more">Ver narrativa</span>
-                        <div class="line"></div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
 
         // Add click events to cards
         document.querySelectorAll('.card').forEach(card => {
@@ -107,6 +129,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const item = newsData.find(n => n.id === id);
         if (!item) return;
 
+        // Marcar como leído
+        const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
+        if (!readIds.includes(id)) {
+            readIds.push(id);
+            localStorage.setItem(READ_ARTICLES_KEY, JSON.stringify(readIds));
+        }
+
         // Render Detail
         const sentimentColorClass = item.sentiment === 'positiva' ? 'text-emerald' : (item.sentiment === 'negativa' ? 'text-rose' : 'text-muted');
         
@@ -119,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="hero-overlay"></div>
                 <div class="hero-content">
                     <div class="hero-badges">
-                        <span class="badge-source">${item.source}</span>
                         <span class="badge-sentiment ${sentimentColorClass}"># ${item.sentiment}</span>
                     </div>
                     <h1 class="hero-title">${item.title}</h1>
@@ -139,13 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 
                 <div class="article-footer">
-                    <div class="footer-note">Documento generado por IA vía ${item.source}</div>
-                    <a href="${item.url}" target="_blank" class="source-link">
-                        Ver fuente original
-                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                    </a>
+                    <div class="footer-note">Documento verificado y analizado por IA</div>
                 </div>
             </div>
         `;
@@ -153,11 +175,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Swap views
         mainView.classList.replace('view-active', 'view-hidden');
         detailView.classList.replace('view-hidden', 'view-active');
+        backNav.classList.replace('view-hidden', 'view-active');
         window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
     backBtn.addEventListener('click', () => {
+        sortNewsByReadState();
+        renderNewsFeed();
         detailView.classList.replace('view-active', 'view-hidden');
+        backNav.classList.replace('view-active', 'view-hidden');
         mainView.classList.replace('view-hidden', 'view-active');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
