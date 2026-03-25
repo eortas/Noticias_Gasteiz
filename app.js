@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         statsContainer.innerHTML = `
             <div class="stat-item">
                 <div class="stat-label">Volumen</div>
-                <div class="stat-value">${total} <span style="font-size:1rem; font-weight:600; color:var(--text-muted); letter-spacing:0">News</span></div>
+                <div class="stat-value">${total} <span style="font-size:1rem; font-weight:600; color:var(--text-muted); letter-spacing:0">Noticias</span></div>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
-                <div class="stat-label">Critical Alerta</div>
+                <div class="stat-label">Vibe Negativo</div>
                 <div class="stat-value text-rose">${negativas}</div>
             </div>
         `;
