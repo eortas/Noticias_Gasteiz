@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitoria Chronicle | Narrativa de la Ciudad</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="bg-elements">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+        <div class="glow glow-3"></div>
+    </div>
+
+    <!-- Main View (News Feed) -->
+    <main id="main-view" class="container view-active">
+        <header class="header">
+            <div class="live-update" id="live-update-badge">
+                <span class="ping"></span>
+                <span class="dot"></span>
+                Live Update
+            </div>
+            <h1 class="title">Vitoria<br><span class="gradient-text">Chronicle.</span></h1>
+            <p class="subtitle">Un portal de análisis ciudadano. Transformamos el flujo de información en <span class="italic">narrativas visuales</span> analizadas por inteligencia artificial.</p>
+        </header>
+
+        <div class="stats" id="stats-container">
+            <!-- Stats will be injected here -->
+        </div>
+
+        <section class="news-grid" id="news-grid">
+            <div style="color:var(--text-muted); font-weight: 300;">Cargando narrativas de la ciudad...</div>
+        </section>
+        
+        <footer class="footer">
+            <div class="footer-left">© 2026 Vitoria Chronicle • Powered by AI</div>
+            <div class="footer-right">
+                <span>El Correo</span>
+                <span>DNA</span>
+                <span>Gasteiz Hoy</span>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Detail View -->
+    <main id="detail-view" class="container view-hidden">
+        <nav class="nav-back">
+            <button id="back-btn" class="back-link">
+                <div class="icon-circle">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </div>
+                <span>Volver al portal</span>
+            </button>
+        </nav>
+        <article class="article-content" id="article-content">
+            <!-- Details will be injected here -->
+        </article>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

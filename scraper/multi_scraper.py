@@ -3,11 +3,13 @@ from bs4 import BeautifulSoup
 import json
 import time
 import os
+import hashlib
+import urllib.parse
 from datetime import datetime
 from analyze_sentiment import analyze_sentiment
 
 class MultiScraper:
-    def __init__(self, history_file='scraper/history.json', data_output='src/data/news.json'):
+    def __init__(self, history_file='scraper/history.json', data_output='data/news.json'):
         self.history_file = history_file
         self.data_output = data_output
         self.headers = {'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'}
@@ -92,12 +94,19 @@ class MultiScraper:
             body = "\n".join([p.get_text().strip() for p in p_tags if len(p.get_text().strip()) > 40])
             
             sentiment, score = analyze_sentiment(title + " " + body[:500])
+            article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
+            # Generar imagen con Pollinations.ai
+            prompt = urllib.parse.quote(f"News about {title} in Vitoria-Gasteiz, cinematic, professional photography, high resolution")
+            image_url = f"https://pollinations.ai/p/{prompt}?width=1024&height=1024&nologo=true&seed={article_id}"
+
             return {
+                'id': article_id,
                 'source': 'El Correo',
                 'url': url,
                 'title': title or soup.title.string,
-                'body': body[:1000], # Trucado para el JSON de la web
+                'image': image_url,
+                'body': body,
                 'date': date,
                 'sentiment': sentiment,
                 'score': score
@@ -136,12 +145,18 @@ class MultiScraper:
             date = date_tag['datetime'] if date_tag else datetime.now().isoformat()
             
             sentiment, score = analyze_sentiment(title + " " + body[:500])
+            article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
+            prompt = urllib.parse.quote(f"Vitoria-Gasteiz news: {title}, journalistic style, sharp focus, 4k")
+            image_url = f"https://pollinations.ai/p/{prompt}?width=1024&height=1024&nologo=true&seed={article_id}"
+
             return {
+                'id': article_id,
                 'source': 'Gasteiz Hoy',
                 'url': url,
                 'title': title,
-                'body': body[:1000],
+                'image': image_url,
+                'body': body,
                 'date': date,
                 'sentiment': sentiment,
                 'score': score
@@ -180,12 +195,18 @@ class MultiScraper:
             body = "\n".join([p.get_text().strip() for p in soup.select('div.v-p-b p') if len(p.get_text().strip()) > 30])
             
             sentiment, score = analyze_sentiment(title + " " + body[:500])
+            article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
+            prompt = urllib.parse.quote(f"Vitoria news coverage: {title}, realistic, documentary style")
+            image_url = f"https://pollinations.ai/p/{prompt}?width=1024&height=1024&nologo=true&seed={article_id}"
+
             return {
+                'id': article_id,
                 'source': 'Diario de Noticias',
                 'url': url,
                 'title': title,
-                'body': body[:1000],
+                'image': image_url,
+                'body': body,
                 'date': datetime.now().isoformat(), # DNA uses complex dynamic dates often
                 'sentiment': sentiment,
                 'score': score
