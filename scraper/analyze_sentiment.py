@@ -110,26 +110,28 @@ def translate_to_euskara(title, body):
             
         client = Groq(api_key=api_key)
         
-        # Truncate body at last sentence boundary before 3000 chars so translation is coherent
-        body_truncated = body[:3000]
+        # Truncate body at last sentence boundary before 2000 chars to ensure stable JSON output
+        body_truncated = body[:2000]
         last_period = body_truncated.rfind('.')
-        if last_period > 500:  # Only cut at period if it's not too early
+        if last_period > 300:
             body_truncated = body_truncated[:last_period + 1]
         combined = f"TITLE: {title}\n\nBODY:\n{body_truncated}"
         
         completion = client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=[
-                {"role": "system", "content": """Zara euskarako itzultzaile profesional bat. Testuak gaztelaniatik euskarara itzuli behar dituzu, hizkuntza naturalak erabiliz.
+                {"role": "system", "content": """Zara euskarako itzultzaile profesional zorrotza. 
+Zure helburua TITLE eta BODY testuak gaztelaniatik euskarara itzultzea da.
 
-Arauak:
-- Itzuli TITLE eta BODY bereizita
-- Jatorrizko formatua mantendu
-- Responde BETI JSON formatuan, honela: {\"title_eu\": \"...\", \"body_eu\": \"...\"}
-- ez erantsi azalpenik, JSON soilik"""},
-                {"role": "user", "content": combined}
+ARAUAK:
+- ITZULI DENA EUSKARARA. Ez utzi gaztelaniazko hitzik.
+- Itzuli TITLE eta BODY bereizita.
+- Mantendu jatorrizko informazioa eta formatua.
+- ERANTZUN BAKARRIK JSON FORMATUAN: {"title_eu": "...", "body_eu": "..."}
+- Ez gehitu azalpenik, ezta elkarrizketarik ere. JSON soilik."""},
+                {"role": "user", "content": f"ITZULI HONAKO HAU:\n\n{combined}"}
             ],
-            temperature=0.2,
+            temperature=0.0,
             max_tokens=6000,
             response_format={"type": "json_object"}
         )
@@ -157,10 +159,10 @@ def rewrite_article(title, body):
 
         client = Groq(api_key=api_key)
 
-        # Truncate at last sentence boundary before 3000 chars
-        body_truncated = body[:3000]
+        # Truncate at last sentence boundary before 2000 chars
+        body_truncated = body[:2000]
         last_period = body_truncated.rfind('.')
-        if last_period > 500:
+        if last_period > 300:
             body_truncated = body_truncated[:last_period + 1]
 
         combined = f"TÍTULO: {title}\n\nCUERPO:\n{body_truncated}"
@@ -170,16 +172,15 @@ def rewrite_article(title, body):
             messages=[
                 {"role": "system", "content": """Eres un redactor periodístico profesional. Tu tarea es reescribir noticias para un portal local.
 
-REGLAS IMPORTANTES:
-- Mantén TODOS los datos, cifras, nombres y hechos exactamente igual
-- Cambia la estructura de las frases, el vocabulario y el orden narrativo
-- NO copies frases literales del original
-- El resultado debe sonar como un periodista diferente cubriendo el mismo hecho
-- Mantén el mismo tono informativo y la misma extensión aproximada
-- Responde SOLO con JSON: {"title_rewritten": "...", "body_rewritten": "..."}"""},
+REGLAS CRÍTICAS:
+- MANTÉN TODOS LOS DATOS (nombres, fechas, números) EXACTAMENTE IGUAL.
+- Reescribe el estilo: cambia la estructura de las frases y el vocabulario.
+- PROHIBIDO copiar frases literales del original.
+- El resultado debe estar íntegramente en CASTELLANO.
+- Responde ÚNICAMENTE con el objeto JSON: {"title_rewritten": "...", "body_rewritten": "..."}"""},
                 {"role": "user", "content": combined}
             ],
-            temperature=0.5,
+            temperature=0.0,
             max_tokens=6000,
             response_format={"type": "json_object"}
         )

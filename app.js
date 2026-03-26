@@ -247,6 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
         applyLangUI();
         renderStats();
         renderNewsFeed();
+        if (typeof moodHistory !== 'undefined' && moodHistory.length > 0) {
+            renderMoodWidget(moodHistory);
+        }
     });
 
     function renderMoodWidget(history) {
