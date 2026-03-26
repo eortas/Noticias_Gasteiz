@@ -141,7 +141,56 @@ Arauak:
         print(f"Error traduciendo al euskara: {e}")
         return None, None
 
+def rewrite_article(title, body):
+    """
+    Reescribe el título y cuerpo de una noticia en castellano con diferente estilo
+    para evitar problemas de copyright, manteniendo todos los hechos veraces.
+    Usa GROQ_REWRITE_KEY y llama-3.1-8b-instant.
+    Retorna (title_rewritten, body_rewritten) o (None, None) si falla.
+    """
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+        api_key = os.environ.get("GROQ_REWRITE_KEY")
+        if not api_key:
+            return None, None
+
+        client = Groq(api_key=api_key)
+
+        # Truncate at last sentence boundary before 3000 chars
+        body_truncated = body[:3000]
+        last_period = body_truncated.rfind('.')
+        if last_period > 500:
+            body_truncated = body_truncated[:last_period + 1]
+
+        combined = f"TÍTULO: {title}\n\nCUERPO:\n{body_truncated}"
+
+        completion = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {"role": "system", "content": """Eres un redactor periodístico profesional. Tu tarea es reescribir noticias para un portal local.
+
+REGLAS IMPORTANTES:
+- Mantén TODOS los datos, cifras, nombres y hechos exactamente igual
+- Cambia la estructura de las frases, el vocabulario y el orden narrativo
+- NO copies frases literales del original
+- El resultado debe sonar como un periodista diferente cubriendo el mismo hecho
+- Mantén el mismo tono informativo y la misma extensión aproximada
+- Responde SOLO con JSON: {"title_rewritten": "...", "body_rewritten": "..."}"""},
+                {"role": "user", "content": combined}
+            ],
+            temperature=0.5,
+            max_tokens=6000,
+            response_format={"type": "json_object"}
+        )
+
+        result_str = completion.choices[0].message.content
+        data = json.loads(result_str)
+        return data.get("title_rewritten"), data.get("body_rewritten")
+    except Exception as e:
+        print(f"Error reescribiendo artículo: {e}")
+        return None, None
+
 if __name__ == "__main__":
     test_text = "El Deportivo Alaés inaugura un nuevo campo de entrenamiento y mejora sus instalaciones."
     print(f"Test positivo: {analyze_sentiment(test_text)}")
-

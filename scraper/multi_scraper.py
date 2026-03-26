@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 HF_API_KEY = os.getenv("HF_TOKEN")
 
-from analyze_sentiment import analyze_sentiment, translate_to_euskara
+from analyze_sentiment import analyze_sentiment, translate_to_euskara, rewrite_article
 
 class MultiScraper:
     def __init__(self, history_file='scraper/history.json', data_output='data/news.json'):
@@ -220,15 +220,16 @@ class MultiScraper:
                 image_url = self._generate_hf_image(title, article_id)
 
             title_eu, body_eu = translate_to_euskara(title, body)
+            title_rw, body_rw = rewrite_article(title, body)
 
             return {
                 'id': article_id,
                 'source': 'El Correo',
                 'url': url,
-                'title': title or soup.title.string,
+                'title': title_rw or title or soup.title.string,
                 'title_eu': title_eu,
                 'image': image_url,
-                'body': body,
+                'body': body_rw or body,
                 'body_eu': body_eu,
                 'date': date,
                 'sentiment': sentiment,
@@ -294,15 +295,16 @@ class MultiScraper:
                 image_url = self._generate_hf_image(title, article_id)
 
             title_eu, body_eu = translate_to_euskara(title, body)
+            title_rw, body_rw = rewrite_article(title, body)
 
             return {
                 'id': article_id,
                 'source': 'Gasteiz Hoy',
                 'url': url,
-                'title': title,
+                'title': title_rw or title,
                 'title_eu': title_eu,
                 'image': image_url,
-                'body': body,
+                'body': body_rw or body,
                 'body_eu': body_eu,
                 'date': date,
                 'sentiment': sentiment,
@@ -419,15 +421,16 @@ class MultiScraper:
             is_eu = '/eu/' in url or url.endswith('-eu') or url.endswith('/eu')
 
             title_eu, body_eu = (title, body) if is_eu else translate_to_euskara(title, body)
+            title_rw, body_rw = (None, None) if is_eu else rewrite_article(title, body)
 
             return {
                 'id': article_id,
                 'source': 'Diario de Noticias',
                 'url': url,
-                'title': title,
+                'title': title_rw or title,
                 'title_eu': title_eu,
                 'image': image_url,
-                'body': body,
+                'body': body_rw or body,
                 'body_eu': body_eu,
                 'date': datetime.now().isoformat(),
                 'sentiment': sentiment,

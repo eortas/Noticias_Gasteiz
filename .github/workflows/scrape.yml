@@ -30,6 +30,7 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GROQ_TRANSLATION_KEY: ${{ secrets.GROQ_TRANSLATION_KEY }}
+          GROQ_REWRITE_KEY: ${{ secrets.GROQ_REWRITE_KEY }}
         run: python scraper_vitoria.py
 
       - name: Commit and push changes
