@@ -186,19 +186,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // Render Detail
         const sentimentColorClass = item.sentiment === 'positiva' ? 'text-emerald' : (item.sentiment === 'negativa' ? 'text-rose' : 'text-muted');
         
-        const paragraphs = item.body ? item.body.split('\n').filter(p => p.trim() !== '') : [];
+        const isEu = currentLang === 'eu';
+        const displayTitle = (isEu && item.title_eu) ? item.title_eu : item.title;
+        const displayBody = (isEu && item.body_eu) ? item.body_eu : item.body;
+
+        const paragraphs = displayBody ? displayBody.split('\n').filter(p => p.trim() !== '') : [];
         const bodyHtml = paragraphs.map(p => `<p class="paragraph">${p}</p>`).join('');
 
         articleContent.innerHTML = `
             <div class="hero-wrap">
-                <img src="${item.image || ''}" alt="${item.title}" class="hero-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
+                <img src="${item.image || ''}" alt="${displayTitle}" class="hero-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
                 <div class="hero-overlay"></div>
                 <div class="hero-content">
                     <div class="hero-badges">
                         <span class="badge-sentiment ${sentimentColorClass}"># ${item.sentiment}</span>
                         ${item.category ? `<span class="badge-source">${item.category}</span>` : ''}
                     </div>
-                    <h1 class="hero-title">${item.title}</h1>
+                    <h1 class="hero-title">${displayTitle}</h1>
                 </div>
             </div>
             
