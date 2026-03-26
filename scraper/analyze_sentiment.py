@@ -118,18 +118,17 @@ def translate_to_euskara(title, body):
         combined = f"TITLE: {title}\n\nBODY:\n{body_truncated}"
         
         completion = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="llama-3.3-70b-versatile",
             messages=[
-                {"role": "system", "content": """Zara euskarako itzultzaile profesional zorrotza. 
-Zure helburua TITLE eta BODY testuak gaztelaniatik euskarara itzultzea da.
+                {"role": "system", "content": """Zara euskarazko itzultzaile automatiko profesionala. 
+Zure helburua TITLE eta BODY testuak GAZTELANIATIK EUSKARARA itzultzea da.
 
-ARAUAK:
-- ITZULI DENA EUSKARARA. Ez utzi gaztelaniazko hitzik.
-- Itzuli TITLE eta BODY bereizita.
-- Mantendu jatorrizko informazioa eta formatua.
-- ERANTZUN BAKARRIK JSON FORMATUAN: {"title_eu": "...", "body_eu": "..."}
-- Ez gehitu azalpenik, ezta elkarrizketarik ere. JSON soilik."""},
-                {"role": "user", "content": f"ITZULI HONAKO HAU:\n\n{combined}"}
+ARAURIK GARRANTZITSUENAK:
+1. ERANTZUN BAKARRIK EUSKARAZ. Ez erabili gaztelaniazko hitzik (ezta "Vitoria" ordez "Gasteiz" baizik, ezta "un" ordez "bat", etab).
+2. Ez nahasi hizkuntzak. Itzulpenak profesionala eta naturala izan behar du, baina %100 EUSKARAZ.
+3. Erantzun formatu honetan soilik (JSON): {"title_eu": "...", "body_eu": "..."}
+4. Ez idatzi azalpenik."""},
+                {"role": "user", "content": f"ITZULI TESTU HAU EUSKARARA ORAIN:\n\n{combined}"}
             ],
             temperature=0.0,
             max_tokens=6000,
