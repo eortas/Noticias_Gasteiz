@@ -29,12 +29,13 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_TRANSLATION_KEY: ${{ secrets.GROQ_TRANSLATION_KEY }}
         run: python scraper_vitoria.py
 
       - name: Commit and push changes
         run: |
           git config --global user.name "Vitoria Scraper Bot"
           git config --global user.email "bot@vitoriachronicle.com"
-          git add data/news.json data/images/ scraper/history.json
+          git add data/news.json data/images/ scraper/history.json data/mood_history.json
           git commit -m "Automated news update - $(date +'%Y-%m-%d %H:%M')" || echo "No changes to commit"
           git push

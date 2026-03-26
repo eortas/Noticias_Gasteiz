@@ -10,7 +10,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let newsData = [];
     let currentFilter = null;
+    let currentLang = localStorage.getItem('vitoria_lang') || 'es';
     const READ_ARTICLES_KEY = 'vitoria_read_articles';
+
+    // Apply initial lang state
+    function applyLangUI() {
+        document.getElementById('btn-es').classList.toggle('active', currentLang === 'es');
+        document.getElementById('btn-eu').classList.toggle('active', currentLang === 'eu');
+        const subtitle = document.getElementById('subtitle-text');
+        if (subtitle) {
+            subtitle.innerHTML = currentLang === 'eu'
+                ? 'Gasteiz-ko berrien ataria. Informazioaren fluxua <span class="italic">bisual-narratibetan</span> bihurtzen dugu, adimen artifizialarekin aztertuta.'
+                : 'Tu portal de noticias de Vitoria-Gasteiz. Transformamos el flujo de información en <span class="italic">narrativas visuales</span> analizadas por inteligencia artificial.';
+        }
+    }
+    applyLangUI();
+
 
     // Set today's date
     const today = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long' });
@@ -137,9 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="card-content">
                         <div class="card-date">${formatDate(item.date)} ${isRead ? '<span class="read-tag">• Leído</span>' : ''}</div>
-                        <h2 class="card-title">${item.title}</h2>
+                        <h2 class="card-title">${currentLang === 'eu' && item.title_eu ? item.title_eu : item.title}</h2>
                         <div class="card-footer">
-                            <span class="read-more">Ver narrativa</span>
+                            <span class="read-more">${currentLang === 'eu' ? 'Irakurri' : 'Ver narrativa'}</span>
                             <div class="line"></div>
                         </div>
                     </div>
@@ -220,6 +235,15 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
+    // Handle language changes from the toggle buttons
+    document.getElementById('main-view').addEventListener('langchange', (e) => {
+        currentLang = e.detail;
+        localStorage.setItem('vitoria_lang', currentLang);
+        applyLangUI();
+        renderStats();
+        renderNewsFeed();
+    });
+
     function renderMoodWidget(history) {
         const widget = document.getElementById('mood-widget-container');
         if (!widget) return;
@@ -282,3 +306,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
     }
 });
+
+// Global function so onclick in HTML can reach it
+function setLang(lang) {
+    const app = document.getElementById('main-view');
+    if (!app) return;
+    // Dispatch a custom event so the DOMContentLoaded scope can handle it
+    app.dispatchEvent(new CustomEvent('langchange', { detail: lang }));
+}

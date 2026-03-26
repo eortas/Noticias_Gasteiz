@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 HF_API_KEY = os.getenv("HF_TOKEN")
 
-from analyze_sentiment import analyze_sentiment
+from analyze_sentiment import analyze_sentiment, translate_to_euskara
 
 class MultiScraper:
     def __init__(self, history_file='scraper/history.json', data_output='data/news.json'):
@@ -219,17 +219,22 @@ class MultiScraper:
             if not image_url:
                 image_url = self._generate_hf_image(title, article_id)
 
+            title_eu, body_eu = translate_to_euskara(title, body)
+
             return {
                 'id': article_id,
                 'source': 'El Correo',
                 'url': url,
                 'title': title or soup.title.string,
+                'title_eu': title_eu,
                 'image': image_url,
                 'body': body,
+                'body_eu': body_eu,
                 'date': date,
                 'sentiment': sentiment,
                 'score': score,
-                'category': category
+                'category': category,
+                'lang': 'es'
             }
         except:
             return None
@@ -288,17 +293,22 @@ class MultiScraper:
             if not image_url:
                 image_url = self._generate_hf_image(title, article_id)
 
+            title_eu, body_eu = translate_to_euskara(title, body)
+
             return {
                 'id': article_id,
                 'source': 'Gasteiz Hoy',
                 'url': url,
                 'title': title,
+                'title_eu': title_eu,
                 'image': image_url,
                 'body': body,
+                'body_eu': body_eu,
                 'date': date,
                 'sentiment': sentiment,
                 'score': score,
-                'category': category
+                'category': category,
+                'lang': 'es'
             }
         except:
             return None
@@ -405,17 +415,25 @@ class MultiScraper:
             if not image_url:
                 image_url = self._generate_hf_image(title, article_id)
 
+            # DNA publishes bilingual content - detect if article is in Euskara
+            is_eu = '/eu/' in url or url.endswith('-eu') or url.endswith('/eu')
+
+            title_eu, body_eu = (title, body) if is_eu else translate_to_euskara(title, body)
+
             return {
                 'id': article_id,
                 'source': 'Diario de Noticias',
                 'url': url,
                 'title': title,
+                'title_eu': title_eu,
                 'image': image_url,
                 'body': body,
-                'date': datetime.now().isoformat(), # DNA uses complex dynamic dates often
+                'body_eu': body_eu,
+                'date': datetime.now().isoformat(),
                 'sentiment': sentiment,
                 'score': score,
-                'category': category
+                'category': category,
+                'lang': 'eu' if is_eu else 'es'
             }
         except:
             return None

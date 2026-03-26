@@ -96,6 +96,47 @@ def analyze_sentiment(text):
         print(f"Error clasificando con Groq: {e}. Usando fallback heurístico.")
         return heuristic_fallback(text)
 
+def translate_to_euskara(title, body):
+    """
+    Traduce el título y cuerpo de una noticia al euskara usando Groq llama-3.1-8b-instant.
+    Retorna (title_eu, body_eu) o (None, None) si falla.
+    """
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+        api_key = os.environ.get("GROQ_TRANSLATION_KEY")
+        if not api_key:
+            return None, None
+            
+        client = Groq(api_key=api_key)
+        
+        combined = f"TITLE: {title}\n\nBODY:\n{body}"
+        
+        completion = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {"role": "system", "content": """Zara euskarako itzultzaile profesional bat. Testuak gaztelaniatik euskarara itzuli behar dituzu, hizkuntza naturalak erabiliz.
+
+Arauak:
+- Itzuli TITLE eta BODY bereizita
+- Jatorrizko formatua mantendu
+- Responde BETI JSON formatuan, honela: {\"title_eu\": \"...\", \"body_eu\": \"...\"}
+- ez erantsi azalpenik, JSON soilik"""},
+                {"role": "user", "content": combined[:4000]}
+            ],
+            temperature=0.2,
+            max_tokens=4000,
+            response_format={"type": "json_object"}
+        )
+        
+        result_str = completion.choices[0].message.content
+        data = json.loads(result_str)
+        return data.get("title_eu"), data.get("body_eu")
+    except Exception as e:
+        print(f"Error traduciendo al euskara: {e}")
+        return None, None
+
 if __name__ == "__main__":
-    test_text = "El Deportivo Alavés inaugura un nuevo campo de entrenamiento y mejora sus instalaciones."
+    test_text = "El Deportivo Alaés inaugura un nuevo campo de entrenamiento y mejora sus instalaciones."
     print(f"Test positivo: {analyze_sentiment(test_text)}")
+

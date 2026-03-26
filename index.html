@@ -21,13 +21,19 @@
     <!-- Main View (News Feed) -->
     <main id="main-view" class="container view-active">
         <header class="header">
-            <div class="live-update" id="live-update-badge">
-                <span class="ping"></span>
-                <span class="dot"></span>
-                Live Update
+            <div class="header-top">
+                <div class="live-update" id="live-update-badge">
+                    <span class="ping"></span>
+                    <span class="dot"></span>
+                    Live Update
+                </div>
+                <div class="lang-toggle" id="lang-toggle">
+                    <button class="lang-btn active" id="btn-es" onclick="setLang('es')">ES</button>
+                    <button class="lang-btn" id="btn-eu" onclick="setLang('eu')">EU</button>
+                </div>
             </div>
             <h1 class="title">Gasteiz<br><span class="gradient-text">Live </span></h1>
-            <p class="subtitle">Tu portal de noticias de Vitoria-Gasteiz. Transformamos el flujo de información en <span
+            <p class="subtitle" id="subtitle-text">Tu portal de noticias de Vitoria-Gasteiz. Transformamos el flujo de información en <span
                     class="italic">narrativas visuales</span> analizadas por inteligencia artificial.</p>
         </header>
 
