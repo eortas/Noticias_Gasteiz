@@ -49,8 +49,11 @@ body {
 .gradient-text { background: linear-gradient(to right, var(--indigo-400), var(--emerald-400), var(--rose-400)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .subtitle { font-size: 1.25rem; color: var(--text-muted); font-weight: 300; max-width: 600px; line-height: 1.8; }
 .italic { font-style: italic; color: var(--text-main); font-weight: 500; }
+/* Dashboard Controls (Stats + Mood) */
+.dashboard-controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 2rem; margin-bottom: 5rem; width: 100%; }
+
 /* Stats */
-.stats { display: flex; flex-wrap: wrap; gap: 2rem; margin-bottom: 6rem; align-items: flex-end; }
+.stats { display: flex; flex-wrap: wrap; gap: 2rem; align-items: flex-end; flex: 1; }
 .stat-item { display: flex; flex-direction: column; transition: all 0.3s ease; padding: 0.5rem 1rem; border-radius: 1rem; margin: -0.5rem -1rem; position: relative; border: 1px solid transparent; }
 .stat-item:hover { background: rgba(0, 0, 0, 0.05); }
 .stat-active { background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); }
@@ -62,7 +65,7 @@ body {
 .text-rose { color: var(--rose-400); }
 
 /* Mood Widget */
-.mood-widget { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 1.5rem; padding: 1.5rem 2rem; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(0, 0, 0, 0.05); }
+.mood-widget { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 1.5rem; padding: 1.5rem 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(0, 0, 0, 0.05); flex: 0 0 350px; min-width: 300px; }
 .mood-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
 .mood-title { font-size: 1.2rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.02em; }
 .mood-score-text { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); background: rgba(0,0,0,0.05); padding: 0.4rem 0.8rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.1em; }
