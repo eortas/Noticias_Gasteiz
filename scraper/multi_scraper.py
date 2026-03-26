@@ -157,6 +157,13 @@ class MultiScraper:
         prompt = urllib.parse.quote(f"Vitoria news: {title}, realistic photography, cinematic")
         return f"https://pollinations.ai/p/{prompt}?width=1024&height=1024&nologo=true&seed={article_id}"
 
+    def _get_og_image(self, soup):
+        """Extrae la imagen original de los meta tags og:image."""
+        meta = soup.find('meta', property='og:image')
+        if meta and meta.get('content'):
+            return meta['content'].strip()
+        return None
+
     def scrape_el_correo(self):
         url = "https://www.elcorreo.com/alava/araba/"
         print(f"Scrapeando El Correo: {url}")
@@ -207,8 +214,10 @@ class MultiScraper:
             sentiment, score = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
-            # Generar imagen con Pollinations.ai
-            image_url = self._generate_hf_image(title, article_id)
+            # Intentar extraer imagen original, si no, generar con HF
+            image_url = self._get_og_image(soup)
+            if not image_url:
+                image_url = self._generate_hf_image(title, article_id)
 
             return {
                 'id': article_id,
@@ -273,7 +282,10 @@ class MultiScraper:
             sentiment, score = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
-            image_url = self._generate_hf_image(title, article_id)
+            # Intentar extraer imagen original, si no, generar con HF
+            image_url = self._get_og_image(soup)
+            if not image_url:
+                image_url = self._generate_hf_image(title, article_id)
 
             return {
                 'id': article_id,
@@ -386,7 +398,10 @@ class MultiScraper:
             sentiment, score = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
-            image_url = self._generate_hf_image(title, article_id)
+            # Intentar extraer imagen original, si no, generar con HF
+            image_url = self._get_og_image(soup)
+            if not image_url:
+                image_url = self._generate_hf_image(title, article_id)
 
             return {
                 'id': article_id,

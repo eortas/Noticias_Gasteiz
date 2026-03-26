@@ -1,19 +1,19 @@
 :root {
-    --bg-dark: #020617;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --indigo-400: #818cf8;
-    --indigo-500: #6366f1;
-    --emerald-400: #34d399;
-    --rose-400: #fb7185;
-    --slate-800: #1e293b;
+    --bg-main: #f8fafc;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --indigo-400: #6366f1;
+    --indigo-500: #4f46e5;
+    --emerald-400: #10b981;
+    --rose-400: #f43f5e;
+    --slate-800: #cbd5e1;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
     font-family: 'Outfit', sans-serif;
-    background-color: var(--bg-dark);
+    background-color: var(--bg-main);
     color: var(--text-main);
     line-height: 1.6;
     overflow-x: hidden;
@@ -21,7 +21,7 @@ body {
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-track { background: var(--bg-main); }
 ::-webkit-scrollbar-thumb { background: var(--slate-800); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #334155; }
 
@@ -48,16 +48,16 @@ body {
 .title { font-size: clamp(4rem, 10vw, 9rem); font-weight: 900; line-height: 0.8; margin-bottom: 2.5rem; letter-spacing: -0.05em; mix-blend-mode: difference; }
 .gradient-text { background: linear-gradient(to right, var(--indigo-400), var(--emerald-400), var(--rose-400)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .subtitle { font-size: 1.25rem; color: var(--text-muted); font-weight: 300; max-width: 600px; line-height: 1.8; }
-.italic { font-style: italic; color: white; font-weight: 500; }
+.italic { font-style: italic; color: var(--text-main); font-weight: 500; }
 /* Stats */
 .stats { display: flex; flex-wrap: wrap; gap: 2rem; margin-bottom: 6rem; align-items: flex-end; }
 .stat-item { display: flex; flex-direction: column; transition: all 0.3s ease; padding: 0.5rem 1rem; border-radius: 1rem; margin: -0.5rem -1rem; position: relative; border: 1px solid transparent; }
-.stat-item:hover { background: rgba(255, 255, 255, 0.05); }
+.stat-item:hover { background: rgba(0, 0, 0, 0.05); }
 .stat-active { background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); }
 .stat-label { font-size: 0.625rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.25rem; }
-.stat-value { font-size: 2.5rem; font-weight: 900; line-height: 1; display: flex; align-items: center; gap: 0.75rem; }
+.stat-value { font-size: 2.5rem; font-weight: 900; line-height: 1; display: flex; align-items: center; gap: 0.75rem; color: var(--text-main); }
 .filter-dot { width: 6px; height: 6px; background: var(--indigo-400); border-radius: 50%; box-shadow: 0 0 10px var(--indigo-400); }
-.stat-divider { width: 1px; height: 40px; background: rgba(255, 255, 255, 0.1); }
+.stat-divider { width: 1px; height: 40px; background: rgba(0, 0, 0, 0.1); }
 .text-emerald { color: var(--emerald-400); }
 .text-rose { color: var(--rose-400); }
 
@@ -65,13 +65,13 @@ body {
 .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2.5rem; flex: 1; }
 
 /* Components: Card */
-.glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+.glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(0, 0, 0, 0.05); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
 .card { display: block; text-decoration: none; color: inherit; border-radius: 2.5rem; overflow: hidden; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; }
-.card:hover { background: rgba(255, 255, 255, 0.06); transform: translateY(-10px); box-shadow: 0 40px 80px -20px rgba(0,0,0,0.6); }
+.card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2); }
 .card-img-wrap { position: relative; height: 260px; overflow: hidden; }
-.card-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: transform 1s ease, opacity 0.5s ease; }
+.card-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; transition: transform 1s ease, opacity 0.5s ease; }
 .card:hover .card-img { transform: scale(1.08); opacity: 1; }
-.img-overlay { position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-dark), transparent); opacity: 0.8; transition: opacity 0.5s; }
+.img-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); opacity: 0.8; transition: opacity 0.5s; }
 .card:hover .img-overlay { opacity: 0.5; }
 .card-source-badge { position: absolute; top: 1.5rem; left: 1.5rem; display: flex; align-items: center; gap: 0.5rem; z-index: 2; }
 .sentiment-dot { width: 8px; height: 8px; border-radius: 50%; opacity: 0.9; box-shadow: 0 0 10px currentColor; }
@@ -83,8 +83,8 @@ body {
 .card-content { padding: 2.5rem 2rem; position: relative; }
 .card-date { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 1rem; }
 .card-title { font-size: 1.6rem; font-weight: 700; line-height: 1.35; color: var(--text-main); margin-bottom: 2rem; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.3s; }
-.card:hover .card-title { color: white; }
-.card-footer { display: flex; justify-content: space-between; align-items: center; opacity: 0.3; transition: opacity 0.4s ease, transform 0.4s ease; transform: translateY(10px); }
+.card:hover .card-title { color: var(--indigo-500); }
+.card-footer { display: flex; justify-content: space-between; align-items: center; opacity: 0.6; transition: opacity 0.4s ease, transform 0.4s ease; transform: translateY(0); }
 .card:hover .card-footer { opacity: 1; transform: translateY(0); }
 .read-more { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; color: var(--indigo-400); }
 .line { width: 40px; height: 1px; background: rgba(99, 102, 241, 0.5); transition: width 0.4s; }
