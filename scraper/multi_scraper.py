@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 HF_API_KEY = os.getenv("HF_TOKEN")
 
-from analyze_sentiment import analyze_sentiment, translate_to_euskara, rewrite_article
+from analyze_sentiment import analyze_sentiment, translate_to_euskara, translate_to_polish, rewrite_article
 
 class MultiScraper:
     def __init__(self, history_file='scraper/history.json', data_output='data/news.json'):
@@ -220,6 +220,7 @@ class MultiScraper:
                 image_url = self._generate_hf_image(title, article_id)
 
             title_eu, body_eu = translate_to_euskara(title, body)
+            title_pl, body_pl = translate_to_polish(title, body)
             title_rw, body_rw = rewrite_article(title, body)
 
             return {
@@ -228,9 +229,11 @@ class MultiScraper:
                 'url': url,
                 'title': title_rw or title or soup.title.string,
                 'title_eu': title_eu,
+                'title_pl': title_pl,
                 'image': image_url,
                 'body': body_rw or body,
                 'body_eu': body_eu,
+                'body_pl': body_pl,
                 'date': date,
                 'sentiment': sentiment,
                 'score': score,
@@ -295,6 +298,7 @@ class MultiScraper:
                 image_url = self._generate_hf_image(title, article_id)
 
             title_eu, body_eu = translate_to_euskara(title, body)
+            title_pl, body_pl = translate_to_polish(title, body)
             title_rw, body_rw = rewrite_article(title, body)
 
             return {
@@ -303,9 +307,11 @@ class MultiScraper:
                 'url': url,
                 'title': title_rw or title,
                 'title_eu': title_eu,
+                'title_pl': title_pl,
                 'image': image_url,
                 'body': body_rw or body,
                 'body_eu': body_eu,
+                'body_pl': body_pl,
                 'date': date,
                 'sentiment': sentiment,
                 'score': score,
@@ -421,6 +427,7 @@ class MultiScraper:
             is_eu = '/eu/' in url or url.endswith('-eu') or url.endswith('/eu')
 
             title_eu, body_eu = (title, body) if is_eu else translate_to_euskara(title, body)
+            title_pl, body_pl = translate_to_polish(title, body)
             title_rw, body_rw = (None, None) if is_eu else rewrite_article(title, body)
 
             return {
@@ -429,9 +436,11 @@ class MultiScraper:
                 'url': url,
                 'title': title_rw or title,
                 'title_eu': title_eu,
+                'title_pl': title_pl,
                 'image': image_url,
                 'body': body_rw or body,
                 'body_eu': body_eu,
+                'body_pl': body_pl,
                 'date': datetime.now().isoformat(),
                 'sentiment': sentiment,
                 'score': score,

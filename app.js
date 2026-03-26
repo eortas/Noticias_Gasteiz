@@ -17,11 +17,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyLangUI() {
         document.getElementById('btn-es').classList.toggle('active', currentLang === 'es');
         document.getElementById('btn-eu').classList.toggle('active', currentLang === 'eu');
+        document.getElementById('btn-pl').classList.toggle('active', currentLang === 'pl');
         const subtitle = document.getElementById('subtitle-text');
         if (subtitle) {
-            subtitle.innerHTML = currentLang === 'eu'
-                ? 'Gasteiz-ko berrien ataria. Informazioaren fluxua <span class="italic">bisual-narratibetan</span> bihurtzen dugu, adimen artifizialarekin aztertuta.'
-                : 'Tu portal de noticias de Vitoria-Gasteiz. Transformamos el flujo de información en <span class="italic">narrativas visuales</span> analizadas por inteligencia artificial.';
+            if (currentLang === 'eu') {
+                subtitle.innerHTML = 'Gasteiz-ko berrien ataria. Informazioaren fluxua <span class="italic">bisual-narratibetan</span> bihurtzen dugu, adimen artifizialarekin aztertuta.';
+            } else if (currentLang === 'pl') {
+                subtitle.innerHTML = 'Twój portal informacyjny Vitoria-Gasteiz. Przekształcamy przepływ informacji w <span class="italic">wizualne narracje</span> analizowane przez sztuczną inteligencję.';
+            } else {
+                subtitle.innerHTML = 'Tu portal de noticias de Vitoria-Gasteiz. Transformamos el flujo de información en <span class="italic">narrativas visuales</span> analizadas por inteligencia artificial.';
+            }
         }
     }
     applyLangUI();
@@ -61,19 +66,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const hasFilter = currentFilter !== null;
 
         const eu = currentLang === 'eu';
+        const pl = currentLang === 'pl';
         statsContainer.innerHTML = `
             <div class="stat-item ${currentFilter === null ? 'stat-active' : ''}" id="stat-all" style="cursor:pointer">
-                <div class="stat-label">${eu ? 'Bolumena' : 'Volumen'}</div>
-                <div class="stat-value">${total} <span style="font-size:1rem; font-weight:600; color:var(--text-muted); letter-spacing:0">${eu ? 'Albisteak' : 'Noticias'}</span> ${currentFilter === null ? '<span class="filter-dot"></span>' : ''}</div>
+                <div class="stat-label">${eu ? 'Bolumena' : (pl ? 'Wolumen' : 'Volumen')}</div>
+                <div class="stat-value">${total} <span style="font-size:1rem; font-weight:600; color:var(--text-muted); letter-spacing:0">${eu ? 'Albisteak' : (pl ? 'Wiadomości' : 'Noticias')}</span> ${currentFilter === null ? '<span class="filter-dot"></span>' : ''}</div>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item ${currentFilter === 'positiva' ? 'stat-active' : ''}" id="stat-pos" style="cursor:pointer">
-                <div class="stat-label">${eu ? 'Bibrazio Positiboa' : 'Vibe Positivo'}</div>
+                <div class="stat-label">${eu ? 'Bibrazio Positiboa' : (pl ? 'Pozytywne Wibracje' : 'Vibe Positivo')}</div>
                 <div class="stat-value text-emerald">${pctPositivas}% ${currentFilter === 'positiva' ? '<span class="filter-dot"></span>' : ''}</div>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item ${currentFilter === 'negativa' ? 'stat-active' : ''}" id="stat-neg" style="cursor:pointer">
-                <div class="stat-label">${eu ? 'Bibrazio Negatiboa' : 'Vibe Negativo'}</div>
+                <div class="stat-label">${eu ? 'Bibrazio Negatiboa' : (pl ? 'Negatywne Wibracje' : 'Vibe Negativo')}</div>
                 <div class="stat-value text-rose">${negativas} ${currentFilter === 'negativa' ? '<span class="filter-dot"></span>' : ''}</div>
             </div>
         `;
@@ -153,9 +159,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="card-content">
                         <div class="card-date">${formatDate(item.date)} ${isRead ? '<span class="read-tag">• Leído</span>' : ''}</div>
-                        <h2 class="card-title">${currentLang === 'eu' && item.title_eu ? item.title_eu : item.title}</h2>
+                        <h2 class="card-title">${currentLang === 'eu' && item.title_eu ? item.title_eu : (currentLang === 'pl' && item.title_pl ? item.title_pl : item.title)}</h2>
                         <div class="card-footer">
-                            <span class="read-more">${currentLang === 'eu' ? 'Irakurri' : 'Ver narrativa'}</span>
+                            <span class="read-more">${currentLang === 'eu' ? 'Irakurri' : (currentLang === 'pl' ? 'Czytaj więcej' : 'Ver narrativa')}</span>
                             <div class="line"></div>
                         </div>
                     </div>
@@ -187,8 +193,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const sentimentColorClass = item.sentiment === 'positiva' ? 'text-emerald' : (item.sentiment === 'negativa' ? 'text-rose' : 'text-muted');
         
         const isEu = currentLang === 'eu';
-        const displayTitle = (isEu && item.title_eu) ? item.title_eu : item.title;
-        const displayBody = (isEu && item.body_eu) ? item.body_eu : item.body;
+        const isPl = currentLang === 'pl';
+        const displayTitle = (isEu && item.title_eu) ? item.title_eu : (isPl && item.title_pl ? item.title_pl : item.title);
+        const displayBody = (isEu && item.body_eu) ? item.body_eu : (isPl && item.body_pl ? item.body_pl : item.body);
 
         const paragraphs = displayBody ? displayBody.split('\n').filter(p => p.trim() !== '') : [];
         const bodyHtml = paragraphs.map(p => `<p class="paragraph">${p}</p>`).join('');
@@ -265,20 +272,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const moodMarkerEl = document.getElementById('mood-marker');
         
         let emoji = '😐';
-        let text = currentLang === 'eu' ? 'Gasteiz neutroa da' : 'Vitoria está neutral';
+        let text = currentLang === 'eu' ? 'Gasteiz neutroa da' : (currentLang === 'pl' ? 'Vitoria jest neutralna' : 'Vitoria está neutral');
         
         if (score > 0.3) {
             emoji = '😄';
-            text = currentLang === 'eu' ? 'Gasteiz umore bikainean dago' : 'Vitoria está de excelente humor';
+            text = currentLang === 'eu' ? 'Gasteiz umore bikainean dago' : (currentLang === 'pl' ? 'Vitoria jest w doskonałym nastroju' : 'Vitoria está de excelente humor');
         } else if (score > 0.05) {
             emoji = '🙂';
-            text = currentLang === 'eu' ? 'Gasteizko eguna ona da' : 'Vitoria tiene un buen día';
+            text = currentLang === 'eu' ? 'Gasteizko eguna ona da' : (currentLang === 'pl' ? 'Vitoria ma dobry dzień' : 'Vitoria tiene un buen día');
         } else if (score < -0.3) {
             emoji = '😞';
-            text = currentLang === 'eu' ? 'Gasteizek egun zaila du' : 'Vitoria tiene un día difícil';
+            text = currentLang === 'eu' ? 'Gasteizek egun zaila du' : (currentLang === 'pl' ? 'Vitoria ma trudny dzień' : 'Vitoria tiene un día difícil');
         } else if (score < -0.05) {
             emoji = '😕';
-            text = currentLang === 'eu' ? 'Gasteiz zertxobait dekaitua dago' : 'Vitoria está algo decaída';
+            text = currentLang === 'eu' ? 'Gasteiz zertxobait dekaitua dago' : (currentLang === 'pl' ? 'Vitoria jest nieco przygnębiona' : 'Vitoria está algo decaída');
         }
         
         moodTextEl.textContent = `${text} (Score: ${score > 0 ? '+' : ''}${score})`;

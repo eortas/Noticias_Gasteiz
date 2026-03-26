@@ -142,6 +142,53 @@ ARAURIK GARRANTZITSUENAK:
         print(f"Error traduciendo al euskara: {e}")
         return None, None
 
+def translate_to_polish(title, body):
+    """
+    Traduce el título y cuerpo de una noticia al polaco usando Groq llama-3.3-70b-versatile.
+    Retorna (title_pl, body_pl) o (None, None) si falla.
+    """
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+        api_key = os.environ.get("GROQ_POLISH_KEY")
+        if not api_key:
+            return None, None
+            
+        client = Groq(api_key=api_key)
+        
+        # Truncate body at last sentence boundary before 2000 chars
+        body_truncated = body[:2000]
+        last_period = body_truncated.rfind('.')
+        if last_period > 300:
+            body_truncated = body_truncated[:last_period + 1]
+        combined = f"TITLE: {title}\n\nBODY:\n{body_truncated}"
+        
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": """Jesteś profesjonalnym tłumaczem automatycznym na język polski. 
+Twoim celem jest przetłumaczenie tekstów TITLE i BODY z JĘZYKA HISZPAŃSKIEGO na JĘZYK POLSKI.
+
+NAJWAŻNIEJSZE ZASADY:
+1. ODPOWIADAJ WYŁĄCZNIE W JĘZYKU POLSKIM. Nie używaj hiszpańskich słów.
+2. Zachowaj profesjonalny, dziennikarski styl (polska szkoła reportażu).
+3. Nie mieszaj języków. Tłumaczenie musi być naturalne i w 100% po polsku.
+4. Odpowiedz wyłącznie w formacie JSON: {"title_pl": "...", "body_pl": "..."}
+5. Nie dodawaj żadnych wyjaśnień."""},
+                {"role": "user", "content": f"PRZETŁUMACZ TEN TEKST NA POLSKI TERAZ:\n\n{combined}"}
+            ],
+            temperature=0.0,
+            max_tokens=6000,
+            response_format={"type": "json_object"}
+        )
+        
+        result_str = completion.choices[0].message.content
+        data = json.loads(result_str)
+        return data.get("title_pl"), data.get("body_pl")
+    except Exception as e:
+        print(f"Error traduciendo al polaco: {e}")
+        return None, None
+
 def rewrite_article(title, body):
     """
     Reescribe el título y cuerpo de una noticia en castellano con diferente estilo
