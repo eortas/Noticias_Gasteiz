@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const liveUpdateBadge = document.getElementById('live-update-badge');
 
     let newsData = [];
+    let moodHistoryData = [];
     let currentFilter = null;
     let currentLang = localStorage.getItem('vitoria_lang') || 'es';
     const READ_ARTICLES_KEY = 'vitoria_read_articles';
@@ -70,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('data/mood_history.json').then(res => res.json()).catch(() => [])
     ]).then(([news, moodHistory]) => {
         newsData = news;
+        moodHistoryData = moodHistory;
         if (newsData.length > 0) {
             sortNewsByReadState();
             renderStats();
@@ -78,8 +80,8 @@ document.addEventListener('DOMContentLoaded', () => {
             newsGrid.innerHTML = '<p style="color:var(--text-muted); font-weight:300;">Error cargando las narrativas. Asegúrate de haber ejecutado el scraper.</p>';
         }
         
-        if (moodHistory && moodHistory.length > 0) {
-            renderMoodWidget(moodHistory);
+        if (moodHistoryData && moodHistoryData.length > 0) {
+            renderMoodWidget(moodHistoryData);
         }
     });
 
@@ -301,8 +303,8 @@ document.addEventListener('DOMContentLoaded', () => {
         applyLangUI();
         renderStats();
         renderNewsFeed();
-        if (typeof moodHistory !== 'undefined' && moodHistory.length > 0) {
-            renderMoodWidget(moodHistory);
+        if (moodHistoryData && moodHistoryData.length > 0) {
+            renderMoodWidget(moodHistoryData);
         }
     });
 
