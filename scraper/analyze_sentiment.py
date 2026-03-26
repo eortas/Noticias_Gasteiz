@@ -110,7 +110,12 @@ def translate_to_euskara(title, body):
             
         client = Groq(api_key=api_key)
         
-        combined = f"TITLE: {title}\n\nBODY:\n{body}"
+        # Truncate body at last sentence boundary before 3000 chars so translation is coherent
+        body_truncated = body[:3000]
+        last_period = body_truncated.rfind('.')
+        if last_period > 500:  # Only cut at period if it's not too early
+            body_truncated = body_truncated[:last_period + 1]
+        combined = f"TITLE: {title}\n\nBODY:\n{body_truncated}"
         
         completion = client.chat.completions.create(
             model="llama-3.1-8b-instant",
@@ -122,10 +127,10 @@ Arauak:
 - Jatorrizko formatua mantendu
 - Responde BETI JSON formatuan, honela: {\"title_eu\": \"...\", \"body_eu\": \"...\"}
 - ez erantsi azalpenik, JSON soilik"""},
-                {"role": "user", "content": combined[:4000]}
+                {"role": "user", "content": combined}
             ],
             temperature=0.2,
-            max_tokens=4000,
+            max_tokens=6000,
             response_format={"type": "json_object"}
         )
         

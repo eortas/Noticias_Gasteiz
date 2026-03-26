@@ -60,19 +60,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const hasFilter = currentFilter !== null;
 
+        const eu = currentLang === 'eu';
         statsContainer.innerHTML = `
             <div class="stat-item ${currentFilter === null ? 'stat-active' : ''}" id="stat-all" style="cursor:pointer">
-                <div class="stat-label">Volumen</div>
-                <div class="stat-value">${total} <span style="font-size:1rem; font-weight:600; color:var(--text-muted); letter-spacing:0">Noticias</span> ${currentFilter === null ? '<span class="filter-dot"></span>' : ''}</div>
+                <div class="stat-label">${eu ? 'Bolumena' : 'Volumen'}</div>
+                <div class="stat-value">${total} <span style="font-size:1rem; font-weight:600; color:var(--text-muted); letter-spacing:0">${eu ? 'Albisteak' : 'Noticias'}</span> ${currentFilter === null ? '<span class="filter-dot"></span>' : ''}</div>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item ${currentFilter === 'positiva' ? 'stat-active' : ''}" id="stat-pos" style="cursor:pointer">
-                <div class="stat-label">Vibe Positivo</div>
+                <div class="stat-label">${eu ? 'Bibrazio Positiboa' : 'Vibe Positivo'}</div>
                 <div class="stat-value text-emerald">${pctPositivas}% ${currentFilter === 'positiva' ? '<span class="filter-dot"></span>' : ''}</div>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item ${currentFilter === 'negativa' ? 'stat-active' : ''}" id="stat-neg" style="cursor:pointer">
-                <div class="stat-label">Vibe Negativo</div>
+                <div class="stat-label">${eu ? 'Bibrazio Negatiboa' : 'Vibe Negativo'}</div>
                 <div class="stat-value text-rose">${negativas} ${currentFilter === 'negativa' ? '<span class="filter-dot"></span>' : ''}</div>
             </div>
         `;
@@ -257,20 +258,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const moodMarkerEl = document.getElementById('mood-marker');
         
         let emoji = '😐';
-        let text = 'Vitoria está neutral';
+        let text = currentLang === 'eu' ? 'Gasteiz neutroa da' : 'Vitoria está neutral';
         
         if (score > 0.3) {
             emoji = '😄';
-            text = 'Vitoria está de excelente humor';
+            text = currentLang === 'eu' ? 'Gasteiz umore bikainean dago' : 'Vitoria está de excelente humor';
         } else if (score > 0.05) {
             emoji = '🙂';
-            text = 'Vitoria tiene un buen día';
+            text = currentLang === 'eu' ? 'Gasteizko eguna ona da' : 'Vitoria tiene un buen día';
         } else if (score < -0.3) {
             emoji = '😞';
-            text = 'Vitoria tiene un día difícil';
+            text = currentLang === 'eu' ? 'Gasteizek egun zaila du' : 'Vitoria tiene un día difícil';
         } else if (score < -0.05) {
             emoji = '😕';
-            text = 'Vitoria está algo decaída';
+            text = currentLang === 'eu' ? 'Gasteiz zertxobait dekaitua dago' : 'Vitoria está algo decaída';
         }
         
         moodTextEl.textContent = `${text} (Score: ${score > 0 ? '+' : ''}${score})`;
