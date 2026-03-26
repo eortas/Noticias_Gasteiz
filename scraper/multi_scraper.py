@@ -211,7 +211,7 @@ class MultiScraper:
             if not body or "patrocinado" in title.lower() or "patrocinado" in body.lower(): 
                 return None
             
-            sentiment, score = analyze_sentiment(title + " " + body[:500])
+            sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
             # Intentar extraer imagen original, si no, generar con HF
@@ -228,7 +228,8 @@ class MultiScraper:
                 'body': body,
                 'date': date,
                 'sentiment': sentiment,
-                'score': score
+                'score': score,
+                'category': category
             }
         except:
             return None
@@ -279,7 +280,7 @@ class MultiScraper:
             date_tag = soup.find('time')
             date = date_tag['datetime'] if date_tag else datetime.now().isoformat()
             
-            sentiment, score = analyze_sentiment(title + " " + body[:500])
+            sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
             # Intentar extraer imagen original, si no, generar con HF
@@ -296,7 +297,8 @@ class MultiScraper:
                 'body': body,
                 'date': date,
                 'sentiment': sentiment,
-                'score': score
+                'score': score,
+                'category': category
             }
         except:
             return None
@@ -395,7 +397,7 @@ class MultiScraper:
             if not body or "patrocinado" in title.lower() or "patrocinado" in body.lower(): 
                 return None
             
-            sentiment, score = analyze_sentiment(title + " " + body[:500])
+            sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
             # Intentar extraer imagen original, si no, generar con HF
@@ -412,7 +414,8 @@ class MultiScraper:
                 'body': body,
                 'date': datetime.now().isoformat(), # DNA uses complex dynamic dates often
                 'sentiment': sentiment,
-                'score': score
+                'score': score,
+                'category': category
             }
         except:
             return None

@@ -129,12 +129,15 @@ document.addEventListener('DOMContentLoaded', () => {
         newsGrid.innerHTML = filteredData.map(item => {
             const isRead = readIds.includes(item.id);
             return `
-                <div class="card glass ${isRead ? 'card-read' : ''}" data-id="${item.id}">
+                <div class="card glass ${isRead ? 'card-read' : ''}" data-id="${item.id}" data-source="${item.source}">
                     <div class="card-img-wrap">
                         <img src="${item.image || ''}" alt="${item.title}" class="card-img" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
                         <div class="img-overlay"></div>
-                        <div class="card-source-badge">
-                            <div class="sentiment-dot dot-${item.sentiment}"></div>
+                        <div class="card-top-badges">
+                            <div class="card-source-badge">
+                                <div class="sentiment-dot dot-${item.sentiment}" title="Sentimiento: ${item.sentiment}"></div>
+                            </div>
+                            ${item.category && item.category !== 'Otros' ? `<div class="badge-category cat-${item.category.toLowerCase().replace('í', 'i')}">${item.category}</div>` : ''}
                         </div>
                     </div>
                     <div class="card-content">
@@ -182,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="hero-content">
                     <div class="hero-badges">
                         <span class="badge-sentiment ${sentimentColorClass}"># ${item.sentiment}</span>
+                        ${item.category ? `<span class="badge-source">${item.category}</span>` : ''}
                     </div>
                     <h1 class="hero-title">${item.title}</h1>
                 </div>
