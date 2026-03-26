@@ -60,22 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="stat-label">Vibe Negativo</div>
                 <div class="stat-value text-rose">${negativas} ${currentFilter === 'negativa' ? '<span class="filter-dot"></span>' : ''}</div>
             </div>
-            ${hasFilter ? `
-                <div class="stat-divider"></div>
-                <div class="stat-item" id="stat-reset" style="cursor:pointer; opacity: 0.8">
-                    <div class="stat-label" style="color:var(--indigo-400)">Reset</div>
-                    <div class="stat-value" style="font-size: 1.25rem; font-weight: 700">Ver todas</div>
-                </div>
-            ` : ''}
         `;
 
         // Listeners for stats
         document.getElementById('stat-all').onclick = () => setFilter(null);
         document.getElementById('stat-pos').onclick = () => setFilter('positiva');
         document.getElementById('stat-neg').onclick = () => setFilter('negativa');
-        if (hasFilter) {
-            document.getElementById('stat-reset').onclick = () => setFilter(null);
-        }
     }
 
     function setFilter(sentiment) {
