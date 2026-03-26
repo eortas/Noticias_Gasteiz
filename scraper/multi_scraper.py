@@ -304,7 +304,7 @@ class MultiScraper:
             return None
 
     def scrape_dna(self):
-        url = "https://www.noticiasdealava.eus/alava/vitoria/"
+        url = "https://www.noticiasdealava.eus/vitoria-gasteiz/"
         print(f"Scrapeando DNA: {url}")
         try:
             res = requests.get(url, headers=self.headers, timeout=15)
@@ -420,6 +420,52 @@ class MultiScraper:
         except:
             return None
 
+    def _calculate_daily_mood(self):
+        try:
+            mood_file = 'data/mood_history.json'
+            mood_history = []
+            if os.path.exists(mood_file):
+                with open(mood_file, 'r', encoding='utf-8') as f:
+                    mood_history = json.load(f)
+
+            if not os.path.exists('data/news.json'):
+                return
+                
+            with open('data/news.json', 'r', encoding='utf-8') as f:
+                news = json.load(f)
+            
+            today_str = datetime.now().strftime("%Y-%m-%d")
+            today_scores = []
+            
+            for item in news:
+                item_date = item.get('date', '')
+                if item_date.startswith(today_str):
+                    today_scores.append(item.get('score', 0))
+                    
+            if not today_scores:
+                return
+                
+            avg_score = round(sum(today_scores) / len(today_scores), 2)
+            
+            found = False
+            for entry in mood_history:
+                if entry.get('date') == today_str:
+                    entry['score'] = avg_score
+                    found = True
+                    break
+                    
+            if not found:
+                mood_history.append({"date": today_str, "score": avg_score})
+                
+            mood_history = sorted(mood_history, key=lambda x: x['date'])[-14:]
+            
+            with open(mood_file, 'w', encoding='utf-8') as f:
+                json.dump(mood_history, f, indent=4, ensure_ascii=False)
+                
+            print(f"Daily mood calculated for {today_str}: {avg_score}")
+        except Exception as e:
+            print(f"Error calculating daily mood: {e}")
+
     def run(self):
         self.scrape_el_correo()
         self.scrape_gasteiz_hoy()
@@ -427,6 +473,7 @@ class MultiScraper:
         self._save_news()
         self._save_history()
         self._cleanup_old_images()
+        self._calculate_daily_mood()
         print(f"Total noticias nuevas procesadas: {len(self.news_data)}")
 
 if __name__ == "__main__":
