@@ -18,7 +18,25 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btn-es').classList.toggle('active', currentLang === 'es');
         document.getElementById('btn-eu').classList.toggle('active', currentLang === 'eu');
         document.getElementById('btn-pl').classList.toggle('active', currentLang === 'pl');
+        
         const subtitle = document.getElementById('subtitle-text');
+        const moodTitle = document.getElementById('mood-title');
+        const backBtnText = document.getElementById('back-btn-text');
+        const footerCopyright = document.getElementById('footer-copyright');
+
+        const locales = { es: 'es-ES', eu: 'eu-ES', pl: 'pl-PL' };
+        const currentLocale = locales[currentLang] || 'es-ES';
+        let todayStr = "";
+        if (currentLang === 'eu') {
+            todayStr = getEuskaraDate(new Date());
+        } else {
+            todayStr = new Date().toLocaleDateString(currentLocale, { day: '2-digit', month: 'long' });
+        }
+        
+        if (liveUpdateBadge) {
+            liveUpdateBadge.innerHTML = `<span class="ping"></span><span class="dot"></span>Live Update • ${todayStr.toUpperCase()}`;
+        }
+
         if (subtitle) {
             if (currentLang === 'eu') {
                 subtitle.innerHTML = 'Gasteiz-ko berrien ataria. Informazioaren fluxua <span class="italic">bisual-narratibetan</span> bihurtzen dugu, adimen artifizialarekin aztertuta.';
@@ -28,13 +46,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 subtitle.innerHTML = 'Tu portal de noticias de Vitoria-Gasteiz. Transformamos el flujo de información en <span class="italic">narrativas visuales</span> analizadas por inteligencia artificial.';
             }
         }
+
+        if (moodTitle) {
+            moodTitle.textContent = currentLang === 'eu' ? 'Gasteizko "Mood"-a' : (currentLang === 'pl' ? 'Atmosfera Vitoria' : 'El "Mood"');
+        }
+
+        if (backBtnText) {
+            backBtnText.textContent = currentLang === 'eu' ? 'Atariara itzuli' : (currentLang === 'pl' ? 'Powrót do portalu' : 'Volver al portal');
+        }
+
+        if (footerCopyright) {
+            footerCopyright.textContent = `© 2026 Vitoria Live • Powered by AI.`;
+        }
     }
     applyLangUI();
 
 
-    // Set today's date
-    const today = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long' });
-    liveUpdateBadge.innerHTML = `<span class="ping"></span><span class="dot"></span>Live Update • ${today}`;
+    // Initial date will be set by applyLangUI()
 
     // Load Data
     Promise.all([
@@ -96,16 +124,35 @@ document.addEventListener('DOMContentLoaded', () => {
         renderNewsFeed();
     }
 
+    function getEuskaraDate(date, long = false) {
+        const months = ['urtarrilaren', 'otsailaren', 'martxoaren', 'apirilaren', 'maiatzaren', 'ekainaren', 'uztailaren', 'abuztuaren', 'irailaren', 'urriaren', 'azaroaren', 'abenduaren'];
+        const weekdays = ['igandea', 'astelehena', 'asteartea', 'asteazkena', 'osteguna', 'ostirala', 'larunbata'];
+        const d = date.getDate();
+        const m = months[date.getMonth()];
+        const y = date.getFullYear();
+        if (long) {
+            const w = weekdays[date.getDay()];
+            return `${y}(e)ko ${m} ${d}a, ${w}`;
+        }
+        return `${m} ${d}a`;
+    }
+
     function formatDate(dateStr) {
+        const locales = { es: 'es-ES', eu: 'eu-ES', pl: 'pl-PL' };
         try {
-            return new Date(dateStr).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+            const date = new Date(dateStr);
+            if (currentLang === 'eu') return getEuskaraDate(date);
+            return date.toLocaleDateString(locales[currentLang] || 'es-ES', { day: '2-digit', month: 'short' });
         } catch {
-            return 'Reciente';
+            return currentLang === 'eu' ? 'Berria' : (currentLang === 'pl' ? 'Najnowsze' : 'Reciente');
         }
     }
     function formatLongDate(dateStr) {
+        const locales = { es: 'es-ES', eu: 'eu-ES', pl: 'pl-PL' };
         try {
-            return new Date(dateStr).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const date = new Date(dateStr);
+            if (currentLang === 'eu') return getEuskaraDate(date, true);
+            return date.toLocaleDateString(locales[currentLang] || 'es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         } catch {
             return dateStr;
         }
@@ -158,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div class="card-content">
-                        <div class="card-date">${formatDate(item.date)} ${isRead ? '<span class="read-tag">• Leído</span>' : ''}</div>
+                        <div class="card-date">${formatDate(item.date)} ${isRead ? `<span class="read-tag">• ${currentLang === 'eu' ? 'Irakurrita' : (currentLang === 'pl' ? 'Przeczytane' : 'Leído')}</span>` : ''}</div>
                         <h2 class="card-title">${currentLang === 'eu' && item.title_eu ? item.title_eu : (currentLang === 'pl' && item.title_pl ? item.title_pl : item.title)}</h2>
                         <div class="card-footer">
                             <span class="read-more">${currentLang === 'eu' ? 'Irakurri' : (currentLang === 'pl' ? 'Czytaj więcej' : 'Ver narrativa')}</span>
@@ -226,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 
                 <div class="article-footer">
-                    <div class="footer-note">Documento verificado y analizado por IA</div>
+                    <div class="footer-note">${isEu ? 'IA bitartez egiaztatutako eta aztertutako dokumentua' : (isPl ? 'Dokument zweryfikowany i przeanalizowany przez AI' : 'Documento verificado y analizado por IA')}</div>
                 </div>
             </div>
         `;
@@ -310,7 +357,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const absScore = Math.abs(dayScore);
             const heightPct = Math.max(10, absScore * 100);
             
-            const dStr = new Date(day.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).replace('.', '');
+            const locales = { es: 'es-ES', eu: 'eu-ES', pl: 'pl-PL' };
+            const date = new Date(day.date);
+            let dStr = "";
+            if (currentLang === 'eu') {
+                dStr = getEuskaraDate(date);
+            } else {
+                dStr = date.toLocaleDateString(locales[currentLang] || 'es-ES', { day: 'numeric', month: 'short' }).replace('.', '');
+            }
             
             return `
                 <div class="history-bar-col" title="${day.date}: ${dayScore}">
