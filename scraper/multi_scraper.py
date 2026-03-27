@@ -127,45 +127,6 @@ class MultiScraper:
         with open(self.data_output, 'w', encoding='utf-8') as f:
             json.dump(latest_news, f, indent=2, ensure_ascii=False)
 
-    def _generate_hf_image(self, title, article_id):
-        if not HF_API_KEY:
-            # Fallback a pollinations si no hay key
-            prompt = urllib.parse.quote(f"Vitoria news: {title}, realistic photography")
-            return f"https://pollinations.ai/p/{prompt}?width=1024&height=1024&nologo=true&seed={article_id}"
-            
-        file_path = f"data/images/{article_id}.jpg"
-        if os.path.exists(file_path):
-            return file_path
-            
-        models = [
-            "black-forest-labs/FLUX.1-schnell",
-            "stabilityai/stable-diffusion-xl-base-1.0",
-            "runwayml/stable-diffusion-v1-5"
-        ]
-        
-        headers = {"Authorization": f"Bearer {HF_API_KEY}"}
-        payload = {"inputs": f"Editorial news photography from Vitoria-Gasteiz: {title}. Realistic, high quality, documentary style."}
-        
-        for model in models:
-            try:
-                # Actualizamos a la nueva URL del router de Hugging Face
-                API_URL = f"https://router.huggingface.co/hf-inference/models/{model}"
-                response = requests.post(API_URL, headers=headers, json=payload, timeout=25)
-                if response.status_code == 200:
-                    with open(file_path, 'wb') as f:
-                        f.write(response.content)
-                    time.sleep(2)
-                    return file_path
-                elif response.status_code == 503:
-                    # El modelo se está cargando, esperamos un poco y saltamos al siguiente o reintentamos
-                    continue
-            except Exception:
-                pass
-                
-        # Si todo falla en HF, volvemos a Pollinations como último recurso
-        prompt = urllib.parse.quote(f"Vitoria news: {title}, realistic photography, cinematic")
-        return f"https://pollinations.ai/p/{prompt}?width=1024&height=1024&nologo=true&seed={article_id}"
-
     def _get_og_image(self, soup):
         """Extrae la imagen original de los meta tags og:image."""
         meta = soup.find('meta', property='og:image')
@@ -224,16 +185,13 @@ class MultiScraper:
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
             # Intentar extraer imagen original y reinterpretarla (img2img)
-            # Si falla, generar una desde cero (t2i)
-            image_url = self._get_og_image(soup)
+            og_image = self._get_og_image(soup)
             local_image = None
-            if image_url:
-                local_image = process_and_save_image(image_url, article_id, title)
+            if og_image:
+                local_image = process_and_save_image(og_image, article_id, title)
             
-            if not local_image:
-                local_image = self._generate_hf_image(title, article_id)
-            
-            image_url = local_image
+            # Fallback final: si no hay imagen local procesada, usamos la original (hotlink)
+            image_url = local_image if local_image else og_image
 
             title_eu, body_eu = translate_to_euskara(title, body)
             title_pl, body_pl = translate_to_polish(title, body)
@@ -309,15 +267,13 @@ class MultiScraper:
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
             # Intentar extraer imagen original y reinterpretarla (img2img)
-            image_url = self._get_og_image(soup)
+            og_image = self._get_og_image(soup)
             local_image = None
-            if image_url:
-                local_image = process_and_save_image(image_url, article_id, title)
+            if og_image:
+                local_image = process_and_save_image(og_image, article_id, title)
             
-            if not local_image:
-                local_image = self._generate_hf_image(title, article_id)
-            
-            image_url = local_image
+            # Fallback final: si no hay imagen local procesada, usamos la original (hotlink)
+            image_url = local_image if local_image else og_image
 
             title_eu, body_eu = translate_to_euskara(title, body)
             title_pl, body_pl = translate_to_polish(title, body)
@@ -441,15 +397,13 @@ class MultiScraper:
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
             # Intentar extraer imagen original y reinterpretarla (img2img)
-            image_url = self._get_og_image(soup)
+            og_image = self._get_og_image(soup)
             local_image = None
-            if image_url:
-                local_image = process_and_save_image(image_url, article_id, title)
+            if og_image:
+                local_image = process_and_save_image(og_image, article_id, title)
             
-            if not local_image:
-                local_image = self._generate_hf_image(title, article_id)
-            
-            image_url = local_image
+            # Fallback final: si no hay imagen local procesada, usamos la original (hotlink)
+            image_url = local_image if local_image else og_image
 
             # DNA publishes bilingual content - detect if article is in Euskara
             is_eu = '/eu/' in url or url.endswith('-eu') or url.endswith('/eu')

@@ -5,3 +5,4 @@ groq
 python-dotenv
 Pillow
 urllib3
+huggingface_hub
