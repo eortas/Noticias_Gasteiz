@@ -26,8 +26,16 @@ class MultiScraper:
 
     def _load_history(self):
         if os.path.exists(self.history_file):
-            with open(self.history_file, 'r', encoding='utf-8') as f:
-                return set(json.load(f))
+            try:
+                with open(self.history_file, 'r', encoding='utf-8') as f:
+                    content = f.read().strip()
+                    if not content:
+                        return set()
+                    return set(json.loads(content))
+            except (json.JSONDecodeError, Exception) as e:
+                print(f"Warning: Could not load history from {self.history_file}: {e}")
+                print("Starting with fresh history.")
+                return set()
         return set()
 
     def _save_history(self):
