@@ -31,72 +31,109 @@ def download_image_pil(url):
 # global session for connection pooling
 session = requests.Session()
 
-def reinterpret_image(image_pil, context_text, strength=0.6, max_retries=3):
+def reinterpret_image(image_pil, context_text, strength=0.5, max_retries=2):
     """
-    Transforms an existing PIL image using img2img with multi-model fallback.
-    Optimized for stability with smaller payloads and multiple model options.
+    Transforms an existing PIL image into a derivative work.
+    Pipeline:
+      1. HF router img2img (runwayml/SD-v1-5) — dual token
+      2. OpenCV illustration filter (free, local, always works)
     """
-    hf_tokens = [t for t in [os.getenv("HF_TOKEN"), os.getenv("HF2_TOKEN")] if t]
-    if not hf_tokens:
-        print("No HF tokens available for img2img.")
-        return None
+    import base64, io as _io
 
-    # Models to try in sequence - SDXL is now primary for better realism
-    models = [
+    # Resize for HF compatibility
+    img_copy = image_pil.copy()
+    img_copy.thumbnail((768, 768), Image.Resampling.LANCZOS)
+    buf = _io.BytesIO()
+    img_copy.save(buf, format='JPEG', quality=80)
+    img_b64 = base64.b64encode(buf.getvalue()).decode()
+
+    prompt = f"Professional news photography of Vitoria-Gasteiz: {context_text}. Photorealistic, high quality."
+
+    # --- Layer 1: HF Router img2img ---
+    hf_tokens = [t for t in [os.getenv("HF_TOKEN"), os.getenv("HF2_TOKEN")] if t]
+    hf_models = [
+        "runwayml/stable-diffusion-v1-5",
         "stabilityai/stable-diffusion-xl-base-1.0",
-        "stabilityai/stable-diffusion-2-1",
-        "runwayml/stable-diffusion-v1-5"
     ]
-    
     for token in hf_tokens:
-        token_headers = {'Authorization': f'Bearer {token}', 'Connection': 'close'}
-        for attempt in range(max_retries):
-            model = models[attempt % len(models)]
-            api_url = f"https://api-inference.huggingface.co/models/{model}"
-            
+        headers = {"Authorization": f"Bearer {token}"}
+        for model in hf_models:
+            url = f"https://router.huggingface.co/hf-inference/models/{model}/image-to-image"
+            payload = {
+                "inputs": img_b64,
+                "parameters": {
+                    "prompt": prompt,
+                    "strength": strength,
+                    "guidance_scale": 8.0
+                }
+            }
             try:
-                files = {
-                    "image": ("image.jpg", img_bytes, "image/jpeg")
-                }
-                # Custom parameters for news fidelity
-                params = {
-                    "strength": 0.45,       # "Punto Dulce" for structural fidelity
-                    "guidance_scale": 8.0,  # Strict adherence to contextual prompt
-                    "num_inference_steps": 30 # High detail for professional look
-                }
-                
-                data = {
-                    "inputs": prompt,
-                    "parameters": json.dumps(params)
-                }
-                
-                print(f"Attempting img2img with {model} (Attempt {attempt+1}/{max_retries}, Token {token[:6]}...)...")
-                
-                response = session.post(api_url, headers=token_headers, files=files, data=data, timeout=60)
-                
-                if response.status_code == 200:
-                    if response.headers.get('Content-Type', '').startswith('image/'):
-                        return Image.open(BytesIO(response.content))
-                    else:
-                        print(f"HF returned non-image content: {response.text[:100]}")
-                
-                elif response.status_code == 503:
-                    wait_time = (attempt + 1) * 10
-                    print(f"Model {model} loading. Waiting {wait_time}s...")
-                    time.sleep(wait_time)
-                
-                elif response.status_code == 429:
-                    print(f"Rate limit (429) for token {token[:6]}... Moving to next token/model.")
-                    break # Break inner loop, try next token immediately
-                
+                print(f"  HF img2img ({model[:30]}..., token {token[:6]}...)...")
+                resp = session.post(url, headers=headers, json=payload, timeout=45)
+                if resp.status_code == 200 and resp.headers.get("Content-Type", "").startswith("image/"):
+                    result = Image.open(_io.BytesIO(resp.content)).convert("RGB")
+                    print(f"  ✓ HF img2img success!")
+                    return result
+                elif resp.status_code == 503:
+                    print(f"  Model loading (503), skipping...")
+                elif resp.status_code == 429:
+                    print(f"  Rate limit (429) for token {token[:6]}, trying next token...")
+                    break
                 else:
-                    print(f"HF API Error ({model}): {response.status_code}")
-            
-            except (requests.exceptions.RequestException, Exception) as e:
-                print(f"Network error ({model}): {e}")
-                time.sleep(5)
-    
+                    print(f"  HF img2img failed: {resp.status_code} {resp.text[:80]}")
+            except Exception as e:
+                print(f"  HF img2img error: {e}")
+
+    # --- Layer 2: OpenCV Illustration Filter (always available) ---
+    print(f"  Falling back to OpenCV illustration filter...")
+    try:
+        import cv2
+        import numpy as np
+
+        # Crop/resize to 1024x1024
+        target = 1024
+        w, h = image_pil.size
+        aspect = w / h
+        if aspect > 1:
+            new_w = int(target * aspect)
+            image_pil = image_pil.resize((new_w, target), Image.Resampling.LANCZOS)
+            left = (image_pil.width - target) // 2
+            image_pil = image_pil.crop((left, 0, left + target, target))
+        else:
+            new_h = int(target / aspect)
+            image_pil = image_pil.resize((target, new_h), Image.Resampling.LANCZOS)
+            top = (image_pil.height - target) // 2
+            image_pil = image_pil.crop((0, top, target, top + target))
+
+        img = cv2.cvtColor(np.array(image_pil), cv2.COLOR_RGB2BGR)
+
+        # Edge mask (comic lines)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        gray = cv2.medianBlur(gray, 7)
+        edges = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 2)
+
+        # Painted color (bilateral filter × 3)
+        color = img.copy()
+        for _ in range(3):
+            color = cv2.bilateralFilter(color, d=9, sigmaColor=250, sigmaSpace=250)
+
+        # Boost saturation
+        hsv = cv2.cvtColor(color, cv2.COLOR_BGR2HSV).astype(np.float32)
+        hsv[:, :, 1] = np.clip(hsv[:, :, 1] * 1.3, 0, 255)
+        color = cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2BGR)
+
+        # Combine edges + color
+        cartoon = cv2.bitwise_and(color, color, mask=edges)
+        cartoon_rgb = cv2.cvtColor(cartoon, cv2.COLOR_BGR2RGB)
+        print(f"  ✓ OpenCV illustration applied.")
+        return Image.fromarray(cartoon_rgb)
+
+    except Exception as e:
+        print(f"  OpenCV filter failed: {e}")
+
     return None
+
+
 
 import urllib.parse
 
