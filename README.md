@@ -1,46 +1,32 @@
-# Astro Starter Kit: Basics
+# Vitoria Live • AI News Portal
 
-```sh
-npm create astro@latest -- --template basics
-```
+Un portal de noticias inteligente para Vitoria-Gasteiz, impulsado por Inteligencia Artificial para ofrecer una visión trilingüe y analítica de la actualidad local.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## 🚀 Características Principales
 
-## 🚀 Project Structure
+-   **Trilingüe**: Traducido íntegramente al **Castellano**, **Euskara** y **Polaco**.
+-   **Análisis de Sentimiento**: Clasificación automática de noticias en positivas, negativas o neutrales mediante **IA**
+-   **Vitoria "Mood"**: Un widget visual que sintetiza el estado de ánimo de la ciudad basado en las noticias del último día.
+-   **Indexación y Curación**: Las noticias son indexadas y procesadas mediante IA para ofrecer un contenido optimizado, preciso y en múltiples idiomas.
+-   **Feed Dinámico**: Las noticias ya leídas se desplazan automáticamente al final del feed para priorizar el contenido nuevo, siguiendo la lógica de usabilidad de las plataformas de contenido más modernas.
+-   **Experiencia Premium**: Interfaz moderna con animaciones suaves, filtrado por sentimiento y preservación de scroll durante la navegación.
 
-Inside of your Astro project, you'll see the following folders and files:
+## 🛠️ Arquitectura Técnica
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
-```
+### Frontend
+-   Vainilla JavaScript, HTML5 y CSS3.
+-   SPA (Single Page Application) ligera y rápida.
+-   Consumo de datos estáticos desde `data/news.json`.
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+### Backend (Scraper & AI)
+-   **Python**: Corazón del procesamiento de datos.
+-   **Groq API**: Utilizado para análisis de sentimiento, traducción y procesamiento de contenido.
+-   **Almacenamiento**: Base de datos en formato JSON para máxima portabilidad y velocidad.
 
-## 🧞 Commands
+## 📦 Instalación y Uso
 
-All commands are run from the root of the project, from a terminal:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+-   Visita **https://gasteizlive.pages.dev/** actualización automática para no perderte nada.
 
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+---
+*Desarrollado con ❤️ para Vitoria-Gasteiz.*
