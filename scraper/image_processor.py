@@ -36,20 +36,11 @@ def reinterpret_image(image_pil, context_text, strength=0.6, max_retries=3):
     Transforms an existing PIL image using img2img with multi-model fallback.
     Optimized for stability with smaller payloads and multiple model options.
     """
-    if not HF_TOKEN:
-        print("HF_TOKEN missing. Skipping img2img.")
+    hf_tokens = [t for t in [os.getenv("HF_TOKEN"), os.getenv("HF2_TOKEN")] if t]
+    if not hf_tokens:
+        print("No HF tokens available for img2img.")
         return None
 
-    # Resize to 768x768 to reduce payload size and IncompleteRead errors
-    image_pil.thumbnail((768, 768))
-    
-    img_byte_arr = BytesIO()
-    image_pil.save(img_byte_arr, format='JPEG', quality=75)
-    img_bytes = img_byte_arr.getvalue()
-
-    # Optimize prompt based on user's faithful reimagining strategy
-    prompt = f"Professional news photography, Vitoria-Gasteiz, preserving composition of input, scene about: {context_text}. High realistic detail, photojournalism style."
-    
     # Models to try in sequence - SDXL is now primary for better realism
     models = [
         "stabilityai/stable-diffusion-xl-base-1.0",
@@ -57,54 +48,53 @@ def reinterpret_image(image_pil, context_text, strength=0.6, max_retries=3):
         "runwayml/stable-diffusion-v1-5"
     ]
     
-    for attempt in range(max_retries):
-        model = models[attempt % len(models)]
-        api_url = f"https://api-inference.huggingface.co/models/{model}"
-        
-        try:
-            files = {
-                "image": ("image.jpg", img_bytes, "image/jpeg")
-            }
-            # Custom parameters for news fidelity
-            params = {
-                "strength": 0.45,       # "Punto Dulce" for structural fidelity
-                "guidance_scale": 8.0,  # Strict adherence to contextual prompt
-                "num_inference_steps": 30 # High detail for professional look
-            }
+    for token in hf_tokens:
+        token_headers = {'Authorization': f'Bearer {token}', 'Connection': 'close'}
+        for attempt in range(max_retries):
+            model = models[attempt % len(models)]
+            api_url = f"https://api-inference.huggingface.co/models/{model}"
             
-            data = {
-                "inputs": prompt,
-                "parameters": json.dumps(params)
-            }
-            
-            print(f"Attempting img2img with {model} (Attempt {attempt+1}/{max_retries})...")
-            
-            headers = HEADERS.copy()
-            headers['Connection'] = 'close'
-            
-            response = session.post(api_url, headers=headers, files=files, data=data, timeout=60)
-            
-            if response.status_code == 200:
-                if response.headers.get('Content-Type', '').startswith('image/'):
-                    return Image.open(BytesIO(response.content))
+            try:
+                files = {
+                    "image": ("image.jpg", img_bytes, "image/jpeg")
+                }
+                # Custom parameters for news fidelity
+                params = {
+                    "strength": 0.45,       # "Punto Dulce" for structural fidelity
+                    "guidance_scale": 8.0,  # Strict adherence to contextual prompt
+                    "num_inference_steps": 30 # High detail for professional look
+                }
+                
+                data = {
+                    "inputs": prompt,
+                    "parameters": json.dumps(params)
+                }
+                
+                print(f"Attempting img2img with {model} (Attempt {attempt+1}/{max_retries}, Token {token[:6]}...)...")
+                
+                response = session.post(api_url, headers=token_headers, files=files, data=data, timeout=60)
+                
+                if response.status_code == 200:
+                    if response.headers.get('Content-Type', '').startswith('image/'):
+                        return Image.open(BytesIO(response.content))
+                    else:
+                        print(f"HF returned non-image content: {response.text[:100]}")
+                
+                elif response.status_code == 503:
+                    wait_time = (attempt + 1) * 10
+                    print(f"Model {model} loading. Waiting {wait_time}s...")
+                    time.sleep(wait_time)
+                
+                elif response.status_code == 429:
+                    print(f"Rate limit (429) for token {token[:6]}... Moving to next token/model.")
+                    break # Break inner loop, try next token immediately
+                
                 else:
-                    print(f"HF returned non-image content: {response.text[:100]}")
+                    print(f"HF API Error ({model}): {response.status_code}")
             
-            elif response.status_code == 503:
-                wait_time = (attempt + 1) * 10
-                print(f"Model {model} loading. Waiting {wait_time}s...")
-                time.sleep(wait_time)
-            
-            elif response.status_code == 429:
-                print("Rate limit (429). Waiting 30s...")
-                time.sleep(30)
-            
-            else:
-                print(f"HF API Error ({model}): {response.status_code}")
-        
-        except (requests.exceptions.RequestException, Exception) as e:
-            print(f"Network error ({model}): {e}")
-            time.sleep(5)
+            except (requests.exceptions.RequestException, Exception) as e:
+                print(f"Network error ({model}): {e}")
+                time.sleep(5)
     
     return None
 
@@ -126,27 +116,33 @@ def generate_hf_image(title, article_id, output_dir='data/images'):
     
     prompt = f"Professional news photography from Vitoria-Gasteiz: {title}. Realistic, high quality."
     
-    for model in models:
-        api_url = f"https://api-inference.huggingface.co/models/{model}"
-        print(f"  Trying HF Text-to-Image with {model}...")
-        try:
-            response = session.post(api_url, headers=HEADERS, json={"inputs": prompt}, timeout=30)
-            if response.status_code == 200:
-                content = response.content
-                valid_magic = len(content) > 2 and ((content[0] == 0xFF and content[1] == 0xD8) or (content[0] == 0x89 and content[1] == 0x50))
-                if valid_magic:
-                    with open(file_path, 'wb') as f:
-                        f.write(content)
-                    print(f"Generated image saved locally: {file_path}")
-                    return f"data/images/{article_id}.jpg"
-            elif response.status_code == 503:
-                print(f"  Model {model} loading, skipping...")
-            else:
-                print(f"  Failed: {response.status_code}")
-        except Exception as e:
-            print(f"  Error with {model}: {e}")
+    hf_tokens = [t for t in [os.getenv("HF_TOKEN"), os.getenv("HF2_TOKEN")] if t]
+    if not hf_tokens:
+        print("No HF tokens available.")
+        
+    for token in hf_tokens:
+        token_headers = {"Authorization": f"Bearer {token}"}
+        for model in models:
+            api_url = f"https://api-inference.huggingface.co/models/{model}"
+            print(f"  Trying HF Text-to-Image with {model} (Token {token[:6]}...)...")
+            try:
+                response = session.post(api_url, headers=token_headers, json={"inputs": prompt}, timeout=30)
+                if response.status_code == 200:
+                    content = response.content
+                    valid_magic = len(content) > 2 and ((content[0] == 0xFF and content[1] == 0xD8) or (content[0] == 0x89 and content[1] == 0x50))
+                    if valid_magic:
+                        with open(file_path, 'wb') as f:
+                            f.write(content)
+                        print(f"Generated image saved locally: {file_path}")
+                        return f"data/images/{article_id}.jpg"
+                elif response.status_code == 503:
+                    print(f"  Model {model} loading, skipping...")
+                else:
+                    print(f"  Failed: {response.status_code}")
+            except Exception as e:
+                print(f"  Error with {model}: {e}")
             
-    print(f"All HF models failed for {article_id}. Falling back to Pollinations API...")
+    print(f"All HF models and tokens failed for {article_id}. Falling back to Pollinations API...")
     import urllib.parse
     encoded_prompt = urllib.parse.quote(f"Vitoria news: {title}, realistic photography, cinematic")
     
