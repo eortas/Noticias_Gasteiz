@@ -175,6 +175,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    let lastScrollPos = 0;
+
     function renderNewsFeed() {
         if (!newsData || newsData.length === 0) {
             newsGrid.innerHTML = '<p style="color:var(--text-muted); font-weight:300;">No hay noticias disponibles.</p>';
@@ -221,6 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add click events to cards
         document.querySelectorAll('.card').forEach(card => {
             card.addEventListener('click', (e) => {
+                lastScrollPos = window.scrollY; // Save scroll POS
                 const id = e.currentTarget.getAttribute('data-id');
                 showDetail(id);
             });
@@ -293,7 +296,8 @@ document.addEventListener('DOMContentLoaded', () => {
         detailView.classList.replace('view-active', 'view-hidden');
         backNav.classList.replace('view-active', 'view-hidden');
         mainView.classList.replace('view-hidden', 'view-active');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Restore scroll position
+        window.scrollTo({ top: lastScrollPos, behavior: 'instant' });
     });
 
     // Handle language changes from the toggle buttons
