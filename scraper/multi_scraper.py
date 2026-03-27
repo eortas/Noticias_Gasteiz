@@ -194,7 +194,9 @@ class MultiScraper:
             image_url = local_image if local_image else og_image
 
             title_eu, body_eu = translate_to_euskara(title, body)
+            time.sleep(1)
             title_pl, body_pl = translate_to_polish(title, body)
+            time.sleep(1)
             title_rw, body_rw = rewrite_article(title, body)
 
             return {
@@ -276,7 +278,9 @@ class MultiScraper:
             image_url = local_image if local_image else og_image
 
             title_eu, body_eu = translate_to_euskara(title, body)
+            time.sleep(1)
             title_pl, body_pl = translate_to_polish(title, body)
+            time.sleep(1)
             title_rw, body_rw = rewrite_article(title, body)
 
             return {
@@ -409,7 +413,9 @@ class MultiScraper:
             is_eu = '/eu/' in url or url.endswith('-eu') or url.endswith('/eu')
 
             title_eu, body_eu = (title, body) if is_eu else translate_to_euskara(title, body)
+            time.sleep(1)
             title_pl, body_pl = translate_to_polish(title, body)
+            time.sleep(1)
             title_rw, body_rw = (None, None) if is_eu else rewrite_article(title, body)
 
             return {
