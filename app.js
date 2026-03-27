@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
             text = currentLang === 'eu' ? 'Gasteizek egun zaila du' : (currentLang === 'pl' ? 'Vitoria ma trudny dzień' : 'Vitoria tiene un día difícil');
         } else if (score < -0.05) {
             emoji = '😕';
-            text = currentLang === 'eu' ? 'Gasteiz zertxobait dekaitua dago' : (currentLang === 'pl' ? 'Vitoria jest nieco przygnębiona' : 'Vitoria está algo decaída');
+            text = currentLang === 'eu' ? 'Gasteiz zertxobait goibel dago' : (currentLang === 'pl' ? 'Vitoria jest nieco przygnębiona' : 'Vitoria está algo decaída');
         }
         
         moodTextEl.textContent = `${text} (Score: ${score > 0 ? '+' : ''}${score})`;
