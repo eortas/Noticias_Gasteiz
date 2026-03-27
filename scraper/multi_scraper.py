@@ -13,6 +13,7 @@ load_dotenv()
 HF_API_KEY = os.getenv("HF_TOKEN")
 
 from analyze_sentiment import analyze_sentiment, translate_to_euskara, translate_to_polish, rewrite_article
+from image_processor import process_and_save_image
 
 class MultiScraper:
     def __init__(self, history_file='scraper/history.json', data_output='data/news.json'):
@@ -214,10 +215,17 @@ class MultiScraper:
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
-            # Intentar extraer imagen original, si no, generar con HF
+            # Intentar extraer imagen original y reinterpretarla (img2img)
+            # Si falla, generar una desde cero (t2i)
             image_url = self._get_og_image(soup)
-            if not image_url:
-                image_url = self._generate_hf_image(title, article_id)
+            local_image = None
+            if image_url:
+                local_image = process_and_save_image(image_url, article_id, title)
+            
+            if not local_image:
+                local_image = self._generate_hf_image(title, article_id)
+            
+            image_url = local_image
 
             title_eu, body_eu = translate_to_euskara(title, body)
             title_pl, body_pl = translate_to_polish(title, body)
@@ -292,10 +300,16 @@ class MultiScraper:
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
-            # Intentar extraer imagen original, si no, generar con HF
+            # Intentar extraer imagen original y reinterpretarla (img2img)
             image_url = self._get_og_image(soup)
-            if not image_url:
-                image_url = self._generate_hf_image(title, article_id)
+            local_image = None
+            if image_url:
+                local_image = process_and_save_image(image_url, article_id, title)
+            
+            if not local_image:
+                local_image = self._generate_hf_image(title, article_id)
+            
+            image_url = local_image
 
             title_eu, body_eu = translate_to_euskara(title, body)
             title_pl, body_pl = translate_to_polish(title, body)
@@ -418,10 +432,16 @@ class MultiScraper:
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
-            # Intentar extraer imagen original, si no, generar con HF
+            # Intentar extraer imagen original y reinterpretarla (img2img)
             image_url = self._get_og_image(soup)
-            if not image_url:
-                image_url = self._generate_hf_image(title, article_id)
+            local_image = None
+            if image_url:
+                local_image = process_and_save_image(image_url, article_id, title)
+            
+            if not local_image:
+                local_image = self._generate_hf_image(title, article_id)
+            
+            image_url = local_image
 
             # DNA publishes bilingual content - detect if article is in Euskara
             is_eu = '/eu/' in url or url.endswith('-eu') or url.endswith('/eu')
