@@ -145,12 +145,17 @@ def generate_hf_image(title, article_id, output_dir='data/images'):
     try:
         response = session.get(pollinations_url, timeout=20)
         if response.status_code == 200:
+            content = response.content
+            if len(content) < 10000:
+                print(f"  [Error] Image from {pollinations_url} is too small ({len(content)} bytes), likely an error page.")
+                return None
+                
             with open(file_path, 'wb') as f:
-                f.write(response.content)
+                f.write(content)
             print(f"Fallback image saved locally: {file_path}")
             return f"data/images/{article_id}.jpg"
     except Exception as e:
-        print(f"Pollinations fallback failed: {e}")
+        print(f"  [Error] Failed to download image from {pollinations_url}: {e}")
         
     return pollinations_url # Extreme fallback to URL
 

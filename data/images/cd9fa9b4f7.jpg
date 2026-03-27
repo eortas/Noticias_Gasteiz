@@ -1,78 +1,1578 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Theme & Description -->
-    <meta name="theme-color" content="#E8F372" />
-    <meta name="description" content="Build AI apps with easy APIs, free compute, and community support" />
-    
-    <!-- Favicons -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png" />
-    <link rel="apple-touch-icon" sizes="167x167" href="/apple-touch-icon-167x167.png" />
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="canonical" href="https://pollinations.ai" />
-    
-    <!-- iOS Meta Tags -->
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="pollinations.ai" />
-    
-    <!-- Open Graph / Social Media -->
-    <meta property="og:title" content="pollinations.ai" />
-    <meta property="og:description" content="Build AI apps with easy APIs, free compute, and community support" />
-    <meta property="og:image" content="https://pollinations.ai/og-image.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="pollinations.ai logo" />
-    <meta property="og:locale" content="en_US" />
-    <meta property="og:site_name" content="pollinations.ai" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://pollinations.ai" />
-    
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@pollinations_ai" />
-    <meta name="twitter:title" content="pollinations.ai" />
-    <meta name="twitter:description" content="Build AI apps with easy APIs, free compute, and community support" />
-    <meta name="twitter:image" content="https://pollinations.ai/og-image.png" />
-    <meta name="twitter:image:alt" content="pollinations.ai logo" />
-    
-    <!-- Fonts (display=swap prevents FOIT) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;700&display=swap" />
 
-    <title>pollinations.ai</title>
-    <script type="module" crossorigin src="/assets/index-DdHc9m_N.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/vendor-Ca1QZqnV.js">
-    <link rel="modulepreload" crossorigin href="/assets/markdown-DIISHYfb.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-BdLDApWk.css">
-  </head>
-  <body>
-    <div id="root"></div>
-    <noscript>
-      <div style="font-family:sans-serif;padding:2rem;max-width:600px;margin:0 auto">
-        <h1>pollinations.ai</h1>
-        <p>Build AI apps with easy APIs, free compute, and community support. Generate images, text, audio and video with state-of-the-art AI models.</p>
-        <nav style="margin-top:1rem">
-          <a href="/">Home</a> &middot;
-          <a href="/play">Play</a> &middot;
-          <a href="/apps">Apps</a> &middot;
-          <a href="/community">Community</a> &middot;
-          <a href="https://enter.pollinations.ai/api/docs">API Docs</a>
-        </nav>
-        <p style="margin-top:1rem;font-size:0.875rem;color:#666">Enable JavaScript for full functionality.</p>
+<!DOCTYPE html>
+<html lang="es" style="margin-top: 0px;">
+
+<head>
+
+    <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5MH2ZS');</script>
+  <!-- Google Tag Manager -->
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+
+    <meta charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+    <link rel="alternate" type="application/rss+xml" title="Gasteiz Hoy RSS" href="https://www.gasteizhoy.com/feed/" />
+    
+    <meta name="theme-color" content="#009836">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <script async src="https://cdn.ampproject.org/v0.js"></script>
+    <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+    
+    <script async custom-element="amp-anim" src="https://cdn.ampproject.org/v0/amp-anim-0.1.js"></script>
+    <script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>
+    <script async custom-element="amp-sidebar" src="https://cdn.ampproject.org/v0/amp-sidebar-0.1.js"></script>
+    <script async custom-element="amp-mega-menu" src="https://cdn.ampproject.org/v0/amp-mega-menu-0.1.js"></script>
+    <script async custom-element="amp-bind" src="https://cdn.ampproject.org/v0/amp-bind-0.1.js"></script>
+    <script async custom-element="amp-video" src="https://cdn.ampproject.org/v0/amp-video-0.1.js"></script>
+    <script async custom-element="amp-sticky-ad" src="https://cdn.ampproject.org/v0/amp-sticky-ad-1.0.js"></script>
+    <script async custom-element="amp-iframe" src="https://cdn.ampproject.org/v0/amp-iframe-0.1.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+	<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
+
+    <meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
+
+	<!-- This site is optimized with the Yoast SEO Premium plugin v27.2 (Yoast SEO v27.2) - https://yoast.com/product/yoast-seo-premium-wordpress/ -->
+	<title>Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores</title>
+	<meta name="description" content="Korrika 2026 recorrerá Álava el 23, 26 y 27 de marzo y ese viernes llegará a Vitoria-Gasteiz sobre las 20:59" />
+	<link rel="canonical" href="https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/" />
+	<meta property="og:locale" content="es_ES" />
+	<meta property="og:type" content="article" />
+	<meta property="og:title" content="Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores" />
+	<meta property="og:description" content="Korrika 2026 recorrerá Álava el 23, 26 y 27 de marzo y ese viernes llegará a Vitoria-Gasteiz sobre las 20:59" />
+	<meta property="og:url" content="https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/" />
+	<meta property="og:site_name" content="Gasteiz Hoy" />
+	<meta property="article:publisher" content="https://facebook.com/gasteizhoy" />
+	<meta property="article:published_time" content="2026-03-27T07:00:30+00:00" />
+	<meta property="article:modified_time" content="2026-03-27T09:26:53+00:00" />
+	<meta property="og:image" content="https://www.gasteizhoy.com/wp-content/uploads/2026/03/KOrrika-gasteiz-2026.jpeg" />
+	<meta property="og:image:width" content="2048" />
+	<meta property="og:image:height" content="1152" />
+	<meta property="og:image:type" content="image/jpeg" />
+	<meta name="author" content="Beatriz Corral" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:creator" content="@gasteizhoy" />
+	<meta name="twitter:site" content="@gasteizhoy" />
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https://schema.org","@graph":[{"@type":"NewsArticle","@id":"https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/#article","isPartOf":{"@id":"https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/"},"author":{"name":"Beatriz Corral","@id":"https://www.gasteizhoy.com/#/schema/person/acf1d5fca920a14438f336fdf590b3fa"},"headline":"Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores","datePublished":"2026-03-27T07:00:30+00:00","dateModified":"2026-03-27T09:26:53+00:00","mainEntityOfPage":{"@id":"https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/"},"wordCount":398,"publisher":{"@id":"https://www.gasteizhoy.com/#organization"},"image":{"@id":"https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/#primaryimage"},"thumbnailUrl":"https://www.gasteizhoy.com/wp-content/uploads/2026/03/KOrrika-gasteiz-2026.jpeg","articleSection":["Superdestacada","Deportes","Agenda","Álava"],"inLanguage":"es","copyrightYear":"2026","copyrightHolder":{"@id":"https://www.gasteizhoy.com/#organization"}},{"@type":"WebPage","@id":"https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/","url":"https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/","name":"Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores","isPartOf":{"@id":"https://www.gasteizhoy.com/#website"},"primaryImageOfPage":{"@id":"https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/#primaryimage"},"image":{"@id":"https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/#primaryimage"},"thumbnailUrl":"https://www.gasteizhoy.com/wp-content/uploads/2026/03/KOrrika-gasteiz-2026.jpeg","datePublished":"2026-03-27T07:00:30+00:00","dateModified":"2026-03-27T09:26:53+00:00","description":"Korrika 2026 recorrerá Álava el 23, 26 y 27 de marzo y ese viernes llegará a Vitoria-Gasteiz sobre las 20:59","breadcrumb":{"@id":"https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/#breadcrumb"},"inLanguage":"es","potentialAction":[{"@type":"ReadAction","target":["https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/"]}]},{"@type":"ImageObject","inLanguage":"es","@id":"https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/#primaryimage","url":"https://www.gasteizhoy.com/wp-content/uploads/2026/03/KOrrika-gasteiz-2026.jpeg","contentUrl":"https://www.gasteizhoy.com/wp-content/uploads/2026/03/KOrrika-gasteiz-2026.jpeg","width":2048,"height":1152},{"@type":"BreadcrumbList","@id":"https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"","item":"https://www.gasteizhoy.com/"},{"@type":"ListItem","position":2,"name":"Álava","item":"https://www.gasteizhoy.com/alava/"},{"@type":"ListItem","position":3,"name":"Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores"}]},{"@type":"WebSite","@id":"https://www.gasteizhoy.com/#website","url":"https://www.gasteizhoy.com/","name":"Gasteiz Hoy","description":"Información independiente de Vitoria y Álava","publisher":{"@id":"https://www.gasteizhoy.com/#organization"},"potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://www.gasteizhoy.com/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"es"},{"@type":"Organization","@id":"https://www.gasteizhoy.com/#organization","name":"Gasteiz Hoy","url":"https://www.gasteizhoy.com/","logo":{"@type":"ImageObject","inLanguage":"es","@id":"https://www.gasteizhoy.com/#/schema/logo/image/","url":"https://www.gasteizhoy.com/wp-content/uploads/2021/04/logo-gasteizhoy.png","contentUrl":"https://www.gasteizhoy.com/wp-content/uploads/2021/04/logo-gasteizhoy.png","width":704,"height":274,"caption":"Gasteiz Hoy"},"image":{"@id":"https://www.gasteizhoy.com/#/schema/logo/image/"},"sameAs":["https://facebook.com/gasteizhoy","https://x.com/gasteizhoy","https://instagram.com/gasteizhoy","https://www.linkedin.com/company/gasteizhoy","https://youtube.com/gasteizhoy"]},{"@type":"Person","@id":"https://www.gasteizhoy.com/#/schema/person/acf1d5fca920a14438f336fdf590b3fa","name":"Beatriz Corral","url":"https://www.gasteizhoy.com/author/beatriz/"}]}</script>
+	<!-- / Yoast SEO Premium plugin. -->
+
+
+<link rel='dns-prefetch' href='//fonts.googleapis.com' />
+<style id='wp-img-auto-sizes-contain-inline-css' type='text/css'>
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<link rel='stylesheet' id='mec-select2-style-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/select2/select2.min.css?ver=7.31.0-b-modified-1772635630' type='text/css' media='all' />
+<link rel='stylesheet' id='mec-font-icons-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/css/iconfonts.css?ver=7.31.0-b-modified-1772635630' type='text/css' media='all' />
+<link rel='stylesheet' id='mec-frontend-style-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/css/frontend.min.css?ver=7.31.0-b-modified-1772635827' type='text/css' media='all' />
+<link rel='stylesheet' id='mec-tooltip-style-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/tooltip/tooltip.css?ver=7.31.0-b-modified-1772635630' type='text/css' media='all' />
+<link rel='stylesheet' id='mec-tooltip-shadow-style-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/tooltip/tooltipster-sideTip-shadow.min.css?ver=7.31.0-b-modified-1772635630' type='text/css' media='all' />
+<link rel='stylesheet' id='featherlight-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/featherlight/featherlight.css?ver=7.31.0-b-modified-1772635630' type='text/css' media='all' />
+<link rel='stylesheet' id='mec-custom-google-font-css' href='https://fonts.googleapis.com/css?family=Noto+Sans%3Aregular%2C+italic%2C+700%2C+700italic%2C+%7CNoto+Sans%3A700italic%2C+700italic%2C+700italic%2C+700italic%2C+&#038;subset=latin%2Clatin-ext&#038;ver=7.31.0' type='text/css' media='all' />
+<link rel='stylesheet' id='mec-lity-style-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/lity/lity.min.css?ver=7.31.0-b-modified-1772635630' type='text/css' media='all' />
+<link rel='stylesheet' id='mec-general-calendar-style-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/css/mec-general-calendar.css?ver=7.31.0-b-modified-1772635630' type='text/css' media='all' />
+<link rel='preload' as='style' onload="this.onload=null;this.rel='stylesheet'" id='wp-block-library-css' href='https://www.gasteizhoy.com/wp-includes/css/dist/block-library/style.min.css?ver=6.9.4' type='text/css' media='all' />
+<style id='classic-theme-styles-inline-css' type='text/css'>
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+<style id='autoblue-comments-style-inline-css' type='text/css'>
+.wp-block-autoblue-comment-template{list-style:none;margin:0;padding-left:0}.wp-block-autoblue-comment{display:grid;grid-template-columns:50px 1fr;grid-column-gap:16px}.wp-block-autoblue-comment>*{grid-column:2}.wp-block-autoblue-comment+.wp-block-autoblue-comment{margin-top:24px}.wp-block-autoblue-comment-avatar{grid-column:1;grid-row:span 4}.wp-block-autoblue-comment-avatar img{aspect-ratio:1/1;border-radius:50%;object-fit:cover;object-position:center;width:100%}.wp-block-autoblue-comment-author{align-items:center;display:flex;flex-wrap:wrap;gap:8px}.wp-block-autoblue-comment-author__name{font-weight:700}.wp-block-autoblue-comment-author__handle{opacity:.7}.wp-block-autoblue-comments-comment-text{margin:8px 0}.wp-block-autoblue-comment-date{font-size:80%;opacity:.7}.wp-block-autoblue-comment-replies{list-style:none;margin-top:24px;padding-left:0}.wp-block-autoblue-comment .wp-block-autoblue-comment .wp-block-autoblue-comment .wp-block-autoblue-comment-replies{grid-column:span 2}
+
+/*# sourceURL=https://www.gasteizhoy.com/wp-content/plugins/autoblue/build/js/blocks/comments/style-index.css */
+</style>
+<style id='global-styles-inline-css' type='text/css'>
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}
+:where(.wp-block-term-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-term-template.is-layout-grid){gap: 1.25em;}
+:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}
+:root :where(.wp-block-pullquote){font-size: 1.5em;line-height: 1.6;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+<link rel='stylesheet' id='contact-form-7-css' href='https://www.gasteizhoy.com/wp-content/plugins/contact-form-7/includes/css/styles.css?ver=6.1.5-b-modified-1770647053' type='text/css' media='all' />
+<link rel='preload' as='style' onload="this.onload=null;this.rel='stylesheet'" id='foawe_css-css' href='https://www.gasteizhoy.com/wp-content/themes/gasteizhoy2021/css/all.css?ver=6.9.4-b-modified-1762022926' type='text/css' media='all' />
+<link rel='preload' as='style' onload="this.onload=null;this.rel='stylesheet'" id='bs_css-css' href='https://www.gasteizhoy.com/wp-content/themes/gasteizhoy2021/style-bootstrap.css?ver=6.9.4-b-modified-1659041787' type='text/css' media='all' />
+<link rel='stylesheet' id='gh_css-css' href='https://www.gasteizhoy.com/wp-content/themes/gasteizhoy2021/style.css?ver=6.9.4-b-modified-1773152292' type='text/css' media='all' />
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" id="jquery-core-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1" id="jquery-migrate-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/svg-support/vendor/DOMPurify/DOMPurify.min.js?ver=2.5.8-b-modified-1740644247" id="bodhi-dompurify-library-js"></script>
+<script type="text/javascript" id="bodhi_svg_inline-js-extra">
+/* <![CDATA[ */
+var svgSettings = {"skipNested":""};
+//# sourceURL=bodhi_svg_inline-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/svg-support/js/min/svgs-inline-min.js?ver=6.9.4-b-modified-1740644247" id="bodhi_svg_inline-js"></script>
+<script type="text/javascript" id="bodhi_svg_inline-js-after">
+/* <![CDATA[ */
+cssTarget={"Bodhi":"img.style-svg","ForceInlineSVG":"style-svg"};ForceInlineSVGActive="false";frontSanitizationEnabled="on";
+//# sourceURL=bodhi_svg_inline-js-after
+/* ]]> */
+</script>
+<meta name="generator" content="Elementor 3.35.9; features: additional_custom_breakpoints; settings: css_print_method-external, google_font-enabled, font_display-swap">
+			<style>
+				.e-con.e-parent:nth-of-type(n+4):not(.e-lazyloaded):not(.e-no-lazyload),
+				.e-con.e-parent:nth-of-type(n+4):not(.e-lazyloaded):not(.e-no-lazyload) * {
+					background-image: none !important;
+				}
+				@media screen and (max-height: 1024px) {
+					.e-con.e-parent:nth-of-type(n+3):not(.e-lazyloaded):not(.e-no-lazyload),
+					.e-con.e-parent:nth-of-type(n+3):not(.e-lazyloaded):not(.e-no-lazyload) * {
+						background-image: none !important;
+					}
+				}
+				@media screen and (max-height: 640px) {
+					.e-con.e-parent:nth-of-type(n+2):not(.e-lazyloaded):not(.e-no-lazyload),
+					.e-con.e-parent:nth-of-type(n+2):not(.e-lazyloaded):not(.e-no-lazyload) * {
+						background-image: none !important;
+					}
+				}
+			</style>
+			<link rel="icon" href="https://www.gasteizhoy.com/wp-content/uploads/2018/07/cropped-icono-del-sitio-1-3-32x32.gif" sizes="32x32" />
+<link rel="icon" href="https://www.gasteizhoy.com/wp-content/uploads/2018/07/cropped-icono-del-sitio-1-3-192x192.gif" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://www.gasteizhoy.com/wp-content/uploads/2018/07/cropped-icono-del-sitio-1-3-180x180.gif" />
+<meta name="msapplication-TileImage" content="https://www.gasteizhoy.com/wp-content/uploads/2018/07/cropped-icono-del-sitio-1-3-270x270.gif" />
+<style>:root,::before,::after{--mec-heading-font-family: 'Noto Sans';--mec-paragraph-font-family: 'Noto Sans';--mec-color-skin: #45ab48;--mec-color-skin-rgba-1: rgba(69,171,72,.25);--mec-color-skin-rgba-2: rgba(69,171,72,.5);--mec-color-skin-rgba-3: rgba(69,171,72,.75);--mec-color-skin-rgba-4: rgba(69,171,72,.11);--mec-primary-border-radius: ;--mec-secondary-border-radius: ;--mec-container-normal-width: 1196px;--mec-container-large-width: 1690px;--mec-title-color-hover: #45ab48;--mec-content-color: #ffffff;--mec-fes-main-color: #40d9f1;--mec-fes-main-color-rgba-1: rgba(64, 217, 241, 0.12);--mec-fes-main-color-rgba-2: rgba(64, 217, 241, 0.23);--mec-fes-main-color-rgba-3: rgba(64, 217, 241, 0.03);--mec-fes-main-color-rgba-4: rgba(64, 217, 241, 0.3);--mec-fes-main-color-rgba-5: rgb(64 217 241 / 7%);--mec-fes-main-color-rgba-6: rgba(64, 217, 241, 0.2);</style><style>.mec-event-date {
+background: white;
+}
+.mec-event-grid-minimal .mec-event-detail, .mec-event-grid-minimal .mec-time-details {
+color: #191919;
+}
+
+.mec-event-more-info {display:none;}
+
+ .mec-wrap.colorskin-custom .mec-bg-color, .colorskin-custom .mec-event-sharing-wrap:hover {
+    background: white;
+    color: #191919;
+    width: 100%;
+    margin: 0 auto;
+}
+
+ .mec-event-grid-classic .mec-event-title {
+    font-family: 'Noto Sans Bold';
+    text-transform: none;
+    padding: 0px 3px 15px 3px;
+    margin: 10px 0px 0px 0px;
+  }
+
+
+
+.mec-event-grid-classic .mec-event-content {
+    height: /*45%*/auto;
+    border-bottom: solid 2px #f3f3f3;
+    border-left: solid 2px #f3f3f3;
+    border-right: solid 2px #f3f3f3;
+  }
+
+.mec-event-grid-classic .mec-event-article {
+    border: none;
+  } 
+
+.mec-events-toggle .mec-toggle-title {
+    display: block;
+    width: 100%!important;
+    max-width: 100% !important;
+    text-align: center!important;
+    margin-top: 20px !important;
+margin-bottom: 10px !important;
+    padding-left: 0 !important;
+font-family: 'Noto Sans Bold' !important;
+font-weight:normal;
+}
+
+.mec-toggle-item-col .mec-event-date {
+    font-size: 15px !important;
+    line-height: 25px;
+    float: none !important;
+    margin-right: 8px;
+}
+
+
+@media only screen and (max-width:479px){
+
+.mec-events-toggle {
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px !important;
+}
+
+
+.mec-toggle-item-inner .mec-toggle-item-col {
+    float: none;
+    width: 100%;
+    border-right: none;
+    margin: 0 auto!important;
+    display: block;
+    max-width: 100%;
+    text-align: center !important;
+    padding-right:100px !important;
+}
+
+.mec-events-toggle .mec-toggle-title {
+    display: block;
+    width: 100%!important;
+    max-width: 100% !important;
+    text-align: center!important;
+    margin-top: 20px !important;
+margin-bottom: 10px !important;
+    padding-left: 0 !important;
+}
+    
+
+
+
+.mec-toggle-item-col .mec-event-date {
+    font-size: 22px !important;
+    line-height: 40px;
+    float: none;
+    margin-right: 8px;
+     font-family: 'Noto Sans Bold' !important;
+}
+
+
+}
+.mec-toggle-item-col {
+    width: 300px;
+    border-right: 1px solid #e3e3e3;
+    margin-right: 5px !important;
+    display: table-cell;
+    padding-right: 12px;
+    font-family: 'Noto Sans Bold' !important;
+}
+
+.post-type-mec_calendars .mec-col-4.wn-mec-select {display: block !important;} 
+
+.post-type-mec_calendars .nice-select.mec-col-4.wn-mec-select {display: none !important;}
+
+.mec-wrap .mec-single-title, .single-mec-events .mec-wrap.mec-no-access-error h1 {
+    margin-top: 0;
+    margin-bottom: 30px;
+    font-weight: 700;
+    font-size: 25px;
+    font-weight: normal;
+}
+
+.mec-calendar .mec-calendar-header h2 {
+    text-transform: uppercase;
+    font-size: 22px;
+    font-weight: normal;
+    color: #333;
+}
+
+.mec-wrap h2 {
+    font-size: 21px;
+    line-height:0.7;
+    margin-bottom: 10px;
+}
+</style>
+    <script>
+
+      document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const scrollUp = "scroll-up";
+            const scrollDown = "scroll-down";
+            let lastScroll = 0;
+
+            window.addEventListener("scroll", () => {
+              const currentScroll = window.pageYOffset;
+              if (currentScroll <= 0) {
+                body.classList.remove(scrollUp);
+                return;
+              }
+
+              if (currentScroll > lastScroll && !body.classList.contains(scrollDown)) {
+                // down
+                body.classList.remove(scrollUp);
+                body.classList.add(scrollDown);
+              } else if (currentScroll < lastScroll && body.classList.contains(scrollDown)) {
+                // up
+                body.classList.remove(scrollDown);
+                body.classList.add(scrollUp);
+              }
+              lastScroll = currentScroll;
+            });
+    });
+
+    </script>
+
+
+
+ 
+
+<script type="text/javascript">
+  
+  var counter = 0;
+  console.log("test");
+
+    setInterval(function(){ 
+        jQuery('#logo_color').toggle();
+        jQuery('#logo_somos').toggle();
+    }, 5000);
+
+</script>
+
+<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+<script>
+  window.googletag = window.googletag || {cmd: []};
+  googletag.cmd.push(function() {
+    googletag.defineSlot('/65328748/sobre-articulos-02', [[365, 55], [490, 75]], 'div-gpt-ad-1638386889240-0').addService(googletag.pubads());
+    googletag.enableServices();
+  });
+</script>
+
+<script defer id="videoo-library" data-cfasync="false" data-id="77f6022b337465eb5af1daa6b1814e51cdab577e38bb61dd7f60837373dfd879" src="https://static.videoo.tv/77f6022b337465eb5af1daa6b1814e51cdab577e38bb61dd7f60837373dfd879.js"></script>
+	
+<script type="module" src="https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"></script>
+
+	
+	
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_ES/sdk.js#xfbml=1&version=v16.0&appId=184621722114777&autoLogAppEvents=1" nonce="7ez5Qvsw"></script>
+<meta name="facebook-domain-verification" content="4mdjb7hr4cxecy1af69ewzywmdunzp" />
+	</head>
+
+<body data-rsssl=1 id="arriba" class="wp-singular post-template-default single single-post postid-280133 single-format-standard wp-custom-logo wp-theme-gasteizhoy2021 mec-theme-gasteizhoy2021 metaslider-plugin superdestacada deportes agenda alava elementor-default elementor-kit-193177">
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5MH2ZS"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<!-- Global site tag (gtag.js) - Google Analytics  -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-22373120-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-22373120-1');
+</script>
+
+
+
+
+<!-- STICKY VIDEOO START -->
+<amp-script layout="container" src="https://www.gasteizhoy.com/wp-content/themes/eo-bootstrap/stickybanner.js"></amp-script>
+<!-- STICKY VIDEOO END -->
+	
+	
+	
+	<amp-sidebar id="sidebar1" layout="nodisplay" style="width:300px">
+    <!--<amp-img class="logosidebar" layout="responsive" src="https://i.imgur.com/46NicWO.png" width="75" height="75"></amp-img>-->
+		<amp-nested-menu layout="fill" height="300px" width="300px">
+    <form role="search" method="get" class="search-form" action="https://www.gasteizhoy.com/">
+				<label>
+					<span class="screen-reader-text">Buscar:</span>
+					<input type="search" class="search-field" placeholder="Buscar &hellip;" value="" name="s" />
+				</label>
+				<input type="submit" class="search-submit" value="Buscar" />
+			</form>    
+			
+			
+<ul id="menu-barra-secundaria" class="nav navbar-nav">
+
+<li class="vitoriamenu"><a href="https://www.gasteizhoy.com/vitoria/">Vitoria-Gasteiz</a></li>
+<li class="alavamenu"><a href="https://www.gasteizhoy.com/alava/">Álava</a></li>
+<li class="ociomenu"><a href="https://www.gasteizhoy.com/ociogasteiz/">Ocio Gasteiz</a></li>
+<li class="sucesosmenu"><a href="https://www.gasteizhoy.com/sucesos/">Sucesos</a></li>
+<li class="deportesmenu"><a href="https://www.gasteizhoy.com/deportes/">Deportes</a></li>
+<li class="economiamenu"><a href="https://www.gasteizhoy.com/alava/economia">Economía</a></li>
+<li class="publicidadmenu"><a href="https://www.gasteizhoy.com/publicidad-vitoria/">Publicidad</a></li>
+<li class="contactomenu"><a href="https://www.gasteizhoy.com/quienes-somos/">Contacto</a></li>
+<li amp-nested-submenu-open class="ghmenu"><span style="margin-left:30px;">Más Gasteiz Hoy</span></li>
+       
+
+ <div amp-nested-submenu>
+          
+	<ul id="menu-barra-secundaria" class="submenu">
+            
+             <h4 amp-nested-submenu-close > atrás  </h4>
+           
+           
+			  <li> <span class="sanprudenciomenu"> <a href="https://www.gasteizhoy.com/alava/san-prudencio/">SAN PRUDENCIO</a></span></li>
+			  <li> <span class="fiestaspueblosmenu"> <a href="https://www.gasteizhoy.com/fiestas-pueblos-septiembre-alava/">FIESTAS DE PUEBLOS</a></span></li>
+			  <li> <span class="serviciosarabamenu"> <a href="https://www.gasteizhoy.com/agenda-servicios-araba/">AGENDA SERVICIOS ARABA</a></span></li>
+		<li> <span class="pueblosdealavamenu"> <a href="https://www.gasteizhoy.com/vitoria-hoy-sabe-de/pueblos-alava/">PUEBLOS DE ÁLAVA</a></span></li>
+		<li> <span class="podcastmenu"> <a href="https://www.gasteizhoy.com/podcast-oasys-gasteiz-hoy/">PODCAST</a></span></li>
+		<li> <span class="eleccionesmenu"> <a href="https://www.gasteizhoy.com/elecciones-euskadi-2024/">ELECCIONES</a></span></li>
+		 <li><span class="encuestamenu"> <a href="https://www.gasteizhoy.com/encuesta/">ENCUESTAS</a></span></li>	 
+		<li> <span class="camaramenu"> <a href="https://www.gasteizhoy.com/video/">VÍDEOS</a></span></li>
+		 
+		<li> <span class="tranviamenu"> <a href="https://www.gasteizhoy.com/vitoria/movilidad-en-vitoria-vitoria/">MOVILIDAD</a></span></li>
+			   <li><span class="slowtvmenu"> <a href="https://www.gasteizhoy.com/slow-tv-vitoria-gasteiz/">SLOW TV</a></span></li>
+			   <li> <span class="montemenu"> <a href="https://www.gasteizhoy.com/red-natura-alava/">RED NATURA</a></span></li>
+			   <li><span class="gastronomiamenu"> <a href="https://www.gasteizhoy.com/vitoria/gastronomia/">GASTRONOMÍA</a></span></li>
+		  <li><span class="movilidadmenu"> <a href="https://www.gasteizhoy.com/vitoria/mi-barrio/">MI BARRIO</a></span></li>
+			  <li> <span class="libromenu"> <a href="https://www.gasteizhoy.com/vitoria-hoy-sabe-de/">VITORIA HOY SABE DE</a></span></li>
+
+			   <li> <span class="forondamenu"> <a href="https://www.gasteizhoy.com/alava/aeropuerto-foronda-araba/">FORONDA</a></span></li>
+		
+		
+              <div amp-nested-submenu>
+               
+              </div>
+           
+          </ul>
+        </div>
+  
+
+</ul>		
+			</div>
+	 </amp-nested-menu>
+	</amp-sidebar>
+ 
+	
+	
+	
+	
+	
+
+   <div [hidden]="hideBanner" class="solo-movil macroban">
+    
+      <div class="textwidget custom-html-widget"><div class="solo-pc">
+
+	<a rel="noreferrer" href="https://villasdezabalgana.com/" target="_blank">
+<img width="1212px" height="225px" layout="responsive" data-category="banner-fdz-nograro" id="Macrobannerpc" class="banclick macrobanpc" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/banner-fase-2-fn-pc.gif"></a> 
+
+
+</div>
+
+
+
+<div  class="solo-movil" style="height:75px !important;">
+	<a rel="noreferrer" href="https://villasdezabalgana.com/" target="_blank">
+<img width="475px" height="88px" layout="responsive" data-category="banner-fdz-nograro" id="Macrobanner2" class="banclick macrobanmovil" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/banner-fase-2-fn-movil.gif"></a></div></div>	   
+	   
+	   
+    </div>
+
+    <header class="mega-menu">
+        
+        <div class="solo-movil topbar_ios Mobile-bar">
+			
+			
+
+
+          <div class="bar1">
+
+            <button aria-label="Menú" on="tap:sidebar1" class="menu_ios"><i class="fas fa-bars"></i></button>
+
+          <a  href="https://www.gasteizhoy.com/">
+			 <div style=" width:135px;  margin: 0 auto; margin-left:40px; margin-right:25px;  text-align: center; padding: 0px;">
+				 <amp-img layout="responsive" width="175" height="30" style="text-align: center; padding: 0px; height:24px;!important;" alt="OcioGasteiz"   src="https://www.gasteizhoy.com/wp-content/uploads/2024/05/header-ocio-gasteiz.gif" ></img>
+	   </div>
+		</a>	
+
+           <div style="margin-top:10px; margin-right:-25px;">
+						<div class="widget"><a href="https://www.gasteizhoy.com/vitoria/hobetuz/"><img width="25" height="25" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/Diseno-sin-titulo-4.png" class="image wp-image-284731  attachment-25x25 size-25x25" alt="" style="max-width: 100%; height: auto;" decoding="async" /></a></div>					</div>
+			  
+			    <div>
+
+					<div class="mobile-bottom-nav">
+						<a href="https://www.gasteizhoy.com" class="menu_inferior_item "> <img class="menu_inicio_img" src="https://www.gasteizhoy.com/wp-content/uploads/2025/10/ICONO-GASTEIZ-HOY.gif"</img> </br> Inicio</a>
+						<a href="https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/" class="menu_inferior_item active_item"> <img class="menu_inferior_img" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/korrika-en-vitoria-carrera.png"</img></br>  Korrika</a>
+						<a href="https://www.gasteizhoy.com/ociogasteiz/" class="menu_inferior_item "> <img class="menu_inferior_img" src="https://www.gasteizhoy.com/wp-content/uploads/2026/01/icono-musica-movil.png"</img> </br> Ocio Gasteiz</a>
+						<a href="https://www.gasteizhoy.com/vitoria/hobetuz/" class="menu_inferior_item "> <img class="menu_inferior_img" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/Diseno-sin-titulo-4.png"</img> </br> Hobetuz</a>
+					</div>
+
+
+
+				</div>
+
+          </div>
+
+          
+					<div class="bar2">
+						<a href="https://www.gasteizhoy.com/" class="menu_ios_item ">Inicio</a>
+						<a href="https://www.gasteizhoy.com/elecciones-2023-vitoria/" class="menu_ios_item ">28M</a>
+						<a href="https://www.gasteizhoy.com/el-tiempo-vitoria/" class="menu_ios_item ">El tiempo</a>
+						<a href="https://www.gasteizhoy.com/halloween-vitoria-2022/" class="menu_ios_item ">Halloween</a>
+					</div>
+
+				
+        </div>
+
+    
+      <div id="ghtopnavbar" class="cabecera-pc solo-pc">
+          <div class="logo">
+            <a href="https://www.gasteizhoy.com/"><amp-img width="100" height="45" layout="responsive" src="https://www.gasteizhoy.com/wp-content/themes/eo-bootstrap/img/gh-logo-color.svg"></amp-img></a>
+          </div>
+
+          <div class="logosquare">
+            <a href="https://www.gasteizhoy.com/"><amp-img width="45" height="45" layout="responsive" src="https://www.gasteizhoy.com/wp-content/uploads/2020/05/46NicWO.png"></amp-img></a>
+          </div>
+
+          <div class="menusuperior">
+            <div class="row">
+              <div class="header">
+                      
+              <nav class="main-menu" id="main-menu">
+
+                <li class="main-menu-dropdown">
+                  <a href="https://www.gasteizhoy.com/vitoria/" title="VITORIA">
+                    VITORIA-GASTEIZ
+                    <span class="main-menu-dropdown-icon">
+                      <i class="arrow-down"></i>
+                    </span>
+                  </a>
+
+                  <label class="main-menu-dropdown-icon" for="main-menu-dropdown-list-1">
+                    <i class="arrow-down arrow-down-mobile"></i>
+                  </label>
+                  <input type="checkbox" id="main-menu-dropdown-list-1">
+
+                  <ul class="main-menu-dropdown-list">
+                    <li><a href="https://www.gasteizhoy.com/vitoria/ayuntamiento-ciudad/" title="AYUNTAMIENTO">AYUNTAMIENTO</a></li>
+                    <li><a href="https://www.gasteizhoy.com/vitoria/movilidad-en-vitoria-vitoria/" title="MOVILIDAD EN VITORIA">MOVILIDAD EN VITORIA</a></li>
+                    <li><a href="https://www.gasteizhoy.com/vitoria/obras-en-vitoria/" title="OBRAAS EN VITORIA">OBRAS</a></li>
+                    <li><a href="https://www.gasteizhoy.com/vitoria/comercios/" title="COMERCIO">COMERCIO</a></li>
+                    
+                    <li><a href="https://www.gasteizhoy.com/vitoria/mi-barrio/" title="MI BARRIO">MI BARRIO</a></li>
+					  <li><a href="https://www.gasteizhoy.com/reportaje/" title="REPORTAJE">REPORTAJE</a></li>
+				
+                  </ul>
+                </li>
+
+                <li class="main-menu-dropdown">
+                  <a href="https://www.gasteizhoy.com/alava/" title="ÁLAVA">
+                    ÁLAVA
+                    <span class="main-menu-dropdown-icon">
+                      <i class="arrow-down"></i>
+                    </span>
+                  </a>
+
+                  <label class="main-menu-dropdown-icon" for="main-menu-dropdown-list-2">
+                    <i class="arrow-down arrow-down-mobile"></i>
+                  </label>
+                  <input type="checkbox" id="main-menu-dropdown-list-2">
+
+                  <ul class="main-menu-dropdown-list">
+                   <li><a href="https://www.gasteizhoy.com/alava/agurain-llanada-alavesa/" title="MONTAÑA ALAVESA">AGURAIN</a></li>
+					 <li><a href="https://www.gasteizhoy.com/alava/trevino/" title="TREVIÑO">TREVIÑO</a></li>
+					   <li><a href="https://www.gasteizhoy.com/alava/rioja-alavesa" title="RIOJA ALAVESA">RIOJA ALAVESA</a></li>
+					   <li><a href="https://www.gasteizhoy.com/alava/montana-alavesa" title="MONTAÑA ALAVESA">MONTAÑA ALAVESA</a></li>
+					  <li><a href="https://www.gasteizhoy.com/alava/gorbeialdea/" title="GORBEIALDEA">GORBEIALDEA</a></li>
+					  <li><a href="https://www.gasteizhoy.com/alava/anana/" title="AÑANA">AÑANA</a></li>
+					  <li><a href="https://www.gasteizhoy.com/alava/ayala/" title="AYALA">AYALA</a></li>
+					  <li><a href="https://www.gasteizhoy.com/alava/aeropuerto-foronda-araba" title="FORONDA">FORONDA</a></li>
+					  <li><a href="https://www.gasteizhoy.com/alava/economia" title="ECONOMIA">ECONOMÍA</a></li>
+                     <li><a href="https://www.gasteizhoy.com/alava/empleo" title="EMPLEO">EMPLEO</a></li>
+                  </ul>
+                </li>
+
+                <li class="main-menu-dropdown">
+                  <a href="https://www.gasteizhoy.com/sucesos/" title="SUCESOS">
+                    SUCESOS
+                    <span class="main-menu-dropdown-icon">
+                      <i class="arrow-down"></i>
+                    </span>
+                  </a>
+
+                  <label class="main-menu-dropdown-icon" for="main-menu-dropdown-list-3">
+                    <i class="arrow-down arrow-down-mobile"></i>
+                  </label>
+                  <input type="checkbox" id="main-menu-dropdown-list-3">
+
+                  <ul class="main-menu-dropdown-list">
+                    <li><a href="https://www.gasteizhoy.com/sucesos/trafico" title="TRÁFICO">TRÁFICO</a></li>
+					  <li><a href="https://www.gasteizhoy.com/sucesos/incendio" title="INCENDIO">INCENDIO</a></li>
+					  <li><a href="https://www.gasteizhoy.com/sucesos/droga/" title="DROGAS">DROGAS</a></li>
+                    <li><a href="https://www.gasteizhoy.com/sucesos/robos" title="FÚTBOL">ROBOS</a></li>
+                    <li><a href="https://www.gasteizhoy.com/sucesos/violencia-machista/" title="VIOLENCIA MACHISTA">VIOLENCIA MACHISTA</a></li>
+					  <li><a href="https://www.gasteizhoy.com/sucesos/estafa/" title="ESTAFA">ESTAFA</a></li>
+					  <li><a href="https://www.gasteizhoy.com/sucesos/peleas-y-agresiones/" title="PELEAS">PELEAS</a></li>
+					<li><a href="https://www.gasteizhoy.com/sucesos/rescates/" title="RESCATES">RESCATES</a></li>
+					<li><a href="https://www.gasteizhoy.com/sucesos/desapariciones/" title="DESAPARICIONES">DESAPARICIONES</a></li>
+                  </ul>
+                </li>
+
+                <li class="main-menu-dropdown">
+                  <a HREF="https://www.gasteizhoy.com/deportes/" title="DEPORTE">
+                    DEPORTE
+                    <span class="main-menu-dropdown-icon">
+                      <i class="arrow-down"></i>
+                    </span>
+                  </a>
+
+                  <label class="main-menu-dropdown-icon" for="main-menu-dropdown-list-4">
+                    <i class="arrow-down arrow-down-mobile"></i>
+                  </label>
+                  <input type="checkbox" id="main-menu-dropdown-list-4">
+
+                  <ul class="main-menu-dropdown-list">
+                    <li><a href="https://www.gasteizhoy.com/deportes/futbol/alaves-futbol/" title="ALAVÉS">ALAVÉS</a></li>
+                    <li><a href="https://www.gasteizhoy.com/deportes/baloncesto/baskonia/" title="BASKONIA">BASKONIA</a></li>
+                    <li><a href="https://www.gasteizhoy.com/deportes/ciclismo/" title="CICLISMO">CICLISMO</a></li>
+                    <li><a href="https://www.gasteizhoy.com/deportes/atletismo/carreras-vitoria/" title="CARRERAS POPULARES">CARRERAS POPULARES</a></li>
+					 <li><a href="https://www.gasteizhoy.com/deportes/triatlon/" title="TRIATLÓN">TRIATLÓN</a></li>
+					  <li><a href="https://www.gasteizhoy.com/deportes/paris-2024/" title="PARÍS 2024">PARÍS 2024</a></li>
+					  <li><a href="https://www.gasteizhoy.com/deportes/" title="TODO EL DEPORTE">TODO EL DEPORTE</a></li>
+                  </ul>
+                </li>
+
+                <li class="main-menu-dropdown">
+                  <a href="https://www.gasteizhoy.com/ociogasteiz/" title="OCIO GASTEIZ">
+                    OCIO GASTEIZ
+                    <span class="main-menu-dropdown-icon">
+                      <i class="arrow-down"></i>
+                    </span>
+                  </a>
+
+                  <label class="main-menu-dropdown-icon" for="main-menu-dropdown-list-5">
+                    <i class="arrow-down arrow-down-mobile"></i>
+                  </label>
+                  <input type="checkbox" id="main-menu-dropdown-list-5">
+
+                  <ul class="main-menu-dropdown-list">
+					   <li><a href="https://www.gasteizhoy.com/ociogasteiz/" title="AGENDA">AGENDA</a></li>
+                    <li><a href="https://www.gasteizhoy.com/cultura-en-vitoria/" title="CULTURA">CULTURA</a></li>
+                    <li><a href="https://www.gasteizhoy.com/vitoria-hoy-sabe-de/musicos-alaveses/" title="MÚSICOS ALAVESES">MÚSICOS ALAVESES</a></li>
+                    <li><a href="https://www.gasteizhoy.com/cultura-en-vitoria/cine-alaves/" title="CINE ALAVÉS">CINE ALAVÉS</a></li>
+                    <li><a href="https://www.gasteizhoy.com/vitoria-hoy-sabe-de/escritores-alaveses/" title="ESCRITORES ALAVESES">ESCRITORES ALAVESES</a></li>
+					<li><a href="https://www.gasteizhoy.com/cultura-en-vitoria/tv/" title="TELEVISIÓN">TV</a></li>
+					<li><a href="https://www.gasteizhoy.com/vitoria/gastronomia/" title="GASTRONOMÍA">GASTRONOMÍA</a></li>
+                    <li><a href="https://www.gasteizhoy.com/cultura-en-vitoria/exposiciones/" title="EXPOSICIONES">EXPOSICIONES</a></li>
+                  </ul>
+                </li>
+
+                <li class="main-menu-dropdown">
+                  <a title="SERVICIOS">
+                    SERVICIOS
+                    <span class="main-menu-dropdown-icon">
+                      <i class="arrow-down"></i>
+                    </span>
+                  </a>
+
+                  <label class="main-menu-dropdown-icon" for="main-menu-dropdown-list-6">
+                    <i class="arrow-down arrow-down-mobile"></i>
+                  </label>
+                  <input type="checkbox" id="main-menu-dropdown-list-6">
+
+                  <ul class="main-menu-dropdown-list">
+                    <li><a href="https://www.gasteizhoy.com/camaras-de-trafico-vitoria-carreteras-alava/" title="CÁMARAS DE TRÁFICO">CÁMARAS DE TRÁFICO</a></li>
+                    <li><a href="https://www.gasteizhoy.com/el-tiempo-vitoria/" title="EL TIEMPO EN VITORIA">EL TIEMPO EN VITORIA</a></li>
+                    <li><a href="https://www.gasteizhoy.com/rutas/" title="TURISMO EN VITORIA">TURISMO EN VITORIA</a></li>
+                    <li><a href="https://www.gasteizhoy.com/farmacias-de-guardia-en-vitoria/" title="FARMACIAS DE GUARDIA">FARMACIAS DE GUARDIA</a></li>
+                  </ul>
+                </li>
+
+                <li>
+                  <a href="https://www.gasteizhoy.com/publicidad-vitoria/">PUBLICIDAD</a>
+                </li>
+
+                <li class="main-menu-dropdown hamb">
+                  <a><i class="fas fa-bars"></i>
+                    <!--<span class="main-menu-dropdown-icon">
+                      <i class="arrow-down"></i>
+                    </span>-->
+                  </a>
+
+                  <label class="main-menu-dropdown-icon" for="mega-main-menu-dropdown-list">
+                    <i class="arrow-down arrow-down-mobile"></i>
+                  </label>
+                  <input type="checkbox" id="mega-main-menu-dropdown-list">
+
+                  <div class="main-menu-dropdown-list main-menu-dropdown-megamenu hamburgermenubig">
+                    <div class="row">
+                      <div class="toolshamb">
+                        <div class="b_buscar"><form role="search" method="get" class="search-form" action="https://www.gasteizhoy.com/">
+				<label>
+					<span class="screen-reader-text">Buscar:</span>
+					<input type="search" class="search-field" placeholder="Buscar &hellip;" value="" name="s" />
+				</label>
+				<input type="submit" class="search-submit" value="Buscar" />
+			</form></div>
+                        <div class="b_contactosocial">
+                          <a href="https://www.gasteizhoy.com/quienes-somos/" class="btn_contacto">Contacto</a>
+                          <div class="b_social">
+                              <a  href="https://www.whatsapp.com/channel/0029VaFNA4nGU3BOj4DvBO1e" ><img class="btn_social_whatsapp"  src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/icono-whatsapp-normal.jpg"/></a>
+							          <a href="https://twitter.com/gasteizhoy" ><img class="btn_social_twitter"  src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/icono-twitter-normal.jpg"/></a>
+							          <a href="https://www.facebook.com/gasteizhoy" ><img class="btn_social_facebook"  src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/icono-facebook-normal.jpg"/></a>
+                            <a href="https://www.instagram.com/gasteizhoy/" ><img class="btn_social_instagram"  src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/icono-instagram-normal.jpg"/></a>
+							      <a href="https://www.youtube.com/user/gasteizhoy" ><img class="btn_social_youtube"  src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/icono-youtbe-normal.jpg"/></a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+					  
+					  
+					  
+					  <div class="row">
+						  
+					 <div class="col-12 col-md-2">
+                        <ul>
+                      
+						  <li class="iconomenuli lablanca2li"><a class="parent-cat-a" href="https://www.gasteizhoy.com/fiestas-la-blanca-2025-vitoria-gasteiz-programa/">La Blanca 2025</a></li>
+                        </ul>
+                      </div> 
+					   
+					    <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli fiestaspueblosli"><a class="parent-cat-a" href="https://www.gasteizhoy.com/fiestas-pueblos-septiembre-alava/">Fiestas de pueblos</a></li>
+                        </ul>
+                      </div>
+						  
+					
+						    <div class="col-12 col-md-3">
+                        <ul>
+                          <li class="iconomenuli serviciosarabali"><a class="parent-cat-a" href="https://www.gasteizhoy.com/agenda-servicios-araba/">Agenda Servicios Araba </a></li>
+                        </ul>
+                      </div>
+						  
+						   
+						  
+						   <div class="col-10 col-md-2">
+                        <ul>
+                          <li class="iconomenuli pueblosdealavali"><a class="parent-cat-a" href="https://www.gasteizhoy.com/vitoria-hoy-sabe-de/pueblos-alava">Pueblos de Álava</a></li>
+                        </ul>
+                      </div>
+						  
+					  
+						  
+						  <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli podcastli"><a class="parent-cat-a" href="https://www.gasteizhoy.com/podcast-oasys-gasteiz-hoy/">Podcast</a></li>
+                        </ul>
+                      </div>
+						  
+					  
+					  </div>
+
+                    <div class="row">
+                     	
+						
+						<div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli eleccionesli"><a class="parent-cat-a" href="https://www.gasteizhoy.com/elecciones-euskadi-2024/">Elecciones</a></li>
+                        </ul>
+                      </div>
+						
+						
+						 	<div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli encuestali"><a class="parent-cat-a" href="https://www.gasteizhoy.com/encuesta/">Encuestas</a></li>
+                        </ul>
+                      </div>
+						
+						
+						  <div class="col-12 col-md-3">
+                        <ul>
+                          <li class="iconomenuli camarali"><a class="parent-cat-a" href="https://www.gasteizhoy.com/video/">Videos</a></li>
+                        </ul>
+                      </div>
+						
+                    
+					 <div class="col-12 col-md-2">
+                        <ul>
+                             <li class="iconomenuli sanprudencioli"><a class="parent-cat-a" href="https://www.gasteizhoy.com/alava/san-prudencio/">San Prudencio</a></li>
+                        </ul>
+                      </div>
+						
+						<div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli musicali"><a class="parent-cat-a" href="https://www.gasteizhoy.com/vitoria-hoy-sabe-de/musicos-alaveses/">Músicos Alaveses</a></li>
+                        </ul>
+                      </div>
+
+                    </div>
+					  
+					  
+					    <div class="row">
+
+                    
+					 <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli saludli"><a class="parent-cat-a" href="https://www.gasteizhoy.com/euskadi/salud/">Salud</a></li>
+                        </ul>
+                      </div>
+						
+							<div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli tranviali"><a class="parent-cat-a" href="https://www.gasteizhoy.com/vitoria/movilidad-en-vitoria-vitoria/">Movilidad </a></li>
+                        </ul>
+                      </div>
+							
+							<div class="col-12 col-md-3">
+                        <ul>
+                          <li class="iconomenuli slowtvli"><a class="parent-cat-a" href="https://www.gasteizhoy.com/slow-tv-vitoria-gasteiz/">SLOW TV</a></li>
+                        </ul>
+                      </div>
+							
+							   <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli monteli"><a class="parent-cat-a" href="https://www.gasteizhoy.com/red-natura-alava/">Red Natura</a></li>
+                        </ul>
+                      </div>
+						
+						<div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli gastronomiali"><a class="parent-cat-a" href="https://www.gasteizhoy.com/vitoria/gastronomia/">Gastronomía</a></li>
+                        </ul>
+                      </div>
+
+                    </div>
+
+                    <div class="row">
+                     
+						
+				
+						
+						
+						
+						  <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli educacionli"><a class="parent-cat-a" href=" https://www.gasteizhoy.com/educacion/">Educación </a></li>
+                        </ul>
+                      </div>
+						
+						
+							
+					
+                      <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli movilidadli" style="width: 100%;"><a class="parent-cat-a" href="https://www.gasteizhoy.com/vitoria/mi-barrio/">Mi barrio</a></li>
+                        </ul>
+                      </div>
+						
+						
+						<div class="col-12 col-md-3" >
+                        <ul>
+                          <li class="iconomenuli libroli" style="width: 100%;"><a class="parent-cat-a" href="https://www.gasteizhoy.com/vitoria-hoy-sabe-de/">Vitoria hoy sabe de</a></li>
+                        </ul>
+                      </div>
+						
+						
+						   <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli economiali" style="width: 100%;"><a class="parent-cat-a" href="https://www.gasteizhoy.com/alava/economia/">Economia</a></li>
+                        </ul>
+                      </div>
+						
+						
+					
+						
+						
+                      <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli forondali" style="width: 100%;"><a class="parent-cat-a" href="https://www.gasteizhoy.com/alava/aeropuerto-foronda-araba/">Foronda</a></li>
+                        </ul>
+                      </div>
+						
+						
+						   </div>
+					  
+					  
+					  
+					  
+					  
+					  
+					  
+					  
+
+                  </div>
+                </li>
+
+              </nav>
+
+                  
+
+              </div>
+            </div>
+          </div>
+
       </div>
-    </noscript>
+
+
+    </header>
+
+<main id="portada">
+
+<div class="solo-pc macrobanblock">
+	
+	 <div class="textwidget custom-html-widget"><div class="solo-pc">
+
+	<a rel="noreferrer" href="https://villasdezabalgana.com/" target="_blank">
+<img width="1212px" height="225px" layout="responsive" data-category="banner-fdz-nograro" id="Macrobannerpc" class="banclick macrobanpc" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/banner-fase-2-fn-pc.gif"></a> 
+
+
+</div>
+
+
+
+<div  class="solo-movil" style="height:75px !important;">
+	<a rel="noreferrer" href="https://villasdezabalgana.com/" target="_blank">
+<img width="475px" height="88px" layout="responsive" data-category="banner-fdz-nograro" id="Macrobanner2" class="banclick macrobanmovil" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/banner-fase-2-fn-movil.gif"></a></div></div>	
+	</div>
+
+  <div id="fondo" class="ancho80">
+
+    <!--?php echo do_shortcode("[enlaces-top]");?>-->
+
+   <div class="logotipo2 solo-pc logotipoelecciones">
+      <a href="https://www.gasteizhoy.com/"><img  src="https://www.gasteizhoy.com/wp-content/uploads/2024/05/header-ocio-gasteiz.gif" width="433" height="73" layout="responsive" alt="OcioGasteiz"></img></a>
+	   </div>
+    
+    <div class="container" style="padding: 0;">
+
+    <div class="widget_text widget"><div class="textwidget custom-html-widget">
+						
+						<div class="flex_h">
+							<div class="fila"><div class="h2bg"><h2 class="h2blogs ultimahorah2">foronda</h2></div></div>
+								<div class="bread-break">
+								<a class="breakblock breakingtext" href="https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/" rel="bookmark" title="Binter volará lunes y jueves desde Foronda a Gran Canaria">Binter volará lunes y jueves desde Foronda a Gran Canaria</a>
+							</div>
+						</div>
+
+												
+		</div></div>    
+        <!--2 Banners arriba-->
+        <div class="row mt10-movil banner-top-new">
+            
+					
+													<a rel="noreferrer" href="https://etxeanhartu.eus/" target="_blank">
+								<img width="550px" height="85px" layout="responsive" data-category="banner-acogimiento-familiar-dfa" id="SobreArt01" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/banner_acogimiento_familiar_dfa550x85.gif"></img>
+							</a>
+					
+					
+				            
+					
+													<a rel="noreferrer" href="https://www.bluespace.es/trasteros-vitoria-bluespace" target="_blank">
+								<img width="550px" height="85px" layout="responsive" data-category="banner-bluespace" id="SobreArt02" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/02/banner-bluespace-550x85-1.gif"></img>
+							</a>
+					
+					
+				        </div>
+        <!--FIN 2 Banners arriba-->
+
+        <p id="breadcrumbs"><span><span><a href="https://www.gasteizhoy.com/"><i class="fas fa-home"></i></a></span> <i class="fas fa-chevron-right"></i> <span><a href="https://www.gasteizhoy.com/alava/">Álava</a></span> <i class="fas fa-chevron-right"></i> <span class="breadcrumb_last" aria-current="page">Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores</span></span></p>
+ 
+
+ 
+		<div class="contenidoparent">
+
+			<div class="adblock">		
+				
+				
+	<a href="https://www.ppvasco.com/participa/" target="_blank"  style="cursor: pointer;">
+<img width="160px" height="600px" layout="responsive" data-category="banner-pp" id="articuloIzq" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/banner-campana-pp-new.gif"></img>
+							</a>
+				
+			</div>
+
+			<div class="contenido">
+		
+
+		
+
+  <div class="row block01-new">
+
+      <div class="clearfix"></div>
+      
+            
+      
+    <!-- TITULAR POST -->
+        
+        <div class="titulares-single">
+          <!-- POST TITULO -->
+                              
+          <!--<div class="center-content"><div class="h2bg" style="background: #009836;"><h2 class="h2blogs singleh2">?php echo $category[0]->cat_name; ?</h2></div></div>-->
+
+          <h1 class="titular-single-new">Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores</h1>
+
+          <!-- AUTOR Y SOCIAL -->
+          <div class="mp15 author-new-wrapper">
+
+            <div class="author-new">
+                <span class="author vcard" style="padding-right: 3px;"><a href="https://www.gasteizhoy.com/author/beatriz/" title="Entradas de Beatriz Corral" rel="author">Beatriz Corral</a></span><i style="font-size: 4px; vertical-align: middle;" class="fas fa-circle"></i> 
+                <span class="published" title="viernes, 27 marzo, 2026, 8:00"> 27 marzo, 2026</span> <span class="separador"></span>
+
+                            </div>
+            
+          </div>
+
+          <!-- POST TITULO FIN -->  
+
+          <!-- AUTOR Y SOCIAL FIN -->
+
+          <div class="extracto"><p>Korrika 2026 llega a Vitoria-Gasteiz este viernes sobre las 20:59 de la noche</p>
+</div>
+
+          <!-- BANNER BAJO SUB -->
+          <div class="bajosubdiv" style="text-align: center;" data-nosnippet>
+            
+					<div class="bajosubpubli" style="text-align: center;">
+													<a rel="noreferrer" href="https://pisosvitoria.com/pisos-en-venta/4704-c-el-prado.html" target="_blank">
+								<img width="550px" height="85px" layout="responsive" data-category="banner-pisos-vitoria-bajo-sub" id="BajoSub" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/publicidad-pisosvitoria-114.gif"></img>
+							</a>
+					
+					</div>
+				          </div>
+          <!-- BANNER BAJO SUB FIN -->
+		  
+	
+          <!-- SOCIAL -->
+          <div class="social-new">
+                <span class="share-post">
+
+                  <!--<h4>Compartir</h4>-->
+
+                  <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/" class="facebook" target="_blank">
+                    <i class="fab fa-facebook-f"></i> <!--Facebook-->
+                  </a>
+
+                   <a href="https://twitter.com/intent/tweet?url=https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/&text=Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores%20vía%20@gasteizhoy"  target="_blank">
+              
+ <img class="twitter" src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/x-twitter-compartir-normal.png"/>
+          </a>
+
+                  <a rel="nofollow" class="compartir-por-mail" href="/cdn-cgi/l/email-protection#edd29e988f87888e99d0b988c8dfdd88839b8482c8dfdd89889e8988c8dfddaa8c9e99888497c8dfdda58294c8dfdd889e998cc8dfdd9d8c8a84838cc8dfdda6829f9f84868cc8dfdddfdddfdbc8dfdd8181888a8cc8dfdd858294c8dfdd8cc8dfddbb8499829f848cc8deacc8dfdd9f888e829f9f8489829ec8dfaec8dfdd85829f8c9f84829ec8dfdd94c8dfdd998289829ec8dfdd81829ec8dfdd9d829f998c89829f889ecb8c809dd68f828994d0b988c8dfdd808c838982c8dfdd889e9982c8dfdd9d829fc8dfdd9e84c8dfdd9988c8dfdd9f889e9881998cc8dfdd848399889f889e8c839988c8deacc8dfdda6829f9f84868cc8dfdddfdddfdbc8dfdd8181888a8cc8dfdd858294c8dfdd8cc8dfddbb8499829f848cc8deacc8dfdd9f888e829f9f8489829ec8dfaec8dfdd85829f8c9f84829ec8dfdd94c8dfdd998289829ec8dfdd81829ec8dfdd9d829f998c89829f889ec3c8dfdda182c8dfdd9d988889889ec8dfdd9b889fc8dfdd8c9c9884c8deacc8dfdd8599999d9ec8deacc8dfabc8dfab9a9a9ac38a8c9e99888497858294c38e8280c8dfab86829f9f84868cc0dfdddfdbc08c818c9b8cc09b8499829f848cc09f888e829f9f848982c08b888e858c9ec085829f8c9f84829ec09d829f998c89829f889ec8dfabc3c8dfdda895999f8c8e9982c8deacc8dfdda6829f9f84868cc8dfdddfdddfdbc8dfdd8181888a8cc8dfdd8cc8dfddbb8499829f848cc0aa8c9e99888497c8dfdd889e9988c8dfdd9b84889f83889ec8dfdd9e828f9f88c8dfdd818c9ec8dfdddfddc8deacd8d4c8dfdd8988c8dfdd818cc8dfdd83828e8588" title="<i class='fa fa-envelope'></i> : Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores"><i class='fa fa-envelope'></i></a>
+                  <a href="whatsapp://send?text=https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/" data-action="share/whatsapp/share" class="whatsapp"><i class="fab fa-whatsapp"></i> <!--Whatsapp--></a>	
+                  
+                  <a href="tg://msg_url?url=https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/&text=Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores" data-action="share/telegram/share" class="telegram"><i class="fab fa-telegram-plane"></i> <!--telegram--></a>
+
+                  
+                </span> <!-- /. share-post -->
+              </div>
+            <!-- SOCIAL FIN -->
+
+        </div>
+      <!-- TITULAR POST FIN -->
+	  
+	  
+	  	   <!-- INICIO ANTERIOR - SIGUIENTE -->
+	  <div class="solo-movil" style="position:fixed; bottom:130px; width:100%; z-index:9999;">
+	  
+	  
+	  <div>
+
+          
+            
+              <a href="https://www.gasteizhoy.com/el-pp-exige-al-ayuntamiento-no-pagar-su-kilometro-de-korrika-si-se-exhiben-en-vitoria-fotos-de-presos-de-eta/">
+                <div class="prev">
+				
+                  
+                <div><i class="fas fa-chevron-left" style="font-size:25px; color:#009900; background-color:#f1f1f1; float:left !important;padding:8px; scroll-behavior:smooth;"></i></div>
+
+                
+                </div>
+              </a>
+
+                      
+
+          
+                            <a href="https://www.gasteizhoy.com/mercado-napoleonico-arriaga-marzo-2026/">
+                  <div class="prox">
+                    <div><i class="fas fa-chevron-right" style="font-size:25px; background-color:#f1f1f1; color:#009900; float:right !important; padding:8px;"></i></div>
+
+           
+                  </div>
+                </a>
+                      
+
+        </div>
+		</div>
+	  
+	  <!-- FIN ANTERIOR - SIGUIENTE ARRIBA -->
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+
+    <div class="row" style="max-width: 1350px; margin: 0 auto; display: flex; flex-direction: row;">
+
+      <!-- CONTENIDO POST -->
+	    <div class="contenido-noticia noticia-new">
+        
+        <div class="articulotexto">
+
+            
+        			
+
+		
+
+		
+            
+            
+            <p>"Tipi-tapa". <strong>Korrika 2026</strong> hará este viernes su entrada triunfal en <strong>Vitoria-Gasteiz</strong>. La carrera bienal a favor del euskera llegará por el monte Zaldiaran y abandonará horas más tarde la ciudad rumbo a Durana.</p>
+<p>El recorrido por Vitoria-Gasteiz comenzará poco antes de las 21:00 del viernes. Aunque desde la medianoche del jueves al viernes recorre localidades importantes de Álava como Artziniega, Amurrio, Llodio, Murgia, Nanclares de la Oca y Treviño. Aquí puedes ver en directo por dónde va Korrika:</p>
+					<div class="solo-movil banner-parrafos">
+						
+							<div class="aviso_publi"><span>PUBLICIDAD - SIGUE LEYENDO ABAJO</span><div class="linea"></div></div>
+							<a rel="noreferrer" href="https://www.bakh.es/" target="_blank">
+								<img decoding="async" width="400px" height="400px" layout="responsive" data-category="banner-bakh" id="segundoparr" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/02/publicidad-segundo-parrafo-69.jpg"></img>
+							</a>
+
+						
+					</div>
+				
+<p><iframe title="24.KORRIKA 🔴 2026.03.19-29 Atharratzetik Bilbora 🔴 ZUZENEAN #EuskaraGara" width="500" height="281" src="https://www.youtube.com/embed/eQ30JLrsHK4?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></p>
+<p><strong>En Vitoria-Gasteiz</strong> entrará ya de noche, sobre las 20:59 de ese día, y discurrirá por los distintos barrios durante casi tres  horas antes de enfilar hacia Durana.</p>
+<h3><strong>Portadores, kilómetro y hora de paso de Korrika Gasteiz</strong></h3>
+<h3><iframe id="datawrapper-chart-8Qfaa" style="width: 0; min-width: 100% !important; border: none;" title="Korrika 2026 Gasteizen" src="https://datawrapper.dwcdn.net/8Qfaa/3/" height="1352" frameborder="0" scrolling="no" aria-label="Tabla" data-external="1"></iframe><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/javascript">window.addEventListener("message",function(a){if(void 0!==a.data["datawrapper-height"]){var e=document.querySelectorAll("iframe");for(var t in a.data["datawrapper-height"])for(var r,i=0;r=e[i];i++)if(r.contentWindow===a.source){var d=a.data["datawrapper-height"][t]+"px";r.style.height=d}}});</script></h3>
+<h2>Más que una carrera</h2><div class="rowtitlebar"><div class="trending-news-title-bar barra-verde" style="text-align: left; float: left;"></div><div class="trending-news-title-bar barra-roja" style="text-align: left; float: left;"></div></div>
+<p>Korrika 2026 no será solo el paso del lekuko. Durante toda la tarde habrá fiestas en varios puntos de Vitoria-Gasteiz. Barrios en los que han organizado celebraciones para preparar la llegada de la carrera. Aquí tienes el programa completo:</p>
+					<div class="solo-movil banner-parrafos">
+						
+						<div class="aviso_publi"><span>PUBLICIDAD - SIGUE LEYENDO ABAJO</span><div class="linea"></div></div>
+						<a rel="noreferrer" href="https://www.hyundai.es/concesionarios/autolasa/tucson-black-line" target="_blank">
+							<img decoding="async" width="400px" height="400px" layout="responsive" data-category="banner-Hyundai-autolasa" id="quintoparr" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/publicidad-quinto-parrafo-36.gif"></img>
+						</a>
+
+						
+					</div>
+				
+<p><a href="https://www.gasteizhoy.com/wp-content/uploads/2026/03/programa-aek-korrika-gasteiz.png"><img fetchpriority="high" decoding="async" width="782" height="462" class="aligncenter size-full wp-image-287308" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/programa-aek-korrika-gasteiz.png" alt="" srcset="https://www.gasteizhoy.com/wp-content/uploads/2026/03/programa-aek-korrika-gasteiz.png 782w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/programa-aek-korrika-gasteiz-350x207.png 350w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/programa-aek-korrika-gasteiz-150x89.png 150w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/programa-aek-korrika-gasteiz-768x454.png 768w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/programa-aek-korrika-gasteiz-425x250.png 425w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/programa-aek-korrika-gasteiz-76x45.png 76w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/programa-aek-korrika-gasteiz-86x51.png 86w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/programa-aek-korrika-gasteiz-190x112.png 190w" sizes="(max-width: 782px) 100vw, 782px" /></a></p>
+<blockquote class="wp-embedded-content" data-secret="Kw4y3Lwaz3"><p><a href="https://www.gasteizhoy.com/previa-korrika-2026-vitoria/">La gran fiesta de Korrika en Vitoria: txokolatada, conciertos y kalejiras en muchos barrios</a></p></blockquote>
+<p><iframe class="wp-embedded-content" sandbox="allow-scripts" security="restricted" style="position: absolute; visibility: hidden;" title="«La gran fiesta de Korrika en Vitoria: txokolatada, conciertos y kalejiras en muchos barrios» — Gasteiz Hoy" src="https://www.gasteizhoy.com/previa-korrika-2026-vitoria/embed/#?secret=ho47EA0jck#?secret=Kw4y3Lwaz3" data-secret="Kw4y3Lwaz3" width="500" height="282" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe></p>
+<h2>Korrika en directo</h2><div class="rowtitlebar"><div class="trending-news-title-bar barra-verde" style="text-align: left; float: left;"></div><div class="trending-news-title-bar barra-roja" style="text-align: left; float: left;"></div></div>
+<p>Sigue aquí en directo el paso de Korrika por Álava.</p><div class="widget_text solo-movil banner-parrafos"><div class="textwidget custom-html-widget"><amp-ad width="100vw" height="320"
+     type="adsense"
+     data-ad-client="ca-pub-9860747815715784"
+     data-ad-slot="3672126399"
+     data-auto-format="rspv"
+     data-full-width="">
+  <div overflow=""></div>
+</amp-ad></div></div>
+<p><iframe title="YouTube video player" src="https://www.youtube.com/embed/eQ30JLrsHK4?si=p4G61nmoEuP4jVIJ" width="560" height="315" frameborder="0" allowfullscreen="allowfullscreen"></iframe></p>
+<h2>Korrika Araban</h2><div class="rowtitlebar"><div class="trending-news-title-bar barra-verde" style="text-align: left; float: left;"></div><div class="trending-news-title-bar barra-roja" style="text-align: left; float: left;"></div></div>
+<p>Estas son las horas previstas de paso de Korrika por Araba</p>
+<h3>26 de marzo</h3>
+<ul>
+<li>Artziniega: 23:13 horas.</li>
+</ul>
+<h3>27 de marzo</h3>
+<ul>
+<li>Respaldiza: 00:17</li>
+<li>Amurrio: 00:47.</li>
+<li>Orozko: 02:14.</li>
+<li>Laudio: 03:21.</li>
+<li>Gopegi: 12:49.</li>
+<li>Murgia: 13:47.</li>
+<li>Izarra: 14:40.</li>
+<li>Zuhatzu Kuartango: 15:52.</li>
+<li>Nanclares: 17:19.</li>
+<li>La Puebla de Arganzon: 18:05</li>
+<li>Añastro: 18:37.</li>
+<li>Trebiño: 19:03.</li>
+<li>Puerto de Zaldiaran: 20:08.</li>
+<li>Vitoria-Gasteiz: 20:59.</li>
+<li>Vitoria-Gasteiz (calle Postas,2): 22:57.</li>
+<li>Vitoria-Gasteiz (calle Barratxi, 35): 00:00</li>
+</ul>
+<h3>Sábado 28 de marzo</h3>
+<ul>
+<li>Durana: 00:13.</li>
+<li>Legutio: 01:26</li>
+</ul>
+<p><img loading="lazy" decoding="async" class="aligncenter wp-image-280134 size-full" title="Korrika 2026 recorrido" src="https://www.gasteizhoy.com/wp-content/uploads/2026/01/ibilbidea24-50x70-def-3-scaled.jpg" alt="Korrika 2026 recorrido" width="1829" height="2560" srcset="https://www.gasteizhoy.com/wp-content/uploads/2026/01/ibilbidea24-50x70-def-3-scaled.jpg 1829w, https://www.gasteizhoy.com/wp-content/uploads/2026/01/ibilbidea24-50x70-def-3-214x300.jpg 214w, https://www.gasteizhoy.com/wp-content/uploads/2026/01/ibilbidea24-50x70-def-3-866x1212.jpg 866w, https://www.gasteizhoy.com/wp-content/uploads/2026/01/ibilbidea24-50x70-def-3-107x150.jpg 107w, https://www.gasteizhoy.com/wp-content/uploads/2026/01/ibilbidea24-50x70-def-3-768x1075.jpg 768w, https://www.gasteizhoy.com/wp-content/uploads/2026/01/ibilbidea24-50x70-def-3-1097x1536.jpg 1097w, https://www.gasteizhoy.com/wp-content/uploads/2026/01/ibilbidea24-50x70-def-3-1463x2048.jpg 1463w, https://www.gasteizhoy.com/wp-content/uploads/2026/01/ibilbidea24-50x70-def-3-32x45.jpg 32w, https://www.gasteizhoy.com/wp-content/uploads/2026/01/ibilbidea24-50x70-def-3-36x51.jpg 36w, https://www.gasteizhoy.com/wp-content/uploads/2026/01/ibilbidea24-50x70-def-3-150x210.jpg 150w, https://www.gasteizhoy.com/wp-content/uploads/2026/01/ibilbidea24-50x70-def-3-857x1200.jpg 857w, https://www.gasteizhoy.com/wp-content/uploads/2026/01/ibilbidea24-50x70-def-3-190x266.jpg 190w" sizes="(max-width: 1829px) 100vw, 1829px" /></p><div class="widget_text solo-movil banner-parrafos"><div class="textwidget custom-html-widget"><amp-ad width="100vw" height="320"
+     type="adsense"
+     data-ad-client="ca-pub-9860747815715784"
+     data-ad-slot="2017592934"
+     data-auto-format="rspv"
+     data-full-width="">
+  <div overflow=""></div>
+</amp-ad></div></div>
+<p>En total, serán<strong> 2.175 kilómetros y 3.436 las personas que porten el testigo</strong>. Korrika 2026 aterrizará en Pamplona el domingo 22 de marzo. Dos días más tarde pasará por Baiona y será el 25 de marzo cuando atraviese Donostia. El punto final será el domingo 29 de marzo en Bilbao, donde habrá una gran fiesta durante todo el día.</p>
+<p>Además, como en otras ediciones, Korrika ha habilitado un <strong><a href="https://korrika.eus/eu/ibilbidea" target="_blank" rel="noopener">buscador para poder encontrar cualquier pueblo por el que pase la carrera</a>.</strong></p>
+<p style="text-align: center;">
+		
+		<a target="_blank" href="https://korrika.eus/eu/ibilbidea" class="btn-articulo btn-verde">¿Cuándo pasa Korrika por mi pueblo?</a>
+
+
+		
+<h2>Canción de Korrika</h2><div class="rowtitlebar"><div class="trending-news-title-bar barra-verde" style="text-align: left; float: left;"></div><div class="trending-news-title-bar barra-roja" style="text-align: left; float: left;"></div></div>
+<p>Y no podía faltar la música. En esta ocasión, Korrika 2026 sonará a ritmo de<a href="https://www.gasteizhoy.com/korrika-2026-ya-tiene-cancion-xiberutikan-mendebaldera/" target="_blank" rel="noopener"> ‘Xiberutikan mendebaldera’</a>, de Pello Reparaz, de Zetak. Un tema en el que participan también los cantantes Maixux Zugarramurdi y Erramun Martikorena.</p><div class="widget_text solo-movil banner-parrafos"><div class="textwidget custom-html-widget"><amp-ad width="100vw" height="320"
+     type="adsense"
+     data-ad-client="ca-pub-9860747815715784"
+     data-ad-slot="8008286217"
+     data-auto-format="rspv"
+     data-full-width="">
+  <div overflow=""></div>
+</amp-ad></div></div>
+<p><iframe title="Xiberutikan Mendebaldera - ZETAK (24. Korrika), Maixux Zugarramurdi, Erramun Martikorena" width="500" height="375" src="https://www.youtube.com/embed/VMlCc4L6hLk?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></p>
+
+                    </div>
+        
+
+        <!-- BANNER BAJO ARTICULO -->
+		<div data-nosnippet>
+        
+					<div class="bajoarticulopubli" style="text-align: center;">
+													<a rel="noreferrer" href="https://arkabia.eus/" target="_blank">
+								<img width="750px" height="250px" layout="responsive" data-category="banner-fundacion-vital" id="BajoArt" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/01/publicidad-bajo-articulos-52.gif"></img>
+							</a>
+					
+					</div>
+						</div>
+        <!-- BANNER BAJO ARTICULO FIN -->
+
+
+
+
+
+        <!-- SOCIAL BAJO ARTICULO -->
+        <div class="row" style="text-align: center; margin: 0 auto; margin-bottom: 30px; margin-top: 30px;">
+          <span class="share-post">
+
+          <!--<h4>Compartir</h4>-->
+
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/" class="facebook" target="_blank">
+              <i class="fab fa-facebook"></i> <!--Facebook-->
+          </a>
+
+       
+			  
+			   <a href="https://twitter.com/intent/tweet?url=https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/&text=Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores%20vía%20@gasteizhoy"  target="_blank">
+              
+ <img class="x-twitter" src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/x-twitter-compartir-normal-peq.png"/>
+          </a>
+		  
+		  
+		  
+
+          <a rel="nofollow" class="compartir-por-mail" href="/cdn-cgi/l/email-protection#4c733f392e26292f38711829697e7c29223a2523697e7c28293f2829697e7c0b2d3f38292536697e7c042335697e7c293f382d697e7c3c2d2b25222d697e7c07233e3e25272d697e7c7e7c7e7a697e7c2020292b2d697e7c242335697e7c2d697e7c1a2538233e252d697f0d697e7c3e292f233e3e2528233f697e0f697e7c24233e2d3e25233f697e7c35697e7c382328233f697e7c20233f697e7c3c233e382d28233e293f6a2d213c772e232835711829697e7c212d222823697e7c293f3823697e7c3c233e697e7c3f25697e7c3829697e7c3e293f3920382d697e7c252238293e293f2d223829697f0d697e7c07233e3e25272d697e7c7e7c7e7a697e7c2020292b2d697e7c242335697e7c2d697e7c1a2538233e252d697f0d697e7c3e292f233e3e2528233f697e0f697e7c24233e2d3e25233f697e7c35697e7c382328233f697e7c20233f697e7c3c233e382d28233e293f62697e7c0023697e7c3c392928293f697e7c3a293e697e7c2d3d3925697f0d697e7c2438383c3f697f0d697e0a697e0a3b3b3b622b2d3f38292536242335622f2321697e0a27233e3e25272d617e7c7e7a612d202d3a2d613a2538233e252d613e292f233e3e252823612a292f242d3f6124233e2d3e25233f613c233e382d28233e293f697e0a62697e7c0934383e2d2f3823697f0d697e7c07233e3e25272d697e7c7e7c7e7a697e7c2020292b2d697e7c2d697e7c1a2538233e252d610b2d3f38292536697e7c293f3829697e7c3a25293e22293f697e7c3f232e3e29697e7c202d3f697e7c7e7c697f0d7975697e7c2829697e7c202d697e7c22232f2429" title="<i class='fa fa-envelope'></i> : Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores"><i class='fa fa-envelope'></i></a>
+          <a href="whatsapp://send?text=https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/" data-action="share/whatsapp/share" class="whatsapp"><i class="fab fa-whatsapp"></i> <!--Whatsapp--></a>
+
+          <a href="tg://msg_url?url=https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/&text=Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores" data-action="share/telegram/share" class="telegram"><i class="fab fa-telegram-plane"></i> <!--telegram--></a>
+
+          </span>
+        </div>
+        <!-- SOCIAL BAJO ARTICULO FIN -->
+			
+			<div class="adsense">
+          <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script defer id="videoo-library" data-cfasync="false" data-id="77f6022b337465eb5af1daa6b1814e51cdab577e38bb61dd7f60837373dfd879" src="https://static.videoo.tv/77f6022b337465eb5af1daa6b1814e51cdab577e38bb61dd7f60837373dfd879.js"></script>
+        </div>
+
+        <div class="proxposts">
+
+          
+            
+              <a href="https://www.gasteizhoy.com/el-pp-exige-al-ayuntamiento-no-pagar-su-kilometro-de-korrika-si-se-exhiben-en-vitoria-fotos-de-presos-de-eta/">
+                <div class="prev">
+                  <div class="headerposts"><h4>noticia anterior</h4></div>
+                  <img src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/GI_C-x1X0AAqnp5.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="Korrika 2024 Maider Etxebarria" decoding="async" srcset="https://www.gasteizhoy.com/wp-content/uploads/2026/03/GI_C-x1X0AAqnp5.jpg 2048w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/GI_C-x1X0AAqnp5-350x275.jpg 350w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/GI_C-x1X0AAqnp5-879x690.jpg 879w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/GI_C-x1X0AAqnp5-150x118.jpg 150w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/GI_C-x1X0AAqnp5-768x603.jpg 768w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/GI_C-x1X0AAqnp5-1536x1206.jpg 1536w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/GI_C-x1X0AAqnp5-57x45.jpg 57w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/GI_C-x1X0AAqnp5-65x51.jpg 65w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/GI_C-x1X0AAqnp5-1528x1200.jpg 1528w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/GI_C-x1X0AAqnp5-190x149.jpg 190w" sizes="(max-width: 2048px) 100vw, 2048px" />                  <h3>El PP exige al Ayuntamiento no pagar su kilómetro de Korrika si se exhiben en Vitoria fotos de presos de ETA</h3>
+                  <p>El Ayuntamiento cuenta con su propio kilómetro, por el que recorrerá la Calle Dato</p>
+                </div>
+              </a>
+
+                      
+
+          
+                            <a href="https://www.gasteizhoy.com/mercado-napoleonico-arriaga-marzo-2026/">
+                  <div class="prox">
+                    <div class="headerposts"><h4>noticia siguiente</h4></div>
+                    <img src="https://www.gasteizhoy.com/wp-content/uploads/2025/04/24.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="Mercado Napoleónico 2025" decoding="async" srcset="https://www.gasteizhoy.com/wp-content/uploads/2025/04/24.jpg 1136w, https://www.gasteizhoy.com/wp-content/uploads/2025/04/24-350x233.jpg 350w, https://www.gasteizhoy.com/wp-content/uploads/2025/04/24-879x586.jpg 879w, https://www.gasteizhoy.com/wp-content/uploads/2025/04/24-150x100.jpg 150w, https://www.gasteizhoy.com/wp-content/uploads/2025/04/24-768x512.jpg 768w, https://www.gasteizhoy.com/wp-content/uploads/2025/04/24-391x260.jpg 391w, https://www.gasteizhoy.com/wp-content/uploads/2025/04/24-300x200.jpg 300w, https://www.gasteizhoy.com/wp-content/uploads/2025/04/24-68x45.jpg 68w, https://www.gasteizhoy.com/wp-content/uploads/2025/04/24-77x51.jpg 77w, https://www.gasteizhoy.com/wp-content/uploads/2025/04/24-190x127.jpg 190w" sizes="(max-width: 1136px) 100vw, 1136px" />                    <h3>El Mercado Napoleónico vuelve a Arriaga este fin de semana</h3>
+                    <p>El Mercado Napoleónico de Arriaga será del 27 al 29 de marzo de 2026</p>
+                  </div>
+                </a>
+                      
+
+        </div>
+
+        <!-- ADDOOR inicio -->
+
+            <!-- BEGIN Gasteizhoy.com amp/nativoamp -->
+
+            <!-- Gasteizhoy.com amp/nativoamp -->
+            <div class="addoor-widget" id="addoor-widget-949"></div>
+            <script type="text/javascript" src="//pubtags.addoor.net/lib/contags/contags.js"></script>
+
+            <!-- END Gasteizhoy.com amp/nativoamp -->
+
+
+						<!-- allow-modals allow-popups allow-forms -->
+
+					<!-- ADDOOR fin -->
+
+        <!-- COMENTARIOS -->
+        <div id="comments">
+
+    
+      
+        </div>
+                <!-- COMENTARIOS FIN -->
+
+        
+
+                
+      </div>
+
+        <!-- SIDEBAR -->
+          
+      <aside class="hidden-sm hidden-xs barra_lateral">
+
+        
+					<div class="widget">
+						
+							<div class="aviso_publi"><span>PUBLICIDAD </span><div class="linea"></div></div>
+							<a rel="noreferrer" href="https://www.bakh.es/" target="_blank">
+								<img width="400px" height="400px" layout="responsive" data-category="banner-bakh" id="segundoparrlat" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/02/publicidad-segundo-parrafo-69.jpg"></img>
+							</a>
+							
+						
+					</div>
+				
+					<div class="widget">
+						
+							<div class="aviso_publi"><span>PUBLICIDAD </span><div class="linea"></div></div>
+							<a rel="noreferrer" href="https://www.hyundai.es/concesionarios/autolasa/tucson-black-line" target="_blank">
+								<img width="400px" height="400px" layout="responsive" data-category="banner-Hyundai-autolasa" id="quintoparrlat" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/publicidad-quinto-parrafo-36.gif"></img>
+							</a>
+							
+						
+					</div>
+				<div class="widget_text widget"><div class="textwidget custom-html-widget"><div class="solo-pc">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9860747815715784"
+     crossorigin="anonymous"></script>
+<!-- BannerparrafoLATERAL -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9860747815715784"
+     data-ad-slot="2515969155"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div></div></div>		   
+
+			<div class="solo-pc">	
+				
+			<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9860747815715784"
+     crossorigin="anonymous"></script>
+<!-- Banner4articuloPC -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9860747815715784"
+     data-ad-slot="3450309700"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+		</div>
+
+		 </br>
+		
+			<div class="h2bg" style="background-color: #e30613; margin-bottom: 10px;"><h2 class="h2blogs agendah2" style="color: white;">lo + leído</h2></div>
+
+			<ul class="popular_posts">
+	
+			
+	
+							
+				<a href="https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/" title="Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores"><li>Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores</li></a>
+				
+								
+				<a href="https://www.gasteizhoy.com/mercado-napoleonico-arriaga-marzo-2026/" title="El Mercado Napoleónico vuelve a Arriaga este fin de semana"><li>El Mercado Napoleónico vuelve a Arriaga este fin de semana</li></a>
+				
+								
+				<a href="https://www.gasteizhoy.com/barracas-san-prudencio-semana-santa-vitoria/" title="Sin barracas en San Prudencio ni Semana Santa por la noria de Navidad: "Hay un agravio comparativo""><li>Sin barracas en San Prudencio ni Semana Santa por la noria de Navidad: "Hay un agravio comparativo"</li></a>
+				
+								
+				<a href="https://www.gasteizhoy.com/nuevas-aperturas-centro-de-vitoria/" title="Las nuevas aperturas que revitalizan el centro de Vitoria: burgers, calzado, mascotas..."><li>Las nuevas aperturas que revitalizan el centro de Vitoria: burgers, calzado, mascotas...</li></a>
+				
+								
+				<a href="https://www.gasteizhoy.com/carretera-gobeo-yurre-senda-peatonal/" title="La carretera entre Gobeo y Yurre ganará seguridad con una senda peatonal"><li>La carretera entre Gobeo y Yurre ganará seguridad con una senda peatonal</li></a>
+				
+					
+			</ul>
+
+			
+		
+
+			<div class="solo-pc">		
+				
+				<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9860747815715784"
+     crossorigin="anonymous"></script>
+<!-- Banner5articuloPC -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9860747815715784"
+     data-ad-slot="3563975871"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+				
+				
+</div>
+
+		
+
+		
+      </aside>
+
+        <!-- SIDEBAR FIN -->
+
+        </div>
+      
+      </div>
+
+
+		</div>
+			<div class="adblock">
+				
+				<a href="https://www.ppvasco.com/participa/" target="_blank"  style="cursor: pointer;">
+<img width="160px" height="600px" layout="responsive" data-category="banner-pp" id="articuloDer" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/banner-campana-pp-new.gif"></img>
+							</a>
+				
+			</div>
+		</div>
+		
+
+		      
+  			</div>
+		</div>
+
+	<footer>
+		<div class="wrapper">
+			<div class="f1">
+				<a href="https://www.gasteizhoy.com/"><amp-img width="100" height="45" layout="responsive" src="https://www.gasteizhoy.com/wp-content/themes/eo-bootstrap/img/gh-logo-color.svg"></amp-img></a>
+				<p class="b_rrssfooter">
+<a href="https://www.whatsapp.com/channel/0029VaFNA4nGU3BOj4DvBO1e"  target="_blank" rel="noopener"><img class="btn_rrssfooter"  src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/whatsapp_logo_icon.png"/></a>
+<a href="https://twitter.com/gasteizhoy"  target="_blank" rel="noopener"><img class="btn_rrssfooter"  src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/x-twitter-gh.svg"/></a><a href="https://www.facebook.com/gasteizhoy"  target="_blank" rel="noopener"><img class="btn_rrssfooter" src="https://www.gasteizhoy.com/wp-content/uploads/2022/06/facebook-verde.svg"/></a> <a href="https://www.instagram.com/gasteizhoy/"  target="_blank" rel="noopener"><img class="btn_rrssfooter"  src="https://www.gasteizhoy.com/wp-content/uploads/2022/06/instagram-verde.svg"/></a><a href="https://www.youtube.com/user/gasteizhoy" target="_blank" rel="noopener"><img class="btn_rrssfooter"  src="https://www.gasteizhoy.com/wp-content/uploads/2022/06/youtube-verde.svg"/></a>
+</p>
+				
+				<p>Primer periódico digital de Vitoria.<br><h1>Noticias Vitoria-Álava</h1></p>
+			
+		
+			
+			</div>
+			<div class="f2">
+				<p>En Gasteiz Hoy encuentra las últimas noticias de Vitoria-Gasteiz y Álava, el primer periódico digital de Vitoria-Gasteiz sobre la ciudad, los barrios y toda la actualidad que afecta a los ciudadanos de Vitoria-Gasteiz. Ocio en Vitoria, Turismo Vitoria, Obras de Vitoria, información de Tuvisa Vitoria-Gasteiz, Tráfico de Álava y otras noticias de Vitoria y Álava. Periodismo ciudadano e independiente para lectores alaveses críticos en el primer periódico digital de Vitoria. Gasteiz Hoy, todos los derechos reservados.</p>
+			</div>
+			<div class="f3">
+				<a href="https://www.gasteizhoy.com/quienes-somos/">Contacto</a>
+				<a href="https://www.gasteizhoy.com/aviso-legal/">Política de privacidad</a>
+				<a href="https://www.gasteizhoy.com/aviso-legal/">Aviso legal</a>
+				<a href="https://www.gasteizhoy.com/audiencia-auditada-ojd-gasteiz-hoy/">Audiencia</a>
+				<a href="https://www.gasteizhoy.com/codigo-etico/">Código ético</a>
+				
+			</div>
+		</div>
+			
+		<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/gasteizhoy2021/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+			<script>
+				const lazyloadRunObserver = () => {
+					const lazyloadBackgrounds = document.querySelectorAll( `.e-con.e-parent:not(.e-lazyloaded)` );
+					const lazyloadBackgroundObserver = new IntersectionObserver( ( entries ) => {
+						entries.forEach( ( entry ) => {
+							if ( entry.isIntersecting ) {
+								let lazyloadBackground = entry.target;
+								if( lazyloadBackground ) {
+									lazyloadBackground.classList.add( 'e-lazyloaded' );
+								}
+								lazyloadBackgroundObserver.unobserve( entry.target );
+							}
+						});
+					}, { rootMargin: '200px 0px 200px 0px' } );
+					lazyloadBackgrounds.forEach( ( lazyloadBackground ) => {
+						lazyloadBackgroundObserver.observe( lazyloadBackground );
+					} );
+				};
+				const events = [
+					'DOMContentLoaded',
+					'elementor/lazyload/observe',
+				];
+				events.forEach( ( event ) => {
+					document.addEventListener( event, lazyloadRunObserver );
+				} );
+			</script>
+			<script type="text/javascript" src="https://www.gasteizhoy.com/wp-includes/js/jquery/ui/core.min.js?ver=1.13.3" id="jquery-ui-core-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-includes/js/jquery/ui/datepicker.min.js?ver=1.13.3" id="jquery-ui-datepicker-js"></script>
+<script type="text/javascript" id="jquery-ui-datepicker-js-after">
+/* <![CDATA[ */
+jQuery(function(jQuery){jQuery.datepicker.setDefaults({"closeText":"Cerrar","currentText":"Hoy","monthNames":["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"],"monthNamesShort":["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"],"nextText":"Siguiente","prevText":"Anterior","dayNames":["domingo","lunes","martes","mi\u00e9rcoles","jueves","viernes","s\u00e1bado"],"dayNamesShort":["Dom","Lun","Mar","Mi\u00e9","Jue","Vie","S\u00e1b"],"dayNamesMin":["D","L","M","X","J","V","S"],"dateFormat":"dd/mm/yy","firstDay":1,"isRTL":false});});
+//# sourceURL=jquery-ui-datepicker-js-after
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/js/jquery.typewatch.js?ver=7.31.0-b-modified-1772635630" id="mec-typekit-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/featherlight/featherlight.js?ver=7.31.0-b-modified-1772635630" id="featherlight-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/select2/select2.full.min.js?ver=7.31.0-b-modified-1772635630" id="mec-select2-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/js/mec-general-calendar.js?ver=7.31.0-b-modified-1772635630" id="mec-general-calendar-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/tooltip/tooltip.js?ver=7.31.0-b-modified-1772635630" id="mec-tooltip-script-js"></script>
+<script type="text/javascript" id="mec-frontend-script-js-extra">
+/* <![CDATA[ */
+var mecdata = {"day":"d\u00eda","days":"d\u00edas","hour":"hora","hours":"horas","minute":"minuto","minutes":"minutos","second":"segundo","seconds":"segundos","next":"Siguiente","prev":"Anterior","elementor_edit_mode":"no","recapcha_key":"Huhoi5Vg84gh+","ajax_url":"https://www.gasteizhoy.com/wp-admin/admin-ajax.php","fes_nonce":"f494d976ab","fes_thankyou_page_time":"2000","fes_upload_nonce":"4b616cb8ac","current_year":"2026","current_month":"03","datepicker_format":"dd-mm-yy&d-m-Y","sf_update_url":"0"};
+var mecdata = {"day":"d\u00eda","days":"d\u00edas","hour":"hora","hours":"horas","minute":"minuto","minutes":"minutos","second":"segundo","seconds":"segundos","next":"Siguiente","prev":"Anterior","elementor_edit_mode":"no","recapcha_key":"Huhoi5Vg84gh+","ajax_url":"https://www.gasteizhoy.com/wp-admin/admin-ajax.php","fes_nonce":"f494d976ab","fes_thankyou_page_time":"2000","fes_upload_nonce":"4b616cb8ac","current_year":"2026","current_month":"03","datepicker_format":"dd-mm-yy&d-m-Y","sf_update_url":"0"};
+//# sourceURL=mec-frontend-script-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/js/frontend.js?ver=7.31.0-b-modified-1772635630" id="mec-frontend-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/js/events.js?ver=7.31.0-b-modified-1772635630" id="mec-events-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/lity/lity.min.js?ver=7.31.0-b-modified-1772635630" id="mec-lity-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/colorbrightness/colorbrightness.min.js?ver=7.31.0-b-modified-1772635630" id="mec-colorbrightness-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/owl-carousel/owl.carousel.min.js?ver=7.31.0-b-modified-1772635630" id="mec-owl-carousel-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-includes/js/dist/hooks.min.js?ver=dd5603f07f9220ed27f1" id="wp-hooks-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-includes/js/dist/i18n.min.js?ver=c26c3dc7bed366793375" id="wp-i18n-js"></script>
+<script type="text/javascript" id="wp-i18n-js-after">
+/* <![CDATA[ */
+wp.i18n.setLocaleData( { 'text direction\u0004ltr': [ 'ltr' ] } );
+//# sourceURL=wp-i18n-js-after
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/contact-form-7/includes/swv/js/index.js?ver=6.1.5-b-modified-1770647053" id="swv-js"></script>
+<script type="text/javascript" id="contact-form-7-js-translations">
+/* <![CDATA[ */
+( function( domain, translations ) {
+	var localeData = translations.locale_data[ domain ] || translations.locale_data.messages;
+	localeData[""].domain = domain;
+	wp.i18n.setLocaleData( localeData, domain );
+} )( "contact-form-7", {"translation-revision-date":"2025-12-01 15:45:40+0000","generator":"GlotPress\/4.0.3","domain":"messages","locale_data":{"messages":{"":{"domain":"messages","plural-forms":"nplurals=2; plural=n != 1;","lang":"es"},"This contact form is placed in the wrong place.":["Este formulario de contacto est\u00e1 situado en el lugar incorrecto."],"Error:":["Error:"]}},"comment":{"reference":"includes\/js\/index.js"}} );
+//# sourceURL=contact-form-7-js-translations
+/* ]]> */
+</script>
+<script type="text/javascript" id="contact-form-7-js-before">
+/* <![CDATA[ */
+var wpcf7 = {
+    "api": {
+        "root": "https:\/\/www.gasteizhoy.com\/wp-json\/",
+        "namespace": "contact-form-7\/v1"
+    }
+};
+//# sourceURL=contact-form-7-js-before
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/contact-form-7/includes/js/index.js?ver=6.1.5-b-modified-1770647053" id="contact-form-7-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-includes/js/wp-embed.min.js?ver=6.9.4" id="wp-embed-js" defer="defer" data-wp-strategy="defer"></script>
+
+	</footer>
+
+	</main>
+
   </body>
 </html>

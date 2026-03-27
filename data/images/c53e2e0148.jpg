@@ -1,78 +1,1550 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Theme & Description -->
-    <meta name="theme-color" content="#E8F372" />
-    <meta name="description" content="Build AI apps with easy APIs, free compute, and community support" />
-    
-    <!-- Favicons -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png" />
-    <link rel="apple-touch-icon" sizes="167x167" href="/apple-touch-icon-167x167.png" />
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="canonical" href="https://pollinations.ai" />
-    
-    <!-- iOS Meta Tags -->
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="pollinations.ai" />
-    
-    <!-- Open Graph / Social Media -->
-    <meta property="og:title" content="pollinations.ai" />
-    <meta property="og:description" content="Build AI apps with easy APIs, free compute, and community support" />
-    <meta property="og:image" content="https://pollinations.ai/og-image.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="pollinations.ai logo" />
-    <meta property="og:locale" content="en_US" />
-    <meta property="og:site_name" content="pollinations.ai" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://pollinations.ai" />
-    
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@pollinations_ai" />
-    <meta name="twitter:title" content="pollinations.ai" />
-    <meta name="twitter:description" content="Build AI apps with easy APIs, free compute, and community support" />
-    <meta name="twitter:image" content="https://pollinations.ai/og-image.png" />
-    <meta name="twitter:image:alt" content="pollinations.ai logo" />
-    
-    <!-- Fonts (display=swap prevents FOIT) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;700&display=swap" />
 
-    <title>pollinations.ai</title>
-    <script type="module" crossorigin src="/assets/index-DdHc9m_N.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/vendor-Ca1QZqnV.js">
-    <link rel="modulepreload" crossorigin href="/assets/markdown-DIISHYfb.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-BdLDApWk.css">
-  </head>
-  <body>
-    <div id="root"></div>
-    <noscript>
-      <div style="font-family:sans-serif;padding:2rem;max-width:600px;margin:0 auto">
-        <h1>pollinations.ai</h1>
-        <p>Build AI apps with easy APIs, free compute, and community support. Generate images, text, audio and video with state-of-the-art AI models.</p>
-        <nav style="margin-top:1rem">
-          <a href="/">Home</a> &middot;
-          <a href="/play">Play</a> &middot;
-          <a href="/apps">Apps</a> &middot;
-          <a href="/community">Community</a> &middot;
-          <a href="https://enter.pollinations.ai/api/docs">API Docs</a>
-        </nav>
-        <p style="margin-top:1rem;font-size:0.875rem;color:#666">Enable JavaScript for full functionality.</p>
+<!DOCTYPE html>
+<html lang="es" style="margin-top: 0px;">
+
+<head>
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5MH2ZS');</script>
+  <!-- Google Tag Manager -->
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+    <meta charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+    <link rel="alternate" type="application/rss+xml" title="Gasteiz Hoy RSS" href="https://www.gasteizhoy.com/feed/" />
+    
+    <meta name="theme-color" content="#009836">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <script async src="https://cdn.ampproject.org/v0.js"></script>
+    <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+    
+    <script async custom-element="amp-anim" src="https://cdn.ampproject.org/v0/amp-anim-0.1.js"></script>
+    <script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>
+    <script async custom-element="amp-sidebar" src="https://cdn.ampproject.org/v0/amp-sidebar-0.1.js"></script>
+    <script async custom-element="amp-mega-menu" src="https://cdn.ampproject.org/v0/amp-mega-menu-0.1.js"></script>
+    <script async custom-element="amp-bind" src="https://cdn.ampproject.org/v0/amp-bind-0.1.js"></script>
+    <script async custom-element="amp-video" src="https://cdn.ampproject.org/v0/amp-video-0.1.js"></script>
+    <script async custom-element="amp-sticky-ad" src="https://cdn.ampproject.org/v0/amp-sticky-ad-1.0.js"></script>
+    <script async custom-element="amp-iframe" src="https://cdn.ampproject.org/v0/amp-iframe-0.1.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
+    <meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
+
+	<!-- This site is optimized with the Yoast SEO Premium plugin v27.2 (Yoast SEO v27.2) - https://yoast.com/product/yoast-seo-premium-wordpress/ -->
+	<title>Binter volará lunes y jueves desde Foronda a Gran Canaria</title>
+	<meta name="description" content="La aerolínea canaria Binter operará vuelos en Foronda desde Gran Canaria hasta Vitoria en verano en la nueva conexión" />
+	<link rel="canonical" href="https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/" />
+	<meta property="og:locale" content="es_ES" />
+	<meta property="og:type" content="article" />
+	<meta property="og:title" content="Binter volará lunes y jueves desde Foronda a Gran Canaria" />
+	<meta property="og:description" content="La aerolínea canaria Binter operará vuelos en Foronda desde Gran Canaria hasta Vitoria en verano en la nueva conexión" />
+	<meta property="og:url" content="https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/" />
+	<meta property="og:site_name" content="Gasteiz Hoy" />
+	<meta property="article:publisher" content="https://facebook.com/gasteizhoy" />
+	<meta property="article:published_time" content="2026-03-26T17:17:33+00:00" />
+	<meta property="article:modified_time" content="2026-03-26T18:04:03+00:00" />
+	<meta property="og:image" content="https://www.gasteizhoy.com/wp-content/uploads/2020/01/Binter-Vitoria-Gasteiz3-scaled.jpg" />
+	<meta property="og:image:width" content="1212" />
+	<meta property="og:image:height" content="808" />
+	<meta property="og:image:type" content="image/jpeg" />
+	<meta name="author" content="Natxo Gatón" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:creator" content="@ignaciogaton" />
+	<meta name="twitter:site" content="@gasteizhoy" />
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https://schema.org","@graph":[{"@type":"NewsArticle","@id":"https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/#article","isPartOf":{"@id":"https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/"},"author":{"name":"Natxo Gatón","@id":"https://www.gasteizhoy.com/#/schema/person/5f7f40bcbda3f23d3b5a24c0c4cf9ca7"},"headline":"Binter volará lunes y jueves desde Foronda a Gran Canaria","datePublished":"2026-03-26T17:17:33+00:00","dateModified":"2026-03-26T18:04:03+00:00","mainEntityOfPage":{"@id":"https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/"},"wordCount":710,"publisher":{"@id":"https://www.gasteizhoy.com/#organization"},"image":{"@id":"https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/#primaryimage"},"thumbnailUrl":"https://www.gasteizhoy.com/wp-content/uploads/2020/01/Binter-Vitoria-Gasteiz3-scaled.jpg","articleSection":["Superdestacada","Aeropuerto Foronda","Breaking News"],"inLanguage":"es","copyrightYear":"2026","copyrightHolder":{"@id":"https://www.gasteizhoy.com/#organization"}},{"@type":"WebPage","@id":"https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/","url":"https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/","name":"Binter volará lunes y jueves desde Foronda a Gran Canaria","isPartOf":{"@id":"https://www.gasteizhoy.com/#website"},"primaryImageOfPage":{"@id":"https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/#primaryimage"},"image":{"@id":"https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/#primaryimage"},"thumbnailUrl":"https://www.gasteizhoy.com/wp-content/uploads/2020/01/Binter-Vitoria-Gasteiz3-scaled.jpg","datePublished":"2026-03-26T17:17:33+00:00","dateModified":"2026-03-26T18:04:03+00:00","description":"La aerolínea canaria Binter operará vuelos en Foronda desde Gran Canaria hasta Vitoria en verano en la nueva conexión","breadcrumb":{"@id":"https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/#breadcrumb"},"inLanguage":"es","potentialAction":[{"@type":"ReadAction","target":["https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/"]}]},{"@type":"ImageObject","inLanguage":"es","@id":"https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/#primaryimage","url":"https://www.gasteizhoy.com/wp-content/uploads/2020/01/Binter-Vitoria-Gasteiz3-scaled.jpg","contentUrl":"https://www.gasteizhoy.com/wp-content/uploads/2020/01/Binter-Vitoria-Gasteiz3-scaled.jpg","width":1212,"height":808,"caption":"binter tenerife"},{"@type":"BreadcrumbList","@id":"https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"","item":"https://www.gasteizhoy.com/"},{"@type":"ListItem","position":2,"name":"Álava","item":"https://www.gasteizhoy.com/alava/"},{"@type":"ListItem","position":3,"name":"Aeropuerto Foronda","item":"https://www.gasteizhoy.com/alava/aeropuerto-foronda-araba/"},{"@type":"ListItem","position":4,"name":"Binter volará lunes y jueves desde Foronda a Gran Canaria"}]},{"@type":"WebSite","@id":"https://www.gasteizhoy.com/#website","url":"https://www.gasteizhoy.com/","name":"Gasteiz Hoy","description":"Información independiente de Vitoria y Álava","publisher":{"@id":"https://www.gasteizhoy.com/#organization"},"potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://www.gasteizhoy.com/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"es"},{"@type":"Organization","@id":"https://www.gasteizhoy.com/#organization","name":"Gasteiz Hoy","url":"https://www.gasteizhoy.com/","logo":{"@type":"ImageObject","inLanguage":"es","@id":"https://www.gasteizhoy.com/#/schema/logo/image/","url":"https://www.gasteizhoy.com/wp-content/uploads/2021/04/logo-gasteizhoy.png","contentUrl":"https://www.gasteizhoy.com/wp-content/uploads/2021/04/logo-gasteizhoy.png","width":704,"height":274,"caption":"Gasteiz Hoy"},"image":{"@id":"https://www.gasteizhoy.com/#/schema/logo/image/"},"sameAs":["https://facebook.com/gasteizhoy","https://x.com/gasteizhoy","https://instagram.com/gasteizhoy","https://www.linkedin.com/company/gasteizhoy","https://youtube.com/gasteizhoy"]},{"@type":"Person","@id":"https://www.gasteizhoy.com/#/schema/person/5f7f40bcbda3f23d3b5a24c0c4cf9ca7","name":"Natxo Gatón","description":"Periodista vitoriano: empeñado en informar a los gasteiztarras de todo lo que sucede en cada instante, aprovechando las posibilidades de la web 3.0.","sameAs":["ignaciogaton","https://x.com/ignaciogaton"],"url":"https://www.gasteizhoy.com/author/igaton/"}]}</script>
+	<!-- / Yoast SEO Premium plugin. -->
+
+
+<link rel='dns-prefetch' href='//fonts.googleapis.com' />
+<style id='wp-img-auto-sizes-contain-inline-css' type='text/css'>
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<link rel='stylesheet' id='mec-select2-style-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/select2/select2.min.css?ver=7.31.0-b-modified-1772635630' type='text/css' media='all' />
+<link rel='stylesheet' id='mec-font-icons-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/css/iconfonts.css?ver=7.31.0-b-modified-1772635630' type='text/css' media='all' />
+<link rel='stylesheet' id='mec-frontend-style-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/css/frontend.min.css?ver=7.31.0-b-modified-1772635827' type='text/css' media='all' />
+<link rel='stylesheet' id='mec-tooltip-style-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/tooltip/tooltip.css?ver=7.31.0-b-modified-1772635630' type='text/css' media='all' />
+<link rel='stylesheet' id='mec-tooltip-shadow-style-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/tooltip/tooltipster-sideTip-shadow.min.css?ver=7.31.0-b-modified-1772635630' type='text/css' media='all' />
+<link rel='stylesheet' id='featherlight-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/featherlight/featherlight.css?ver=7.31.0-b-modified-1772635630' type='text/css' media='all' />
+<link rel='stylesheet' id='mec-custom-google-font-css' href='https://fonts.googleapis.com/css?family=Noto+Sans%3Aregular%2C+italic%2C+700%2C+700italic%2C+%7CNoto+Sans%3A700italic%2C+700italic%2C+700italic%2C+700italic%2C+&#038;subset=latin%2Clatin-ext&#038;ver=7.31.0' type='text/css' media='all' />
+<link rel='stylesheet' id='mec-lity-style-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/lity/lity.min.css?ver=7.31.0-b-modified-1772635630' type='text/css' media='all' />
+<link rel='stylesheet' id='mec-general-calendar-style-css' href='https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/css/mec-general-calendar.css?ver=7.31.0-b-modified-1772635630' type='text/css' media='all' />
+<link rel='preload' as='style' onload="this.onload=null;this.rel='stylesheet'" id='wp-block-library-css' href='https://www.gasteizhoy.com/wp-includes/css/dist/block-library/style.min.css?ver=6.9.4' type='text/css' media='all' />
+<style id='classic-theme-styles-inline-css' type='text/css'>
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+<style id='autoblue-comments-style-inline-css' type='text/css'>
+.wp-block-autoblue-comment-template{list-style:none;margin:0;padding-left:0}.wp-block-autoblue-comment{display:grid;grid-template-columns:50px 1fr;grid-column-gap:16px}.wp-block-autoblue-comment>*{grid-column:2}.wp-block-autoblue-comment+.wp-block-autoblue-comment{margin-top:24px}.wp-block-autoblue-comment-avatar{grid-column:1;grid-row:span 4}.wp-block-autoblue-comment-avatar img{aspect-ratio:1/1;border-radius:50%;object-fit:cover;object-position:center;width:100%}.wp-block-autoblue-comment-author{align-items:center;display:flex;flex-wrap:wrap;gap:8px}.wp-block-autoblue-comment-author__name{font-weight:700}.wp-block-autoblue-comment-author__handle{opacity:.7}.wp-block-autoblue-comments-comment-text{margin:8px 0}.wp-block-autoblue-comment-date{font-size:80%;opacity:.7}.wp-block-autoblue-comment-replies{list-style:none;margin-top:24px;padding-left:0}.wp-block-autoblue-comment .wp-block-autoblue-comment .wp-block-autoblue-comment .wp-block-autoblue-comment-replies{grid-column:span 2}
+
+/*# sourceURL=https://www.gasteizhoy.com/wp-content/plugins/autoblue/build/js/blocks/comments/style-index.css */
+</style>
+<style id='global-styles-inline-css' type='text/css'>
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}
+:where(.wp-block-term-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-term-template.is-layout-grid){gap: 1.25em;}
+:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}
+:root :where(.wp-block-pullquote){font-size: 1.5em;line-height: 1.6;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+<link rel='stylesheet' id='contact-form-7-css' href='https://www.gasteizhoy.com/wp-content/plugins/contact-form-7/includes/css/styles.css?ver=6.1.5-b-modified-1770647053' type='text/css' media='all' />
+<link rel='preload' as='style' onload="this.onload=null;this.rel='stylesheet'" id='foawe_css-css' href='https://www.gasteizhoy.com/wp-content/themes/gasteizhoy2021/css/all.css?ver=6.9.4-b-modified-1762022926' type='text/css' media='all' />
+<link rel='preload' as='style' onload="this.onload=null;this.rel='stylesheet'" id='bs_css-css' href='https://www.gasteizhoy.com/wp-content/themes/gasteizhoy2021/style-bootstrap.css?ver=6.9.4-b-modified-1659041787' type='text/css' media='all' />
+<link rel='stylesheet' id='gh_css-css' href='https://www.gasteizhoy.com/wp-content/themes/gasteizhoy2021/style.css?ver=6.9.4-b-modified-1773152292' type='text/css' media='all' />
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" id="jquery-core-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1" id="jquery-migrate-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/svg-support/vendor/DOMPurify/DOMPurify.min.js?ver=2.5.8-b-modified-1740644247" id="bodhi-dompurify-library-js"></script>
+<script type="text/javascript" id="bodhi_svg_inline-js-extra">
+/* <![CDATA[ */
+var svgSettings = {"skipNested":""};
+//# sourceURL=bodhi_svg_inline-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/svg-support/js/min/svgs-inline-min.js?ver=6.9.4-b-modified-1740644247" id="bodhi_svg_inline-js"></script>
+<script type="text/javascript" id="bodhi_svg_inline-js-after">
+/* <![CDATA[ */
+cssTarget={"Bodhi":"img.style-svg","ForceInlineSVG":"style-svg"};ForceInlineSVGActive="false";frontSanitizationEnabled="on";
+//# sourceURL=bodhi_svg_inline-js-after
+/* ]]> */
+</script>
+<meta name="generator" content="Elementor 3.35.9; features: additional_custom_breakpoints; settings: css_print_method-external, google_font-enabled, font_display-swap">
+			<style>
+				.e-con.e-parent:nth-of-type(n+4):not(.e-lazyloaded):not(.e-no-lazyload),
+				.e-con.e-parent:nth-of-type(n+4):not(.e-lazyloaded):not(.e-no-lazyload) * {
+					background-image: none !important;
+				}
+				@media screen and (max-height: 1024px) {
+					.e-con.e-parent:nth-of-type(n+3):not(.e-lazyloaded):not(.e-no-lazyload),
+					.e-con.e-parent:nth-of-type(n+3):not(.e-lazyloaded):not(.e-no-lazyload) * {
+						background-image: none !important;
+					}
+				}
+				@media screen and (max-height: 640px) {
+					.e-con.e-parent:nth-of-type(n+2):not(.e-lazyloaded):not(.e-no-lazyload),
+					.e-con.e-parent:nth-of-type(n+2):not(.e-lazyloaded):not(.e-no-lazyload) * {
+						background-image: none !important;
+					}
+				}
+			</style>
+			<link rel="icon" href="https://www.gasteizhoy.com/wp-content/uploads/2018/07/cropped-icono-del-sitio-1-3-32x32.gif" sizes="32x32" />
+<link rel="icon" href="https://www.gasteizhoy.com/wp-content/uploads/2018/07/cropped-icono-del-sitio-1-3-192x192.gif" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://www.gasteizhoy.com/wp-content/uploads/2018/07/cropped-icono-del-sitio-1-3-180x180.gif" />
+<meta name="msapplication-TileImage" content="https://www.gasteizhoy.com/wp-content/uploads/2018/07/cropped-icono-del-sitio-1-3-270x270.gif" />
+<style>:root,::before,::after{--mec-heading-font-family: 'Noto Sans';--mec-paragraph-font-family: 'Noto Sans';--mec-color-skin: #45ab48;--mec-color-skin-rgba-1: rgba(69,171,72,.25);--mec-color-skin-rgba-2: rgba(69,171,72,.5);--mec-color-skin-rgba-3: rgba(69,171,72,.75);--mec-color-skin-rgba-4: rgba(69,171,72,.11);--mec-primary-border-radius: ;--mec-secondary-border-radius: ;--mec-container-normal-width: 1196px;--mec-container-large-width: 1690px;--mec-title-color-hover: #45ab48;--mec-content-color: #ffffff;--mec-fes-main-color: #40d9f1;--mec-fes-main-color-rgba-1: rgba(64, 217, 241, 0.12);--mec-fes-main-color-rgba-2: rgba(64, 217, 241, 0.23);--mec-fes-main-color-rgba-3: rgba(64, 217, 241, 0.03);--mec-fes-main-color-rgba-4: rgba(64, 217, 241, 0.3);--mec-fes-main-color-rgba-5: rgb(64 217 241 / 7%);--mec-fes-main-color-rgba-6: rgba(64, 217, 241, 0.2);</style><style>.mec-event-date {
+background: white;
+}
+.mec-event-grid-minimal .mec-event-detail, .mec-event-grid-minimal .mec-time-details {
+color: #191919;
+}
+
+.mec-event-more-info {display:none;}
+
+ .mec-wrap.colorskin-custom .mec-bg-color, .colorskin-custom .mec-event-sharing-wrap:hover {
+    background: white;
+    color: #191919;
+    width: 100%;
+    margin: 0 auto;
+}
+
+ .mec-event-grid-classic .mec-event-title {
+    font-family: 'Noto Sans Bold';
+    text-transform: none;
+    padding: 0px 3px 15px 3px;
+    margin: 10px 0px 0px 0px;
+  }
+
+
+
+.mec-event-grid-classic .mec-event-content {
+    height: /*45%*/auto;
+    border-bottom: solid 2px #f3f3f3;
+    border-left: solid 2px #f3f3f3;
+    border-right: solid 2px #f3f3f3;
+  }
+
+.mec-event-grid-classic .mec-event-article {
+    border: none;
+  } 
+
+.mec-events-toggle .mec-toggle-title {
+    display: block;
+    width: 100%!important;
+    max-width: 100% !important;
+    text-align: center!important;
+    margin-top: 20px !important;
+margin-bottom: 10px !important;
+    padding-left: 0 !important;
+font-family: 'Noto Sans Bold' !important;
+font-weight:normal;
+}
+
+.mec-toggle-item-col .mec-event-date {
+    font-size: 15px !important;
+    line-height: 25px;
+    float: none !important;
+    margin-right: 8px;
+}
+
+
+@media only screen and (max-width:479px){
+
+.mec-events-toggle {
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px !important;
+}
+
+
+.mec-toggle-item-inner .mec-toggle-item-col {
+    float: none;
+    width: 100%;
+    border-right: none;
+    margin: 0 auto!important;
+    display: block;
+    max-width: 100%;
+    text-align: center !important;
+    padding-right:100px !important;
+}
+
+.mec-events-toggle .mec-toggle-title {
+    display: block;
+    width: 100%!important;
+    max-width: 100% !important;
+    text-align: center!important;
+    margin-top: 20px !important;
+margin-bottom: 10px !important;
+    padding-left: 0 !important;
+}
+    
+
+
+
+.mec-toggle-item-col .mec-event-date {
+    font-size: 22px !important;
+    line-height: 40px;
+    float: none;
+    margin-right: 8px;
+     font-family: 'Noto Sans Bold' !important;
+}
+
+
+}
+.mec-toggle-item-col {
+    width: 300px;
+    border-right: 1px solid #e3e3e3;
+    margin-right: 5px !important;
+    display: table-cell;
+    padding-right: 12px;
+    font-family: 'Noto Sans Bold' !important;
+}
+
+.post-type-mec_calendars .mec-col-4.wn-mec-select {display: block !important;} 
+
+.post-type-mec_calendars .nice-select.mec-col-4.wn-mec-select {display: none !important;}
+
+.mec-wrap .mec-single-title, .single-mec-events .mec-wrap.mec-no-access-error h1 {
+    margin-top: 0;
+    margin-bottom: 30px;
+    font-weight: 700;
+    font-size: 25px;
+    font-weight: normal;
+}
+
+.mec-calendar .mec-calendar-header h2 {
+    text-transform: uppercase;
+    font-size: 22px;
+    font-weight: normal;
+    color: #333;
+}
+
+.mec-wrap h2 {
+    font-size: 21px;
+    line-height:0.7;
+    margin-bottom: 10px;
+}
+</style>
+    <script>
+
+      document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const scrollUp = "scroll-up";
+            const scrollDown = "scroll-down";
+            let lastScroll = 0;
+
+            window.addEventListener("scroll", () => {
+              const currentScroll = window.pageYOffset;
+              if (currentScroll <= 0) {
+                body.classList.remove(scrollUp);
+                return;
+              }
+
+              if (currentScroll > lastScroll && !body.classList.contains(scrollDown)) {
+                // down
+                body.classList.remove(scrollUp);
+                body.classList.add(scrollDown);
+              } else if (currentScroll < lastScroll && body.classList.contains(scrollDown)) {
+                // up
+                body.classList.remove(scrollDown);
+                body.classList.add(scrollUp);
+              }
+              lastScroll = currentScroll;
+            });
+    });
+
+    </script>
+
+    <!-- Hotjar Tracking Code for gasteizhoy.com -->
+   
+
+<script type="text/javascript">
+  
+  var counter = 0;
+  console.log("test");
+
+    setInterval(function(){ 
+      jQuery('#logo_color').toggle();
+        jQuery('#logo_somos').toggle();
+    }, 5000);
+
+</script>
+
+<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+<script>
+  window.googletag = window.googletag || {cmd: []};
+  googletag.cmd.push(function() {
+    googletag.defineSlot('/65328748/sobre-articulos-02', [[365, 55], [490, 75]], 'div-gpt-ad-1638386889240-0').addService(googletag.pubads());
+    googletag.enableServices();
+  });
+</script>
+
+<!-- Hotjar Tracking Code for https://www.gasteizhoy.com/ -->
+<script>
+    (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:5139041,hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+</script>
+	
+<script type="module" src="https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"></script>
+
+    
+</head>
+
+<body data-rsssl=1 id="arriba" class="wp-singular post-template-default single single-post postid-287250 single-format-standard wp-custom-logo wp-theme-gasteizhoy2021 mec-theme-gasteizhoy2021 metaslider-plugin superdestacada aeropuerto-foronda-araba breaking-news elementor-default elementor-kit-193177">
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5MH2ZS"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<!-- Global site tag (gtag.js) - Google Analytics  -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-22373120-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-22373120-1');
+</script>
+
+
+
+<!-- STICKY VIDEOO START -->
+<amp-script layout="container" src="https://www.gasteizhoy.com/wp-content/themes/eo-bootstrap/stickybanner.js"></amp-script>
+<!-- STICKY VIDEOO END -->
+	
+	
+
+  <amp-sidebar id="sidebar1" layout="nodisplay" style="width:300px">
+    <!--<amp-img class="logosidebar" layout="responsive" src="https://i.imgur.com/46NicWO.png" width="75" height="75"></amp-img>-->
+		<amp-nested-menu layout="fill" height="300px" width="300px">
+    <form role="search" method="get" class="search-form" action="https://www.gasteizhoy.com/">
+				<label>
+					<span class="screen-reader-text">Buscar:</span>
+					<input type="search" class="search-field" placeholder="Buscar &hellip;" value="" name="s" />
+				</label>
+				<input type="submit" class="search-submit" value="Buscar" />
+			</form>    
+			
+			
+<ul id="menu-barra-secundaria" class="nav navbar-nav">
+
+<li class="vitoriamenu"><a href="https://www.gasteizhoy.com/vitoria/">Vitoria-Gasteiz</a></li>
+<li class="alavamenu"><a href="https://www.gasteizhoy.com/alava/">Álava</a></li>
+<li class="ociomenu"><a href="https://www.gasteizhoy.com/ociogasteiz/">Ocio Gasteiz</a></li>
+<li class="sucesosmenu"><a href="https://www.gasteizhoy.com/sucesos/">Sucesos</a></li>
+<li class="deportesmenu"><a href="https://www.gasteizhoy.com/deportes/">Deportes</a></li>
+<li class="economiamenu"><a href="https://www.gasteizhoy.com/alava/economia">Economía</a></li>
+<li class="publicidadmenu"><a href="https://www.gasteizhoy.com/publicidad-vitoria/">Publicidad</a></li>
+<li class="contactomenu"><a href="https://www.gasteizhoy.com/quienes-somos/">Contacto</a></li>
+<li amp-nested-submenu-open class="ghmenu"><span style="margin-left:30px;">Más Gasteiz Hoy</span></li>
+       
+
+ <div amp-nested-submenu>
+          
+	<ul id="menu-barra-secundaria" class="submenu">
+            
+             <h4 amp-nested-submenu-close > atrás  </h4>
+           
+           
+				 <li> <span class="sanprudenciomenu"> <a href="https://www.gasteizhoy.com/alava/san-prudencio/">SAN PRUDENCIO</a></span></li>
+			  <li> <span class="fiestaspueblosmenu"> <a href="https://www.gasteizhoy.com/fiestas-pueblos-septiembre-alava/">FIESTAS DE PUEBLOS</a></span></li>
+			  <li> <span class="serviciosarabamenu"> <a href="https://www.gasteizhoy.com/agenda-servicios-araba/">AGENDA SERVICIOS ARABA</a></span></li>
+		<li> <span class="pueblosdealavamenu"> <a href="https://www.gasteizhoy.com/vitoria-hoy-sabe-de/pueblos-alava/">PUEBLOS DE ÁLAVA</a></span></li>
+		<li> <span class="podcastmenu"> <a href="https://www.gasteizhoy.com/podcast-oasys-gasteiz-hoy/">PODCAST</a></span></li>
+		<li> <span class="eleccionesmenu"> <a href="https://www.gasteizhoy.com/elecciones-euskadi-2024/">ELECCIONES</a></span></li>
+		 <li><span class="encuestamenu"> <a href="https://www.gasteizhoy.com/encuesta/">ENCUESTAS</a></span></li>	 
+		<li> <span class="camaramenu"> <a href="https://www.gasteizhoy.com/video/">VÍDEOS</a></span></li>
+			 
+		<li> <span class="tranviamenu"> <a href="https://www.gasteizhoy.com/vitoria/movilidad-en-vitoria-vitoria/">MOVILIDAD</a></span></li>
+			   <li><span class="slowtvmenu"> <a href="https://www.gasteizhoy.com/slow-tv-vitoria-gasteiz/">SLOW TV</a></span></li>
+			   <li> <span class="montemenu"> <a href="https://www.gasteizhoy.com/red-natura-alava/">RED NATURA</a></span></li>
+			   <li><span class="gastronomiamenu"> <a href="https://www.gasteizhoy.com/vitoria/gastronomia/">GASTRONOMÍA</a></span></li>
+		  <li><span class="movilidadmenu"> <a href="https://www.gasteizhoy.com/vitoria/mi-barrio/">MI BARRIO</a></span></li>
+			  <li> <span class="libromenu"> <a href="https://www.gasteizhoy.com/vitoria-hoy-sabe-de/">VITORIA HOY SABE DE</a></span></li>
+
+			   <li> <span class="forondamenu"> <a href="https://www.gasteizhoy.com/alava/aeropuerto-foronda-araba/">FORONDA</a></span></li>
+		
+		
+              <div amp-nested-submenu>
+               
+              </div>
+           
+          </ul>
+        </div>
+  
+
+</ul>		
+			</div>
+	 </amp-nested-menu>
+	</amp-sidebar>
+	
+	
+	
+
+        <!-- MENU MOVIL INFERIOR
+        <div class="solo-movil show768">
+            <div class="sticky-footer">
+              ?php dynamic_sidebar('frontpage-int-06');?>
+            </div>
+        </div>
+        -->
+
+    <div [hidden]="hideBanner" class="solo-movil macroban">
+      
+     <div class="textwidget custom-html-widget"><div class="solo-pc">
+
+	<a rel="noreferrer" href="https://villasdezabalgana.com/" target="_blank">
+<img width="1212px" height="225px" layout="responsive" data-category="banner-fdz-nograro" id="Macrobannerpc" class="banclick macrobanpc" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/banner-fase-2-fn-pc.gif"></a> 
+
+
+</div>
+
+
+
+<div  class="solo-movil" style="height:75px !important;">
+	<a rel="noreferrer" href="https://villasdezabalgana.com/" target="_blank">
+<img width="475px" height="88px" layout="responsive" data-category="banner-fdz-nograro" id="Macrobanner2" class="banclick macrobanmovil" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/banner-fase-2-fn-movil.gif"></a></div></div>	
+    </div>
+
+    <header class="mega-menu">
+        
+        <div class="solo-movil topbar_ios Mobile-bar">
+
+          <div class="bar1">
+
+            <button aria-label="Menú" on="tap:sidebar1" class="menu_ios"><i class="fas fa-bars"></i></button>
+
+      <a  href="https://www.gasteizhoy.com/">
+			 <div style="width: 175px; margin: 0 auto; margin-left:30px; text-align: center; padding: 5px;">
+				 <amp-img layout="responsive" width="175" height="30" style="text-align: center; padding: 5px; height:30px;" alt="Gasteiz hoy. El poder eres tú"   src="https://www.gasteizhoy.com//wp-content/themes/gasteizhoy2021/img/cabecera-prueba-hd.gif" ></img>
+	   </div>
+		</a>	
+
+              <div style="margin-top:10px; margin-right:-25px;">
+						<div class="widget"><a href="https://www.gasteizhoy.com/vitoria/hobetuz/"><img width="25" height="25" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/Diseno-sin-titulo-4.png" class="image wp-image-284731  attachment-25x25 size-25x25" alt="" style="max-width: 100%; height: auto;" decoding="async" /></a></div>					</div>
+			  
+			      <div>
+
+					<div class="mobile-bottom-nav">
+						<a href="https://www.gasteizhoy.com" class="menu_inferior_item "> <img class="menu_inicio_img" src="https://www.gasteizhoy.com/wp-content/uploads/2025/10/ICONO-GASTEIZ-HOY.gif"</img> </br> Inicio</a>
+						<a href="https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/" class="menu_inferior_item "> <img class="menu_inferior_img" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/korrika-en-vitoria-carrera.png"</img></br>  Korrika</a>
+						<a href="https://www.gasteizhoy.com/ociogasteiz/" class="menu_inferior_item "> <img class="menu_inferior_img" src="https://www.gasteizhoy.com/wp-content/uploads/2026/01/icono-musica-movil.png"</img> </br> Ocio Gasteiz</a>
+						<a href="https://www.gasteizhoy.com/vitoria/hobetuz/" class="menu_inferior_item "> <img class="menu_inferior_img" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/Diseno-sin-titulo-4.png"</img> </br> Hobetuz</a>
+					</div>
+
+
+
+				</div>
+
+          </div>
+
+          
+					<div class="bar2">
+						<a href="https://www.gasteizhoy.com/" class="menu_ios_item ">Inicio</a>
+						<a href="https://www.gasteizhoy.com/elecciones-2023-vitoria/" class="menu_ios_item ">28M</a>
+						<a href="https://www.gasteizhoy.com/el-tiempo-vitoria/" class="menu_ios_item ">El tiempo</a>
+						<a href="https://www.gasteizhoy.com/halloween-vitoria-2022/" class="menu_ios_item ">Halloween</a>
+					</div>
+
+				
+        </div>
+
+    
+      <div id="ghtopnavbar" class="cabecera-pc solo-pc">
+          <div class="logo">
+            <a href="https://www.gasteizhoy.com/"><amp-img width="100" height="45" layout="responsive" src="https://www.gasteizhoy.com/wp-content/themes/eo-bootstrap/img/gh-logo-color.svg"></amp-img></a>
+          </div>
+
+          <div class="logosquare">
+            <a href="https://www.gasteizhoy.com/"><amp-img width="45" height="45" layout="responsive" src="https://www.gasteizhoy.com/wp-content/uploads/2020/05/46NicWO.png"></amp-img></a>
+          </div>
+
+          <div class="menusuperior">
+            <div class="row">
+              <div class="header">
+                      
+              <nav class="main-menu" id="main-menu">
+
+                <li class="main-menu-dropdown">
+                  <a href="https://www.gasteizhoy.com/vitoria/" title="VITORIA">
+                    VITORIA-GASTEIZ
+                    <span class="main-menu-dropdown-icon">
+                      <i class="arrow-down"></i>
+                    </span>
+                  </a>
+
+                  <label class="main-menu-dropdown-icon" for="main-menu-dropdown-list-1">
+                    <i class="arrow-down arrow-down-mobile"></i>
+                  </label>
+                  <input type="checkbox" id="main-menu-dropdown-list-1">
+
+                  <ul class="main-menu-dropdown-list">
+                    <li><a href="https://www.gasteizhoy.com/vitoria/ayuntamiento-ciudad/" title="AYUNTAMIENTO">AYUNTAMIENTO</a></li>
+                    <li><a href="https://www.gasteizhoy.com/vitoria/movilidad-en-vitoria-vitoria/" title="MOVILIDAD EN VITORIA">MOVILIDAD EN VITORIA</a></li>
+                    <li><a href="https://www.gasteizhoy.com/vitoria/obras-en-vitoria/" title="OBRAAS EN VITORIA">OBRAS</a></li>
+                    <li><a href="https://www.gasteizhoy.com/vitoria/comercios/" title="COMERCIO">COMERCIO</a></li>
+                    
+                    <li><a href="https://www.gasteizhoy.com/vitoria/mi-barrio/" title="MI BARRIO">MI BARRIO</a></li>
+					  <li><a href="https://www.gasteizhoy.com/reportaje/" title="REPORTAJE">REPORTAJE</a></li>
+                  </ul>
+                </li>
+
+                <li class="main-menu-dropdown">
+                  <a href="https://www.gasteizhoy.com/alava/" title="ÁLAVA">
+                    ÁLAVA
+                    <span class="main-menu-dropdown-icon">
+                      <i class="arrow-down"></i>
+                    </span>
+                  </a>
+
+                  <label class="main-menu-dropdown-icon" for="main-menu-dropdown-list-2">
+                    <i class="arrow-down arrow-down-mobile"></i>
+                  </label>
+                  <input type="checkbox" id="main-menu-dropdown-list-2">
+
+                  <ul class="main-menu-dropdown-list">
+                    <li><a href="https://www.gasteizhoy.com/alava/agurain-llanada-alavesa/" title="MONTAÑA ALAVESA">AGURAIN</a></li>
+					 <li><a href="https://www.gasteizhoy.com/alava/trevino/" title="TREVIÑO">TREVIÑO</a></li>
+					   <li><a href="https://www.gasteizhoy.com/alava/rioja-alavesa" title="RIOJA ALAVESA">RIOJA ALAVESA</a></li>
+					   <li><a href="https://www.gasteizhoy.com/alava/montana-alavesa" title="MONTAÑA ALAVESA">MONTAÑA ALAVESA</a></li>
+					  <li><a href="https://www.gasteizhoy.com/alava/gorbeialdea/" title="GORBEIALDEA">GORBEIALDEA</a></li>
+					  <li><a href="https://www.gasteizhoy.com/alava/anana/" title="AÑANA">AÑANA</a></li>
+					  <li><a href="https://www.gasteizhoy.com/alava/ayala/" title="AYALA">AYALA</a></li>
+					  <li><a href="https://www.gasteizhoy.com/alava/aeropuerto-foronda-araba" title="FORONDA">FORONDA</a></li>
+					  <li><a href="https://www.gasteizhoy.com/alava/economia" title="ECONOMIA">ECONOMÍA</a></li>
+                     <li><a href="https://www.gasteizhoy.com/alava/empleo" title="EMPLEO">EMPLEO</a></li>
+                  </ul>
+                </li>
+
+                <li class="main-menu-dropdown">
+                  <a href="https://www.gasteizhoy.com/sucesos/" title="SUCESOS">
+                    SUCESOS
+                    <span class="main-menu-dropdown-icon">
+                      <i class="arrow-down"></i>
+                    </span>
+                  </a>
+
+                  <label class="main-menu-dropdown-icon" for="main-menu-dropdown-list-3">
+                    <i class="arrow-down arrow-down-mobile"></i>
+                  </label>
+                  <input type="checkbox" id="main-menu-dropdown-list-3">
+
+                  <ul class="main-menu-dropdown-list">
+                <li><a href="https://www.gasteizhoy.com/sucesos/trafico" title="TRÁFICO">TRÁFICO</a></li>
+					  <li><a href="https://www.gasteizhoy.com/sucesos/incendio" title="INCENDIO">INCENDIO</a></li>
+					  <li><a href="https://www.gasteizhoy.com/sucesos/droga/" title="DROGAS">DROGAS</a></li>
+                    <li><a href="https://www.gasteizhoy.com/sucesos/robos" title="FÚTBOL">ROBOS</a></li>
+                    <li><a href="https://www.gasteizhoy.com/sucesos/violencia-machista/" title="VIOLENCIA MACHISTA">VIOLENCIA MACHISTA</a></li>
+					  <li><a href="https://www.gasteizhoy.com/sucesos/estafa/" title="ESTAFA">ESTAFA</a></li>
+					  <li><a href="https://www.gasteizhoy.com/sucesos/peleas-y-agresiones/" title="PELEAS">PELEAS</a></li>
+					<li><a href="https://www.gasteizhoy.com/sucesos/rescates/" title="RESCATES">RESCATES</a></li>
+					<li><a href="https://www.gasteizhoy.com/sucesos/desapariciones/" title="DESAPARICIONES">DESAPARICIONES</a></li>
+                  </ul>
+                </li>
+
+                <li class="main-menu-dropdown">
+                  <a HREF="https://www.gasteizhoy.com/deportes/" title="DEPORTE">
+                    DEPORTE
+                    <span class="main-menu-dropdown-icon">
+                      <i class="arrow-down"></i>
+                    </span>
+                  </a>
+
+                  <label class="main-menu-dropdown-icon" for="main-menu-dropdown-list-4">
+                    <i class="arrow-down arrow-down-mobile"></i>
+                  </label>
+                  <input type="checkbox" id="main-menu-dropdown-list-4">
+
+                  <ul class="main-menu-dropdown-list">
+                   <li><a href="https://www.gasteizhoy.com/deportes/futbol/alaves-futbol/" title="ALAVÉS">ALAVÉS</a></li>
+                    <li><a href="https://www.gasteizhoy.com/deportes/baloncesto/baskonia/" title="BASKONIA">BASKONIA</a></li>
+                    <li><a href="https://www.gasteizhoy.com/deportes/ciclismo/" title="CICLISMO">CICLISMO</a></li>
+                    <li><a href="https://www.gasteizhoy.com/deportes/atletismo/carreras-vitoria/" title="CARRERAS POPULARES">CARRERAS POPULARES</a></li>
+					 <li><a href="https://www.gasteizhoy.com/deportes/triatlon/" title="TRIATLÓN">TRIATLÓN</a></li>
+					  <li><a href="https://www.gasteizhoy.com/deportes/paris-2024/" title="PARÍS 2024">PARÍS 2024</a></li>
+					  <li><a href="https://www.gasteizhoy.com/deportes/" title="TODO EL DEPORTE">TODO EL DEPORTE</a></li>
+                  </ul>
+                </li>
+
+                <li class="main-menu-dropdown">
+                  <a href="https://www.gasteizhoy.com/ociogasteiz/" title="OCIO GASTEIZ">
+                    OCIO GASTEIZ
+                    <span class="main-menu-dropdown-icon">
+                      <i class="arrow-down"></i>
+                    </span>
+                  </a>
+
+                  <label class="main-menu-dropdown-icon" for="main-menu-dropdown-list-5">
+                    <i class="arrow-down arrow-down-mobile"></i>
+                  </label>
+                  <input type="checkbox" id="main-menu-dropdown-list-5">
+
+                  <ul class="main-menu-dropdown-list">
+					   <li><a href="https://www.gasteizhoy.com/ociogasteiz/" title="AGENDA">AGENDA</a></li>
+                    <li><a href="https://www.gasteizhoy.com/cultura-en-vitoria/" title="CULTURA">CULTURA</a></li>
+                    <li><a href="https://www.gasteizhoy.com/vitoria-hoy-sabe-de/musicos-alaveses/" title="MÚSICOS ALAVESES">MÚSICOS ALAVESES</a></li>
+                    <li><a href="https://www.gasteizhoy.com/cultura-en-vitoria/cine-alaves/" title="CINE ALAVÉS">CINE ALAVÉS</a></li>
+                    <li><a href="https://www.gasteizhoy.com/vitoria-hoy-sabe-de/escritores-alaveses/" title="ESCRITORES ALAVESES">ESCRITORES ALAVESES</a></li>
+					<li><a href="https://www.gasteizhoy.com/cultura-en-vitoria/tv/" title="TELEVISIÓN">TV</a></li>
+					<li><a href="https://www.gasteizhoy.com/vitoria/gastronomia/" title="GASTRONOMÍA">GASTRONOMÍA</a></li>
+                    <li><a href="https://www.gasteizhoy.com/cultura-en-vitoria/exposiciones/" title="EXPOSICIONES">EXPOSICIONES</a></li>
+                  </ul>
+                </li>
+
+                <li class="main-menu-dropdown">
+                  <a title="SERVICIOS">
+                    SERVICIOS
+                    <span class="main-menu-dropdown-icon">
+                      <i class="arrow-down"></i>
+                    </span>
+                  </a>
+
+                  <label class="main-menu-dropdown-icon" for="main-menu-dropdown-list-6">
+                    <i class="arrow-down arrow-down-mobile"></i>
+                  </label>
+                  <input type="checkbox" id="main-menu-dropdown-list-6">
+
+                  <ul class="main-menu-dropdown-list">
+                    <li><a href="https://www.gasteizhoy.com/camaras-de-trafico-vitoria-carreteras-alava/" title="CÁMARAS DE TRÁFICO">CÁMARAS DE TRÁFICO</a></li>
+                    <li><a href="https://www.gasteizhoy.com/el-tiempo-vitoria/" title="EL TIEMPO EN VITORIA">EL TIEMPO EN VITORIA</a></li>
+                    <li><a href="https://www.gasteizhoy.com/rutas/" title="TURISMO EN VITORIA">TURISMO EN VITORIA</a></li>
+                    <li><a href="https://www.gasteizhoy.com/farmacias-de-guardia-en-vitoria/" title="FARMACIAS DE GUARDIA">FARMACIAS DE GUARDIA</a></li>
+                  </ul>
+                </li>
+
+                <li>
+                  <a href="https://www.gasteizhoy.com/publicidad-vitoria/">PUBLICIDAD</a>
+                </li>
+
+                <li class="main-menu-dropdown hamb">
+                  <a><i class="fas fa-bars"></i>
+                    <!--<span class="main-menu-dropdown-icon">
+                      <i class="arrow-down"></i>
+                    </span>-->
+                  </a>
+
+                  <label class="main-menu-dropdown-icon" for="mega-main-menu-dropdown-list">
+                    <i class="arrow-down arrow-down-mobile"></i>
+                  </label>
+                  <input type="checkbox" id="mega-main-menu-dropdown-list">
+
+                  <div class="main-menu-dropdown-list main-menu-dropdown-megamenu hamburgermenubig">
+                  <div class="row">
+                      <div class="toolshamb">
+                        <div class="b_buscar"><form role="search" method="get" class="search-form" action="https://www.gasteizhoy.com/">
+				<label>
+					<span class="screen-reader-text">Buscar:</span>
+					<input type="search" class="search-field" placeholder="Buscar &hellip;" value="" name="s" />
+				</label>
+				<input type="submit" class="search-submit" value="Buscar" />
+			</form></div>
+                        <div class="b_contactosocial">
+                          <a href="https://www.gasteizhoy.com/quienes-somos/" class="btn_contacto">Contacto</a>
+                          <div class="b_social">
+                              <a  href="https://www.whatsapp.com/channel/0029VaFNA4nGU3BOj4DvBO1e" ><img class="btn_social_whatsapp"  src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/icono-whatsapp-normal.jpg"/></a>
+							          <a href="https://twitter.com/gasteizhoy" ><img class="btn_social_twitter"  src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/icono-twitter-normal.jpg"/></a>
+							          <a href="https://www.facebook.com/gasteizhoy" ><img class="btn_social_facebook"  src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/icono-facebook-normal.jpg"/></a>
+                            <a href="https://www.instagram.com/gasteizhoy/" ><img class="btn_social_instagram"  src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/icono-instagram-normal.jpg"/></a>
+							      <a href="https://www.youtube.com/user/gasteizhoy" ><img class="btn_social_youtube"  src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/icono-youtbe-normal.jpg"/></a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+					  
+					  
+					  
+					  
+					   <div class="row">
+						  
+					 <div class="col-12 col-md-2">
+                        <ul>
+                         
+						  <li class="iconomenuli lablanca2li"><a class="parent-cat-a" href="https://www.gasteizhoy.com/fiestas-la-blanca-2025-vitoria-gasteiz-programa/">La Blanca 2025</a></li>
+                        </ul>
+                      </div> 
+					   
+					    <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli fiestaspueblosli"><a class="parent-cat-a" href="https://www.gasteizhoy.com/fiestas-pueblos-septiembre-alava/">Fiestas de pueblos</a></li>
+                        </ul>
+                      </div>
+						  
+					
+						    <div class="col-12 col-md-3">
+                        <ul>
+                          <li class="iconomenuli serviciosarabali"><a class="parent-cat-a" href="https://www.gasteizhoy.com/agenda-servicios-araba/">Agenda Servicios Araba </a></li>
+                        </ul>
+                      </div>
+						  
+						   
+						  
+						   <div class="col-10 col-md-2">
+                        <ul>
+                          <li class="iconomenuli pueblosdealavali"><a class="parent-cat-a" href="https://www.gasteizhoy.com/vitoria-hoy-sabe-de/pueblos-alava">Pueblos de Álava</a></li>
+                        </ul>
+                      </div>
+						  
+					  
+						  
+						  <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli podcastli"><a class="parent-cat-a" href="https://www.gasteizhoy.com/podcast-oasys-gasteiz-hoy/">Podcast</a></li>
+                        </ul>
+                      </div>
+						  
+					  
+					  </div>
+
+                    <div class="row">
+                     	
+						
+						<div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli eleccionesli"><a class="parent-cat-a" href="https://www.gasteizhoy.com/elecciones-euskadi-2024/">Elecciones</a></li>
+                        </ul>
+                      </div>
+						
+						
+						 	<div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli encuestali"><a class="parent-cat-a" href="https://www.gasteizhoy.com/encuesta/">Encuestas</a></li>
+                        </ul>
+                      </div>
+						
+						
+						  <div class="col-12 col-md-3">
+                        <ul>
+                          <li class="iconomenuli camarali"><a class="parent-cat-a" href="https://www.gasteizhoy.com/video/">Videos</a></li>
+                        </ul>
+                      </div>
+						
+                    
+					 <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli sanprudencioli"><a class="parent-cat-a" href="https://www.gasteizhoy.com/alava/san-prudencio/">San Prudencio</a></li>
+                        </ul>
+                      </div>
+						
+						<div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli musicali"><a class="parent-cat-a" href="https://www.gasteizhoy.com/vitoria-hoy-sabe-de/musicos-alaveses/">Músicos Alaveses</a></li>
+                        </ul>
+                      </div>
+
+                    </div>
+					  
+					  
+					    <div class="row">
+
+                    
+					 <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli saludli"><a class="parent-cat-a" href="https://www.gasteizhoy.com/euskadi/salud/">Salud</a></li>
+                        </ul>
+                      </div>
+						
+							<div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli tranviali"><a class="parent-cat-a" href="https://www.gasteizhoy.com/vitoria/movilidad-en-vitoria-vitoria/">Movilidad </a></li>
+                        </ul>
+                      </div>
+							
+							<div class="col-12 col-md-3">
+                        <ul>
+                          <li class="iconomenuli slowtvli"><a class="parent-cat-a" href="https://www.gasteizhoy.com/slow-tv-vitoria-gasteiz/">SLOW TV</a></li>
+                        </ul>
+                      </div>
+							
+							   <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli monteli"><a class="parent-cat-a" href="https://www.gasteizhoy.com/red-natura-alava/">Red Natura</a></li>
+                        </ul>
+                      </div>
+						
+						<div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli gastronomiali"><a class="parent-cat-a" href="https://www.gasteizhoy.com/vitoria/gastronomia/">Gastronomía</a></li>
+                        </ul>
+                      </div>
+
+                    </div>
+
+                    <div class="row">
+                     
+						
+				
+						
+						
+						
+						  <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli educacionli"><a class="parent-cat-a" href=" https://www.gasteizhoy.com/educacion/">Educación </a></li>
+                        </ul>
+                      </div>
+						
+						
+							
+					
+                      <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli movilidadli" style="width: 100%;"><a class="parent-cat-a" href="https://www.gasteizhoy.com/vitoria/mi-barrio/">Mi barrio</a></li>
+                        </ul>
+                      </div>
+						
+						
+						<div class="col-12 col-md-3" >
+                        <ul>
+                          <li class="iconomenuli libroli" style="width: 100%;"><a class="parent-cat-a" href="https://www.gasteizhoy.com/vitoria-hoy-sabe-de/">Vitoria hoy sabe de</a></li>
+                        </ul>
+                      </div>
+						
+						
+						   <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli economiali" style="width: 100%;"><a class="parent-cat-a" href="https://www.gasteizhoy.com/alava/economia/">Economia</a></li>
+                        </ul>
+                      </div>
+						
+						
+					
+						
+						
+                      <div class="col-12 col-md-2">
+                        <ul>
+                          <li class="iconomenuli forondali" style="width: 100%;"><a class="parent-cat-a" href="https://www.gasteizhoy.com/alava/aeropuerto-foronda-araba/">Foronda</a></li>
+                        </ul>
+                      </div>
+						
+						
+						   </div>
+					  
+					  
+					  
+					  
+					  
+
+                  </div>
+                </li>
+
+              </nav>
+
+
+
+                </div>
+                </div>
+                </div>
+
+                </div>
+
+
+   </header>
+
+<main id="portada" [class]="magicBox[animateBox].className">
+
+<div class="solo-pc macrobanblock">
+	
+	 <div class="textwidget custom-html-widget"><div class="solo-pc">
+
+	<a rel="noreferrer" href="https://villasdezabalgana.com/" target="_blank">
+<img width="1212px" height="225px" layout="responsive" data-category="banner-fdz-nograro" id="Macrobannerpc" class="banclick macrobanpc" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/banner-fase-2-fn-pc.gif"></a> 
+
+
+</div>
+
+
+
+<div  class="solo-movil" style="height:75px !important;">
+	<a rel="noreferrer" href="https://villasdezabalgana.com/" target="_blank">
+<img width="475px" height="88px" layout="responsive" data-category="banner-fdz-nograro" id="Macrobanner2" class="banclick macrobanmovil" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/banner-fase-2-fn-movil.gif"></a></div></div>	
+	</div>
+
+  <div id="fondo" class="ancho80">
+
+   <div class="logotipo solo-pc">
+      <a href="https://www.gasteizhoy.com/"><img  src="https://www.gasteizhoy.com/wp-content/themes/gasteizhoy2021/img/cabecera-pc-poder-eres-tu.gif" width="433" height="73" layout="responsive"></img></a>
+	   </div>
+
+    <div class="container" style="padding: 0;">
+
+    <section class="breakingnewssection">
+      <div class="widget_text widget"><div class="textwidget custom-html-widget">
+						
+						<div class="flex_h">
+							<div class="fila"><div class="h2bg"><h2 class="h2blogs ultimahorah2">foronda</h2></div></div>
+								<div class="bread-break">
+								<a class="breakblock breakingtext" href="https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/" rel="bookmark" title="Binter volará lunes y jueves desde Foronda a Gran Canaria">Binter volará lunes y jueves desde Foronda a Gran Canaria</a>
+							</div>
+						</div>
+
+												
+		</div></div>	    <div class="solo-movil">
+	<div class="widget_text widget"><div class="textwidget custom-html-widget">
+												
+		</div></div></div>
+    </section>
+    
+    <div class="solo-pc" style="margin-bottom: 30px;"></div>    
+        <!--2 Banners arriba-->
+        <div class="row mt10-movil banner-top-new">
+            
+					
+													<a rel="noreferrer" href="https://etxeanhartu.eus/" target="_blank">
+								<img width="550px" height="85px" layout="responsive" data-category="banner-acogimiento-familiar-dfa" id="SobreArt01" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/banner_acogimiento_familiar_dfa550x85.gif"></img>
+							</a>
+					
+					
+				            
+					
+													<a rel="noreferrer" href="https://www.bluespace.es/trasteros-vitoria-bluespace" target="_blank">
+								<img width="550px" height="85px" layout="responsive" data-category="banner-bluespace" id="SobreArt02" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/02/banner-bluespace-550x85-1.gif"></img>
+							</a>
+					
+					
+				        </div>
+        <!--FIN 2 Banners arriba-->
+
+        <p id="breadcrumbs"><span><span><a href="https://www.gasteizhoy.com/"><i class="fas fa-home"></i></a></span> <i class="fas fa-chevron-right"></i> <span><a href="https://www.gasteizhoy.com/alava/">Álava</a></span> <i class="fas fa-chevron-right"></i> <span><a href="https://www.gasteizhoy.com/alava/aeropuerto-foronda-araba/">Aeropuerto Foronda</a></span> <i class="fas fa-chevron-right"></i> <span class="breadcrumb_last" aria-current="page">Binter volará lunes y jueves desde Foronda a Gran Canaria</span></span></p>
+ 
+
+ 
+		<div class="contenidoparent">
+
+			<div class="adblock">		
+				
+				
+	<a href="https://www.ppvasco.com/participa/" target="_blank"  style="cursor: pointer;">
+<img width="160px" height="600px" layout="responsive" data-category="banner-pp" id="articuloIzq" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/banner-campana-pp-new.gif"></img>
+							</a>
+				
+			</div>
+
+			<div class="contenido">
+		
+
+		
+
+  <div class="row block01-new">
+
+      <div class="clearfix"></div>
+      
+            
+      
+    <!-- TITULAR POST -->
+        
+        <div class="titulares-single">
+          <!-- POST TITULO -->
+                              
+          <!--<div class="center-content"><div class="h2bg" style="background: #009836;"><h2 class="h2blogs singleh2">?php echo $category[0]->cat_name; ?</h2></div></div>-->
+
+          <h1 class="titular-single-new">Binter volará lunes y jueves desde Foronda a Gran Canaria</h1>
+
+          <!-- AUTOR Y SOCIAL -->
+          <div class="mp15 author-new-wrapper">
+
+            <div class="author-new">
+                <span class="author vcard" style="padding-right: 3px;"><a href="https://www.gasteizhoy.com/author/igaton/" title="Entradas de Natxo Gatón" rel="author">Natxo Gatón</a></span><i style="font-size: 4px; vertical-align: middle;" class="fas fa-circle"></i> 
+                <span class="published" title="jueves, 26 marzo, 2026, 18:17"> 26 marzo, 2026</span> <span class="separador"></span>
+
+                            </div>
+            
+          </div>
+
+          <!-- POST TITULO FIN -->  
+
+          <!-- AUTOR Y SOCIAL FIN -->
+
+          <div class="extracto"><p>La aerolínea canaria operará vuelos desde el 1 de junio hasta el 28 de septiembre, en su regreso tres años después de su marcha</p>
+</div>
+
+          <!-- BANNER BAJO SUB -->
+          <div class="bajosubdiv" style="text-align: center;" data-nosnippet>
+            
+					<div class="bajosubpubli" style="text-align: center;">
+													<a rel="noreferrer" href="https://pisosvitoria.com/pisos-en-venta/4704-c-el-prado.html" target="_blank">
+								<img width="550px" height="85px" layout="responsive" data-category="banner-pisos-vitoria-bajo-sub" id="BajoSub" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/publicidad-pisosvitoria-114.gif"></img>
+							</a>
+					
+					</div>
+				          </div>
+          <!-- BANNER BAJO SUB FIN -->
+		  
+	
+          <!-- SOCIAL -->
+          <div class="social-new">
+                <span class="share-post">
+
+                  <!--<h4>Compartir</h4>-->
+
+                  <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/" class="facebook" target="_blank">
+                    <i class="fab fa-facebook-f"></i> <!--Facebook-->
+                  </a>
+
+                   <a href="https://twitter.com/intent/tweet?url=https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/&text=Binter volará lunes y jueves desde Foronda a Gran Canaria%20vía%20@gasteizhoy"  target="_blank">
+              
+ <img class="twitter" src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/x-twitter-compartir-normal.png"/>
+          </a>
+
+                  <a rel="nofollow" class="compartir-por-mail" href="/cdn-cgi/l/email-protection#fcc38f899e96999f88c1a899d9cecc99928a9593d9cecc98998f9899d9ceccbb9d8f88999586d9ceccb49385d9cecc998f889dd9cecc8c9d9b95929dd9ceccbe959288998ed9cecc8a93909d8ed9bfcfd9bdcdd9cecc908992998fd9cecc85d9cecc9689998a998fd9cecc98998f9899d9ceccba938e9392989dd9cecc9dd9ceccbb8e9d92d9ceccbf9d929d8e959dda9d918cc79e939885c1a899d9cecc919d929893d9cecc998f8893d9cecc8c938ed9cecc8f95d9cecc8899d9cecc8e998f8990889dd9cecc959288998e998f9d928899d9cfbdd9ceccbe959288998ed9cecc8a93909d8ed9bfcfd9bdcdd9cecc908992998fd9cecc85d9cecc9689998a998fd9cecc98998f9899d9ceccba938e9392989dd9cecc9dd9ceccbb8e9d92d9ceccbf9d929d8e959dd2d9ceccb093d9cecc8c899998998fd9cecc8a998ed9cecc9d8d8995d9cfbdd9cecc9488888c8fd9cfbdd9cebad9ceba8b8b8bd29b9d8f88999586949385d29f9391d9ceba9e959288998ed18a93909d8e9dd1908992998fd185d19689998a998fd198998f9899d19a938e9392989dd19dd19b8e9d92d19f9d929d8e959dd9cebad2d9ceccb984888e9d9f8893d9cfbdd9ceccb09dd9cecc9d998e9390d9bfcfd9bdb892999dd9cecc9f9d929d8e959dd9cecc938c998e9d8ed9bfcfd9bdcdd9cecc8a899990938fd9cecc98998f9899d9cecc9990d9cecccdd9cecc9899d9cecc9689929593d9cecc949d8f889dd9cecc9990d9cecccec4d9cecc9899d9cecc8f998c889599919e8e99d9cebfd9cecc9992d9cecc8f89d9cecc8e999b8e998f93d9cecc888e998fd9cecc9dd9bfcfd9becd938fd9cecc98998f8c89d9bfcfd9bdc58fd9cecc9899d9cecc8f89d9cecc919d8e9f949d" title="<i class='fa fa-envelope'></i> : Binter volará lunes y jueves desde Foronda a Gran Canaria"><i class='fa fa-envelope'></i></a>
+                  <a href="whatsapp://send?text=https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/" data-action="share/whatsapp/share" class="whatsapp"><i class="fab fa-whatsapp"></i> <!--Whatsapp--></a>	
+                  
+                  <a href="tg://msg_url?url=https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/&text=Binter volará lunes y jueves desde Foronda a Gran Canaria" data-action="share/telegram/share" class="telegram"><i class="fab fa-telegram-plane"></i> <!--telegram--></a>
+
+                  
+                </span> <!-- /. share-post -->
+              </div>
+            <!-- SOCIAL FIN -->
+
+        </div>
+      <!-- TITULAR POST FIN -->
+	  
+	  
+	  	   <!-- INICIO ANTERIOR - SIGUIENTE -->
+	  <div class="solo-movil" style="position:fixed; bottom:130px; width:100%; z-index:9999;">
+	  
+	  
+	  <div>
+
+          
+            
+              <a href="https://www.gasteizhoy.com/manifestacion-contra-proyectos-solaria-alava/">
+                <div class="prev">
+				
+                  
+                <div><i class="fas fa-chevron-left" style="font-size:25px; color:#009900; background-color:#f1f1f1; float:left !important;padding:8px; scroll-behavior:smooth;"></i></div>
+
+                
+                </div>
+              </a>
+
+                      
+
+          
+                            <a href="https://www.gasteizhoy.com/un-coche-arde-junto-al-centro-civico-ibaiondo/">
+                  <div class="prox">
+                    <div><i class="fas fa-chevron-right" style="font-size:25px; background-color:#f1f1f1; color:#009900; float:right !important; padding:8px;"></i></div>
+
+           
+                  </div>
+                </a>
+                      
+
+        </div>
+		</div>
+	  
+	  <!-- FIN ANTERIOR - SIGUIENTE ARRIBA -->
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+
+    <div class="row" style="max-width: 1350px; margin: 0 auto; display: flex; flex-direction: row;">
+
+      <!-- CONTENIDO POST -->
+	    <div class="contenido-noticia noticia-new">
+        
+        <div class="articulotexto">
+
+            
+        			
+
+		
+
+		
+            
+            
+            <p><strong>Binter volará lunes y jueves a Gran Canaria desde Foronda</strong> en el verano de 2026. La aerolínea insular vuelve así a Foronda, con su segunda experiencia desde el aeródromo vitoriano. Los vuelos arrancarán el 1 de junio de 2026 y concluirán el 28 de septiembre. El horario concreto de los vuelos está aún por definir. Los vuelos saldrán a la venta la primera quincena de abril. La <a href="https://www.gasteizhoy.com/foronda-vuelos-directos-menorca/">compra de los billetes</a> se puede realizar en la web de la aerolínea una vez estén cargados los vuelos.</p>
+<p>Binter es una aerolínea canaria, cuyos vuelos han ido en aumento en los últimos años. Es la primera aerolínea en el archipiélago, y ha ido ganando también cota de mercado en las conexiones entre la península y las islas. No es, sin embargo, una aerolínea low cost. Para los residentes en el archipiélago los vuelos sí son asequibles, ya que cuentan con un 75% de descuento. Pero para el resto de usuarios los precios suelen ser elevados.</p>
+					<div class="solo-movil banner-parrafos">
+						
+							<div class="aviso_publi"><span>PUBLICIDAD - SIGUE LEYENDO ABAJO</span><div class="linea"></div></div>
+							<a rel="noreferrer" href="https://www.bakh.es/" target="_blank">
+								<img decoding="async" width="400px" height="400px" layout="responsive" data-category="banner-bakh" id="segundoparr" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/02/publicidad-segundo-parrafo-69.jpg"></img>
+							</a>
+
+						
+					</div>
+				
+<p><a href="https://www.gasteizhoy.com/wp-content/uploads/2020/06/vuelo-vitoria-foronda-binter-canarias-gran-canaria.jpg"><img fetchpriority="high" decoding="async" class="aligncenter wp-image-139660 size-full" title="vuelo vitoria foronda binter canarias gran canaria" src="https://www.gasteizhoy.com/wp-content/uploads/2020/06/vuelo-vitoria-foronda-binter-canarias-gran-canaria.jpg" alt="vuelo vitoria foronda binter canarias gran canaria" width="1212" height="557" srcset="https://www.gasteizhoy.com/wp-content/uploads/2020/06/vuelo-vitoria-foronda-binter-canarias-gran-canaria.jpg 1212w, https://www.gasteizhoy.com/wp-content/uploads/2020/06/vuelo-vitoria-foronda-binter-canarias-gran-canaria-350x161.jpg 350w, https://www.gasteizhoy.com/wp-content/uploads/2020/06/vuelo-vitoria-foronda-binter-canarias-gran-canaria-879x404.jpg 879w, https://www.gasteizhoy.com/wp-content/uploads/2020/06/vuelo-vitoria-foronda-binter-canarias-gran-canaria-150x69.jpg 150w, https://www.gasteizhoy.com/wp-content/uploads/2020/06/vuelo-vitoria-foronda-binter-canarias-gran-canaria-768x353.jpg 768w" sizes="(max-width: 1212px) 100vw, 1212px" /></a></p>
+<p>Estos vuelos, un total de 31 por sentido, estarán subvencionados por VIA, la sociedad pública de promoción de Foronda. Así, Binter recibirá 120.000 euros por las 31 frecuencias previstas (31 idas y 31 retornos).</p>
+<p>La<strong> nueva ruta será entre Vitoria y el aeropuerto de Gran Canaria</strong>, una isla en la que su principal destino turístico está en Maspalomas, con Meloneras y la Playa del Inglés como grandes atractivos. Pero Binter también ofrece enlaces gratis con el resto de aeropuertos:</p>
+					<div class="solo-movil banner-parrafos">
+						
+						<div class="aviso_publi"><span>PUBLICIDAD - SIGUE LEYENDO ABAJO</span><div class="linea"></div></div>
+						<a rel="noreferrer" href="https://www.hyundai.es/concesionarios/autolasa/tucson-black-line" target="_blank">
+							<img decoding="async" width="400px" height="400px" layout="responsive" data-category="banner-Hyundai-autolasa" id="quintoparr" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/publicidad-quinto-parrafo-36.gif"></img>
+						</a>
+
+						
+					</div>
+				
+<ul>
+<li>Lanzarote (César Manrique-Lanzarote).</li>
+<li>Tenerife Norte-Ciudad de La Laguna</li>
+<li>Tenerife Sur</li>
+<li>Fuerteventura</li>
+<li>La Gomera</li>
+<li>La Palma y El Hierro</li>
+</ul>
+<p>La aerolínea también tiene enlaces con los aeropuertos de las islas portuguesas de Madeira (Funchal), Porto Santo (Porto Santo) y São Miguel, en Azores (Ponta Delgada). También conectará con siete aeropuertos internacionales en África occidental: Marruecos (Agadir y Guelmim), Sáhara Occidental (El Aaiún, y Dakhla), Senegal (Dakar), Mauritania (Nuakchot) y Cabo Verde (Isla de Sal).</p>
+<h2>Precios</h2><div class="rowtitlebar"><div class="trending-news-title-bar barra-verde" style="text-align: left; float: left;"></div><div class="trending-news-title-bar barra-roja" style="text-align: left; float: left;"></div></div>
+<p><strong>Binter ya opera desde Pamplona y desde San Sebastián</strong> hasta Gran Canaria. Lo hace cuatro veces por semana. Tanto Noain como Hondarribia están en el área de influencia de Foronda, por lo que los vuelos de Binter en Vitoria apostarán por Álava, Burgos y Logroño para atraer pasajeros. Además, los vuelos desde Foronda serán la mitad de las previstas desde los otros aeropuertos, que además arrancan en abril.</p>
+<p>Para ver vuelos, a día de hoy volar con Binter desde Pamplona sale entre 140 y 280€ ida y vuelta en julio, con grandes variaciones entre un día y otro. En San Sebastián las tarifas son más bajas: entre 135 y 240€ para volar en julio. Son unas tarifas en general más baratas que las que ahora mismo tiene Vueling, que también conecta en este caso Loiu con Gran Canaria.</p>
+<h2>El regreso de Binter</h2><div class="rowtitlebar"><div class="trending-news-title-bar barra-verde" style="text-align: left; float: left;"></div><div class="trending-news-title-bar barra-roja" style="text-align: left; float: left;"></div></div>
+<p>Binter retoma así las conexiones desde Foronda con el archipiélago canario, que <a href="https://www.gasteizhoy.com/binter-abandona-foronda/">abandonó en octubre 2023 por sorpresa</a>. En aquel momento la aerolínea aseguró que esta ruta solo le había dado pérdidas. De hecho, antes de eliminar el vuelo a Gran Canaria <a href="https://www.gasteizhoy.com/binter-suspende-ruta-tenerife/">eliminó en 2022 el que tenía también a Tenerife</a>.</p><div class="widget_text solo-movil banner-parrafos"><div class="textwidget custom-html-widget"><amp-ad width="100vw" height="320"
+     type="adsense"
+     data-ad-client="ca-pub-9860747815715784"
+     data-ad-slot="3672126399"
+     data-auto-format="rspv"
+     data-full-width="">
+  <div overflow=""></div>
+</amp-ad></div></div>
+<p>Esta aerolínea canaria mantiene su crecimiento, con una apuesta por nuevos destinos y conexiones desde Canarias con otros puntos de la península y de otros países. La aerolínea transportó en 2025 a 5,6 millones de pasajeros y aspira a transportar a 6 millones de pasajeros en 2026.</p>
+<p>Binter operará sus vuelos con aviones <strong>E195-E2 del fabricante Embraer</strong>. Son aviones con una composición de asientos en 2+2. Cuenta con 132 asientos, en clase única y una distancia entre los mismos de 79 centímetros.</p>
+<h2>También Menorca</h2><div class="rowtitlebar"><div class="trending-news-title-bar barra-verde" style="text-align: left; float: left;"></div><div class="trending-news-title-bar barra-roja" style="text-align: left; float: left;"></div></div>
+<p>Con el regreso de Binter, se confirma que Foronda tendrá un verano de grandes conexiones. A los vuelos de Ryanair se sumará este a Gran Canaria y el previsible de Menorca, que aún hay que ver quién lo operará. Eso sí, en verano desaparecerán las conexiones a Madrid y Barcelona de Volotea.</p><div class="widget_text solo-movil banner-parrafos"><div class="textwidget custom-html-widget"><amp-ad width="100vw" height="320"
+     type="adsense"
+     data-ad-client="ca-pub-9860747815715784"
+     data-ad-slot="2017592934"
+     data-auto-format="rspv"
+     data-full-width="">
+  <div overflow=""></div>
+</amp-ad></div></div>
+<h3>Vuelos regulares en verano desde Foronda</h3>
+<ul>
+<li>Mallorca</li>
+<li>Menorca (a falta de confirmar)</li>
+<li>Bruselas</li>
+<li>Alicante</li>
+<li>Milán</li>
+<li>Sevilla</li>
+<li>Málaga</li>
+</ul>
+</p>
+                    </div>
+        
+
+        <!-- BANNER BAJO ARTICULO -->
+		<div data-nosnippet>
+        
+					<div class="bajoarticulopubli" style="text-align: center;">
+													<a rel="noreferrer" href="https://arkabia.eus/" target="_blank">
+								<img width="750px" height="250px" layout="responsive" data-category="banner-fundacion-vital" id="BajoArt" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/01/publicidad-bajo-articulos-52.gif"></img>
+							</a>
+					
+					</div>
+						</div>
+        <!-- BANNER BAJO ARTICULO FIN -->
+
+
+
+
+
+        <!-- SOCIAL BAJO ARTICULO -->
+        <div class="row" style="text-align: center; margin: 0 auto; margin-bottom: 30px; margin-top: 30px;">
+          <span class="share-post">
+
+          <!--<h4>Compartir</h4>-->
+
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/" class="facebook" target="_blank">
+              <i class="fab fa-facebook"></i> <!--Facebook-->
+          </a>
+
+       
+			  
+			   <a href="https://twitter.com/intent/tweet?url=https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/&text=Binter volará lunes y jueves desde Foronda a Gran Canaria%20vía%20@gasteizhoy"  target="_blank">
+              
+ <img class="x-twitter" src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/x-twitter-compartir-normal-peq.png"/>
+          </a>
+		  
+		  
+		  
+
+          <a rel="nofollow" class="compartir-por-mail" href="/cdn-cgi/l/email-protection#1f206c6a7d757a7c6b224b7a3a2d2f7a716976703a2d2f7b7a6c7b7a3a2d2f587e6c6b7a76653a2d2f5770663a2d2f7a6c6b7e3a2d2f6f7e7876717e3a2d2f5d76716b7a6d3a2d2f6970737e6d3a5c2c3a5e2e3a2d2f736a717a6c3a2d2f663a2d2f756a7a697a6c3a2d2f7b7a6c7b7a3a2d2f59706d70717b7e3a2d2f7e3a2d2f586d7e713a2d2f5c7e717e6d767e397e726f247d707b66224b7a3a2d2f727e717b703a2d2f7a6c6b703a2d2f6f706d3a2d2f6c763a2d2f6b7a3a2d2f6d7a6c6a736b7e3a2d2f76716b7a6d7a6c7e716b7a3a2c5e3a2d2f5d76716b7a6d3a2d2f6970737e6d3a5c2c3a5e2e3a2d2f736a717a6c3a2d2f663a2d2f756a7a697a6c3a2d2f7b7a6c7b7a3a2d2f59706d70717b7e3a2d2f7e3a2d2f586d7e713a2d2f5c7e717e6d767e313a2d2f53703a2d2f6f6a7a7b7a6c3a2d2f697a6d3a2d2f7e6e6a763a2c5e3a2d2f776b6b6f6c3a2c5e3a2d593a2d5968686831787e6c6b7a7665777066317c70723a2d597d76716b7a6d326970737e6d7e32736a717a6c326632756a7a697a6c327b7a6c7b7a3279706d70717b7e327e32786d7e71327c7e717e6d767e3a2d59313a2d2f5a676b6d7e7c6b703a2c5e3a2d2f537e3a2d2f7e7a6d70733a5c2c3a5e5b717a7e3a2d2f7c7e717e6d767e3a2d2f706f7a6d7e6d3a5c2c3a5e2e3a2d2f696a7a73706c3a2d2f7b7a6c7b7a3a2d2f7a733a2d2f2e3a2d2f7b7a3a2d2f756a7176703a2d2f777e6c6b7e3a2d2f7a733a2d2f2d273a2d2f7b7a3a2d2f6c7a6f6b767a727d6d7a3a2d5c3a2d2f7a713a2d2f6c6a3a2d2f6d7a786d7a6c703a2d2f6b6d7a6c3a2d2f7e3a5c2c3a5d2e706c3a2d2f7b7a6c6f6a3a5c2c3a5e266c3a2d2f7b7a3a2d2f6c6a3a2d2f727e6d7c777e" title="<i class='fa fa-envelope'></i> : Binter volará lunes y jueves desde Foronda a Gran Canaria"><i class='fa fa-envelope'></i></a>
+          <a href="whatsapp://send?text=https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/" data-action="share/whatsapp/share" class="whatsapp"><i class="fab fa-whatsapp"></i> <!--Whatsapp--></a>
+
+          <a href="tg://msg_url?url=https://www.gasteizhoy.com/binter-volara-lunes-y-jueves-desde-foronda-a-gran-canaria/&text=Binter volará lunes y jueves desde Foronda a Gran Canaria" data-action="share/telegram/share" class="telegram"><i class="fab fa-telegram-plane"></i> <!--telegram--></a>
+
+          </span>
+        </div>
+        <!-- SOCIAL BAJO ARTICULO FIN -->
+			
+			<div class="adsense">
+          <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script defer id="videoo-library" data-cfasync="false" data-id="77f6022b337465eb5af1daa6b1814e51cdab577e38bb61dd7f60837373dfd879" src="https://static.videoo.tv/77f6022b337465eb5af1daa6b1814e51cdab577e38bb61dd7f60837373dfd879.js"></script>
+        </div>
+
+        <div class="proxposts">
+
+          
+            
+              <a href="https://www.gasteizhoy.com/manifestacion-contra-proyectos-solaria-alava/">
+                <div class="prev">
+                  <div class="headerposts"><h4>noticia anterior</h4></div>
+                  <img src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/solaria-araba-ez-da-salgai.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="solaria- araba ez da salgai" decoding="async" srcset="https://www.gasteizhoy.com/wp-content/uploads/2026/03/solaria-araba-ez-da-salgai.jpg 1024w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/solaria-araba-ez-da-salgai-350x263.jpg 350w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/solaria-araba-ez-da-salgai-879x659.jpg 879w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/solaria-araba-ez-da-salgai-150x113.jpg 150w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/solaria-araba-ez-da-salgai-768x576.jpg 768w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/solaria-araba-ez-da-salgai-60x45.jpg 60w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/solaria-araba-ez-da-salgai-68x51.jpg 68w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/solaria-araba-ez-da-salgai-190x143.jpg 190w" sizes="(max-width: 1024px) 100vw, 1024px" />                  <h3>Una manifestación para "llenar" Vitoria contra los proyectos de Solaria</h3>
+                  <p>Plataformas ciudadanas convocan una manifestación el 23 de mayo contra proyectos de Solaria, sobre los que han recogido 7.200 alegaciones </p>
+                </div>
+              </a>
+
+                      
+
+          
+                            <a href="https://www.gasteizhoy.com/un-coche-arde-junto-al-centro-civico-ibaiondo/">
+                  <div class="prox">
+                    <div class="headerposts"><h4>noticia siguiente</h4></div>
+                    <img src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-26-at-18.58.18.jpeg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="incendio coche ibaiondo" decoding="async" srcset="https://www.gasteizhoy.com/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-26-at-18.58.18.jpeg 928w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-26-at-18.58.18-350x228.jpeg 350w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-26-at-18.58.18-879x572.jpeg 879w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-26-at-18.58.18-150x98.jpeg 150w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-26-at-18.58.18-768x500.jpeg 768w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-26-at-18.58.18-69x45.jpeg 69w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-26-at-18.58.18-78x51.jpeg 78w, https://www.gasteizhoy.com/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-26-at-18.58.18-190x124.jpeg 190w" sizes="(max-width: 928px) 100vw, 928px" />                    <h3>Un coche arde junto al centro cívico Ibaiondo</h3>
+                    <p>El fuego comenzó cuando el coche empezó a echar humo mientras circulaba por Río Omecillo</p>
+                  </div>
+                </a>
+                      
+
+        </div>
+
+        <!-- ADDOOR inicio -->
+
+            <!-- BEGIN Gasteizhoy.com amp/nativoamp -->
+
+            <!-- Gasteizhoy.com amp/nativoamp -->
+            <div class="addoor-widget" id="addoor-widget-949"></div>
+            <script type="text/javascript" src="//pubtags.addoor.net/lib/contags/contags.js"></script>
+
+            <!-- END Gasteizhoy.com amp/nativoamp -->
+
+
+						<!-- allow-modals allow-popups allow-forms -->
+
+					<!-- ADDOOR fin -->
+
+        <!-- COMENTARIOS -->
+        <div id="comments">
+
+    
+      
+        </div>
+                <!-- COMENTARIOS FIN -->
+
+        
+
+                
       </div>
-    </noscript>
+
+        <!-- SIDEBAR -->
+          
+      <aside class="hidden-sm hidden-xs barra_lateral">
+
+        
+					<div class="widget">
+						
+							<div class="aviso_publi"><span>PUBLICIDAD </span><div class="linea"></div></div>
+							<a rel="noreferrer" href="https://www.bakh.es/" target="_blank">
+								<img width="400px" height="400px" layout="responsive" data-category="banner-bakh" id="segundoparrlat" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/02/publicidad-segundo-parrafo-69.jpg"></img>
+							</a>
+							
+						
+					</div>
+				
+					<div class="widget">
+						
+							<div class="aviso_publi"><span>PUBLICIDAD </span><div class="linea"></div></div>
+							<a rel="noreferrer" href="https://www.hyundai.es/concesionarios/autolasa/tucson-black-line" target="_blank">
+								<img width="400px" height="400px" layout="responsive" data-category="banner-Hyundai-autolasa" id="quintoparrlat" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/publicidad-quinto-parrafo-36.gif"></img>
+							</a>
+							
+						
+					</div>
+				<div class="widget_text widget"><div class="textwidget custom-html-widget"><div class="solo-pc">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9860747815715784"
+     crossorigin="anonymous"></script>
+<!-- BannerparrafoLATERAL -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9860747815715784"
+     data-ad-slot="2515969155"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div></div></div>		   
+
+			<div class="solo-pc">	
+				
+			<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9860747815715784"
+     crossorigin="anonymous"></script>
+<!-- Banner4articuloPC -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9860747815715784"
+     data-ad-slot="3450309700"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+		</div>
+
+		 </br>
+		
+			<div class="h2bg" style="background-color: #e30613; margin-bottom: 10px;"><h2 class="h2blogs agendah2" style="color: white;">lo + leído</h2></div>
+
+			<ul class="popular_posts">
+	
+			
+	
+							
+				<a href="https://www.gasteizhoy.com/korrika-2026-alava-vitoria-recorrido-fechas-horarios-portadores/" title="Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores"><li>Korrika 2026 llega hoy a Vitoria: recorridos, horarios y todos los portadores</li></a>
+				
+								
+				<a href="https://www.gasteizhoy.com/mercado-napoleonico-arriaga-marzo-2026/" title="El Mercado Napoleónico vuelve a Arriaga este fin de semana"><li>El Mercado Napoleónico vuelve a Arriaga este fin de semana</li></a>
+				
+								
+				<a href="https://www.gasteizhoy.com/barracas-san-prudencio-semana-santa-vitoria/" title="Sin barracas en San Prudencio ni Semana Santa por la noria de Navidad: "Hay un agravio comparativo""><li>Sin barracas en San Prudencio ni Semana Santa por la noria de Navidad: "Hay un agravio comparativo"</li></a>
+				
+								
+				<a href="https://www.gasteizhoy.com/nuevas-aperturas-centro-de-vitoria/" title="Las nuevas aperturas que revitalizan el centro de Vitoria: burgers, calzado, mascotas..."><li>Las nuevas aperturas que revitalizan el centro de Vitoria: burgers, calzado, mascotas...</li></a>
+				
+								
+				<a href="https://www.gasteizhoy.com/carretera-gobeo-yurre-senda-peatonal/" title="La carretera entre Gobeo y Yurre ganará seguridad con una senda peatonal"><li>La carretera entre Gobeo y Yurre ganará seguridad con una senda peatonal</li></a>
+				
+					
+			</ul>
+
+			
+		
+
+			<div class="solo-pc">		
+				
+				<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9860747815715784"
+     crossorigin="anonymous"></script>
+<!-- Banner5articuloPC -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9860747815715784"
+     data-ad-slot="3563975871"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+				
+				
+</div>
+
+		
+
+		
+      </aside>
+
+        <!-- SIDEBAR FIN -->
+
+        </div>
+      
+      </div>
+
+
+		</div>
+			<div class="adblock">
+				
+				<a href="https://www.ppvasco.com/participa/" target="_blank"  style="cursor: pointer;">
+<img width="160px" height="600px" layout="responsive" data-category="banner-pp" id="articuloDer" class="banclick" src="https://www.gasteizhoy.com/wp-content/uploads/2026/03/banner-campana-pp-new.gif"></img>
+							</a>
+				
+			</div>
+		</div>
+		
+
+		      
+  			</div>
+		</div>
+
+	<footer>
+		<div class="wrapper">
+			<div class="f1">
+				<a href="https://www.gasteizhoy.com/"><amp-img width="100" height="45" layout="responsive" src="https://www.gasteizhoy.com/wp-content/themes/eo-bootstrap/img/gh-logo-color.svg"></amp-img></a>
+				<p class="b_rrssfooter">
+<a href="https://www.whatsapp.com/channel/0029VaFNA4nGU3BOj4DvBO1e"  target="_blank" rel="noopener"><img class="btn_rrssfooter"  src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/whatsapp_logo_icon.png"/></a>
+<a href="https://twitter.com/gasteizhoy"  target="_blank" rel="noopener"><img class="btn_rrssfooter"  src="https://www.gasteizhoy.com/wp-content/uploads/2024/01/x-twitter-gh.svg"/></a><a href="https://www.facebook.com/gasteizhoy"  target="_blank" rel="noopener"><img class="btn_rrssfooter" src="https://www.gasteizhoy.com/wp-content/uploads/2022/06/facebook-verde.svg"/></a> <a href="https://www.instagram.com/gasteizhoy/"  target="_blank" rel="noopener"><img class="btn_rrssfooter"  src="https://www.gasteizhoy.com/wp-content/uploads/2022/06/instagram-verde.svg"/></a><a href="https://www.youtube.com/user/gasteizhoy" target="_blank" rel="noopener"><img class="btn_rrssfooter"  src="https://www.gasteizhoy.com/wp-content/uploads/2022/06/youtube-verde.svg"/></a>
+</p>
+				
+				<p>Primer periódico digital de Vitoria.<br><h1>Noticias Vitoria-Álava</h1></p>
+			
+		
+			
+			</div>
+			<div class="f2">
+				<p>En Gasteiz Hoy encuentra las últimas noticias de Vitoria-Gasteiz y Álava, el primer periódico digital de Vitoria-Gasteiz sobre la ciudad, los barrios y toda la actualidad que afecta a los ciudadanos de Vitoria-Gasteiz. Ocio en Vitoria, Turismo Vitoria, Obras de Vitoria, información de Tuvisa Vitoria-Gasteiz, Tráfico de Álava y otras noticias de Vitoria y Álava. Periodismo ciudadano e independiente para lectores alaveses críticos en el primer periódico digital de Vitoria. Gasteiz Hoy, todos los derechos reservados.</p>
+			</div>
+			<div class="f3">
+				<a href="https://www.gasteizhoy.com/quienes-somos/">Contacto</a>
+				<a href="https://www.gasteizhoy.com/aviso-legal/">Política de privacidad</a>
+				<a href="https://www.gasteizhoy.com/aviso-legal/">Aviso legal</a>
+				<a href="https://www.gasteizhoy.com/audiencia-auditada-ojd-gasteiz-hoy/">Audiencia</a>
+				<a href="https://www.gasteizhoy.com/codigo-etico/">Código ético</a>
+				
+			</div>
+		</div>
+			
+		<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/gasteizhoy2021/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+			<script>
+				const lazyloadRunObserver = () => {
+					const lazyloadBackgrounds = document.querySelectorAll( `.e-con.e-parent:not(.e-lazyloaded)` );
+					const lazyloadBackgroundObserver = new IntersectionObserver( ( entries ) => {
+						entries.forEach( ( entry ) => {
+							if ( entry.isIntersecting ) {
+								let lazyloadBackground = entry.target;
+								if( lazyloadBackground ) {
+									lazyloadBackground.classList.add( 'e-lazyloaded' );
+								}
+								lazyloadBackgroundObserver.unobserve( entry.target );
+							}
+						});
+					}, { rootMargin: '200px 0px 200px 0px' } );
+					lazyloadBackgrounds.forEach( ( lazyloadBackground ) => {
+						lazyloadBackgroundObserver.observe( lazyloadBackground );
+					} );
+				};
+				const events = [
+					'DOMContentLoaded',
+					'elementor/lazyload/observe',
+				];
+				events.forEach( ( event ) => {
+					document.addEventListener( event, lazyloadRunObserver );
+				} );
+			</script>
+			<script type="text/javascript" src="https://www.gasteizhoy.com/wp-includes/js/jquery/ui/core.min.js?ver=1.13.3" id="jquery-ui-core-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-includes/js/jquery/ui/datepicker.min.js?ver=1.13.3" id="jquery-ui-datepicker-js"></script>
+<script type="text/javascript" id="jquery-ui-datepicker-js-after">
+/* <![CDATA[ */
+jQuery(function(jQuery){jQuery.datepicker.setDefaults({"closeText":"Cerrar","currentText":"Hoy","monthNames":["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"],"monthNamesShort":["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"],"nextText":"Siguiente","prevText":"Anterior","dayNames":["domingo","lunes","martes","mi\u00e9rcoles","jueves","viernes","s\u00e1bado"],"dayNamesShort":["Dom","Lun","Mar","Mi\u00e9","Jue","Vie","S\u00e1b"],"dayNamesMin":["D","L","M","X","J","V","S"],"dateFormat":"dd/mm/yy","firstDay":1,"isRTL":false});});
+//# sourceURL=jquery-ui-datepicker-js-after
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/js/jquery.typewatch.js?ver=7.31.0-b-modified-1772635630" id="mec-typekit-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/featherlight/featherlight.js?ver=7.31.0-b-modified-1772635630" id="featherlight-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/select2/select2.full.min.js?ver=7.31.0-b-modified-1772635630" id="mec-select2-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/js/mec-general-calendar.js?ver=7.31.0-b-modified-1772635630" id="mec-general-calendar-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/tooltip/tooltip.js?ver=7.31.0-b-modified-1772635630" id="mec-tooltip-script-js"></script>
+<script type="text/javascript" id="mec-frontend-script-js-extra">
+/* <![CDATA[ */
+var mecdata = {"day":"d\u00eda","days":"d\u00edas","hour":"hora","hours":"horas","minute":"minuto","minutes":"minutos","second":"segundo","seconds":"segundos","next":"Siguiente","prev":"Anterior","elementor_edit_mode":"no","recapcha_key":"Huhoi5Vg84gh+","ajax_url":"https://www.gasteizhoy.com/wp-admin/admin-ajax.php","fes_nonce":"f494d976ab","fes_thankyou_page_time":"2000","fes_upload_nonce":"4b616cb8ac","current_year":"2026","current_month":"03","datepicker_format":"dd-mm-yy&d-m-Y","sf_update_url":"0"};
+var mecdata = {"day":"d\u00eda","days":"d\u00edas","hour":"hora","hours":"horas","minute":"minuto","minutes":"minutos","second":"segundo","seconds":"segundos","next":"Siguiente","prev":"Anterior","elementor_edit_mode":"no","recapcha_key":"Huhoi5Vg84gh+","ajax_url":"https://www.gasteizhoy.com/wp-admin/admin-ajax.php","fes_nonce":"f494d976ab","fes_thankyou_page_time":"2000","fes_upload_nonce":"4b616cb8ac","current_year":"2026","current_month":"03","datepicker_format":"dd-mm-yy&d-m-Y","sf_update_url":"0"};
+//# sourceURL=mec-frontend-script-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/js/frontend.js?ver=7.31.0-b-modified-1772635630" id="mec-frontend-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/js/events.js?ver=7.31.0-b-modified-1772635630" id="mec-events-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/lity/lity.min.js?ver=7.31.0-b-modified-1772635630" id="mec-lity-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/colorbrightness/colorbrightness.min.js?ver=7.31.0-b-modified-1772635630" id="mec-colorbrightness-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/modern-events-calendar-lite/assets/packages/owl-carousel/owl.carousel.min.js?ver=7.31.0-b-modified-1772635630" id="mec-owl-carousel-script-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-includes/js/dist/hooks.min.js?ver=dd5603f07f9220ed27f1" id="wp-hooks-js"></script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-includes/js/dist/i18n.min.js?ver=c26c3dc7bed366793375" id="wp-i18n-js"></script>
+<script type="text/javascript" id="wp-i18n-js-after">
+/* <![CDATA[ */
+wp.i18n.setLocaleData( { 'text direction\u0004ltr': [ 'ltr' ] } );
+//# sourceURL=wp-i18n-js-after
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/contact-form-7/includes/swv/js/index.js?ver=6.1.5-b-modified-1770647053" id="swv-js"></script>
+<script type="text/javascript" id="contact-form-7-js-translations">
+/* <![CDATA[ */
+( function( domain, translations ) {
+	var localeData = translations.locale_data[ domain ] || translations.locale_data.messages;
+	localeData[""].domain = domain;
+	wp.i18n.setLocaleData( localeData, domain );
+} )( "contact-form-7", {"translation-revision-date":"2025-12-01 15:45:40+0000","generator":"GlotPress\/4.0.3","domain":"messages","locale_data":{"messages":{"":{"domain":"messages","plural-forms":"nplurals=2; plural=n != 1;","lang":"es"},"This contact form is placed in the wrong place.":["Este formulario de contacto est\u00e1 situado en el lugar incorrecto."],"Error:":["Error:"]}},"comment":{"reference":"includes\/js\/index.js"}} );
+//# sourceURL=contact-form-7-js-translations
+/* ]]> */
+</script>
+<script type="text/javascript" id="contact-form-7-js-before">
+/* <![CDATA[ */
+var wpcf7 = {
+    "api": {
+        "root": "https:\/\/www.gasteizhoy.com\/wp-json\/",
+        "namespace": "contact-form-7\/v1"
+    }
+};
+//# sourceURL=contact-form-7-js-before
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.gasteizhoy.com/wp-content/plugins/contact-form-7/includes/js/index.js?ver=6.1.5-b-modified-1770647053" id="contact-form-7-js"></script>
+
+	</footer>
+
+	</main>
+
   </body>
 </html>
