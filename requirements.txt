@@ -3,3 +3,5 @@ beautifulsoup4
 pandas
 groq
 python-dotenv
+Pillow
+urllib3
