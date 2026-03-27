@@ -17,7 +17,7 @@ PALABRAS_NEGATIVAS = {
     'muerte', 'fallece', 'accidente', 'robo', 'detenido', 'agresión', 'pelea', 'herido',
     'denuncia', 'corte', 'huelga', 'protesta', 'incendio', 'atropello', 'crimen', 'estafa',
     'pérdida', 'caída', 'baja', 'tensión', 'riesgo', 'peligro', 'inseguro', 'sucio', 'abandono',
-    'cierre', 'cierran', 'despido', 'despidos'
+    'cierre', 'cierran', 'despido', 'despidos', 'semana santa', 'procesión', 'religión', 'iglesia', 'culto'
 }
 
 NEGACIONES = {'no', 'ni', 'nunca', 'tampoco', 'sin'}
@@ -65,7 +65,10 @@ def analyze_sentiment(text):
            - Urbanismo: Obras del BEI, tranvía, Anillo Verde.
            Si no encaja en ninguna, usa "Otros".
         
-        Responde estrictamente con un JSON válido que contenga sólamente esas dos claves.'''
+        Responde estrictamente con un JSON válido que contenga sólamente esas dos claves.
+        
+        IMPORTANTE: Cualquier noticia relacionada con temas religiosos, procesiones, Semana Santa, festividades religiosas o cultos DEBE ser marcada como "negativa", independientemente de si el tono del texto parece positivo o neutral.
+        '''
         
         completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
