@@ -146,7 +146,38 @@ def generate_hf_image(title, article_id, output_dir='data/images'):
         except Exception as e:
             print(f"  Error with {model}: {e}")
             
-    print(f"All HF models failed for {article_id}.")
+    print(f"All HF models failed for {article_id}. Falling back to Pollinations API...")
+    import urllib.parse
+    encoded_prompt = urllib.parse.quote(f"Vitoria news: {title}, realistic photography, cinematic")
+    
+    pollinations_key = os.getenv("POLLINATIONS_KEY")
+    if pollinations_key:
+        pollinations_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&nologo=true&key={pollinations_key}"
+    else:
+        pollinations_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&nologo=true"
+        print("Warning: POLLINATIONS_KEY not found in .env. Pollinations may return 401.")
+        
+    req_headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+    }
+        
+    try:
+        response = session.get(pollinations_url, headers=req_headers, timeout=40)
+        if response.status_code == 200:
+            content = response.content
+            valid_magic = len(content) > 2 and ((content[0] == 0xFF and content[1] == 0xD8) or (content[0] == 0x89 and content[1] == 0x50))
+            if valid_magic and len(content) > 10000:
+                with open(file_path, 'wb') as f:
+                    f.write(content)
+                print(f"Fallback image saved from Pollinations: {file_path}")
+                return f"data/images/{article_id}.jpg"
+            else:
+                print(f"  [Error] Pollinations returned invalid image or HTML.")
+        else:
+            print(f"  [Error] Pollinations failed ({response.status_code}): {response.text[:100]}")
+    except Exception as e:
+        print(f"  [Error] Failed to connect to Pollinations: {e}")
+        
     return None
 
 def process_and_save_image(url, article_id, context_text, output_dir='data/images'):
