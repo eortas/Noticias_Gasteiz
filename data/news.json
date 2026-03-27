@@ -155,6 +155,23 @@
     "is_rewritten": true
   },
   {
+    "id": "369ed279e1",
+    "source": "El Correo",
+    "url": "https://www.elcorreo.com/alava/araba/imagenes-korrika-txikia-vitoria-20260326173603-ga.html",
+    "title": "La Korrika Txikia en Vitoria: un espectáculo visual inolvidable",
+    "title_eu": "Korrika Txikiaren irudiak Gasteizen",
+    "title_pl": null,
+    "image": "https://s1.ppllstatics.com/elcorreo/www/multimedia/2026/03/26/KORRIKA-13-kFzC-U201423531883kUC-1200x840@El%20Correo.jpg",
+    "body": "Mientras la ciudad de Vitoria se prepara para recibir a la Korrika Txikia, un evento que reúne a miles de personas, la atención se centra en la importancia de la inclusión y la accesibilidad en los eventos públicos. La Korrika Txikia es un ejemplo de cómo la ciudad puede ser un espacio compartido y divertido para todos, independientemente de las barreras que puedan existir. La Korrika Txikia es un evento que no solo se centra en la diversión, sino también en la solidaridad y la unión de la comunidad.",
+    "body_eu": "Hilabeteko lehen ordu-aldaketa 2026an aste honetan iristen da: ordu bat gehiago edo gutxiago lo egingo dugu? Lehen aulkian ibiltzearen zailtasunak Leonen: «Badago tokiren bat non errepidera jaitsi behar dut» Lana egiten ari zela, presio-ontzi bat lehertu zitzaion, eta enplegatzailearen aurka salaketa jarri du. Zerga-zerbitzua ezkontzako opariak kontrolatzen ari da: opariak deklaratu gabe daudenean isunak, bizumak barne. Euskal tribunalek ganadua nekazaritzako jarduera dela erabaki du eta hamarkada bateko auzo-gatazka bat itxi du",
+    "body_pl": null,
+    "date": "2026-03-26T17:36:07+01:00",
+    "sentiment": "negativa",
+    "score": -1.0,
+    "category": "Sociedad",
+    "lang": "es"
+  },
+  {
     "id": "3c95a93cf3",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/vitoria-dice-adios-javier-ortiz-guinea-cronista-20260326162932-nt.html",
