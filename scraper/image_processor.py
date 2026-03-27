@@ -148,9 +148,9 @@ def generate_hf_image(title, article_id, output_dir='data/images'):
     
     pollinations_key = os.getenv("POLLINATIONS_KEY")
     if pollinations_key:
-        pollinations_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&nologo=true&key={pollinations_key}"
+        pollinations_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&nologo=true&model=flux&key={pollinations_key}"
     else:
-        pollinations_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&nologo=true"
+        pollinations_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&nologo=true&model=flux"
         print("Warning: POLLINATIONS_KEY not found in .env. Pollinations may return 401.")
         
     req_headers = {
