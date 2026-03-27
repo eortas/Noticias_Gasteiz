@@ -130,17 +130,9 @@ def translate_to_euskara(title, body):
             combined = f"TITLE: {title}\n\nBODY:\n{body_truncated}"
             
             completion = client.chat.completions.create(
-                model="llama-3.1-8b-instant", # More robust for rate limits
+                model="llama-3.1-8b-instant", # Optimized for scale
                 messages=[
-                    {"role": "system", "content": """Zara euskarazko itzultzaile automatiko profesionala. 
-    Zure helburua TITLE eta BODY testuak GAZTELANIATIK EUSKARARA itzultzea da.
-
-    ARAURIK GARRANTZITSUENAK:
-    1. ERANTZUN BAKARRIK EUSKARAZ. Ez erabili gaztelaniazko hitzik (ezta "Vitoria" ordez "Gasteiz" baizik, ezta "un" ordez "bat", etab).
-    2. Ez nahasi hizkuntzak. Itzulpenak profesionala eta naturala izan behar du, baina %100 EUSKARAZ.
-    3. ZEHAZTASUNA: Ziurtatu hitz teknikoak eta adjektiboak zuzenak direla (adibidez, "decaido" -> "goibel" itzuli behar da, ez "dekaitua").
-    4. Erantzun formatu honetan soilik (JSON): {"title_eu": "...", "body_eu": "..."}
-    5. Ez idatzi azalpenik."""},
+                    {"role": "system", "content": "Itzuli testu hauek EUSKARARA. Erantzun JSON FORMATUAN soilik: {\"title_eu\": \"...\", \"body_eu\": \"...\"}. Ez idatzi azalpenik."},
                     {"role": "user", "content": f"ITZULI TESTU HAU EUSKARARA ORAIN:\n\n{combined}"}
                 ],
                 temperature=0.0,
@@ -191,17 +183,9 @@ def translate_to_polish(title, body):
             combined = f"TITLE: {title}\n\nBODY:\n{body_truncated}"
             
             completion = client.chat.completions.create(
-                model="llama-3.1-8b-instant", # More robust for rate limits
+                model="llama-3.1-8b-instant", # Optimized for scale
                 messages=[
-                    {"role": "system", "content": """Jesteś profesjonalnym tłumaczem automatycznym na język polski. 
-    Twoim celem jest przetłumaczenie tekstów TITLE i BODY z JĘZYKA HISZPAŃSKIEGO na JĘZYK POLSKI.
-
-    NAJWAŻNIEJSZE ZASADY:
-    1. ODPOWIADAJ WYŁĄCZNIE W JĘZYKU POLSKIM. Nie używaj hiszpańskich słów.
-    2. Zachowaj profesjonalny, dziennikarski styl (polska szkoła reportażu).
-    3. Nie mieszaj języków. Tłumaczenie musi być naturalne i w 100% po polsku.
-    4. Odpowiedz wyłącznie w formacie JSON: {"title_pl": "...", "body_pl": "..."}
-    5. Nie dodawaj żadnych wyjaśnień."""},
+                    {"role": "system", "content": "Przetłumacz te teksty na JĘZYK POLSKI. Odpowiedz wyłącznie w formacie JSON: {\"title_pl\": \"...\", \"body_pl\": \"...\"}. Nie dodawaj wyjaśnień."},
                     {"role": "user", "content": f"PRZETŁUMACZ TEN TEKST NA POLSKI TERAZ:\n\n{combined}"}
                 ],
                 temperature=0.0,
