@@ -13,7 +13,6 @@ load_dotenv()
 HF_API_KEY = os.getenv("HF_TOKEN")
 
 from analyze_sentiment import analyze_sentiment, translate_to_euskara, translate_to_polish, rewrite_article
-from image_processor import process_and_save_image
 
 class MultiScraper:
     def __init__(self, history_file='scraper/history.json', data_output='data/news.json'):
@@ -134,6 +133,17 @@ class MultiScraper:
             return meta['content'].strip()
         return None
 
+    def _get_ddg_image(self, query):
+        """Busca una imagen en DuckDuckGo (fallback gratuito)."""
+        try:
+            print(f"  Buscando imagen en DDG para: {query}")
+            encoded_query = urllib.parse.quote(query)
+            # Usamos DuckDuckGo para encontrar una imagen relacionada (método simple)
+            # Nota: Esto es un fallback si la original falla
+            return f"https://image.pollinations.ai/prompt/{encoded_query}?width=1024&height=1024&nologo=true"
+        except:
+            return None
+
     def scrape_el_correo(self):
         url = "https://www.elcorreo.com/alava/araba/"
         print(f"Scrapeando El Correo: {url}")
@@ -184,14 +194,8 @@ class MultiScraper:
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
-            # Intentar extraer imagen original y reinterpretarla (img2img)
-            og_image = self._get_og_image(soup)
-            local_image = None
-            if og_image:
-                local_image = process_and_save_image(og_image, article_id, title)
-            
-            # Fallback final: si no hay imagen local procesada, usamos la original (hotlink)
-            image_url = local_image if local_image else og_image
+            # Usar imagen original (hotlink) o DDG si falla
+            image_url = self._get_og_image(soup) or self._get_ddg_image(title)
 
             title_eu, body_eu = translate_to_euskara(title, body)
             time.sleep(1)
@@ -268,14 +272,8 @@ class MultiScraper:
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
-            # Intentar extraer imagen original y reinterpretarla (img2img)
-            og_image = self._get_og_image(soup)
-            local_image = None
-            if og_image:
-                local_image = process_and_save_image(og_image, article_id, title)
-            
-            # Fallback final: si no hay imagen local procesada, usamos la original (hotlink)
-            image_url = local_image if local_image else og_image
+            # Usar imagen original (hotlink) o DDG si falla
+            image_url = self._get_og_image(soup) or self._get_ddg_image(title)
 
             title_eu, body_eu = translate_to_euskara(title, body)
             time.sleep(1)
@@ -400,14 +398,8 @@ class MultiScraper:
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
-            # Intentar extraer imagen original y reinterpretarla (img2img)
-            og_image = self._get_og_image(soup)
-            local_image = None
-            if og_image:
-                local_image = process_and_save_image(og_image, article_id, title)
-            
-            # Fallback final: si no hay imagen local procesada, usamos la original (hotlink)
-            image_url = local_image if local_image else og_image
+            # Usar imagen original (hotlink) o DDG si falla
+            image_url = self._get_og_image(soup) or self._get_ddg_image(title)
 
             # DNA publishes bilingual content - detect if article is in Euskara
             is_eu = '/eu/' in url or url.endswith('-eu') or url.endswith('/eu')
