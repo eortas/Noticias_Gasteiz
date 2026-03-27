@@ -128,36 +128,26 @@ def generate_hf_image(title, article_id, output_dir='data/images'):
     
     for model in models:
         api_url = f"https://api-inference.huggingface.co/models/{model}"
+        print(f"  Trying HF Text-to-Image with {model}...")
         try:
             response = session.post(api_url, headers=HEADERS, json={"inputs": prompt}, timeout=30)
             if response.status_code == 200:
-                with open(file_path, 'wb') as f:
-                    f.write(response.content)
-                return f"data/images/{article_id}.jpg"
-        except Exception:
-            continue
+                content = response.content
+                valid_magic = len(content) > 2 and ((content[0] == 0xFF and content[1] == 0xD8) or (content[0] == 0x89 and content[1] == 0x50))
+                if valid_magic:
+                    with open(file_path, 'wb') as f:
+                        f.write(content)
+                    print(f"Generated image saved locally: {file_path}")
+                    return f"data/images/{article_id}.jpg"
+            elif response.status_code == 503:
+                print(f"  Model {model} loading, skipping...")
+            else:
+                print(f"  Failed: {response.status_code}")
+        except Exception as e:
+            print(f"  Error with {model}: {e}")
             
-    # Final fallback to Pollinations if all HF fails
-    print(f"All HF models failed for {article_id}. Using Pollinations fallback.")
-    encoded_prompt = urllib.parse.quote(f"Vitoria news: {title}, realistic photography, cinematic")
-    pollinations_url = f"https://pollinations.ai/p/{encoded_prompt}?width=1024&height=1024&nologo=true&seed={article_id}"
-    
-    try:
-        response = session.get(pollinations_url, timeout=20)
-        if response.status_code == 200:
-            content = response.content
-            if len(content) < 10000:
-                print(f"  [Error] Image from {pollinations_url} is too small ({len(content)} bytes), likely an error page.")
-                return None
-                
-            with open(file_path, 'wb') as f:
-                f.write(content)
-            print(f"Fallback image saved locally: {file_path}")
-            return f"data/images/{article_id}.jpg"
-    except Exception as e:
-        print(f"  [Error] Failed to download image from {pollinations_url}: {e}")
-        
-    return pollinations_url # Extreme fallback to URL
+    print(f"All HF models failed for {article_id}.")
+    return None
 
 def process_and_save_image(url, article_id, context_text, output_dir='data/images'):
     """
