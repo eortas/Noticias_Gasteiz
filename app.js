@@ -194,9 +194,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        newsGrid.innerHTML = filteredData.map(item => {
+        newsGrid.innerHTML = filteredData.map((item, index) => {
             const isRead = readIds.includes(item.id);
-            return `
+            let html = `
                 <div class="card glass ${isRead ? 'card-read' : ''}" data-id="${item.id}" data-source="${item.source}">
                     <div class="card-img-wrap">
                         <img src="${item.image || ''}" alt="${item.title}" class="card-img" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
@@ -212,12 +212,35 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="card-date">${formatDate(item.date)} ${isRead ? `<span class="read-tag">• ${currentLang === 'eu' ? 'Irakurrita' : (currentLang === 'pl' ? 'Przeczytane' : 'Leído')}</span>` : ''}</div>
                         <h2 class="card-title">${currentLang === 'eu' && item.title_eu ? item.title_eu : (currentLang === 'pl' && item.title_pl ? item.title_pl : item.title)}</h2>
                         <div class="card-footer">
-                            <span class="read-more">${currentLang === 'eu' ? 'Irakurri' : (currentLang === 'pl' ? 'Czytaj więcej' : 'Ver narrativa')}</span>
+                            <span class="read-more">${currentLang === 'eu' ? 'Irakurri' : (currentLang === 'pl' ? 'Czytaj más' : 'Ver narrativa')}</span>
                             <div class="line"></div>
                         </div>
                     </div>
                 </div>
             `;
+
+            // Insert Ad every 4 items
+            if ((index + 1) % 4 === 0) {
+                html += `
+                    <div class="card-ad glass">
+                        <span class="ad-label">${currentLang === 'eu' ? 'PUBLIZITATEA' : (currentLang === 'pl' ? 'REKLAMA' : 'PUBLICIDAD')}</span>
+                        <div class="ad-placeholder">
+                            <ins class="adsbygoogle"
+                                 style="display:block"
+                                 data-ad-format="fluid"
+                                 data-ad-layout-key="-fb+5w+4e-db+86"
+                                 data-ad-client="ca-pub-5020124346364113"
+                                 data-ad-slot="auto"></ins>
+                        </div>
+                    </div>
+                `;
+                // Push AdSense
+                setTimeout(() => {
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                }, 100);
+            }
+
+            return html;
         }).join('');
 
         // Add click events to cards
