@@ -133,16 +133,16 @@ class MultiScraper:
             return meta['content'].strip()
         return None
 
-    def _get_ddg_image(self, query):
-        """Busca una imagen en DuckDuckGo (fallback gratuito)."""
-        try:
-            print(f"  Buscando imagen en DDG para: {query}")
-            encoded_query = urllib.parse.quote(query)
-            # Usamos DuckDuckGo para encontrar una imagen relacionada (método simple)
-            # Nota: Esto es un fallback si la original falla
-            return f"https://image.pollinations.ai/prompt/{encoded_query}?width=1024&height=1024&nologo=true"
-        except:
+    def _get_ddg_proxy_url(self, original_url):
+        """Envuelve una URL en el proxy de imágenes de DuckDuckGo."""
+        if not original_url:
             return None
+        try:
+            # El "método DuckDuckGo" para evitar tracking/bloqueos y problemas legales
+            encoded_url = urllib.parse.quote(original_url)
+            return f"https://external-content.duckduckgo.com/iu/?u={encoded_url}"
+        except:
+            return original_url
 
     def scrape_el_correo(self):
         url = "https://www.elcorreo.com/alava/araba/"
@@ -194,8 +194,8 @@ class MultiScraper:
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
-            # Usar imagen original (hotlink) o DDG si falla
-            image_url = self._get_og_image(soup) or self._get_ddg_image(title)
+            # Usar imagen original envuelta en proxy de DuckDuckGo
+            image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
 
             title_eu, body_eu = translate_to_euskara(title, body)
             time.sleep(1)
@@ -272,8 +272,8 @@ class MultiScraper:
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
-            # Usar imagen original (hotlink) o DDG si falla
-            image_url = self._get_og_image(soup) or self._get_ddg_image(title)
+            # Usar imagen original envuelta en proxy de DuckDuckGo
+            image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
 
             title_eu, body_eu = translate_to_euskara(title, body)
             time.sleep(1)
@@ -398,8 +398,8 @@ class MultiScraper:
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
-            # Usar imagen original (hotlink) o DDG si falla
-            image_url = self._get_og_image(soup) or self._get_ddg_image(title)
+            # Usar imagen original envuelta en proxy de DuckDuckGo
+            image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
 
             # DNA publishes bilingual content - detect if article is in Euskara
             is_eu = '/eu/' in url or url.endswith('-eu') or url.endswith('/eu')
