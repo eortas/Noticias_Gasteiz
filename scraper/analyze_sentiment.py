@@ -224,41 +224,44 @@ def rewrite_article(title, body):
     """
     Reescribe el título y cuerpo de una noticia en castellano con diferente estilo
     para evitar problemas de copyright, manteniendo todos los hechos veraces.
-    Usa GROQ_REWRITE_KEY y llama-3.1-8b-instant.
-    Retorna (title_rewritten, body_rewritten) o (None, None) si falla.
+    Prioriza el detalle y una extensión similar al original.
     """
     try:
         from dotenv import load_dotenv
         load_dotenv()
-        api_key = os.environ.get("GROQ_REWRITE_KEY")
+        api_key = os.environ.get("GROQ_REWRITE_KEY") or os.environ.get("GROQ_API_KEY") or os.environ.get("groq_KEY")
         if not api_key:
             return None, None
 
         client = Groq(api_key=api_key)
 
-        # Truncate at last sentence boundary before 2000 chars
-        body_truncated = body[:2000]
+        # Truncate at last sentence boundary before 5000 chars (much more detail)
+        body_truncated = body[:5000]
         last_period = body_truncated.rfind('.')
         if last_period > 300:
             body_truncated = body_truncated[:last_period + 1]
 
         combined = f"TÍTULO: {title}\n\nCUERPO:\n{body_truncated}"
 
+        system_prompt = """Eres un redactor periodístico profesional de Vitoria-Gasteiz. Tu tarea es reescribir noticias para un portal local manteniendo la máxima fidelidad y detalle del original.
+
+REGLAS CRÍTICAS:
+1. NO RESUMAS: Si el original es largo, el reescrito debe ser largo. Si hay 8 párrafos, mantén aproximadamente 8 párrafos.
+2. DETALLE TOTAL: No omitas información, testimonios, matices o datos secundarios. Mantenlos todos.
+3. DATOS PRECISOS: Nombres, fechas, lugares y cifras deben ser EXACTAMENTE iguales.
+4. ESTILO ORIGINAL: Cambia la estructura de las frases y usa sinónimos para evitar el plagio literal, pero conserva el sentido y la "cercanía" de la fuente.
+5. IDIOMA: Íntegramente en CASTELLANO.
+
+Responde ÚNICAMENTE con el objeto JSON: {"title_rewritten": "...", "body_rewritten": "..."}"""
+
         completion = client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=[
-                {"role": "system", "content": """Eres un redactor periodístico profesional. Tu tarea es reescribir noticias para un portal local.
-
-REGLAS CRÍTICAS:
-- MANTÉN TODOS LOS DATOS (nombres, fechas, números) EXACTAMENTE IGUAL.
-- Reescribe el estilo: cambia la estructura de las frases y el vocabulario.
-- PROHIBIDO copiar frases literales del original.
-- El resultado debe estar íntegramente en CASTELLANO.
-- Responde ÚNICAMENTE con el objeto JSON: {"title_rewritten": "...", "body_rewritten": "..."}"""},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": combined}
             ],
-            temperature=0.0,
-            max_tokens=6000,
+            temperature=0.2, # Un poco más alto para variar el estilo sin perder precisión
+            max_tokens=6144, # Suficiente para artículos largos
             response_format={"type": "json_object"}
         )
 
