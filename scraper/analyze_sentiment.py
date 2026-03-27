@@ -101,93 +101,112 @@ def translate_to_euskara(title, body):
     Traduce el título y cuerpo de una noticia al euskara usando Groq llama-3.1-8b-instant.
     Retorna (title_eu, body_eu) o (None, None) si falla.
     """
-    try:
-        from dotenv import load_dotenv
-        load_dotenv()
-        api_key = os.environ.get("GROQ_TRANSLATION_KEY")
-        if not api_key:
-            return None, None
-            
-        client = Groq(api_key=api_key)
-        
-        # Truncate body at last sentence boundary before 2000 chars to ensure stable JSON output
-        body_truncated = body[:2000]
-        last_period = body_truncated.rfind('.')
-        if last_period > 300:
-            body_truncated = body_truncated[:last_period + 1]
-        combined = f"TITLE: {title}\n\nBODY:\n{body_truncated}"
-        
-        completion = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": """Zara euskarazko itzultzaile automatiko profesionala. 
-Zure helburua TITLE eta BODY testuak GAZTELANIATIK EUSKARARA itzultzea da.
+    max_retries = 3
+    retry_delay = 2
 
-ARAURIK GARRANTZITSUENAK:
-1. ERANTZUN BAKARRIK EUSKARAZ. Ez erabili gaztelaniazko hitzik (ezta "Vitoria" ordez "Gasteiz" baizik, ezta "un" ordez "bat", etab).
-2. Ez nahasi hizkuntzak. Itzulpenak profesionala eta naturala izan behar du, baina %100 EUSKARAZ.
-3. Erantzun formatu honetan soilik (JSON): {"title_eu": "...", "body_eu": "..."}
-4. Ez idatzi azalpenik."""},
-                {"role": "user", "content": f"ITZULI TESTU HAU EUSKARARA ORAIN:\n\n{combined}"}
-            ],
-            temperature=0.0,
-            max_tokens=6000,
-            response_format={"type": "json_object"}
-        )
-        
-        result_str = completion.choices[0].message.content
-        data = json.loads(result_str)
-        return data.get("title_eu"), data.get("body_eu")
-    except Exception as e:
-        print(f"Error traduciendo al euskara: {e}")
-        return None, None
+    for attempt in range(max_retries):
+        try:
+            from dotenv import load_dotenv
+            load_dotenv()
+            api_key = os.environ.get("GROQ_TRANSLATION_KEY")
+            if not api_key:
+                print("Error: No se encontró GROQ_TRANSLATION_KEY en el entorno.")
+                return None, None
+                
+            client = Groq(api_key=api_key)
+            
+            # Truncate body at last sentence boundary before 2000 chars to ensure stable JSON output
+            body_truncated = body[:2000]
+            last_period = body_truncated.rfind('.')
+            if last_period > 300:
+                body_truncated = body_truncated[:last_period + 1]
+            combined = f"TITLE: {title}\n\nBODY:\n{body_truncated}"
+            
+            completion = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {"role": "system", "content": """Zara euskarazko itzultzaile automatiko profesionala. 
+    Zure helburua TITLE eta BODY testuak GAZTELANIATIK EUSKARARA itzultzea da.
+
+    ARAURIK GARRANTZITSUENAK:
+    1. ERANTZUN BAKARRIK EUSKARAZ. Ez erabili gaztelaniazko hitzik (ezta "Vitoria" ordez "Gasteiz" baizik, ezta "un" ordez "bat", etab).
+    2. Ez nahasi hizkuntzak. Itzulpenak profesionala eta naturala izan behar du, baina %100 EUSKARAZ.
+    3. ZEHAZTASUNA: Ziurtatu hitz teknikoak eta adjektiboak zuzenak direla (adibidez, "decaido" -> "goibel" itzuli behar da, ez "dekaitua").
+    4. Erantzun formatu honetan soilik (JSON): {"title_eu": "...", "body_eu": "..."}
+    5. Ez idatzi azalpenik."""},
+                    {"role": "user", "content": f"ITZULI TESTU HAU EUSKARARA ORAIN:\n\n{combined}"}
+                ],
+                temperature=0.0,
+                max_tokens=6000,
+                response_format={"type": "json_object"}
+            )
+            
+            result_str = completion.choices[0].message.content
+            data = json.loads(result_str)
+            return data.get("title_eu"), data.get("body_eu")
+        except Exception as e:
+            print(f"Error traduciendo al euskara (intento {attempt+1}/{max_retries}): {e}")
+            if attempt < max_retries - 1:
+                import time
+                time.sleep(retry_delay)
+            else:
+                return None, None
 
 def translate_to_polish(title, body):
     """
     Traduce el título y cuerpo de una noticia al polaco usando Groq llama-3.3-70b-versatile.
     Retorna (title_pl, body_pl) o (None, None) si falla.
     """
-    try:
-        from dotenv import load_dotenv
-        load_dotenv()
-        api_key = os.environ.get("GROQ_POLISH_KEY")
-        if not api_key:
-            return None, None
-            
-        client = Groq(api_key=api_key)
-        
-        # Truncate body at last sentence boundary before 2000 chars
-        body_truncated = body[:2000]
-        last_period = body_truncated.rfind('.')
-        if last_period > 300:
-            body_truncated = body_truncated[:last_period + 1]
-        combined = f"TITLE: {title}\n\nBODY:\n{body_truncated}"
-        
-        completion = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": """Jesteś profesjonalnym tłumaczem automatycznym na język polski. 
-Twoim celem jest przetłumaczenie tekstów TITLE i BODY z JĘZYKA HISZPAŃSKIEGO na JĘZYK POLSKI.
+    max_retries = 3
+    retry_delay = 2
 
-NAJWAŻNIEJSZE ZASADY:
-1. ODPOWIADAJ WYŁĄCZNIE W JĘZYKU POLSKIM. Nie używaj hiszpańskich słów.
-2. Zachowaj profesjonalny, dziennikarski styl (polska szkoła reportażu).
-3. Nie mieszaj języków. Tłumaczenie musi być naturalne i w 100% po polsku.
-4. Odpowiedz wyłącznie w formacie JSON: {"title_pl": "...", "body_pl": "..."}
-5. Nie dodawaj żadnych wyjaśnień."""},
-                {"role": "user", "content": f"PRZETŁUMACZ TEN TEKST NA POLSKI TERAZ:\n\n{combined}"}
-            ],
-            temperature=0.0,
-            max_tokens=6000,
-            response_format={"type": "json_object"}
-        )
-        
-        result_str = completion.choices[0].message.content
-        data = json.loads(result_str)
-        return data.get("title_pl"), data.get("body_pl")
-    except Exception as e:
-        print(f"Error traduciendo al polaco: {e}")
-        return None, None
+    for attempt in range(max_retries):
+        try:
+            from dotenv import load_dotenv
+            load_dotenv()
+            api_key = os.environ.get("GROQ_POLISH_KEY")
+            if not api_key:
+                print("Error: No se encontró GROQ_POLISH_KEY en el entorno.")
+                return None, None
+                
+            client = Groq(api_key=api_key)
+            
+            # Truncate body at last sentence boundary before 2000 chars
+            body_truncated = body[:2000]
+            last_period = body_truncated.rfind('.')
+            if last_period > 300:
+                body_truncated = body_truncated[:last_period + 1]
+            combined = f"TITLE: {title}\n\nBODY:\n{body_truncated}"
+            
+            completion = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {"role": "system", "content": """Jesteś profesjonalnym tłumaczem automatycznym na język polski. 
+    Twoim celem jest przetłumaczenie tekstów TITLE i BODY z JĘZYKA HISZPAŃSKIEGO na JĘZYK POLSKI.
+
+    NAJWAŻNIEJSZE ZASADY:
+    1. ODPOWIADAJ WYŁĄCZNIE W JĘZYKU POLSKIM. Nie używaj hiszpańskich słów.
+    2. Zachowaj profesjonalny, dziennikarski styl (polska szkoła reportażu).
+    3. Nie mieszaj języków. Tłumaczenie musi być naturalne i w 100% po polsku.
+    4. Odpowiedz wyłącznie w formacie JSON: {"title_pl": "...", "body_pl": "..."}
+    5. Nie dodawaj żadnych wyjaśnień."""},
+                    {"role": "user", "content": f"PRZETŁUMACZ TEN TEKST NA POLSKI TERAZ:\n\n{combined}"}
+                ],
+                temperature=0.0,
+                max_tokens=6000,
+                response_format={"type": "json_object"}
+            )
+            
+            result_str = completion.choices[0].message.content
+            data = json.loads(result_str)
+            return data.get("title_pl"), data.get("body_pl")
+        except Exception as e:
+            print(f"Error en traducción al polaco (intento {attempt+1}/{max_retries}): {e}")
+            if attempt < max_retries - 1:
+                import time
+                time.sleep(retry_delay)
+            else:
+                return None, None
 
 def rewrite_article(title, body):
     """
