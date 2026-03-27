@@ -138,8 +138,21 @@ def generate_hf_image(title, article_id, output_dir='data/images'):
             continue
             
     # Final fallback to Pollinations if all HF fails
-    encoded_prompt = urllib.parse.quote(f"Vitoria news: {title}, realistic photography")
-    return f"https://pollinations.ai/p/{encoded_prompt}?width=1024&height=1024&nologo=true&seed={article_id}"
+    print(f"All HF models failed for {article_id}. Using Pollinations fallback.")
+    encoded_prompt = urllib.parse.quote(f"Vitoria news: {title}, realistic photography, cinematic")
+    pollinations_url = f"https://pollinations.ai/p/{encoded_prompt}?width=1024&height=1024&nologo=true&seed={article_id}"
+    
+    try:
+        response = session.get(pollinations_url, timeout=20)
+        if response.status_code == 200:
+            with open(file_path, 'wb') as f:
+                f.write(response.content)
+            print(f"Fallback image saved locally: {file_path}")
+            return f"data/images/{article_id}.jpg"
+    except Exception as e:
+        print(f"Pollinations fallback failed: {e}")
+        
+    return pollinations_url # Extreme fallback to URL
 
 def process_and_save_image(url, article_id, context_text, output_dir='data/images'):
     """
