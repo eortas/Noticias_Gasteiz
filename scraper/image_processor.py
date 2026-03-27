@@ -84,10 +84,11 @@ def process_and_save_image(url_original, article_id, prompt_texto, output_dir='d
     return generate_t2i_fallback(prompt_texto, article_id, output_dir)
 
 def generate_t2i_fallback(prompt_texto, article_id, output_dir='data/images'):
-    """Generación de texto a imagen si img2img falla."""
+    """Generación de texto a imagen si img2img falla (incluyendo errores 402)."""
     local_path = os.path.join(output_dir, f"{article_id}.jpg")
     print(f"  Usando fallback Texto-a-Imagen para {article_id}...")
     
+    # 1. Intentar HF Texto-a-Imagen
     try:
         img_generada = client.text_to_image(
             prompt=f"Professional news illustration: {prompt_texto}. Artistic, realistic photography style, cinematic lighting, 8k, no text.",
@@ -95,9 +96,29 @@ def generate_t2i_fallback(prompt_texto, article_id, output_dir='data/images'):
         )
         if img_generada:
             img_generada.save(local_path, format='JPEG', quality=85)
-            print(f"  ✓ Imagen generada (t2i) y guardada: {local_path}")
+            print(f"  ✓ Imagen generada (t2i HF) y guardada: {local_path}")
             return f"data/images/{article_id}.jpg"
     except Exception as e:
-        print(f"  !! Fallo crítico en t2i: {e}")
+        print(f"  ! Fallo en HF t2i: {e}")
+        if "402" in str(e):
+            print("  [402 Payment Required] Créditos agotados en HF. Usando Pollinations...")
+
+    # 2. Fallback final CRÍTICO: Pollinations.ai (Sin tokens, siempre disponible)
+    print(f"  [CRITICAL FALLBACK] Usando Pollinations.ai para {article_id}...")
+    try:
+        import urllib.parse
+        encoded_prompt = urllib.parse.quote(f"Vitoria news: {prompt_texto}, professional photography, cinematic, documentary style")
+        pollinations_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&nologo=true&seed={article_id}"
+        
+        response = requests.get(pollinations_url, timeout=30)
+        if response.status_code == 200:
+            with open(local_path, 'wb') as f:
+                f.write(response.content)
+            print(f"  ✓ Imagen descargada de Pollinations: {local_path}")
+            return f"data/images/{article_id}.jpg"
+        else:
+            print(f"  !! Pollinations también falló ({response.status_code})")
+    except Exception as e:
+        print(f"  !! Error conectando con Pollinations: {e}")
     
     return None

@@ -111,9 +111,13 @@ def translate_to_euskara(title, body):
         try:
             from dotenv import load_dotenv
             load_dotenv()
-            api_key = os.environ.get("GROQ_TRANSLATION_KEY")
+            # Fallback chain for keys
+            api_key = (os.environ.get("GROQ_TRANSLATION_KEY") or 
+                       os.environ.get("GROQ_API_KEY") or 
+                       os.environ.get("groq_KEY"))
+            
             if not api_key:
-                print("Error: No se encontró GROQ_TRANSLATION_KEY en el entorno.")
+                print("Error: No se encontró una clave de API de Groq válida (GROQ_TRANSLATION_KEY, GROQ_API_KEY o groq_KEY) en el entorno.")
                 return None, None
                 
             client = Groq(api_key=api_key)
@@ -126,7 +130,7 @@ def translate_to_euskara(title, body):
             combined = f"TITLE: {title}\n\nBODY:\n{body_truncated}"
             
             completion = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
+                model="llama-3.1-8b-instant", # More robust for rate limits
                 messages=[
                     {"role": "system", "content": """Zara euskarazko itzultzaile automatiko profesionala. 
     Zure helburua TITLE eta BODY testuak GAZTELANIATIK EUSKARARA itzultzea da.
@@ -140,7 +144,7 @@ def translate_to_euskara(title, body):
                     {"role": "user", "content": f"ITZULI TESTU HAU EUSKARARA ORAIN:\n\n{combined}"}
                 ],
                 temperature=0.0,
-                max_tokens=6000,
+                max_tokens=2048,
                 response_format={"type": "json_object"}
             )
             
@@ -167,9 +171,14 @@ def translate_to_polish(title, body):
         try:
             from dotenv import load_dotenv
             load_dotenv()
-            api_key = os.environ.get("GROQ_POLISH_KEY")
+            # Fallback chain for Polish key
+            api_key = (os.environ.get("GROQ_POLISH_KEY") or 
+                       os.environ.get("GROQ_TRANSLATION_KEY") or 
+                       os.environ.get("GROQ_API_KEY") or 
+                       os.environ.get("groq_KEY"))
+            
             if not api_key:
-                print("Error: No se encontró GROQ_POLISH_KEY en el entorno.")
+                print("Error: No se encontró una clave de API de Groq válida para polaco.")
                 return None, None
                 
             client = Groq(api_key=api_key)
@@ -182,7 +191,7 @@ def translate_to_polish(title, body):
             combined = f"TITLE: {title}\n\nBODY:\n{body_truncated}"
             
             completion = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
+                model="llama-3.1-8b-instant", # More robust for rate limits
                 messages=[
                     {"role": "system", "content": """Jesteś profesjonalnym tłumaczem automatycznym na język polski. 
     Twoim celem jest przetłumaczenie tekstów TITLE i BODY z JĘZYKA HISZPAŃSKIEGO na JĘZYK POLSKI.
@@ -196,7 +205,7 @@ def translate_to_polish(title, body):
                     {"role": "user", "content": f"PRZETŁUMACZ TEN TEKST NA POLSKI TERAZ:\n\n{combined}"}
                 ],
                 temperature=0.0,
-                max_tokens=6000,
+                max_tokens=2048,
                 response_format={"type": "json_object"}
             )
             
