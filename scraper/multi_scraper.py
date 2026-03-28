@@ -231,13 +231,18 @@ class MultiScraper:
             soup = BeautifulSoup(res.text, 'html.parser')
             links = []
             
-            for tag in soup.find_all(['h2', 'h3']):
-                a_tag = tag.find('a')
-                if not a_tag:
-                    a_tag = tag.find_parent('a')
+            combined_selectors = soup.find_all(['h2', 'h3']) + soup.select('a.nueve-bloque-noticia, a.heronews, a.box-shadow, a.blogpost, a.breakblock.breakingtext, a.linknews, a.sixnewsblock')
+            
+            for item in combined_selectors:
+                if item.name in ['h2', 'h3']:
+                    a_tag = item.find('a') or item.find_parent('a')
+                else:
+                    a_tag = item
+                
                 if a_tag:
                     href = a_tag.get('href', '')
                     if href:
+                        # Limpiar href de slash inicial redundante si es necesario
                         full_url = f"https://www.gasteizhoy.com{href}" if not href.startswith("http") else href
                         if full_url not in self.history and full_url not in links:
                             links.append(full_url)
@@ -266,8 +271,13 @@ class MultiScraper:
             if not body or "patrocinado" in title.lower() or "patrocinado" in body.lower(): 
                 return None
             
-            date_tag = soup.find('time')
-            date = date_tag['datetime'] if date_tag else datetime.now().isoformat()
+            # Intentar extraer fecha del span.published (nuevo formato) o de time tag
+            date_tag = soup.find('span', class_='published')
+            if date_tag and date_tag.get('title'):
+                date = self._parse_spanish_date(date_tag['title'])
+            else:
+                date_tag_time = soup.find('time')
+                date = date_tag_time['datetime'] if date_tag_time else datetime.now().isoformat()
             
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
@@ -300,6 +310,47 @@ class MultiScraper:
             }
         except:
             return None
+
+    def _parse_spanish_date(self, date_str):
+        """Parsea fechas tipo: sábado, 28 marzo, 2026, 7:58"""
+        if not date_str:
+            return datetime.now().isoformat()
+        try:
+            # Eliminar comas y pasar a minúsculas
+            clean_str = date_str.lower().replace(',', '').strip()
+            parts = clean_str.split()
+            # Esperamos algo como: [día_semana, día, mes, año, hora] o [día, mes, año, hora]
+            
+            months = {
+                'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4,
+                'mayo': 5, 'junio': 6, 'julio': 7, 'agosto': 8,
+                'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12
+            }
+            
+            day = None
+            month = None
+            year = None
+            time_val = "00:00"
+            
+            for part in parts:
+                if part in months:
+                    month = months[part]
+                elif ':' in part:
+                    time_val = part
+                elif part.isdigit():
+                    val = int(part)
+                    if val > 2000:
+                        year = val
+                    else:
+                        day = val
+            
+            if day and month and year:
+                h, m = map(int, time_val.split(':'))
+                return datetime(year, month, day, h, m).isoformat()
+        except Exception as e:
+            print(f"Error parsing date '{date_str}': {e}")
+            
+        return datetime.now().isoformat()
 
     def scrape_dna(self):
         url = "https://www.noticiasdealava.eus/vitoria-gasteiz/"
