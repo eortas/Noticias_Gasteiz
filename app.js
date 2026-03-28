@@ -219,6 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
 
+            /* 
             // Insert Ad every 4 items
             if ((index + 1) % 4 === 0) {
                 html += `
@@ -239,6 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     (window.adsbygoogle = window.adsbygoogle || []).push({});
                 }, 100);
             }
+            */
 
             return html;
         }).join('');
