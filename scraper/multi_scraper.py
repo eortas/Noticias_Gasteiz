@@ -84,26 +84,54 @@ class MultiScraper:
                 
         # Combinamos las noticias existentes con las nuevas
         all_news = existing_news + self.news_data
-        
-        # Dedup logic: usaremos el título normalizado para evitar duplicados reales
+        # Dedup logic: usaremos imagen, título normalizado y URL base
         unique_news = {}
         for item in all_news:
             title = item.get('title', '')
             body = item.get('body', '')
+            img_url = item.get('image', '')
             
             # 1. Filtro 'EN DIRECTO'
-            if "EN DIRECTO" in title.upper() or "EN DIRECTO" in body.upper():
+            if any(x in title.upper() or x in body.upper() for x in ["EN DIRECTO", "ZUZENEAN"]):
                 continue
                 
             # 2. Normalizar título: quitar fuentes comunes al final y limpiar espacios/puntuación
+            # Quitamos los primeros 5 caracteres si es algo tipo "FOTOS:" "VÍDEO:" para unificar
             clean_title = title.split('|')[0].split(' - ')[0].strip().lower()
-            # Eliminar caracteres no alfanuméricos para la clave de deduplicación
+            if ": " in clean_title[:15]:
+                clean_title = clean_title.split(": ", 1)[1]
+                
             norm_title = "".join(filter(str.isalnum, clean_title))
             
-            if not norm_title:
-                norm_title = item['url']
+            # Si el título es muy similar al principio, lo tratamos como potencial duplicado
+            # Prefijo corto para comprobación con imagen (10 chars)
+            title_prefix_short = norm_title[:10]
+            # Prefijo largo para comprobación solo por título (35 chars)
+            title_prefix_long = norm_title[:35]
+            
+            # Intentar encontrar si existe un duplicado por título o por imagen (si el título es parecido)
+            is_dup = False
+            for existing_key in list(unique_news.keys()):
+                existing_item = unique_news[existing_key]
+                existing_norm = "".join(filter(str.isalnum, existing_item['title'].lower()))
                 
-            unique_news[norm_title] = item
+                # Check 1: Misma imagen (no nula) + Título que empieza igual (prefijo corto)
+                if img_url and existing_item.get('image') == img_url:
+                    if existing_norm.startswith(title_prefix_short) or title_prefix_short in existing_norm:
+                        is_dup = True
+                        # Quedarse con el que tenga más texto
+                        if len(body) > len(existing_item.get('body', '')):
+                            unique_news[existing_key] = item
+                        break
+                
+                # Check 2: Título casi idéntico (prefijo largo)
+                if title_prefix_long and existing_norm.startswith(title_prefix_long):
+                    is_dup = True
+                    break
+            
+            if not is_dup:
+                key = norm_title if norm_title else item['url']
+                unique_news[key] = item
         
         # Sort by date
         sorted_news = sorted(unique_news.values(), key=lambda x: x['date'], reverse=True)
@@ -125,6 +153,12 @@ class MultiScraper:
         
         with open(self.data_output, 'w', encoding='utf-8') as f:
             json.dump(latest_news, f, indent=2, ensure_ascii=False)
+
+    def _normalize_url(self, url):
+        """Elimina parámetros de consulta para evitar duplicados por variaciones de trackers"""
+        if '?' in url:
+            return url.split('?')[0]
+        return url
 
     def _get_og_image(self, soup):
         """Extrae la imagen original de los meta tags og:image."""
@@ -154,7 +188,7 @@ class MultiScraper:
             for a in soup.select('a.v-a-link, a.v-prp__a, h2 a, h3 a'):
                 href = a.get('href', '')
                 if href.endswith(".html") and "vitoria" in href.lower() or "/araba/" in href:
-                    full_url = f"https://www.elcorreo.com{href}" if not href.startswith("http") else href
+                    full_url = self._normalize_url(f"https://www.elcorreo.com{href}" if not href.startswith("http") else href)
                     if full_url not in self.history:
                         links.append(full_url)
             
@@ -243,7 +277,7 @@ class MultiScraper:
                     href = a_tag.get('href', '')
                     if href:
                         # Limpiar href de slash inicial redundante si es necesario
-                        full_url = f"https://www.gasteizhoy.com{href}" if not href.startswith("http") else href
+                        full_url = self._normalize_url(f"https://www.gasteizhoy.com{href}" if not href.startswith("http") else href)
                         if full_url not in self.history and full_url not in links:
                             links.append(full_url)
             
@@ -366,7 +400,7 @@ class MultiScraper:
                 if a_tag:
                     href = a_tag.get('href', '')
                     if href:
-                        full_url = f"https://www.noticiasdealava.eus{href}" if not href.startswith("http") else href
+                        full_url = self._normalize_url(f"https://www.noticiasdealava.eus{href}" if not href.startswith("http") else href)
                         if "vitoria" in full_url.lower() and full_url not in self.history and full_url not in links:
                             links.append(full_url)
             
