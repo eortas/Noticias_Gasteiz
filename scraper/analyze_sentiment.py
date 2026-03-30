@@ -116,6 +116,7 @@ def translate_to_euskara(title, body):
             keys = [
                 os.environ.get("GROQ_TRANSLATION_KEY"),
                 os.environ.get("GROQ_API_KEY"),
+                os.environ.get("GROQ_EUSKERA2"),
                 os.environ.get("GROQ_API_KEY_2"),
                 os.environ.get("GROQ_API_KEY_3"),
                 os.environ.get("groq_KEY")
@@ -176,6 +177,7 @@ def translate_to_polish(title, body):
                 os.environ.get("GROQ_POLISH_KEY"),
                 os.environ.get("GROQ_TRANSLATION_KEY"),
                 os.environ.get("GROQ_API_KEY"),
+                os.environ.get("GROQ_POLISH2"),
                 os.environ.get("GROQ_API_KEY_2"),
                 os.environ.get("GROQ_API_KEY_3"),
                 os.environ.get("groq_KEY")
