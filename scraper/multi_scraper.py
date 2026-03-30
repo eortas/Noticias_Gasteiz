@@ -189,6 +189,11 @@ class MultiScraper:
             for a in soup.select('a.v-a-link, a.v-prp__a, h2 a, h3 a'):
                 href = a.get('href', '')
                 if href.endswith(".html") and "vitoria" in href.lower() or "/araba/" in href:
+                    parent = a.find_parent()
+                    block_text = (a.get_text() + ' ' + (parent.get_text() if parent else '')).lower()
+                    if any(keyword in block_text or keyword in href.lower() for keyword in ['patrocinado', 'concurso', 'publirreportaje', 'publireportaje']):
+                        continue
+                        
                     full_url = self._normalize_url(f"https://www.elcorreo.com{href}" if not href.startswith("http") else href)
                     if full_url not in self.history:
                         links.append(full_url)
@@ -262,6 +267,22 @@ class MultiScraper:
         url = "https://www.gasteizhoy.com/"
         print(f"Scrapeando Gasteiz Hoy: {url}")
         try:
+            # Obtener blacklist de URLs patrocinadas
+            blacklist = set()
+            try:
+                patro_res = self.scraper.get("https://www.gasteizhoy.com/patrocinado/", headers=self.headers, timeout=10)
+                patro_soup = BeautifulSoup(patro_res.text, 'html.parser')
+                for a in patro_soup.find_all('a'):
+                    href = a.get('href', '')
+                    if href:
+                        href_clean = re.sub(r'\s+', '', href)
+                        if len(href_clean) > 20 and ('gasteizhoy.com' in href_clean or href_clean.startswith('/')):
+                            full_p = self._normalize_url(f"https://www.gasteizhoy.com{href_clean}" if not href_clean.startswith("http") else href_clean)
+                            if not full_p.endswith('/patrocinado/'):
+                                blacklist.add(full_p)
+            except Exception as e:
+                print(f"Error obteniendo blacklist patrocinados: {e}")
+
             res = self.scraper.get(url, headers=self.headers, timeout=15)
             soup = BeautifulSoup(res.text, 'html.parser')
             links = []
@@ -278,8 +299,28 @@ class MultiScraper:
                     val = a_tag.get('href', '')
                     if val:
                         href = re.sub(r'\s+', '', val)
+                        
+                        parent = a_tag.find_parent()
+                        block_text = (a_tag.get_text() + ' ' + (parent.get_text() if parent else '')).lower()
+                        if any(keyword in block_text or keyword in href.lower() for keyword in ['patrocinado', 'concurso', 'publirreportaje', 'publireportaje']):
+                            continue
+                            
+                        # Verificar clases del contenedor (ej. patro-new)
+                        classes = ' '.join(a_tag.get('class', []))
+                        if parent:
+                            classes += ' ' + ' '.join(parent.get('class', []))
+                            section = parent.find_parent('section')
+                            if section:
+                                classes += ' ' + ' '.join(section.get('class', []))
+                                
+                        if 'patro-new' in classes or 'patrocinado' in classes:
+                            continue
                         # Limpiar href de slash inicial redundante si es necesario
                         full_url = self._normalize_url(f"https://www.gasteizhoy.com{href}" if not href.startswith("http") else href)
+                        
+                        if full_url in blacklist:
+                            continue
+                            
                         if full_url not in self.history and full_url not in links:
                             links.append(full_url)
             
