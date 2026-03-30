@@ -111,15 +111,23 @@ def translate_to_euskara(title, body):
         try:
             from dotenv import load_dotenv
             load_dotenv()
-            # Fallback chain for keys
-            api_key = (os.environ.get("GROQ_TRANSLATION_KEY") or 
-                       os.environ.get("GROQ_API_KEY") or 
-                       os.environ.get("groq_KEY"))
             
-            if not api_key:
-                print("Error: No se encontró una clave de API de Groq válida (GROQ_TRANSLATION_KEY, GROQ_API_KEY o groq_KEY) en el entorno.")
+            # Recolectar todas las posibles claves que existan en el env
+            keys = [
+                os.environ.get("GROQ_TRANSLATION_KEY"),
+                os.environ.get("GROQ_API_KEY"),
+                os.environ.get("GROQ_API_KEY_2"),
+                os.environ.get("GROQ_API_KEY_3"),
+                os.environ.get("groq_KEY")
+            ]
+            valid_keys = [k for k in keys if k]
+            
+            if not valid_keys:
+                print("Error: No se encontró ninguna clave de API de Groq en el entorno.")
                 return None, None
                 
+            # Rotar la clave según el número de intento actual
+            api_key = valid_keys[attempt % len(valid_keys)]
             client = Groq(api_key=api_key)
             
             # Truncate body at last sentence boundary before 2000 chars to ensure stable JSON output
@@ -163,16 +171,23 @@ def translate_to_polish(title, body):
         try:
             from dotenv import load_dotenv
             load_dotenv()
-            # Fallback chain for Polish key
-            api_key = (os.environ.get("GROQ_POLISH_KEY") or 
-                       os.environ.get("GROQ_TRANSLATION_KEY") or 
-                       os.environ.get("GROQ_API_KEY") or 
-                       os.environ.get("groq_KEY"))
+            # Recolectar todas las posibles claves que existan en el env
+            keys = [
+                os.environ.get("GROQ_POLISH_KEY"),
+                os.environ.get("GROQ_TRANSLATION_KEY"),
+                os.environ.get("GROQ_API_KEY"),
+                os.environ.get("GROQ_API_KEY_2"),
+                os.environ.get("GROQ_API_KEY_3"),
+                os.environ.get("groq_KEY")
+            ]
+            valid_keys = [k for k in keys if k]
             
-            if not api_key:
-                print("Error: No se encontró una clave de API de Groq válida para polaco.")
+            if not valid_keys:
+                print("Error: No se encontró ninguna clave de API de Groq para polaco en el entorno.")
                 return None, None
                 
+            # Rotar la clave según el número de intento actual
+            api_key = valid_keys[attempt % len(valid_keys)]
             client = Groq(api_key=api_key)
             
             # Truncate body at last sentence boundary before 2000 chars
@@ -210,24 +225,39 @@ def rewrite_article(title, body):
     para evitar problemas de copyright, manteniendo todos los hechos veraces.
     Prioriza el detalle y una extensión similar al original.
     """
-    try:
-        from dotenv import load_dotenv
-        load_dotenv()
-        api_key = os.environ.get("GROQ_REWRITE_KEY") or os.environ.get("GROQ_API_KEY") or os.environ.get("groq_KEY")
-        if not api_key:
-            return None, None
+    max_retries = 3
+    retry_delay = 2
 
-        client = Groq(api_key=api_key)
+    for attempt in range(max_retries):
+        try:
+            from dotenv import load_dotenv
+            load_dotenv()
+            
+            keys = [
+                os.environ.get("GROQ_REWRITE_KEY"),
+                os.environ.get("GROQ_API_KEY"),
+                os.environ.get("GROQ_API_KEY_2"),
+                os.environ.get("GROQ_API_KEY_3"),
+                os.environ.get("groq_KEY")
+            ]
+            valid_keys = [k for k in keys if k]
+            
+            if not valid_keys:
+                print("Error: No se encontró clave API para reescribir artículos.")
+                return None, None
 
-        # Truncate at last sentence boundary before 5000 chars (much more detail)
-        body_truncated = body[:5000]
-        last_period = body_truncated.rfind('.')
-        if last_period > 300:
-            body_truncated = body_truncated[:last_period + 1]
+            api_key = valid_keys[attempt % len(valid_keys)]
+            client = Groq(api_key=api_key)
 
-        combined = f"TÍTULO: {title}\n\nCUERPO:\n{body_truncated}"
+            # Truncate at last sentence boundary before 5000 chars (much more detail)
+            body_truncated = body[:5000]
+            last_period = body_truncated.rfind('.')
+            if last_period > 300:
+                body_truncated = body_truncated[:last_period + 1]
 
-        system_prompt = """Eres un redactor periodístico profesional de Vitoria-Gasteiz. Tu tarea es reescribir noticias para un portal local manteniendo la máxima fidelidad y detalle del original.
+            combined = f"TÍTULO: {title}\n\nCUERPO:\n{body_truncated}"
+
+            system_prompt = """Eres un redactor periodístico profesional de Vitoria-Gasteiz. Tu tarea es reescribir noticias para un portal local manteniendo la máxima fidelidad y detalle del original.
 
 REGLAS CRÍTICAS:
 1. NO RESUMAS: Si el original es largo, el reescrito debe ser largo. Si hay 8 párrafos, mantén aproximadamente 8 párrafos.
@@ -238,23 +268,27 @@ REGLAS CRÍTICAS:
 
 Responde ÚNICAMENTE con el objeto JSON: {"title_rewritten": "...", "body_rewritten": "..."}"""
 
-        completion = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": combined}
-            ],
-            temperature=0.2, # Un poco más alto para variar el estilo sin perder precisión
-            max_tokens=6144, # Suficiente para artículos largos
-            response_format={"type": "json_object"}
-        )
+            completion = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": combined}
+                ],
+                temperature=0.2, # Un poco más alto para variar el estilo sin perder precisión
+                max_tokens=6144, # Suficiente para artículos largos
+                response_format={"type": "json_object"}
+            )
 
-        result_str = completion.choices[0].message.content
-        data = json.loads(result_str)
-        return data.get("title_rewritten"), data.get("body_rewritten")
-    except Exception as e:
-        print(f"Error reescribiendo artículo: {e}")
-        return None, None
+            result_str = completion.choices[0].message.content
+            data = json.loads(result_str)
+            return data.get("title_rewritten"), data.get("body_rewritten")
+        except Exception as e:
+            print(f"Error reescribiendo artículo (intento {attempt+1}/{max_retries}): {e}")
+            if attempt < max_retries - 1:
+                import time
+                time.sleep(retry_delay)
+            else:
+                return None, None
 
 if __name__ == "__main__":
     test_text = "El Deportivo Alaés inaugura un nuevo campo de entrenamiento y mejora sus instalaciones."
