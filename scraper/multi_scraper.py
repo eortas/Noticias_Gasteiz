@@ -232,11 +232,11 @@ class MultiScraper:
             # Usar imagen original envuelta en proxy de DuckDuckGo
             image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
 
-            title_eu, body_eu = translate_to_euskara(title, body)
-            time.sleep(1)
-            title_pl, body_pl = translate_to_polish(title, body)
-            time.sleep(1)
             title_rw, body_rw = rewrite_article(title, body)
+            time.sleep(1)
+            title_eu, body_eu = translate_to_euskara(title_rw or title, body_rw or body)
+            time.sleep(1)
+            title_pl, body_pl = translate_to_polish(title_rw or title, body_rw or body)
 
             return {
                 'id': article_id,
@@ -321,11 +321,11 @@ class MultiScraper:
             # Usar imagen original envuelta en proxy de DuckDuckGo
             image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
 
-            title_eu, body_eu = translate_to_euskara(title, body)
-            time.sleep(1)
-            title_pl, body_pl = translate_to_polish(title, body)
-            time.sleep(1)
             title_rw, body_rw = rewrite_article(title, body)
+            time.sleep(1)
+            title_eu, body_eu = translate_to_euskara(title_rw or title, body_rw or body)
+            time.sleep(1)
+            title_pl, body_pl = translate_to_polish(title_rw or title, body_rw or body)
 
             return {
                 'id': article_id,

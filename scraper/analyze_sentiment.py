@@ -131,21 +131,22 @@ def translate_to_euskara(title, body):
             api_key = valid_keys[attempt % len(valid_keys)]
             client = Groq(api_key=api_key)
             
-            # Truncate body at last sentence boundary before 2000 chars to ensure stable JSON output
-            body_truncated = body[:2000]
+            # Truncate at last sentence boundary before 5000 chars (much more detail)
+            body_truncated = body[:5000]
             last_period = body_truncated.rfind('.')
             if last_period > 300:
                 body_truncated = body_truncated[:last_period + 1]
             combined = f"TITLE: {title}\n\nBODY:\n{body_truncated}"
             
+            system_prompt = "Itzuli testu hauek EUSKARARA. Erantzun JSON FORMATUAN soilik: {\"title_eu\": \"...\", \"body_eu\": \"...\"}. Ez idatzi azalpenik. Itzuli testu osoa zehatz-mehatz, EZ LABURTU."
             completion = client.chat.completions.create(
                 model="llama-3.1-8b-instant", # Optimized for scale
                 messages=[
-                    {"role": "system", "content": "Itzuli testu hauek EUSKARARA. Erantzun JSON FORMATUAN soilik: {\"title_eu\": \"...\", \"body_eu\": \"...\"}. Ez idatzi azalpenik."},
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": f"ITZULI TESTU HAU EUSKARARA ORAIN:\n\n{combined}"}
                 ],
                 temperature=0.0,
-                max_tokens=2048,
+                max_tokens=6144,
                 response_format={"type": "json_object"}
             )
             
@@ -192,21 +193,22 @@ def translate_to_polish(title, body):
             api_key = valid_keys[attempt % len(valid_keys)]
             client = Groq(api_key=api_key)
             
-            # Truncate body at last sentence boundary before 2000 chars
-            body_truncated = body[:2000]
+            # Truncate at last sentence boundary before 5000 chars
+            body_truncated = body[:5000]
             last_period = body_truncated.rfind('.')
             if last_period > 300:
                 body_truncated = body_truncated[:last_period + 1]
             combined = f"TITLE: {title}\n\nBODY:\n{body_truncated}"
             
+            system_prompt = "Przetłumacz te teksty na JĘZYK POLSKI. Odpowiedz wyłącznie w formacie JSON: {\"title_pl\": \"...\", \"body_pl\": \"...\"}. Nie dodawaj wyjaśnień. Przetłumacz cały tekst dokładnie, NIE STRESZCZAJ."
             completion = client.chat.completions.create(
                 model="llama-3.1-8b-instant", # Optimized for scale
                 messages=[
-                    {"role": "system", "content": "Przetłumacz te teksty na JĘZYK POLSKI. Odpowiedz wyłącznie w formacie JSON: {\"title_pl\": \"...\", \"body_pl\": \"...\"}. Nie dodawaj wyjaśnień."},
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": f"PRZETŁUMACZ TEN TEKST NA POLSKI TERAZ:\n\n{combined}"}
                 ],
                 temperature=0.0,
-                max_tokens=2048,
+                max_tokens=6144,
                 response_format={"type": "json_object"}
             )
             
