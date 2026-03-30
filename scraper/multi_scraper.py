@@ -275,8 +275,9 @@ class MultiScraper:
                     a_tag = item
                 
                 if a_tag:
-                    href = a_tag.get('href', '')
-                    if href:
+                    val = a_tag.get('href', '')
+                    if val:
+                        href = re.sub(r'\s+', '', val)
                         # Limpiar href de slash inicial redundante si es necesario
                         full_url = self._normalize_url(f"https://www.gasteizhoy.com{href}" if not href.startswith("http") else href)
                         if full_url not in self.history and full_url not in links:
