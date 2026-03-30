@@ -1,4 +1,5 @@
 import requests
+import cloudscraper
 from bs4 import BeautifulSoup
 import json
 import re
@@ -19,7 +20,8 @@ class MultiScraper:
     def __init__(self, history_file='scraper/history.json', data_output='data/news.json'):
         self.history_file = history_file
         self.data_output = data_output
-        self.headers = {'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'}
+        self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
+        self.scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True})
         self.history = self._load_history()
         self.news_data = []
         os.makedirs('data/images', exist_ok=True)
@@ -183,7 +185,7 @@ class MultiScraper:
         url = "https://www.elcorreo.com/alava/araba/"
         print(f"Scrapeando El Correo: {url}")
         try:
-            res = requests.get(url, headers=self.headers, timeout=15)
+            res = self.scraper.get(url, headers=self.headers, timeout=15)
             soup = BeautifulSoup(res.text, 'html.parser')
             links = []
             for a in soup.select('a.v-a-link, a.v-prp__a, h2 a, h3 a'):
@@ -204,7 +206,7 @@ class MultiScraper:
 
     def _extract_el_correo_detail(self, url):
         try:
-            res = requests.get(url, headers=self.headers, timeout=10)
+            res = self.scraper.get(url, headers=self.headers, timeout=10)
             soup = BeautifulSoup(res.text, 'html.parser')
             
             # Metadata from JSON-LD
@@ -262,7 +264,7 @@ class MultiScraper:
         feed_url = "https://www.gasteizhoy.com/feed"
         print(f"Scrapeando Gasteiz Hoy (RSS): {feed_url}")
         try:
-            res = requests.get(feed_url, headers=self.headers, timeout=15)
+            res = self.scraper.get(feed_url, headers=self.headers, timeout=15)
             res.raise_for_status()
             # Parsear el XML del feed RSS con BeautifulSoup
             soup = BeautifulSoup(res.content, 'xml')
@@ -418,7 +420,7 @@ class MultiScraper:
         url = "https://www.noticiasdealava.eus/vitoria-gasteiz/"
         print(f"Scrapeando DNA: {url}")
         try:
-            res = requests.get(url, headers=self.headers, timeout=15)
+            res = self.scraper.get(url, headers=self.headers, timeout=15)
             soup = BeautifulSoup(res.text, 'html.parser')
             links = []
             for tag in soup.find_all(['h2', 'h3']):
@@ -494,7 +496,7 @@ class MultiScraper:
 
     def _extract_dna_detail(self, url):
         try:
-            res = requests.get(url, headers=self.headers, timeout=10)
+            res = self.scraper.get(url, headers=self.headers, timeout=10)
             soup = BeautifulSoup(res.text, 'html.parser')
             
             h1 = soup.find('h1')
