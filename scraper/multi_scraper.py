@@ -87,71 +87,69 @@ class MultiScraper:
                 
         # Combinamos las noticias existentes con las nuevas
         all_news = existing_news + self.news_data
-        # Dedup logic: usaremos imagen, título normalizado y URL base
-        unique_news = {}
+        
+        def parse_date(date_str):
+            try:
+                return datetime.fromisoformat(date_str).replace(tzinfo=None)
+            except:
+                return datetime.min
+
+        # Ordenar todas por fecha descendente (más recientes primero)
+        all_news.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
+
+        unique_news = []
+        seen_images = set()
+        seen_titles = set()
+        seen_urls = set()
+
         for item in all_news:
+            url = item.get('url', '')
             title = item.get('title', '')
             body = item.get('body', '')
             img_url = item.get('image', '')
             
+            if not title or not url:
+                continue
+                
             # 1. Filtro 'EN DIRECTO'
             if any(x in title.upper() or x in body.upper() for x in ["EN DIRECTO", "ZUZENEAN"]):
                 continue
+
+            # 2. Misma URL exacta
+            if url in seen_urls:
+                continue
                 
-            # 2. Normalizar título: quitar fuentes comunes al final y limpiar espacios/puntuación
-            # Quitamos los primeros 5 caracteres si es algo tipo "FOTOS:" "VÍDEO:" para unificar
+            # 3. Misma Imagen (la clave para detectar la misma noticia de distinta fuente/momento)
+            if img_url and img_url in seen_images:
+                continue
+
+            # 4. Normalizar título y evitar titulares muy similares
             clean_title = title.split('|')[0].split(' - ')[0].strip().lower()
             if ": " in clean_title[:15]:
                 clean_title = clean_title.split(": ", 1)[1]
                 
             norm_title = "".join(filter(str.isalnum, clean_title))
+            title_prefix = norm_title[:35] # Usamos 35 caracteres para comparar
             
-            # Si el título es muy similar al principio, lo tratamos como potencial duplicado
-            # Prefijo corto para comprobación con imagen (10 chars)
-            title_prefix_short = norm_title[:10]
-            # Prefijo largo para comprobación solo por título (35 chars)
-            title_prefix_long = norm_title[:35]
-            
-            # Intentar encontrar si existe un duplicado por título o por imagen (si el título es parecido)
-            is_dup = False
-            for existing_key in list(unique_news.keys()):
-                existing_item = unique_news[existing_key]
-                existing_norm = "".join(filter(str.isalnum, existing_item['title'].lower()))
-                
-                # Check 1: Misma imagen (no nula) + Título que empieza igual (prefijo corto)
-                if img_url and existing_item.get('image') == img_url:
-                    if existing_norm.startswith(title_prefix_short) or title_prefix_short in existing_norm:
-                        is_dup = True
-                        # Quedarse con el que tenga más texto
-                        if len(body) > len(existing_item.get('body', '')):
-                            unique_news[existing_key] = item
-                        break
-                
-                # Check 2: Título casi idéntico (prefijo largo)
-                if title_prefix_long and existing_norm.startswith(title_prefix_long):
-                    is_dup = True
-                    break
-            
-            if not is_dup:
-                key = norm_title if norm_title else item['url']
-                unique_news[key] = item
-        
-        # Sort by date
-        sorted_news = sorted(unique_news.values(), key=lambda x: x['date'], reverse=True)
-        # Filtrar noticias con menos de 2 días de antigüedad
+            if title_prefix and title_prefix in seen_titles:
+                continue
+
+            # Pasó los filtros, es única
+            unique_news.append(item)
+            seen_urls.add(url)
+            if img_url:
+                seen_images.add(img_url)
+            if title_prefix:
+                seen_titles.add(title_prefix)
+
+        # Filtrar noticias con menos de 2 días de antigüedad usando un máximo de 100
         now = datetime.now()
         latest_news = []
-        for item in sorted_news:
-            try:
-                # Asegurar que el objeto item_date sea naive (sin zona horaria) para evitar errores de comparación
-                item_date = datetime.fromisoformat(item['date']).replace(tzinfo=None)
-                if (now - item_date).days < 2:
-                    latest_news.append(item)
-            except (ValueError, KeyError):
-                # Si no hay fecha o está mal, la mantenemos si es nueva, o la descartamos si es vieja
+        for item in unique_news:
+            item_date = parse_date(item.get('date', ''))
+            if (now - item_date).days < 2:
                 latest_news.append(item)
         
-        # Opcional: Cap de seguridad de todas formas (ej. max 100)
         latest_news = latest_news[:100]
         
         with open(self.data_output, 'w', encoding='utf-8') as f:
