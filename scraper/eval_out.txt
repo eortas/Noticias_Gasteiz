@@ -1,0 +1,24 @@
+--- FOUND: https://www.gasteizhoy.com/vitoria-desde-cielo-concurso/
+Text inside node: Vitoria vista desde el cielo: así la dibujan los más pequeños
+Parent class: ['nueve-texto-noticia']
+Parent text: Vitoria vista desde el cielo: así la dibujan los más pequeños
+--- FOUND: https://www.gasteizhoy.com/serum-origin-sibari-republic-opiniones-descuentos/
+Text inside node: Diez vitorianas ponen a prueba un sérum alavés: resultados y descuentos tras el experimento
+Parent class: ['patrotextonew']
+Parent text: Diez vitorianas ponen a prueba un sérum alavés: resultados y descuentos tras el experimento
+--- FOUND: https://www.gasteizhoy.com/concurso-deletreo-alava/
+Text inside node: De 'firefighter' a 'angry': los coles de Vitoria campeones en 'spelling'
+Parent class: ['nueve-texto-noticia']
+Parent text: De 'firefighter' a 'angry': los coles de Vitoria campeones en 'spelling' Alumnos de primaria de NCli
+--- FOUND: https://www.gasteizhoy.com/vitoria-desde-cielo-concurso/
+Text inside node: Vitoria vista desde el cielo: así la dibujan los más pequeños
+Parent class: ['nueve-noticias']
+Parent text: Vitoria vista desde el cielo: así la dibujan los más pequeños ¿Dónde comen los estudiantes del Campu
+--- FOUND: https://www.gasteizhoy.com/serum-origin-sibari-republic-opiniones-descuentos/
+Text inside node: Diez vitorianas ponen a prueba un sérum alavés: resultados y descuentos tras el experimento
+Parent class: ['smallnews']
+Parent text: Diez vitorianas ponen a prueba un sérum alavés: resultados y descuentos tras el experimento Formació
+--- FOUND: https://www.gasteizhoy.com/concurso-deletreo-alava/
+Text inside node: De 'firefighter' a 'angry': los coles de Vitoria campeones en 'spelling'Alumnos de primaria de NClic y Vera-Cruz compitieron deletreando en inglés en la Universidad de Deusto, con muy buenos resultados
+Parent class: ['nuevenoticias', 'seisnot']
+Parent text: La inscripción en Haurreskolak y Escuelas Infantiles empieza el 13 de abril Las escuelas infantiles 
