@@ -4,3 +4,4 @@ pandas
 groq
 python-dotenv
 urllib3
+lxml

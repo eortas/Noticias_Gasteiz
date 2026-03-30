@@ -7,6 +7,7 @@ import os
 import hashlib
 import urllib.parse
 from datetime import datetime
+from email.utils import parsedate_to_datetime
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -258,66 +259,92 @@ class MultiScraper:
             return None
 
     def scrape_gasteiz_hoy(self):
-        url = "https://www.gasteizhoy.com/"
-        print(f"Scrapeando Gasteiz Hoy: {url}")
+        feed_url = "https://www.gasteizhoy.com/feed"
+        print(f"Scrapeando Gasteiz Hoy (RSS): {feed_url}")
         try:
-            res = requests.get(url, headers=self.headers, timeout=15)
-            soup = BeautifulSoup(res.text, 'html.parser')
-            links = []
-            
-            combined_selectors = soup.find_all(['h2', 'h3']) + soup.select('a.nueve-bloque-noticia, a.heronews, a.box-shadow, a.blogpost, a.breakblock.breakingtext, a.linknews, a.sixnewsblock')
-            
-            for item in combined_selectors:
-                if item.name in ['h2', 'h3']:
-                    a_tag = item.find('a') or item.find_parent('a')
-                else:
-                    a_tag = item
-                
-                if a_tag:
-                    href = a_tag.get('href', '')
-                    if href:
-                        # Limpiar href de slash inicial redundante si es necesario
-                        full_url = self._normalize_url(f"https://www.gasteizhoy.com{href}" if not href.startswith("http") else href)
-                        if full_url not in self.history and full_url not in links:
-                            links.append(full_url)
-            
-            for link in links[:30]:
-                data = self._extract_gasteiz_hoy_detail(link)
+            res = requests.get(feed_url, headers=self.headers, timeout=15)
+            res.raise_for_status()
+            # Parsear el XML del feed RSS con BeautifulSoup
+            soup = BeautifulSoup(res.content, 'xml')
+            items = soup.find_all('item')
+            print(f"  -> {len(items)} entradas encontradas en el feed RSS")
+
+            for item in items[:30]:
+                link_tag = item.find('link')
+                if not link_tag:
+                    continue
+                # En RSS el tag <link> a veces tiene texto plano o está como nodo de texto
+                article_url = self._normalize_url(
+                    link_tag.get_text(strip=True) or link_tag.next_sibling or ''
+                )
+                if not article_url or article_url in self.history:
+                    continue
+
+                data = self._extract_gasteiz_hoy_from_feed(item, article_url)
                 if data:
                     self.news_data.append(data)
-                    self.history.add(link)
+                    self.history.add(article_url)
                 time.sleep(1)
         except Exception as e:
-            print(f"Error en Gasteiz Hoy: {e}")
+            print(f"Error en Gasteiz Hoy RSS: {e}")
 
-    def _extract_gasteiz_hoy_detail(self, url):
+    def _extract_gasteiz_hoy_from_feed(self, item, url):
+        """Extrae los datos de un <item> del feed RSS de Gasteiz Hoy."""
         try:
-            res = requests.get(url, headers=self.headers, timeout=10)
-            soup = BeautifulSoup(res.text, 'html.parser')
-            
-            h1 = soup.find('h1')
-            title = h1.get_text().strip() if h1 else soup.title.string.split('|')[0].strip()
-            
-            p_tags = soup.select('div.entry-content p, article p, div.contenido p, main p')
-            if not p_tags:
-                p_tags = soup.find_all('p')
-            body = self._clean_article_body(p_tags)
-            if not body or "patrocinado" in title.lower() or "patrocinado" in body.lower(): 
+            # --- Título ---
+            title_tag = item.find('title')
+            title = title_tag.get_text(strip=True) if title_tag else ''
+            if not title:
                 return None
-            
-            # Intentar extraer fecha del span.published (nuevo formato) o de time tag
-            date_tag = soup.find('span', class_='published')
-            if date_tag and date_tag.get('title'):
-                date = self._parse_spanish_date(date_tag['title'])
+
+            # --- Fecha ---
+            pub_date_tag = item.find('pubDate')
+            if pub_date_tag:
+                try:
+                    date = parsedate_to_datetime(pub_date_tag.get_text(strip=True)).isoformat()
+                except Exception:
+                    date = datetime.now().isoformat()
             else:
-                date_tag_time = soup.find('time')
-                date = date_tag_time['datetime'] if date_tag_time else datetime.now().isoformat()
-            
+                date = datetime.now().isoformat()
+
+            # --- Imagen ---
+            # WordPress pone la imagen en <enclosure> o en <media:content>
+            image_raw = None
+            enclosure = item.find('enclosure')
+            if enclosure and enclosure.get('url'):
+                image_raw = enclosure['url']
+            if not image_raw:
+                media_content = item.find('media:content') or item.find('content')
+                if media_content and media_content.get('url'):
+                    image_raw = media_content['url']
+            image_url = self._get_ddg_proxy_url(image_raw) if image_raw else None
+
+            # --- Cuerpo del artículo ---
+            # El feed de WordPress incluye el contenido completo en <content:encoded>
+            # y un resumen en <description>. Intentamos ambos.
+            body = ''
+            content_encoded = item.find('content:encoded') or item.find('encoded')
+            if content_encoded and content_encoded.get_text(strip=True):
+                # Parsear el HTML embebido dentro del CDATA con BeautifulSoup
+                inner_soup = BeautifulSoup(content_encoded.get_text(), 'html.parser')
+                p_tags = inner_soup.find_all('p')
+                body = self._clean_article_body(p_tags)
+
+            if not body:
+                desc_tag = item.find('description')
+                if desc_tag:
+                    inner_soup = BeautifulSoup(desc_tag.get_text(), 'html.parser')
+                    p_tags = inner_soup.find_all('p')
+                    body = self._clean_article_body(p_tags)
+                    if not body:
+                        # Último recurso: texto plano del resumen
+                        body = inner_soup.get_text(separator=' ', strip=True)[:1000]
+
+            if not body or "patrocinado" in title.lower() or "patrocinado" in body.lower():
+                return None
+
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
-            
-            # Usar imagen original envuelta en proxy de DuckDuckGo
-            image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
 
             title_eu, body_eu = translate_to_euskara(title, body)
             time.sleep(1)
@@ -342,7 +369,8 @@ class MultiScraper:
                 'category': category,
                 'lang': 'es'
             }
-        except:
+        except Exception as e:
+            print(f"Error procesando item RSS de Gasteiz Hoy ({url}): {e}")
             return None
 
     def _parse_spanish_date(self, date_str):
