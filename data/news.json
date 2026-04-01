@@ -1,5 +1,22 @@
 [
   {
+    "id": "7f42c4d86b",
+    "source": "El Correo",
+    "url": "https://www.elcorreo.com/alava/araba/accidente-dos-vehiculos-zuia-corta-a624-sentidos-20260401163612-nt.html",
+    "title": "Un accidente entre dos vehículos en Zuia corta la A624 en ambos sentidos",
+    "title_eu": null,
+    "title_pl": null,
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s1.ppllstatics.com/elcorreo/www/multimedia/2026/04/01/HE00JjyXcAAY1sg-kH4F-U201526142082JgF-1200x840%40El%2520Correo.jpg",
+    "body": "Jornada accidentada de miércoles en las carreteras alavesas. A los incidentes ocurridos esta mañana en Estavillo y Altube, se suma una colisión entre dos ... vehículos en Zuia que, a primera hora de la tarde (16.06 horas) ha obligado a cortar en ambos sentidos la A624. Los servicios sanitarios están asistiendo en el lugar a los afectados y los bomberos se han desplazado hasta allí para proceder a la extracción de una persona del interior de uno de ellos. De momento, el tráfico está parado en las dos direcciones.\nEs el saldo que arrojan las primeras horas de una Operación Especial de Tráfico de Semana Santa que se ha puesto en marcha a las tres de la tarde de este miércoles. El enlace de la AP-1 con la A-1, en el nudo de Armiñón, es uno de los tres puntos de la red viaria vasca donde se espera un mayor flujo de circulación, y allí ha tenido lugar el segundo siniestro del día (8.10 horas), que ha obligado a desviar la circulación a la altura de Estavillo, si bien el accidente no ha dejado heridos.\nNo ha sido el único accidente que se ha registrado en las primeras horas del día. Poco antes, a las ocho de la mañana, un turismo se ha salido de la calzada cuando circulaba por la AP-68, en Zuia, en las inmediaciones de Altube. El conductor del vehículo ha resultado herido y ha sido trasladado al HUA Txagorritxu.\nEste año se prevé que se registren cifras de desplazamientos ligeramente superiores a las del año pasado, siempre en función de la meteorología. A la vista del pronóstico de Euskalmet, que anuncia un tiempo inestable durante el inicio de la Semana Santa, se espera una media de 540.000 desplazamientos tanto de salida como de retorno de Euskadi. El pasado ejercicio, en 2025, la media fue de 535.000 desplazamientos de entrada y otros tantos de salida debido a la inestabilidad del tiempo.",
+    "body_eu": null,
+    "body_pl": null,
+    "date": "2026-04-01T16:36:15+02:00",
+    "sentiment": "negativa",
+    "score": -1.0,
+    "category": "Sociedad",
+    "lang": "es"
+  },
+  {
     "id": "11ac4409bb",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/autorizan-instalacion-nuevos-radares-controlar-velocidad-dos-carreteras-alava-20260401152025-nt.html",
@@ -676,40 +693,6 @@
     "date": "2026-03-30T16:36:44+02:00",
     "sentiment": "neutral",
     "score": 0.0,
-    "category": "Sociedad",
-    "lang": "es"
-  },
-  {
-    "id": "bef39c5eb8",
-    "source": "El Correo",
-    "url": "https://www.elcorreo.com/alava/araba/amvisa-invertira-millones-euros-mejora-sumideros-vitoria-20260330153419-nt.html",
-    "title": "Amvisa Invierte Más de 1,2 Millones de Euros en la Mejora de los Sumideros de Vitoria",
-    "title_eu": "Amvisa inbertiko 1,2 milioi euro baino gehiago Vitoriako sumidoren hobekuntzan",
-    "title_pl": "Amvisa zainwestuje ponad 1,2 miliona euro w poprawę studni w Vitorii",
-    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s2.ppllstatics.com/elcorreo/www/multimedia/2026/03/30/PHOTO-2026-03-30-13-15-39-k06C-U201485957791BvF-1200x840%40El%2520Correo.jpg",
-    "body": "La sociedad municipal Amvisa ha aprobado un nuevo plan de actuaciones para mejorar la red de drenaje urbano de Vitoria, con una inversión superior a los 1,2 millones de euros y un plazo de ejecución de doce meses. Los trabajos se centrarán principalmente en la instalación de nuevos sumideros de alta capacidad y en la optimización de la recogida de aguas pluviales.\n\nEl presidente de Amvisa, Pascual Borja, ha explicado que estos trabajos apuntan a resolver una decena de puntos conflictivos que se han detectado en la ciudad. La actuación más importante afecta a la calle Zaramaga, donde se construirá un nuevo colector de 306 metros y se renovarán los sumideros a la altura del centro comercial El Boulevard. Además, otras zonas incluidas en esta fase son Alto de Armentia, Abetxuko, Portal de Castilla, Sansomendi, Portal de Arriaga y la rotonda de Esmaltaciones.\n\nSegún Pascual Borja, en algunas de estas zonas se instalarán nuevos colectores para facilitar la recogida de aguas pluviales y se instalarán nuevos sumideros y canaletas de alta capacidad. Con estas actuaciones, la sociedad municipal busca mejorar la capacidad de evacuación del agua para reducir la aparición de grandes balsas y evitar inundaciones en episodios de lluvias intensas.\n\nLa inversión de 1,2 millones de euros se destinará a la mejora de la red de drenaje urbano de Vitoria, con el objetivo de mejorar la calidad de vida de los ciudadanos y reducir el riesgo de inundaciones en la ciudad. La sociedad municipal Amvisa trabajará en estrecha colaboración con los vecinos y los comercios de la zona para minimizar los inconvenientes y garantizar un proceso de trabajo eficiente y seguro.",
-    "body_eu": "Amvisako elkarteak astelehenean Vitoriako drenaje urbanoaren sarearen hobekuntzarako planaren beste fase bat eskuratu du, 1,2 milioi euro baino gehiago inbertituz eta hamabi hilabetez. Lanak sumidero berriak instalatzean eta euria pluvialaren biltzea optimizatzean oinarrituko dira. Amvisako presidenteak, Pascual Borjak, azaldu du lan hauek «hamar puntutik gora konfliktuak ditugun» detektatu dituztela. Aktuazio nagusia Zaramagako kalean kokatuta dago, 306 metroko kolektore berri bat eraikitzeko eta El Boulevardeko zentro komertzialaren ondoan sumideroak berritzeaz. Beste zonak ere hartzen dira, besteak beste, Alto de Armentia, Abetxuko, Portal de Castilla, Sansomendi, Portal de Arriaga eta Esmaltacionesen rotonda. \"Euren artean, euria pluvialaren biltzea errazteko kolektore berriak instalatuko ditugu eta sumidero berriak eta kanalek berriak ere instalatuko ditugu. Lan hauek egiteko asmoz, uraren evacuazioaren gaitasuna hobetzeko asmo dugu, balsa handiak eta euria intensua dagoenean hondamendiak ekiditeko\", azaldu du Pascual Borjak.",
-    "body_pl": "Spółka miejska Amvisa przyznała w poniedziałek nową fazę swojego planu działań w celu poprawy sieci kanalizacyjnej w Vitorii, z inwestycją przekraczającą 1,2 miliona euro i terminem realizacji wynoszącym 12 miesięcy. Prace będą się głównie skupiać na instalacji nowych studni o wysokiej pojemności oraz na optymalizacji zbierania wody deszczowej.\nPrezes Amvisa, Pascual Borja, wyjaśnił, że te prace mają na celu «dziesięć punktów konfliktowych, które wykryliśmy». Najważniejsza akcja dotyczy ulicy Zaramaga, z budową nowego kolektora o długości 306 metrów i odnowieniem studni w pobliżu centrum handlowego El Boulevard. Wysokość Armentia, Abetxuko, Portal de Castilla, Sansomendi, Portal de Arriaga lub rondo Esmaltaciones to tylko niektóre z obszarów włączonych w tę fazę.\n\"W niektórych z nich zainstalujemy nowe kolektory, aby ułatwić zbieranie wody deszczowej, a także zainstalujemy nowe studnie i kanały o wysokiej pojemności. Z tych działań chcemy poprawić zdolność odprowadzania wody, aby zmniejszyć pojawianie się dużych błaszczy i uniknąć zalania w czasie intensywnych opadów deszczowych\", wyjaśnia Pascual Borja.",
-    "date": "2026-03-30T15:34:26+02:00",
-    "sentiment": "positiva",
-    "score": 1.0,
-    "category": "Sociedad",
-    "lang": "es"
-  },
-  {
-    "id": "e82c02be88",
-    "source": "Gasteiz Hoy",
-    "url": "https://www.gasteizhoy.com/primera-directora-medica-osi-araba-itziar-neve/",
-    "title": "Itziar Neve asume el cargo de primera directora médica de la OSI Araba",
-    "title_eu": null,
-    "title_pl": null,
-    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//www.gasteizhoy.com/wp-content/uploads/2026/03/ITZIAR-NEVE.webp",
-    "body": "La OSI Araba ha elegido a la radióloga Itziar Neve como su primera directora médica, un hito en la historia de la entidad sanitaria. Neve sustituye al neurólogo Juan Timiraos, quien fue cesado en febrero después de poco más de un año en el cargo.\n\nItziar Neve es licenciada en Medicina y Cirugía por la Universidad del País Vasco (EHU). Realizó su formación especializada en el Hospital Universitario de Álava (HUA), donde se incorporó como médica adjunta en 2011 tras completar su residencia en Radiodiagnóstico. Es experta en patología de cabeza y cuello, y en neurorradiología, y ha desarrollado su actividad profesional en la OSI Araba y en Osatek.\n\nAdemás, ha sido tutora principal de residentes y ha realizado varias investigaciones en el Instituto de Investigación Sanitaria Bioaraba, especialmente en proyectos relacionados con la neuroimagen. También cuenta con un Máster en Dirección y Gestión Sanitaria, lo que completa su perfil y experiencia en la gestión sanitaria.\n\nEn los últimos dos años, Neve ya había adquirido experiencia en la Subdirección Médica de la OSI Araba, lo que la ha preparado para asumir el cargo de directora médica. La elección de Neve representa una apuesta firme por el talento interno y la modernización de la gestión sanitaria en Álava, según indican desde la OSI Araba.\n\nSu trayectoria clínica, docente y de gestión le otorgan una visión integral y transversal de la realidad hospitalaria actual. En el cargo desde el pasado 27 de marzo, Neve aboga por priorizar los aspectos estructurales para garantizar la sostenibilidad y la calidad del servicio. Para ello, se apoya en un liderazgo compartido y en el respaldo de un equipo de profesionales de máximo nivel.\n\nEn su hoja de ruta, Neve tiene propuestas de cambio y de mejora orientadas a ilusionar a las plantillas y responder con sensibilidad a las circunstancias actuales del personal sanitario. Con este nombramiento, las riendas de Osakidetza en Álava están en manos, en su mayoría, femeninas. Así, la Dirección de Enfermería la ostenta Marian Hernández Gómez, la Dirección de Personas la hace Marian Martín Román, y la Dirección de Atención Integrada la tiene Nuria Atxaerandio.\n\nPor su parte, la dirección gerente recae en el anestesista Enrique Bárez, quien fue nombrado en noviembre de 2024 como máximo responsable de la OSI Araba.",
-    "body_eu": null,
-    "body_pl": null,
-    "date": "2026-03-30T14:30:00",
-    "sentiment": "positiva",
-    "score": 1.0,
     "category": "Sociedad",
     "lang": "es"
   }
