@@ -1,5 +1,22 @@
 [
   {
+    "id": "e731c4788b",
+    "source": "El Correo",
+    "url": "https://www.elcorreo.com/alava/araba/tranvia-cortara-hoy-centro-vitoria-procesion-silencio-jueves-santo-20260402132622-nt.html",
+    "title": "El tranvía se cortará hoy en el centro de Vitoria por la procesión del Silencio",
+    "title_eu": null,
+    "title_pl": null,
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s3.ppllstatics.com/elcorreo/www/multimedia/2026/04/02/tranvia-vitoria-corte-procesion-jueves-santo-kCxG-U201538610530ENE-1200x840%40El%2520Correo.jpg",
+    "body": "El servicio del tranvía de Vitoria se interrumpirá parcialmente este 2 de abril, Jueves Santo, por la procesión del Silencio. Euskotren anuncia que efectuará ... un corte temporal de la circulación del metro ligero. El tramo afectado será el comprendido entre Sancho el Sabio y Angulema, que permanecerá cortado entre las 20.30 y las 22.15 horas, aproximadamente.\nLos usuarios pueden consultar el horario de paso de los convoyes del tranvía en la página web www.euskotren.eus, en la app oficial de Euskotren y en el teléfono 944 333 333.\nSi el tiempo no lo impide, la procesión partirá a las 20.30 horas desde la iglesia de Nuestra Señora de los Desamparados. Desde allí recorrerá las calles Ortiz de Zárate, Fueros, Postas y plaza de la Virgen Blanca. Los pasos atravesarán de nuevo la calle Postas, antes de dirigirse a Dato, San Prudencio, Fueros, Ortiz de Zárate y plaza de los Desamparados. Además, quedarán cortadas al tráfico General Álava y Jesús Guridi, que obligarán a interrumpir el servicio de tranvía hasta que finalice la procesión.",
+    "body_eu": null,
+    "body_pl": null,
+    "date": "2026-04-02T13:26:58+02:00",
+    "sentiment": "negativa",
+    "score": -1.0,
+    "category": "Sociedad",
+    "lang": "es"
+  },
+  {
     "id": "3f24817aa2",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/vitoria-reverdecera-eje-canton-carniceriassanta-ana-kaikus-20260402120320-nt.html",
@@ -455,23 +472,6 @@
     "date": "2026-03-31T12:32:29+02:00",
     "sentiment": "neutral",
     "score": 0.0,
-    "category": "Sociedad",
-    "lang": "es"
-  },
-  {
-    "id": "6db0d5fe81",
-    "source": "El Correo",
-    "url": "https://www.elcorreo.com/alava/araba/obispo-vitoria-considera-injusto-espana-ponga-foco-20260331114823-nt.html",
-    "title": "El obispo de Vitoria critica al Gobierno central por centrar la atención en la Iglesia en la lucha contra los abusos sexuales",
-    "title_eu": null,
-    "title_pl": null,
-    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s2.ppllstatics.com/elcorreo/www/multimedia/2026/03/31/1503937790-R99401oIsIE794NhfMr0eeM-1200x840%40El%2520Correo.jpg",
-    "body": "El obispo de Vitoria, Juan Carlos Elizalde, ha calificado como 'claramente injusto' que el Estado siga enfocando la atención en la Iglesia católica a la hora de abordar la reparación de las víctimas de abusos sexuales. En declaraciones a Radio Euskadi, Elizalde ha expresado su esperanza de que el acuerdo firmado entre la Conferencia Episcopal Española (CEE) y el Gobierno de España sirva para que otros actores también asuman su responsabilidad en la lucha contra este problema.\n\nEl obispo se ha referido a la implementación de un nuevo sistema de reparación para las víctimas de abusos sexuales dentro de la Iglesia católica, que se pretende poner en marcha tras el protocolo firmado entre el Gobierno central, la CEE, la Conferencia Española de Religiosos y el Defensor del Pueblo. Sin embargo, Elizalde ha lamentado que el Gobierno siga centrando la atención en la Iglesia, pese a que, según él, el 98,8 % de las víctimas quedan desasistidas porque los abusos ocurren principalmente en la familia, en el ámbito educativo, en el mundo del tiempo libre y del deporte.\n\nEn este sentido, Elizalde ha asegurado que el enfoque del Gobierno es 'claramente injusto', ya que en esos ámbitos no hay ninguna especial tutoría por parte del Ejecutivo. A pesar de esta crítica, el obispo se ha mostrado partidario de actuar con transparencia y de seguir adelante para que otros actores también cumplan con la tarea de hacer frente a este problema. En su opinión, el acuerdo firmado entre la CEE y el Gobierno de España puede ser un paso importante en la dirección correcta, siempre y cuando se siga trabajando para que otros también asuman su responsabilidad en la lucha contra los abusos sexuales.",
-    "body_eu": null,
-    "body_pl": null,
-    "date": "2026-03-31T11:48:26+02:00",
-    "sentiment": "negativa",
-    "score": -1.0,
     "category": "Sociedad",
     "lang": "es"
   }
