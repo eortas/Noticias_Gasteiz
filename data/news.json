@@ -1,5 +1,22 @@
 [
   {
+    "id": "61fa468bcb",
+    "source": "El Correo",
+    "url": "https://www.elcorreo.com/alava/araba/muere-corzo-canal-rio-alegria-20260403184439-nt.html",
+    "title": "Muere un corzo en el canal del Río Alegría",
+    "title_eu": null,
+    "title_pl": null,
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s2.ppllstatics.com/elcorreo/www/multimedia/2026/04/03/WhatsApp%2520Image%25202026-04-03%2520at%252018.19.41-kaBI-U201553525776aXF-1200x840%40El%2520Correo.jpg",
+    "body": "Este vídeo es exclusivo para suscriptores.Disfruta de acceso ilimitado\n¿Ya tienes una suscripción? Inicia sesión\nUn corzo ha muerto este viernes en el canal del Río Alegría. No es una situación nueva, desgraciadamente. Ya han fallecido anteriormente otros animales allí ... y han sido varios los rescates que han tenido que llevar a cabo los vecinos de la zona. Esta vez el desenlace ha sido fatal. Una muesca más en una reclamación habitual del ecologismo alavés, que ve en el canal una «trampa mortal» para los animales, a menudo corzos, que se acercan al agua. Una vez dentro, la elevada pendiente de hormigón hace imposible su salida.\nEs la denuncia que realiza Zadorra Bizirik tras este nuevo episodio mortal.️ «Una vez más, esta infraestructura vuelve a demostrar su peligrosidad para la fauna silvestre. Las medidas correctoras aplicadas hasta ahora son claramente insuficientes y no están evitando nuevas muertes», apunta el colectivo, que demanda a las instituciones «una solución definitiva, no parches temporales».\nSe refieren a las rampas salvavidas para corzos o las barreras olfativas para ahuyentar a los animales de la zona de peligro que se colocaron en el canal del Rio Alegría hace cuatro años. «Desde Zadorra Bizirik exigimos una actuación urgente y eficaz para corregir esta situación de forma definitiva».\n«Además -insisten-, esta situación tiene un impacto directo sobre el propio río, que no cuenta con el caudal ecológico que le corresponde, incumpliendo la legislación vigente». En este sentido, el colectivo ecologista señ️ala «como responsables a Amvisa, URA y la Diputación Foral de Álava».",
+    "body_eu": null,
+    "body_pl": null,
+    "date": "2026-04-03T18:44:43+02:00",
+    "sentiment": "positiva",
+    "score": 1.0,
+    "category": "Sociedad",
+    "lang": "es"
+  },
+  {
     "id": "fd3559c969",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/sansomendi-lakua-ali-viven-via-crucis-viernes-santo-20260403144801-nt.html",
@@ -319,23 +336,6 @@
     "date": "2026-04-02T00:14:10+02:00",
     "sentiment": "positiva",
     "score": 0.3333333333333333,
-    "category": "Sociedad",
-    "lang": "es"
-  },
-  {
-    "id": "7f42c4d86b",
-    "source": "El Correo",
-    "url": "https://www.elcorreo.com/alava/araba/accidente-dos-vehiculos-zuia-corta-a624-sentidos-20260401163612-nt.html",
-    "title": "Un accidente entre dos vehículos en Zuia corta la A624 en ambos sentidos",
-    "title_eu": null,
-    "title_pl": null,
-    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s1.ppllstatics.com/elcorreo/www/multimedia/2026/04/01/HE00JjyXcAAY1sg-kH4F-U201526142082JgF-1200x840%40El%2520Correo.jpg",
-    "body": "Jornada accidentada de miércoles en las carreteras alavesas. A los incidentes ocurridos esta mañana en Estavillo y Altube, se suma una colisión entre dos ... vehículos en Zuia que, a primera hora de la tarde (16.06 horas) ha obligado a cortar en ambos sentidos la A624. Los servicios sanitarios están asistiendo en el lugar a los afectados y los bomberos se han desplazado hasta allí para proceder a la extracción de una persona del interior de uno de ellos. De momento, el tráfico está parado en las dos direcciones.\nEs el saldo que arrojan las primeras horas de una Operación Especial de Tráfico de Semana Santa que se ha puesto en marcha a las tres de la tarde de este miércoles. El enlace de la AP-1 con la A-1, en el nudo de Armiñón, es uno de los tres puntos de la red viaria vasca donde se espera un mayor flujo de circulación, y allí ha tenido lugar el segundo siniestro del día (8.10 horas), que ha obligado a desviar la circulación a la altura de Estavillo, si bien el accidente no ha dejado heridos.\nNo ha sido el único accidente que se ha registrado en las primeras horas del día. Poco antes, a las ocho de la mañana, un turismo se ha salido de la calzada cuando circulaba por la AP-68, en Zuia, en las inmediaciones de Altube. El conductor del vehículo ha resultado herido y ha sido trasladado al HUA Txagorritxu.\nEste año se prevé que se registren cifras de desplazamientos ligeramente superiores a las del año pasado, siempre en función de la meteorología. A la vista del pronóstico de Euskalmet, que anuncia un tiempo inestable durante el inicio de la Semana Santa, se espera una media de 540.000 desplazamientos tanto de salida como de retorno de Euskadi. El pasado ejercicio, en 2025, la media fue de 535.000 desplazamientos de entrada y otros tantos de salida debido a la inestabilidad del tiempo.",
-    "body_eu": null,
-    "body_pl": null,
-    "date": "2026-04-01T16:36:15+02:00",
-    "sentiment": "negativa",
-    "score": -1.0,
     "category": "Sociedad",
     "lang": "es"
   }
