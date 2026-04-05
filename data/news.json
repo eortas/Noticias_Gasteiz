@@ -1,5 +1,22 @@
 [
   {
+    "id": "ab5f4fb273",
+    "source": "El Correo",
+    "url": "https://www.elcorreo.com/alava/araba/gran-reunion-siglo-20260405100610-ga.html",
+    "title": "Una gran reunión de otro siglo",
+    "title_eu": null,
+    "title_pl": null,
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s2.ppllstatics.com/elcorreo/www/multimedia/2026/04/05/FOTO%2520%25204-kt9B-U201563568483KkC-1200x840%40El%2520Correo.jpg",
+    "body": "Ángel Lamelas, Beatriz Artolazabal, Maider Etxebarria yJavier Hurtado.\nJose María Ruano, Maite Trenado, Lourdes Fontaneda, Jesús Mari García, Petri Cruz e Isabel García Román.\nTomás Cid, Marisa Díez, Javier Izaga, Edurne Parro, Jon Andoni Aspuru y Karmele Respaldiza.\nStephane Fouillant, Carmen Perujo Villena y Santiago Sigüenza.\nFernando Romay denuncia no poder acceder a una pensión digna: «Toda mi etapa en el Real Madrid fue sin cotizar»\nThe Guardian se rinde a Granada y su Semana Santa: «Un placer terrenal»\n600 kilos de hierro de 3.700 millones de años procedente del cosmos: la Feria de Minerales abre con el meteorito más grande de España\nPP y PSOE retrasan sus listas en la provincia de Cádiz para las elecciones andaluzas\n«El cáncer de pulmón entre no fumadores crece por la geología del suelo en varias zonas de España»",
+    "body_eu": null,
+    "body_pl": null,
+    "date": "2026-04-05T10:06:12+02:00",
+    "sentiment": "negativa",
+    "score": -1.0,
+    "category": "Sociedad",
+    "lang": "es"
+  },
+  {
     "id": "38cbbe3339",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/vitoria-convierte-gran-laboratorio-analizara-salud-4000-20260405131118-nt.html",
@@ -115,23 +132,6 @@
     "date": "2026-04-05T00:10:49+02:00",
     "sentiment": "neutral",
     "score": 0.0,
-    "category": "Sociedad",
-    "lang": "es"
-  },
-  {
-    "id": "bd4063c7e5",
-    "source": "El Correo",
-    "url": "https://www.elcorreo.com/alava/araba/mirador-gran-reunion-siglo-20260405191436-nt.html",
-    "title": "El Mirador: Una gran reunión de otro siglo",
-    "title_eu": null,
-    "title_pl": null,
-    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s1.ppllstatics.com/elcorreo/www/multimedia/2026/04/04/FOTO%2520%25204.jpg",
-    "body": "Una vez al año, Vitoria se despierta con aroma a pólvora, uniformes clásicos franceses y tambores de guerra. Sucede cuando la capital alavesa inaugura su ... Mercado Napoleónico, una recreación histórica que transforma el barrio de Arriaga en un auténtico campamento del siglo XIX durante unos días. El presidente de la Asociación de Vecinos IPAR-Arriaga, Ángel Lamelas, ejerció de anfitrión de nuevo junto a miembros de la junta como José María Ruano, Maite Trenado, Lourdes Fontaneda, Jesús Marí García, Petri Cruz e Isabel García Román. Y recibieron a representantes institucionales como la alcaldesa de Vitoria, Maider Etxebarria; el consejero vasco de Turismo, Javier Hurtado; la concejala de Espacio Público, Beatriz Artolazabal; el de Urbanismo, Borja Rodríguez; la de Promoción Económica, María Nanclares; el de Seguridad, César Fernández de Landa; las ediles de EH Bildu Rocío Vitero y Aitziber Salazar; y las del PP Marta Alaña y Blanca Lacunza.\nCon más de un centenar de puestos, desfiles, exhibiciones militares y animación de época, el evento busca acercar al público la historia de una de las etapas más convulsas de Europa mientras ofrece una experiencia festiva y diferente. Vivieron el momento asistentes como el presidente y la directora gerente de Aenkomer, Jon Andoni Aspuru y Edurne Parro, respectivamente, y representantes de casas regionales como Carmen Delgado y Juana Matilde Sánchez, del Hogar Extremeño; Antonio Llorens, del Círculo Catalán; Gerardo Ochoa, del Hogar Navarro; y Manuela Inés y Tomás Cid, del Centro Andaluz Seneca.\nVestidos de soldados de época, desfilaron Fernando Lavilla, Andrés Lorenzo, Francisco Álvarez, Xabel Escudero, José Ignacio Gurmendi, Luis Álvarez, Stephane Fouillant, Carmen Perujo Villena y Santiago Sigüenza, entre otros. Se sumaron Marisa Díez, Javier Izaga, Maite Trenado, Lourdes Fontaneda, Jesús Mari García, Petri Cruz y Karmele Respaldiza.",
-    "body_eu": null,
-    "body_pl": null,
-    "date": "2026-04-05T00:09:29+02:00",
-    "sentiment": "positiva",
-    "score": 1.0,
     "category": "Sociedad",
     "lang": "es"
   },
