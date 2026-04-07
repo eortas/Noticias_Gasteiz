@@ -1,5 +1,22 @@
 [
   {
+    "id": "b31416269e",
+    "source": "El Correo",
+    "url": "https://www.elcorreo.com/alava/araba/imagenes-incendio-aernova-20260407182122-ga.html",
+    "title": "Las imágenes del incendio en Aernova",
+    "title_eu": null,
+    "title_pl": null,
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s3.ppllstatics.com/elcorreo/www/multimedia/2026/04/07/aernova%2520bomberos-1-kBtF-U201606185695GPG-1200x840%40El%2520Correo.jpg",
+    "body": "Las 40 deducciones autonómicas de la Renta 2025 en la Comunitat Valenciana: desde la dana hasta el alquiler de la vivienda\nUn tribunal avala el desahucio de un militar retirado de una vivienda de Defensa\nThe Guardian se rinde a Granada y su Semana Santa: «Un placer terrenal»\nCierran una planta de un hospital de León por picaduras de chinches a pacientes\nEl balance de un año marcado por el apagón",
+    "body_eu": null,
+    "body_pl": null,
+    "date": "2026-04-07T18:21:25+02:00",
+    "sentiment": "negativa",
+    "score": -1.0,
+    "category": "Sociedad",
+    "lang": "es"
+  },
+  {
     "id": "57bee309f3",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/desalojan-planta-aernnova-berantevilla-incendio-20260407171132-nt.html",
