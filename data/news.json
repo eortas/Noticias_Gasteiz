@@ -1,5 +1,22 @@
 [
   {
+    "id": "c31c861635",
+    "source": "El Correo",
+    "url": "https://www.elcorreo.com/alava/araba/ayala/trasladado-helicoptero-cruces-tras-accidente-moto-llodio-20260408214229-nt.html",
+    "title": "Trasladado en helicóptero a Cruces tras un accidente de moto en Llodio",
+    "title_eu": null,
+    "title_pl": null,
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s2.ppllstatics.com/elcorreo/www/multimedia/2026/04/08/helicoptero-kQEE-U201629988354B0F-1200x840%40El%2520Correo.jpg",
+    "body": "Tres motoristas han resultados heridos en otros tantos accidentes de tráfico ocurridos durante la tarde de este miércoles en la GI-20 (Variante de San ... Sebastián), en la carretera BI-3224, a su paso por el municipio vizcaíno de Ajangiz y en la A-3632, a la altura de la localidad alavesa de Llodio.\nSegún ha informado el Departamento vasco de Seguridad, el accidente más grave ha ocurrido pasadas las dos y media de la tarde en la A-3632, en Llodio, cuando un motorista de 63 años que circulaba hacia Okondo ha sufrido una caída. Tras ser estabilizado por equipos sanitarios desplazados al lugar, el herido ha sido recogido por un helicóptero, que lo ha llevado al Hospital de Cruces.\nA las cinco de la tarde se producía otra caída de un motorista de 53 años en la BI-3224, en Ajangiz hacia Gernika, por lo que ha resultado herido y ha sido llevado por una ambulancia al hospital de Cruces.\nMedia hora más tarde se registraba otra salida de calzada de un motorista de 20 años, en este caso en la GI-20 (Variante de San Sebastián), quien ha precisado su traslado en ambulancia al Hospital Donostia. La Ertzaintza ha abiertos sendos atestados para determinar las causas de estos siniestros.",
+    "body_eu": null,
+    "body_pl": null,
+    "date": "2026-04-08T21:42:32+02:00",
+    "sentiment": "negativa",
+    "score": -1.0,
+    "category": "Sociedad",
+    "lang": "es"
+  },
+  {
     "id": "5202a7e1a2",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/autovias-concentran-multas-ertzaintza-alava-20260408191542-nt.html",
