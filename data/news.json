@@ -1,5 +1,22 @@
 [
   {
+    "id": "046db5bce1",
+    "source": "El Correo",
+    "url": "https://www.elcorreo.com/alava/araba/rey-emerito-visita-vitoria-nueva-revision-medica-20260412220321-nt.html",
+    "title": "El rey emérito visita Vitoria para una nueva revisión médica",
+    "title_eu": null,
+    "title_pl": null,
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s1.ppllstatics.com/elcorreo/www/multimedia/2026/04/12/ala-rey-kRLG-U201691444616fCH-1200x840%40El%2520Correo.jpg",
+    "body": "El rey emérito Juan Carlos I ha llegado a Vitoria en la tarde de este domingo. Un día después de recibir un premio literario ... en la Asamblea Francesa por sus memorias, el monarca ha aterrizado en la capital alavesa para someterse a una nueva revisión médica en la clínica de Eduardo Anitua. Una visita habitual cada vez que vuelve a España y, de hecho, allí estuvo en octubre de 2025.\nJuan Carlos I viajó hoy desde París hasta el aeropuerto de Foronda a bordo de un jet bimotor y directamente acudió al centro médico sobre las ocho de la tarde. No se quedará mucho tiempo. Su idea es participar esta misma semana en una regata de vela en Sanxenxo que se alargará hasta el próximo domingo. En Galicia suele alojarse en la casa de su amigo Pedro Campos.\nEl rey emérito, que desde 2020 reside en Abu Dabi, estuvo hace apenas una semana en Sevilla, donde asistió a la corrida de toros que supuso la reaparición de Morante de la Puebla.\nLas visitas del ex jefe del Estado a Vitoria son habituales. En la capital alavesa pasan consulta dos de sus médicos de confianza: Eduardo Anitua (odontólogo, investigador y cirujano) y el traumatólogo Mikel Sánchez. Con ambos mantiene una amistad desde hace años. Ambos atesoran un reconocido prestigio como doctores e investigadores, premiados internacionalmente por su descubrimiento del plasma rico en factores de crecimiento y sus aportaciones a la medicina regenerativa.\nEn París, el monarca emérito recibió el Premio Especial del Jurado del Libro Político por sus memorias 'Reconciliación'.",
+    "body_eu": null,
+    "body_pl": null,
+    "date": "2026-04-12T22:03:24+02:00",
+    "sentiment": "positiva",
+    "score": 1.0,
+    "category": "Sociedad",
+    "lang": "es"
+  },
+  {
     "id": "aba3fd1807",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/herido-grave-tras-salirse-vehiculo-calzada-salida-a1-20260412175645-nt.html",
@@ -251,40 +268,6 @@
     "date": "2026-04-11T00:39:22+02:00",
     "sentiment": "neutral",
     "score": 0.0,
-    "category": "Sociedad",
-    "lang": "es"
-  },
-  {
-    "id": "1c8fb8eae9",
-    "source": "El Correo",
-    "url": "https://www.elcorreo.com/alava/araba/libro-desmonta-mito-joven-criterio-valor-20260410200230-nt.html",
-    "title": "Un libro que desmonta el mito de 'lo joven' como criterio de valor",
-    "title_eu": null,
-    "title_pl": null,
-    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s3.ppllstatics.com/elcorreo/www/multimedia/2026/04/10/1509909668-RAhpriEBqQ08UtjeXm3hUPN-1200x840%40El%2520Correo.JPG",
-    "body": "La edad parece haberse convertido en un problema. Los prejuicios que acarrea golpean a las personas mayores y, lejos de remitir, se intensifican con el ... paso del tiempo. A las puertas de cumplir sesenta años, Iñaki Larrimbe (Vitoria, 1967) aborda este asunto serio con humor en su último libro, 'La dictadura de lo joven. Manual de supervivencia para carrozas' (Katakrak, 2026), que ha presentado este viernes en la librería Zuloa de Vitoria. «No va en contra de la juventud», aclara, sino «contra un sistema que ha confundido vejez con estorbo».\nAl contrario de lo que pueda parecer, este ensayo, con ilustraciones de LPO, no se escribió desde el enfado («igual un poco sí», ha confesado Larrimbe), sino «desde la incomodidad». «No es por ser llorón. Yo lo que planteo es que hay que aceptar que somos mayores. Y que, cuando alguien diga: '¡Pareces más joven!' podamos responder '¿es que si no aparento mi edad es un problema?'», defiende.\nTodo comenzó con una columna de opinión sobre edadismo «que se quedó corta». Y de ahí surgió este ensayo literario. En él, el autor vitoriano plantea la diferencia entre 'ser joven', «que no es más que un calendario» y 'lo joven', «una construcción social, un criterio de valor».\n«¿Desde cuándo lo joven mola?» es una de las preguntas sobre las que intenta reflexionar este ensayo, que cuenta con más de 270 referencias bibliográficas. Todo, desde un humor usado «como un bisturí que corta una burbuja y de repente... ¡Bum! Explota», ha relatado de manera gráfica Larrimbe. Frente a él, una sala llena de gente que le escuchaba concentrada entre asentimiento y risas.",
-    "body_eu": null,
-    "body_pl": null,
-    "date": "2026-04-10T20:35:22+02:00",
-    "sentiment": "negativa",
-    "score": -1.0,
-    "category": "Sociedad",
-    "lang": "es"
-  },
-  {
-    "id": "d8bba64612",
-    "source": "El Correo",
-    "url": "https://www.elcorreo.com/alava/araba/desescombran-tramo-fachada-edificio-vitoria-riesgo-desprendimiento-20260410201404-nt.html",
-    "title": "Desescombran un tramo de la fachada de un edificio de Vitoria por el riesgo de desprendimiento",
-    "title_eu": null,
-    "title_pl": null,
-    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s3.ppllstatics.com/elcorreo/www/multimedia/2026/04/10/desescombro-fachada-vitoria-k3UB-U201667755690GUF-1200x840%40El%2520Correo.jpg",
-    "body": "Los desprendimientos en fachadas son un problema grave que puede llegar a afectar a la seguridad de las personas y a la integridad de un ... inmueble. Por ello, es fundamental saber cómo actuar ante ese tipo de escenarios al objeto de minimizar riesgos y evitar una desgracia. Gracias a ese 'protocolo' preventivo se ha podido controlar este viernes una contingencia en Vitoria. En concreto, en la calle Paraguay, en el barrio de El Pilar.\nAlgunas personas se han percatado esta mañana de que, a la altura del séptimo piso de un bloque de viviendas donde se realizan unas obras, la fachada comenzaba a «combarse» o «abombarse» en un tramo del tapiz. Los bomberos han recibido el aviso y se han trasladado de inmediato a la zona, que ha quedado perimetrada. También se ha procedido a cortar, en algunos momentos, la circulación en la calle Paraguay.\nDe igual modo, los bomberos han avisado al arquitecto y a la empresa constructora; además de plantear todas las consultas pertinentes para poder «desescombrar» ese punto de la fachada que «amenazaba con colapsar». Tras monitorizar la situación durante varias horas, se ha intervenido para dejar el espacio llano, claro y despejado.",
-    "body_eu": null,
-    "body_pl": null,
-    "date": "2026-04-10T20:14:07+02:00",
-    "sentiment": "negativa",
-    "score": -1.0,
     "category": "Sociedad",
     "lang": "es"
   }
