@@ -1,5 +1,22 @@
 [
   {
+    "id": "fefe955a95",
+    "source": "El Correo",
+    "url": "https://www.elcorreo.com/alava/araba/coche-vuelca-calle-honduras-personas-atrapadas-20260412102835-nt.html",
+    "title": "Un coche vuelca en la calle Honduras sin personas atrapadas",
+    "title_eu": null,
+    "title_pl": null,
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s3.ppllstatics.com/elcorreo/www/multimedia/2026/04/12/ala-coche-volcado-kvVC-U201684442875MaG-1200x840%40El%2520Correo.jpg",
+    "body": "Susto en la calle Honduras. Un coche ha protagonizado un aparatoso accidente a primera hora de la mañana, cuando el turismo ha volcado en este ... punto de la capital alavesa, en sentido Portal de Foronda. Según los primeros detalles aportados por los bomberos de Vitoria, el incidente se ha saldado sin que nadie haya quedado atrapado en el vehículo.\nEl suceso, según explican fuentes del Departamento municipal de Seguridad, ha tenido lugar hacia las 8.00 horas. Por el momento, no ha trascendido cuántas personas iban en el vehículo en el momento del accidente.\nEl siniestro, en cualquier caso, ha obligado a desplazarse a efectivos de Policía Local y Bomberos. De momento, se desconocen tanto las causas del incidente cómo los daños personales que ha ocasionado entre los ocupantes del vehículo.",
+    "body_eu": null,
+    "body_pl": null,
+    "date": "2026-04-12T10:28:37+02:00",
+    "sentiment": "negativa",
+    "score": -1.0,
+    "category": "Sociedad",
+    "lang": "es"
+  },
+  {
     "id": "bde9aaa8dd",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/kristina-apinaniz-saez-de-maturana-industria-mujeres-fracaso-carrera-fondo-20260412010905-nt.html",
