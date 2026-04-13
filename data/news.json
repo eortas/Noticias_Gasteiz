@@ -1,5 +1,22 @@
 [
   {
+    "id": "399a4829cc",
+    "source": "El Correo",
+    "url": "https://www.elcorreo.com/alava/araba/recorrido-musical-rioja-alavesa-20260413175521-nt.html",
+    "title": "Un recorrido musical por Rioja Alavesa",
+    "title_eu": null,
+    "title_pl": null,
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s3.ppllstatics.com/elcorreo/www/multimedia/2026/04/13/eduardomoreno-vitoria-Re3UX1fsNQvVUVRl4ZmffzH-1200x840%40El%2520Correo.jpg",
+    "body": "Un apasionado de la música y una enciclopedia sobre su evolución en Rioja Alavesa. A Eduardo Moreno le rodean el asombro y la curiosidad por ... seguir aprendiendo. De esa inquietud nacen sus investigaciones, tanto en su faceta de compositor como en la de autor y miembro de distintos conjuntos. Una vocación que ha sabido trasladar al público, a los oyentes y lectores.\nCon su último libro, 'Recorrido por la música en Rioja Alavesa', que presenta este martes 14 de abril en la librería Zuloa de Vitoria (19.00 horas, entrada libre), Moreno propone un particular «viaje donde nos acercaremos a todo aquello relacionado con la música en cada una de las poblaciones de esta tierra». El volumen recorre más de cinco siglos de historia y se estructura en dos partes. En la primera reúne un conjunto de «narraciones históricas» que contextualizan y humanizan la vida musical a través de apartados como el oficio de los organistas, la enseñanza, los ministriles y músicos en el ámbito eclesiástico, los gaiteros, la música para la danza, los cantos tradicionales o las bandas.\nLa segunda parte se centra en inventarios que abordan el «olvidado y desconocido patrimonio musical» de Rioja Alavesa. Incluye referencias a la iconografía musical, manuscritos antiguos, cantorales, sillerías, facistoles, órganos, así como un glosario de personalidades destacadas y un índice de compositores. La reivindicación de la «identidad musical» de la comarca se convierte así también en una invitación a redescubrir su patrimonio.\nEl libro lo presentará también en Casa Garcetas (Laguardia) este sábado 18 de abril (12.00 horas). Este trabajo se suma a otros títulos de Eduardo Moreno, como 'La música en Laguardia del siglo XII a la actualidad' (2014) y 'Más allá de las bandas de música de Rioja Alavesa' (2019), y a nuevos proyectos del inquieto músico y pedagogo. Entre ellos figura la grabación de un álbum que recogerá los sonidos de los órganos de la comarca «antes de que se abandonen». El proyecto, titulado 'Las voces que se acallan', contará con la interpretación de la reconocida organista Saskia Roure.",
+    "body_eu": null,
+    "body_pl": null,
+    "date": "2026-04-13T17:55:28+02:00",
+    "sentiment": "neutral",
+    "score": 0.0,
+    "category": "Sociedad",
+    "lang": "es"
+  },
+  {
     "id": "b9eb18373d",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/vitoria-minano-conectan-bicicleta-20260413170717-nt.html",
@@ -421,23 +438,6 @@
     "date": "2026-04-12T00:51:45+02:00",
     "sentiment": "neutral",
     "score": 0.0,
-    "category": "Sociedad",
-    "lang": "es"
-  },
-  {
-    "id": "2abac11d85",
-    "source": "El Correo",
-    "url": "https://www.elcorreo.com/alava/araba/dos-detenidos-vitoria-intentar-robar-tiron-cadena-octogenario-20260411155334-nt.html",
-    "title": "Dos detenidos en Vitoria por intentar robar de un tirón una cadena a un octogenario",
-    "title_eu": null,
-    "title_pl": null,
-    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s1.ppllstatics.com/elcorreo/www/multimedia/2026/04/11/comisaria-ertzaintza-vitoria-kJIG-U201675925975p8G-1200x840%40El%2520Correo.jpg",
-    "body": "La Ertzaintza arrestó ayer, viernes, en Vitoria a dos jóvenes, de 19 y 21 años, como presuntos autores de un robo con violencia perpetrado ... el pasado mes de marzo. Se les acusa de asaltar a un hombre de avanzada edad en la vía pública. Trataron de arrebatarle, mediante un fuerte tirón, una cadena y le causaron «diversas lesiones», ha informado este sábado el Departamento vasco de Seguridad.\nLos hechos se remontan a la tarde del pasado 12 de marzo. Ese día la Ertzaintza fue alertada de que un hombre de 87 años había sido víctima de un intento de robo cuando estaba en el barrio de Santa Lucía. Al parecer, dos individuos le habían abordado en la calle con la excusa, en un primer momento, de consultarle alguna cuestión. Acto seguido, uno de ellos, mediante un fuerte tirón, trató de arrebatarle la cadena que portaba en el cuello. El anciano pudo impedir que lograran su objetivo y los dos jóvenes huyeron del lugar.\nComo consecuencia de la «violencia empleada por los asaltantes», la víctima tuvo que ser atendida en un centro hospitalario de Vitoria de las lesiones que le causaron. La investigación desarrollada en relación al suceso posibilitó la identificación de dos jóvenes de 19 y 21 años, que acumulan «diversos antecedentes», como presuntos autores de esa acción delictiva.\nFinalmente, los sospechosos fueron detenidos ayer una vez realizadas las confirmaciones necesarias. Después, fueron trasladados a dependencias policiales con el fin de llevar a cabo las diligencias pertinentes, previas a su puesta a disposición judicial.",
-    "body_eu": null,
-    "body_pl": null,
-    "date": "2026-04-11T15:54:26+02:00",
-    "sentiment": "negativa",
-    "score": -1.0,
     "category": "Sociedad",
     "lang": "es"
   }
