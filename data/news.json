@@ -1,5 +1,22 @@
 [
   {
+    "id": "90a0e8d504",
+    "source": "El Correo",
+    "url": "https://www.elcorreo.com/alava/araba/mes-cortes-trafico-paradas-tuvisa-servicio-avenida-20260413083511-nt.html",
+    "title": "Un mes de cortes de tráfico y paradas de Tuvisa sin servicio en la Avenida de Los Huetos de Vitoria por obras",
+    "title_eu": null,
+    "title_pl": null,
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s1.ppllstatics.com/elcorreo/www/multimedia/2026/04/13/139842224.jpg",
+    "body": "Las obras de ejecución de una zanja en la Avenida de los Huetos producirán afecciones al tráfico y al servicio de autobús urbano entre este ... lunes 13 de abril y el miércoles 13 de mayo, en horario continuo. Los trabajos obligarán a establecer un corte total en sentido entrada a la ciudad en el tramo comprendido entre las calles Bekolarra y Urartea, mientras que en sentido salida permanecerá operativo un único carril. Para garantizar la movilidad, el tráfico será desviado por las calles Bekolarra, Alibarra y Zurrupitieta, y se habilitará además un acondicionamiento del cambio de sentido en la calle Düsseldorf con Avenida de los Huetos para facilitar el acceso a los vados de la zona.\nEstas obras afectarán al servicio de Tuvisa, concretamente a las extensiones de la Línea 5, cuyas paradas situadas en la Avenida de los Huetos —Mayoristas, Azucarera y Mercedes— quedarán fuera de servicio durante el periodo comprendido entre el 13 de abril y el 10 de mayo. Para la extensión 5a (Asteguieta) se habilitará como parada provisional Alibarra Mayoristas (sentido Urartea), mientras que para la extensión 5b (Jundiz–Ariñez / Arkaiate) se dispondrá de la parada provisional Las Arenas / Mercedes.\nEl Ayuntamiento y Tuvisa recomiendan planificar los desplazamientos con antelación y atender a la señalización provisional instalada en la zona. Más información en la web municipal: Paradas de autobús urbano sin servicio de la línea 5.",
+    "body_eu": null,
+    "body_pl": null,
+    "date": "2026-04-13T08:35:15+02:00",
+    "sentiment": "negativa",
+    "score": -1.0,
+    "category": "Sociedad",
+    "lang": "es"
+  },
+  {
     "id": "2fefa23c75",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/merlin-redobla-apuesta-arasur-levantara-dos-centros-20260413183246-nt.html",
