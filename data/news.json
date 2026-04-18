@@ -1,5 +1,22 @@
 [
   {
+    "id": "4932b2f0df",
+    "source": "El Correo",
+    "url": "https://www.elcorreo.com/alava/araba/primer-premio-loteria-nacional-cae-dos-administraciones-20260418135329-nt.html",
+    "title": "El primer premio de la Lotería Nacional cae en dos administraciones de Vitoria",
+    "title_eu": null,
+    "title_pl": null,
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s2.ppllstatics.com/elcorreo/www/multimedia/2026/04/18/la%2520oca-kVbF-U201798341937PpF-1200x840%40El%2520Correo-ElCorreo.jpg",
+    "body": "El primer premio del sorteo de la Lotería Nacional que se ha celebrado este sábado a las 13.00 horas ha caído en Vitoria. En ... concreto en dos administraciones: en la ubicada en el número 7 de la plaza de la Constitución y en La Oca, en la calle Sancho el Sabio.\nEl número premiado ha sido el 12590 y los agraciados se embolsarán 60.000 euros por décimo. Además de en Vitoria, el primer premio también se ha repartido en Alicante, Almendralejo, Santa Marta de los Barrios y Estepona.\nEl segundo premio (el número 06265) se ha vendido íntegro en Ugao-Miraballes.",
+    "body_eu": null,
+    "body_pl": null,
+    "date": "2026-04-18T13:53:32+02:00",
+    "sentiment": "neutral",
+    "score": 0.0,
+    "category": "Sociedad",
+    "lang": "es"
+  },
+  {
     "id": "c4d6413870",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/cientos-personas-manifiestan-vitoria-ante-deterioro-sanidad-20260418125708-nt.html",
@@ -625,40 +642,6 @@
     "date": "2026-04-16T12:39:14+02:00",
     "sentiment": "negativa",
     "score": -1.0,
-    "category": "Sociedad",
-    "lang": "es"
-  },
-  {
-    "id": "62fe3749bb",
-    "source": "El Correo",
-    "url": "https://www.elcorreo.com/alava/araba/san-prudencio-llega-musica-euskera-espectaculos-circenses-20260416121851-nt.html",
-    "title": "San Prudencio llega con más música en euskera y espectáculos circenses",
-    "title_eu": null,
-    "title_pl": null,
-    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s1.ppllstatics.com/elcorreo/www/multimedia/2026/04/16/151138440-RzhJ3qE351YdFYvZoJDTQqM-1200x840%40El%2520Correo.jpg",
-    "body": "Las fiestas de San Prudencio están a la vuelta de la esquina y este año cuentan con una programación con diversas novedades desde el viernes ... 24 al 1 de mayo. La primera se celebrará el primer día tras el pregón de la mano del escritor y novelista Antonio Altarriba a las 20.00 horas en la Plaza de la Provincia. Después de inaugurar los festejos, se retirarán las sillas para poder bailar con el grupo 'Bruno on the floor', un tributo al artista pop Bruno Mars.\nLa música no termina ahí. Este año se estrenará el espacio Euskal Gunea en la plaza del Arca el domingo 26 de abril. A las 21.00 horas el grupo Muxutruk será el encargado de inaugurar este espacio con una verbena en la que recorrerán lo mejor de la música vasca. Desde temas de ETS, pasando por Huntza, Fermín Muguruza o SU TA GAR, esta formación con pandero y trikitixa animarán el espacio con un amplio repertorio. Por Euskal Gunea también pasará el músico vasco Jon Kass el 29 de abril (21.00 horas) para animar a los más jóvenes.\nOtra novedad musical será la incorporación de una de las bandas premiadas en el concurso Gazte Talent del año pasado en los conciertos en Armentia. El rock alternativo de Aldaia Larrein retumbará en las campas el 28 de abril a las 21.00 horas tras el concierto de Txapela Brava (18.00 horas), una banda que animará las fiestas al ritmo de rancheras y corridas con «alma vasca». Además se repartirán 50.000 vasos reutilizables por primera vez a quienes consuman en las campas a través de la campaña 'Plástico 0'. Aquellos que adquieran un vaso podrán donar el euro de depósito al Club Deportivo Lakua para ayudar a las familias con la situación económica del equipo.\nPor último, los días 29 y 30 de abril aterrizarán en Vitoria dos espectáculos de circo contemporáneo de la mano del proyecto Eko Pirineos de Circo con cooperación interregional y fondos europeos. Los encargados de animar el público serán la compañía D'Click con su espectáculo de artes escénicas 'Latas' que tendrá lugar el miércoles 29 a las 20.00 horas en la Plaza de la Provincia. El día siguiente Rouge Elea amenizará el mismo lugar con el espectáculo de danza, gravedad alterada y música 'Lurruna' (20.00 horas).\nLa programación de San Prudencio también mantendrá las tradiciones de las festividades con sus célebres concursos gastronómicos la mañana del 25 de abril en la plaza de la Provincia o la muestra de las cuadrillas de 10.00 a 15.00 horas en la misma ubicación. Por segundo año consecutivo la tradicional tamborrada recorrerá las calles del centro de Vitoria el lunes 27 a partir de las 19.00 horas como antesala a las retretas en la Plaza de España y en la Plaza de la Provincia (21.00 horas).\nEntre toques de retreta actuarán A Contra Blues, Kantaberri Abesbatza, Mala Brigo y Artea Teatro Musical, culminando con el espectáculo piromusical a cargo de Valecea con un guiño al pasado y a la historia de la retreta. También actuarán los conocidos Joselu Anaiak esa noche a partir de las doce y media en la plaza del Arca.\nEl día grande, 28 de abril, se unirán los actos en el centro de la capital alavesa como la tamborrada de los 'Biznietos de Celedón' (12.00 horas) o la tamborrada infantil (17.30) con eventos en Armentia, donde se celebrarán actividades infantiles, exhibiciones de herri kirolak y animaciones. Finalmente las fiestas culminarán el 1 de mayo con la tradicional romería en Estíbaliz, que este año conmemora el 50 aniversario de la primeria feria de los Desagravios.",
-    "body_eu": null,
-    "body_pl": null,
-    "date": "2026-04-16T12:18:54+02:00",
-    "sentiment": "neutral",
-    "score": 0.0,
-    "category": "Sociedad",
-    "lang": "es"
-  },
-  {
-    "id": "79ef7eee96",
-    "source": "El Correo",
-    "url": "https://www.elcorreo.com/alava/araba/pp-pedira-adif-comparezca-juntas-alava-detallar-20260416121639-nt.html",
-    "title": "El PP pedirá que Adif comparezca en las Juntas de Álava para detallar el futuro del TAV",
-    "title_eu": null,
-    "title_pl": null,
-    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s3.ppllstatics.com/elcorreo/www/multimedia/2026/04/16/149705088-RbYnnCNS83AEFfuEEyKwUMN-1200x840%40El%2520Correo.jpg",
-    "body": "El retraso en las obras para la llegada del Tren de Alta Velocidad a Álava fue protagonista en el pleno de las Juntas Generales del ... miércoles y este jueves el PP le ha dado continuidad al cruce de declaraciones que su presidente, Iñaki Oyarzabal, tuvo el día antes con el diputado general, Ramiro González. El máximo representante de los populares ha anunciado que su partido pedirá que los responsables del Administrador de Infraestructuras Ferroviarias (Adif) comparezcan «por primera vez en la historia» en la sede parlamentaria alavesa para dar explicaciones acerca del «retraso de las obras, el soterramiento en Vitoria y la conexión con Navarra» y que los expertos dibujen un cronograma del futuro de la infraestructura.\nOyarzabal ha señalado que «Adif tiene que explicar por qué se han incumplido todos los compromisos» suscritos. Primero en 2018 cuando gobernaba en Madrid el PP y posteriormente el pacto que se suscribió con el Ejecutivo socialista en 2022. Y, sobre todo, los populares pretenden que se presente «un cronograma claro de cuáles van a ser las inversiones, las ejecuciones del proyecto y, desde luego, por qué en este momento se está renunciando a la llegada soterrada a Vitoria».\nOyarzabal ha calificado como «escándalo» los retrasos en la llegada del TAV y que todavía «esté en el aire» la fecha en la que este medio de transporte esté operativo en nuestro territorio. «Se han incumplido todos los protocolos firmados en el 2018 entre el Gobierno de España del PP, el Gobierno vasco y las instituciones alavesas que culminaban en un cronograma que hubiese traído la alta velocidad a Vitoria soterrada en 2023», ha remarcado.\nEl presidente de los populares alaveses ha acusado a la alcaldesa, Maider Etxebarria (PSE), de estar «absolutamente despistada» en este asunto. «Le da igual el 2030 que el 2040, que venga la alta velocidad soterrada o en superficie, le trae sin cuidado». Una crítica que también se ha extendido al diputado general de Álava, Ramiro González (PNV): «Desde hace unos meses públicamente se queja, pero lleva ocho años sin hacer gestiones sobre los incumplimientos que se vienen produciendo».",
-    "body_eu": null,
-    "body_pl": null,
-    "date": "2026-04-16T12:16:42+02:00",
-    "sentiment": "positiva",
-    "score": 1.0,
     "category": "Sociedad",
     "lang": "es"
   }
