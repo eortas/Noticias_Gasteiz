@@ -1,5 +1,22 @@
 [
   {
+    "id": "1d75dd0fef",
+    "source": "El Correo",
+    "url": "https://www.elcorreo.com/alava/araba/maria-bestar-presenta-ortzai-loca-documental-sobre-20260422191654-nt.html",
+    "title": "María Bestar presenta en Ortzai 'No estás loca', un documental sobre violencia vicaria",
+    "title_eu": null,
+    "title_pl": null,
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s3.ppllstatics.com/elcorreo/www/multimedia/2026/04/22/mariabestar-RdUF3O7NNs7yUmYy3ZZhdHK-1200x840%40El%2520Correo.jpg",
+    "body": "El laboratorio escénico de Ortzai acoge este jueves 23 y viernes 24 de abril la presentación del documental 'No estás loca', en el que la ... directora María Bestar disecciona la violencia vicaria a través de más de cuarenta testimonios de mujeres, niños y profesionales (jueces, psicólogos, periodistas, pediatras).\n«Revelan cómo un sistema judicial falla de manera sistemática a la infancia», recoge la sinopsis de una cinta emocionante que se acompaña de datos y recortes de prensa. Este título cuenta con el apoyo de Naciones Unidas, los Ministerios de Igualdad e Infancia, y la voz de actores como Luis Tosar, Hovik Keuchkerian, Maxi Iglesias, Jordi Planas y Eduard Fernández. El pase de este jueves se iniciará a las 19.00 horas y el del día siguiente a las 17.00 horas en la sede de la compañía vitoriana dirigida por Iker Ortiz de Zárate. Ambas sesiones contarán con la presencia de la realizadora, guionista, actriz y cantante madrileña que ha participado en series como 'La caza: Irati', 'Raphael' y 'Kraken'.\n'No estás loca' se presenta como un largometraje «urgente y conmovedor que da voz a las mujeres que han sido silenciadas por uno de los tipos de violencia más crueles y desconocidos: aquella en la que se utiliza a los hijos e hijas como herramienta para hacerles daño». La propia cineasta ha sido víctima. Las entradas para estos pases se puede conseguir a través de la web Eventbrite (5,77 euros).",
+    "body_eu": null,
+    "body_pl": null,
+    "date": "2026-04-22T19:17:10+02:00",
+    "sentiment": "neutral",
+    "score": 0.0,
+    "category": "Sociedad",
+    "lang": "es"
+  },
+  {
     "id": "197faf98f5",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/audiencia-alava-condena-anos-hombre-agresion-sexual-20260422153747-nt.html",
@@ -710,23 +727,6 @@
     "date": "2026-04-20T20:21:16+02:00",
     "sentiment": "positiva",
     "score": 1.0,
-    "category": "Sociedad",
-    "lang": "es"
-  },
-  {
-    "id": "c3a0f9fd42",
-    "source": "El Correo",
-    "url": "https://www.elcorreo.com/alava/araba/arrestan-vitoria-agredir-pareja-propia-hermana-trato-defenderla-20260420173835-nt.html",
-    "title": "Le arrestan en Vitoria por agredir a su pareja y a su propia hermana, que trató de defenderla",
-    "title_eu": null,
-    "title_pl": null,
-    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s2.ppllstatics.com/elcorreo/www/multimedia/2026/04/20/policia-local-vitoria-cuatro-motos-kyeG-U201830454923iwF-1200x840%40El%2520Correo.jpg",
-    "body": "Agentes de la Policía Local arrestaron en la noche del pasado sábado en Vitoria a un varón, de 31 años, como presunto autor de ... un delito de lesiones a su pareja sentimental en el ámbito de la violencia de género, tras agredir a su pareja y a su propia hermana, que intentó defenderla, ha informado este lunes la Guardia urbana.\nLos hechos ocurrieron en torno a las 21.00 horas cuando una patrulla que realizaba labores de seguridad ciudadana en servicio vespertino fue requerida por la Central de Coordinación para que acudiera a una vivienda ubicada en el barrio de Aranbizkarra. Un varón «muy agresivo» estaba agrediendo a las personas que estaban en su interior, refiere el parte policial.\nDe inmediato, los agentes se dirigieron al lugar y se entrevistaron con su pareja, su hermana y otro familiar, así como con el presunto agresor. Al parecer, se había producido «una discusión con las dos mujeres por motivos familiares» y el hombre había agredido a su pareja y también a su propia hermana al «interponerse» entre ambos con intención de defenderla. En vista de las manifestaciones y de las lesiones que presentaba la víctima, la patrulla procedió a la detención del presunto agresor.",
-    "body_eu": null,
-    "body_pl": null,
-    "date": "2026-04-20T17:39:05+02:00",
-    "sentiment": "neutral",
-    "score": 0.0,
     "category": "Sociedad",
     "lang": "es"
   }
