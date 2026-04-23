@@ -1,5 +1,22 @@
 [
   {
+    "id": "3f7dec7f80",
+    "source": "El Correo",
+    "url": "https://www.elcorreo.com/alava/araba/herido-colision-dos-vehiculos-a1-paso-trevino-20260423080408-nt.html",
+    "title": "Un herido en una colisión entre dos vehículos en la A-1 a su paso por Treviño",
+    "title_eu": null,
+    "title_pl": null,
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s3.ppllstatics.com/elcorreo/www/multimedia/2026/04/23/accidente-a1-trevino-kzy-U201881905184aIG-1200x840%40El%2520Correo.jpg",
+    "body": "Una persona ha resultado herida al verse involucrada en una colisión entre dos vehículos este jueves en la A-1, a su paso por el ... enclave de Treviño, en sentido Irún.\nEl accidente ha ocurrido al filo de las 5.30 horas cuando, por causas que se investigan, dos coches han chocado cuando circulaban a la altura del punto kilométrico 330, en las inmediaciones de la localidad alavesa de Manzanos, muy cerca del límite territorial con Treviño.\nHasta el lugar del siniestro se han trasladado los servicios de emergencia, entre ellos, agentes de tráfico de la Ertzaintza y sanitarios. Como consecuencia del impacto, una persona ha tenido que ser trasladada al hospital Txagorritxu, en Vitoria.\nEl accidente ha obligado a cortar un carril en sentido Irún, por lo que se ha ralentizado la circulación y se han generado algunas retenciones en la zona",
+    "body_eu": null,
+    "body_pl": null,
+    "date": "2026-04-23T08:04:41+02:00",
+    "sentiment": "negativa",
+    "score": -1.0,
+    "category": "Sociedad",
+    "lang": "es"
+  },
+  {
     "id": "6036552f7a",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/vitoria-planea-llevar-ota-zaramaga-pilar-txagorritxu-20260423212730-nt.html",
