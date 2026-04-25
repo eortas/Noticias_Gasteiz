@@ -1,5 +1,22 @@
 [
   {
+    "id": "4e613ceb7d",
+    "source": "El Correo",
+    "url": "https://www.elcorreo.com/alava/araba/persona-evacuada-hospital-incendio-vivienda-vitoria-20260425181657-nt.html",
+    "title": "Una persona es evacuada al hospital tras sufrir un incendio en una vivienda ubicada en la ciudad de Vitoria-Gasteiz",
+    "title_eu": "Pertsona bat ebakuatu dute ospitale batera Vitoria-Gasteizen suhiltzaileek etxebizitza batean sutea izan ondoren",
+    "title_pl": "Osoba ewakuowana do szpitala po pożarze w mieszkaniu w Vitoria-Gasteiz",
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s1.ppllstatics.com/elcorreo/www/multimedia/2026/04/25/148949561.jpg",
+    "body": "Una persona ha tenido que ser evacuada a un centro hospitalario de Vitoria-Gasteiz debido a la inhalación de humo sufrida en un incendio registrado en su vivienda en la madrugada del sábado. El incidente ocurrió alrededor de la una de la madrugada en la cocina de una vivienda ubicada en la calle San Vicente de Paul, en el Casco Viejo de la capital alavesa. Este es el segundo incendio de la semana en Vitoria-Gasteiz, después del registrado la madrugada del jueves en el polígono industrial de Gamarra, también conocido como Barratxi, que dañó cinco pabellones y dos camiones.",
+    "body_eu": "Pertsona bat erietxe batera ebaku behar izan dute Gasteizen, etxean suhiltzaileak izandako istripu batean kea arnastu ondoren. Gertakaria goizeko ordu bata aldera gertatu zen, San Vicente Paul kaleko etxebizitzaren sukaldean, Gasteizko Alde Zaharrean. Aste honetan bigarren sutea da Gasteizen, asteazken goizaldean Gamarra industrialdean (Barratxi ere deitua) gertatutakoa, non bost biltegi eta bi kamioi kaltetu zituen.",
+    "body_pl": "Osoba musiała zostać ewakuowana do szpitala w Vitoria-Gasteiz z powodu wdychania dymu podczas pożaru w jej domu w sobotnią noc. Wypadek miał miejsce około pierwszej w nocy na kuchni w domu przy ulicy San Vicente de Paul, w historycznym centrum Vitoria-Gasteiz. To już drugi pożar w tym tygodniu w Vitoria-Gasteiz, po tym, który miał miejsce w nocy z czwartku w przemysłowej strefie Gamarra, znanym również jako Barratxi, który uszkodził pięć hal i dwa ciężarówki.",
+    "date": "2026-04-25T18:17:00+02:00",
+    "sentiment": "negativa",
+    "score": -1.0,
+    "category": "Sociedad",
+    "lang": "es"
+  },
+  {
     "id": "3e5bc3fe8e",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/sushi-toques-internacionales-aterriza-vitoria-20260425163138-nt.html",
