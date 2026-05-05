@@ -264,47 +264,31 @@ class MultiScraper:
             return None
 
     def scrape_gasteiz_hoy(self):
-        print(f"Scrapeando Gasteiz Hoy (RSS + Fallback HTML)")
+        print(f"Scrapeando Gasteiz Hoy (RSS vía rss2json + Fallback HTML)")
         links_data = {}
         
-        # 1. Intentar RSS feed (es más seguro contra bloqueos de Cloudflare)
+        # 1. Intentar RSS feed (usamos rss2json para evitar el bloqueo total de Cloudflare a GitHub Actions)
         try:
-            res_rss = self.scraper.get("https://www.gasteizhoy.com/feed/", headers=self.headers, timeout=15)
+            res_rss = requests.get("https://api.rss2json.com/v1/api.json?rss_url=https://www.gasteizhoy.com/feed/", timeout=15)
             if res_rss.status_code == 200:
-                # Usar BeautifulSoup con html.parser funciona bien para RSS básico también, o 'xml'
-                soup_rss = BeautifulSoup(res_rss.text, 'xml')
-                items = soup_rss.find_all('item')
-                if not items:
-                    # Alternativa por si lxml/xml parser no está disponible de forma limpia
-                    soup_rss = BeautifulSoup(res_rss.text, 'html.parser')
-                    items = soup_rss.find_all('item')
-                
-                for item in items:
-                    link_tag = item.find('link')
-                    if link_tag and link_tag.string:
-                        url = self._normalize_url(link_tag.string.strip())
-                        
-                        title_tag = item.find('title')
-                        content_tag = item.find('content:encoded')
-                        desc_tag = item.find('description')
-                        pub_date_tag = item.find('pubDate')
-                        
-                        body_html = ""
-                        if content_tag and content_tag.string:
-                            body_html = content_tag.string
-                        elif desc_tag and desc_tag.string:
-                            body_html = desc_tag.string
-                            
-                        links_data[url] = {
-                            'url': url,
-                            'title': title_tag.string.strip() if title_tag and title_tag.string else "",
-                            'body_html': body_html,
-                            'date_str': pub_date_tag.string.strip() if pub_date_tag and pub_date_tag.string else ""
-                        }
+                data = res_rss.json()
+                if data.get('status') == 'ok':
+                    for item in data.get('items', []):
+                        url = self._normalize_url(item.get('link', '').strip())
+                        if url:
+                            body_html = item.get('content', '')
+                            if not body_html:
+                                body_html = item.get('description', '')
+                            links_data[url] = {
+                                'url': url,
+                                'title': item.get('title', ''),
+                                'body_html': body_html,
+                                'date_str': item.get('pubDate', '') # Formato: YYYY-MM-DD HH:MM:SS
+                            }
         except Exception as e:
-            print(f"Error obteniendo RSS de Gasteiz Hoy: {e}")
+            print(f"Error obteniendo RSS de Gasteiz Hoy vía rss2json: {e}")
 
-        # 2. Intentar HTML de la portada como complemento
+        # 2. Intentar HTML de la portada como complemento (puede fallar por Cloudflare)
         try:
             res = self.scraper.get("https://www.gasteizhoy.com/", headers=self.headers, timeout=15)
             if res.status_code == 200:
@@ -394,8 +378,14 @@ class MultiScraper:
                 body = soup_rss.get_text()[:2000] # Limitar texto en caso de fallo
                 
             try:
-                date = parsedate_to_datetime(link_info['date_str']).isoformat()
-            except:
+                # rss2json devuelve la fecha como "YYYY-MM-DD HH:MM:SS"
+                if link_info.get('date_str'):
+                    date_clean = link_info['date_str'].replace(' ', 'T')
+                    date = datetime.fromisoformat(date_clean).isoformat()
+                else:
+                    date = datetime.now().isoformat()
+            except Exception as d_e:
+                print(f"Error parseando fecha RSS {link_info.get('date_str')}: {d_e}")
                 date = datetime.now().isoformat()
                 
             img_tag = soup_rss.find('img')
