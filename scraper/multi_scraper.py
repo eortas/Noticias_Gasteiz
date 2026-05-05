@@ -479,7 +479,8 @@ class MultiScraper:
             "al iniciar sesión desde un dispositivo",
             "inicie sesión en este dispositivo",
             "primer periódico digital de vitoria",
-            "noticias vitoria-álava"
+            "noticias vitoria-álava",
+            "aparece primero en gasteiz hoy"
         ]
         
         valid_paragraphs = []
