@@ -264,104 +264,142 @@ class MultiScraper:
             return None
 
     def scrape_gasteiz_hoy(self):
-        url = "https://www.gasteizhoy.com/"
-        print(f"Scrapeando Gasteiz Hoy: {url}")
+        print(f"Scrapeando Gasteiz Hoy (RSS + Fallback HTML)")
+        links_data = {}
+        
+        # 1. Intentar RSS feed (es más seguro contra bloqueos de Cloudflare)
         try:
-            # Obtener blacklist de URLs patrocinadas
-            blacklist = set()
-            try:
-                patro_res = self.scraper.get("https://www.gasteizhoy.com/patrocinado/", headers=self.headers, timeout=10)
-                patro_soup = BeautifulSoup(patro_res.text, 'html.parser')
-                for a in patro_soup.find_all('a'):
-                    href = a.get('href', '')
-                    if href:
-                        href_clean = re.sub(r'\s+', '', href)
-                        if len(href_clean) > 20 and ('gasteizhoy.com' in href_clean or href_clean.startswith('/')):
-                            full_p = self._normalize_url(f"https://www.gasteizhoy.com{href_clean}" if not href_clean.startswith("http") else href_clean)
-                            if not full_p.endswith('/patrocinado/'):
-                                blacklist.add(full_p)
-            except Exception as e:
-                print(f"Error obteniendo blacklist patrocinados: {e}")
-
-            res = self.scraper.get(url, headers=self.headers, timeout=15)
-            soup = BeautifulSoup(res.text, 'html.parser')
-            links = []
-            
-            combined_selectors = soup.find_all(['h2', 'h3']) + soup.select('a.nueve-bloque-noticia, a.heronews, a.box-shadow, a.blogpost, a.breakblock.breakingtext, a.linknews, a.sixnewsblock')
-            
-            for item in combined_selectors:
-                if item.name in ['h2', 'h3']:
-                    a_tag = item.find('a') or item.find_parent('a')
-                else:
-                    a_tag = item
+            res_rss = self.scraper.get("https://www.gasteizhoy.com/feed/", headers=self.headers, timeout=15)
+            if res_rss.status_code == 200:
+                # Usar BeautifulSoup con html.parser funciona bien para RSS básico también, o 'xml'
+                soup_rss = BeautifulSoup(res_rss.text, 'xml')
+                items = soup_rss.find_all('item')
+                if not items:
+                    # Alternativa por si lxml/xml parser no está disponible de forma limpia
+                    soup_rss = BeautifulSoup(res_rss.text, 'html.parser')
+                    items = soup_rss.find_all('item')
                 
-                if a_tag:
-                    val = a_tag.get('href', '')
-                    if val:
-                        href = re.sub(r'\s+', '', val)
+                for item in items:
+                    link_tag = item.find('link')
+                    if link_tag and link_tag.string:
+                        url = self._normalize_url(link_tag.string.strip())
                         
-                        parent = a_tag.find_parent()
-                        block_text = (a_tag.get_text() + ' ' + (parent.get_text() if parent else '')).lower()
-                        if any(keyword in block_text or keyword in href.lower() for keyword in ['patrocinado', 'concurso', 'publirreportaje', 'publireportaje']):
-                            continue
-                            
-                        # Verificar clases del contenedor (ej. patro-new)
-                        classes = ' '.join(a_tag.get('class', []))
-                        if parent:
-                            classes += ' ' + ' '.join(parent.get('class', []))
-                            section = parent.find_parent('section')
-                            if section:
-                                classes += ' ' + ' '.join(section.get('class', []))
-                                
-                        if 'patro-new' in classes or 'patrocinado' in classes:
-                            continue
-                        # Limpiar href de slash inicial redundante si es necesario
-                        full_url = self._normalize_url(f"https://www.gasteizhoy.com{href}" if not href.startswith("http") else href)
+                        title_tag = item.find('title')
+                        content_tag = item.find('content:encoded')
+                        desc_tag = item.find('description')
+                        pub_date_tag = item.find('pubDate')
                         
-                        if full_url in blacklist:
-                            continue
+                        body_html = ""
+                        if content_tag and content_tag.string:
+                            body_html = content_tag.string
+                        elif desc_tag and desc_tag.string:
+                            body_html = desc_tag.string
                             
-                        if full_url not in self.history and full_url not in links:
-                            links.append(full_url)
-            
-            for link in links[:30]:
-                data = self._extract_gasteiz_hoy_detail(link)
-                if data:
-                    self.news_data.append(data)
-                    self.history.add(link)
-                time.sleep(1)
+                        links_data[url] = {
+                            'url': url,
+                            'title': title_tag.string.strip() if title_tag and title_tag.string else "",
+                            'body_html': body_html,
+                            'date_str': pub_date_tag.string.strip() if pub_date_tag and pub_date_tag.string else ""
+                        }
         except Exception as e:
-            print(f"Error en Gasteiz Hoy: {e}")
+            print(f"Error obteniendo RSS de Gasteiz Hoy: {e}")
 
-    def _extract_gasteiz_hoy_detail(self, url):
+        # 2. Intentar HTML de la portada como complemento
+        try:
+            res = self.scraper.get("https://www.gasteizhoy.com/", headers=self.headers, timeout=15)
+            if res.status_code == 200:
+                soup = BeautifulSoup(res.text, 'html.parser')
+                combined_selectors = soup.find_all(['h2', 'h3']) + soup.select('a.nueve-bloque-noticia, a.heronews, a.box-shadow, a.blogpost, a.breakblock.breakingtext, a.linknews, a.sixnewsblock')
+                
+                for item in combined_selectors:
+                    a_tag = item.find('a') or item.find_parent('a') if item.name in ['h2', 'h3'] else item
+                    if a_tag:
+                        val = a_tag.get('href', '')
+                        if val:
+                            href = re.sub(r'\s+', '', val)
+                            parent = a_tag.find_parent()
+                            block_text = (a_tag.get_text() + ' ' + (parent.get_text() if parent else '')).lower()
+                            
+                            if any(keyword in block_text or keyword in href.lower() for keyword in ['patrocinado', 'concurso', 'publirreportaje']):
+                                continue
+                                
+                            classes = ' '.join(a_tag.get('class', []))
+                            if parent:
+                                classes += ' ' + ' '.join(parent.get('class', []))
+                            if 'patro-new' in classes or 'patrocinado' in classes:
+                                continue
+                                
+                            full_url = self._normalize_url(f"https://www.gasteizhoy.com{href}" if not href.startswith("http") else href)
+                            
+                            if full_url not in links_data:
+                                links_data[full_url] = {'url': full_url}
+        except Exception as e:
+            print(f"Error scrapeando portada de Gasteiz Hoy: {e}")
+
+        links_to_process = [url for url in links_data.keys() if url not in self.history]
+        
+        for url in links_to_process[:30]:
+            data = self._extract_gasteiz_hoy_detail(links_data[url])
+            if data:
+                self.news_data.append(data)
+                self.history.add(url)
+            time.sleep(1)
+
+    def _extract_gasteiz_hoy_detail(self, link_info):
+        url = link_info['url']
         try:
             res = self.scraper.get(url, headers=self.headers, timeout=10)
-            soup = BeautifulSoup(res.text, 'html.parser')
             
-            h1 = soup.find('h1')
-            title = h1.get_text().strip() if h1 else soup.title.string.split('|')[0].strip()
-            
-            p_tags = soup.select('div.entry-content p, article p, div.contenido p, main p')
-            if not p_tags:
-                p_tags = soup.find_all('p')
-            body = self._clean_article_body(p_tags)
+            if res.status_code == 200:
+                soup = BeautifulSoup(res.text, 'html.parser')
+                h1 = soup.find('h1')
+                title = h1.get_text().strip() if h1 else soup.title.string.split('|')[0].strip()
+                
+                p_tags = soup.select('div.entry-content p, article p, div.contenido p, main p')
+                if not p_tags:
+                    p_tags = soup.find_all('p')
+                body = self._clean_article_body(p_tags)
+                
+                date_tag = soup.find('span', class_='published')
+                meta_date = soup.find('meta', property='article:published_time')
+                date_tag_time = soup.find('time')
+                
+                if meta_date and meta_date.get('content'):
+                    date = meta_date['content']
+                elif date_tag and date_tag.get('title'):
+                    date = self._parse_spanish_date(date_tag['title'])
+                else:
+                    date = date_tag_time['datetime'] if date_tag_time else datetime.now().isoformat()
+                    
+                image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
+            else:
+                # Fallback to RSS data if blocked
+                if not link_info.get('title') or not link_info.get('body_html'):
+                    print(f"GH Error {res.status_code} en {url} y sin datos RSS de respaldo.")
+                    return None
+                    
+                print(f"GH Error {res.status_code} en {url}, usando datos de RSS como respaldo.")
+                title = link_info['title']
+                soup_rss = BeautifulSoup(link_info['body_html'], 'html.parser')
+                p_tags = soup_rss.find_all('p')
+                body = self._clean_article_body(p_tags)
+                if not body:
+                    body = soup_rss.get_text()[:2000] # Limitar texto en caso de fallo
+                    
+                try:
+                    date = parsedate_to_datetime(link_info['date_str']).isoformat()
+                except:
+                    date = datetime.now().isoformat()
+                    
+                img_tag = soup_rss.find('img')
+                image_url = self._get_ddg_proxy_url(img_tag['src']) if img_tag and img_tag.get('src') else None
+
             if not body or "patrocinado" in title.lower() or "patrocinado" in body.lower(): 
                 return None
-            
-            # Intentar extraer fecha del span.published (nuevo formato) o de time tag
-            date_tag = soup.find('span', class_='published')
-            if date_tag and date_tag.get('title'):
-                date = self._parse_spanish_date(date_tag['title'])
-            else:
-                date_tag_time = soup.find('time')
-                date = date_tag_time['datetime'] if date_tag_time else datetime.now().isoformat()
             
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
-            # Usar imagen original envuelta en proxy de DuckDuckGo
-            image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
-
             title_rw, body_rw = rewrite_article(title, body)
             time.sleep(1)
             title_eu, body_eu = translate_to_euskara(title_rw or title, body_rw or body)
@@ -385,7 +423,8 @@ class MultiScraper:
                 'category': category,
                 'lang': 'es'
             }
-        except:
+        except Exception as e:
+            print(f"Excepción en GH {url}: {e}")
             return None
 
     def _parse_spanish_date(self, date_str):

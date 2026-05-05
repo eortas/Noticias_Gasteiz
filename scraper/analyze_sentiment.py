@@ -1,6 +1,7 @@
 import re
 import os
 import json
+import time
 from groq import Groq
 
 # Fallback basic dictionaries
