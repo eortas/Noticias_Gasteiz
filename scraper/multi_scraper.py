@@ -347,6 +347,11 @@ class MultiScraper:
 
     def _extract_gasteiz_hoy_detail(self, link_info):
         url = link_info['url']
+        body = None
+        title = None
+        date = None
+        image_url = None
+        
         try:
             res = self.scraper.get(url, headers=self.headers, timeout=10)
             
@@ -373,30 +378,33 @@ class MultiScraper:
                     
                 image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
             else:
-                # Fallback to RSS data if blocked
-                if not link_info.get('title') or not link_info.get('body_html'):
-                    print(f"GH Error {res.status_code} en {url} y sin datos RSS de respaldo.")
-                    return None
-                    
-                print(f"GH Error {res.status_code} en {url}, usando datos de RSS como respaldo.")
-                title = link_info['title']
-                soup_rss = BeautifulSoup(link_info['body_html'], 'html.parser')
-                p_tags = soup_rss.find_all('p')
-                body = self._clean_article_body(p_tags)
-                if not body:
-                    body = soup_rss.get_text()[:2000] # Limitar texto en caso de fallo
-                    
-                try:
-                    date = parsedate_to_datetime(link_info['date_str']).isoformat()
-                except:
-                    date = datetime.now().isoformat()
-                    
-                img_tag = soup_rss.find('img')
-                image_url = self._get_ddg_proxy_url(img_tag['src']) if img_tag and img_tag.get('src') else None
-
-            if not body or "patrocinado" in title.lower() or "patrocinado" in body.lower(): 
+                raise Exception(f"Status code {res.status_code}")
+                
+        except Exception as e:
+            print(f"Excepción obteniendo HTML de GH {url}: {e}. Usando fallback RSS.")
+            if not link_info.get('title') or not link_info.get('body_html'):
+                print(f"GH Error en {url} y sin datos RSS de respaldo.")
                 return None
-            
+                
+            title = link_info['title']
+            soup_rss = BeautifulSoup(link_info['body_html'], 'html.parser')
+            p_tags = soup_rss.find_all('p')
+            body = self._clean_article_body(p_tags)
+            if not body:
+                body = soup_rss.get_text()[:2000] # Limitar texto en caso de fallo
+                
+            try:
+                date = parsedate_to_datetime(link_info['date_str']).isoformat()
+            except:
+                date = datetime.now().isoformat()
+                
+            img_tag = soup_rss.find('img')
+            image_url = self._get_ddg_proxy_url(img_tag['src']) if img_tag and img_tag.get('src') else None
+
+        if not body or "patrocinado" in title.lower() or "patrocinado" in body.lower(): 
+            return None
+        
+        try:
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
@@ -424,7 +432,7 @@ class MultiScraper:
                 'lang': 'es'
             }
         except Exception as e:
-            print(f"Excepción en GH {url}: {e}")
+            print(f"Excepción en procesamiento IA para GH {url}: {e}")
             return None
 
     def _parse_spanish_date(self, date_str):
