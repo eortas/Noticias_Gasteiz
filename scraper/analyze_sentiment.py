@@ -267,8 +267,16 @@ def _rewrite_chunk(text, type_label):
             client = Groq(api_key=api_key)
 
             json_key = "title_rewritten" if type_label == "TÍTULO" else "body_rewritten"
-            system_prompt = f"""Eres un redactor periodístico profesional de Vitoria-Gasteiz. Reescribe este {type_label} manteniendo la máxima fidelidad y detalle. 
-            NO RESUMAS. Íntegramente en CASTELLANO. 
+            system_prompt = f"""Eres un redactor jefe de un periódico de Vitoria-Gasteiz con un estilo dinámico y moderno. 
+            Tu tarea es REESCRIBIR este {type_label} para que sea original y diferente al original, evitando el plagio pero manteniendo todos los datos, nombres, cifras y hechos reales.
+            
+            REGLAS CRÍTICAS:
+            1. Cambia la estructura de las frases y usa sinónimos.
+            2. El tono debe ser periodístico pero fresco.
+            3. NO RESUMAS, mantén toda la información detallada.
+            4. El resultado debe ser ÍNTEGRAMENTE en CASTELLANO.
+            5. Si el original tiene varias frases, no las unas todas en una sola; mantén la riqueza del texto.
+            
             Responde ÚNICAMENTE con el objeto JSON: {{"{json_key}": "..."}}"""
 
             completion = client.chat.completions.create(
@@ -284,7 +292,19 @@ def _rewrite_chunk(text, type_label):
 
             result_str = completion.choices[0].message.content
             data = json.loads(result_str)
-            return data.get(json_key)
+            rewritten = data.get(json_key)
+            
+            # Si el texto es prácticamente idéntico (poca variación), intentamos forzar más cambio en un reintento
+            if rewritten and attempt == 0 and len(text) > 50:
+                words_orig = set(re.findall(r'\w+', text.lower()))
+                words_rw = set(re.findall(r'\w+', rewritten.lower()))
+                if len(words_orig) > 0:
+                    overlap = len(words_orig & words_rw) / len(words_orig)
+                    if overlap > 0.85:
+                        print(f"      ! Reescritura demasiado similar (overlap {overlap:.2f}), reintentando...")
+                        continue 
+
+            return rewritten
         except Exception as e:
             if attempt < max_retries - 1:
                 import time
