@@ -86,10 +86,16 @@ class MultiScraper:
         all_news = existing_news + self.news_data
         
         def parse_date(date_str):
+            if not date_str: 
+                return datetime.min.replace(tzinfo=timezone.utc)
             try:
-                # Handle ISO format with potential Z or offsets
+                # Normalizar formato Z a offset +00:00
                 clean_date = date_str.replace('Z', '+00:00')
-                return datetime.fromisoformat(clean_date)
+                dt = datetime.fromisoformat(clean_date)
+                # Si es "naive" (sin zona horaria), asumimos UTC+2 (España verano)
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone(timedelta(hours=2)))
+                return dt
             except:
                 return datetime.min.replace(tzinfo=timezone.utc)
 
@@ -137,14 +143,14 @@ class MultiScraper:
             if img_url: seen_images.add(img_url)
             if title_prefix: seen_titles.add(title_prefix)
 
-        # Filtro "HOY Y AYER"
+        # Filtro "HOY Y AYER" (con margen de seguridad de 3 días para evitar problemas de TZ)
         now = datetime.now(timezone.utc)
-        yesterday_start = (now - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+        limit_date = (now - timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
         
         latest_news = []
         for item in unique_news:
-            item_date = parse_date(item.get('date', ''))
-            if item_date >= yesterday_start:
+            item_dt = parse_date(item.get('date', ''))
+            if item_dt >= limit_date:
                 latest_news.append(item)
         
         # Cap de seguridad opcional

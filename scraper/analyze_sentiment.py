@@ -267,15 +267,17 @@ def _rewrite_chunk(text, type_label):
             client = Groq(api_key=api_key)
 
             json_key = "title_rewritten" if type_label == "TÍTULO" else "body_rewritten"
-            system_prompt = f"""Eres un redactor jefe de un periódico de Vitoria-Gasteiz con un estilo dinámico y moderno. 
-            Tu tarea es REESCRIBIR este {type_label} para que sea original y diferente al original, evitando el plagio pero manteniendo todos los datos, nombres, cifras y hechos reales.
+            system_prompt = f"""Eres el Jefe de Redacción de un diario líder en Vitoria-Gasteiz. 
+            Tu misión es REESCRIBIR por completo este {type_label}. 
             
-            REGLAS CRÍTICAS:
-            1. Cambia la estructura de las frases y usa sinónimos.
-            2. El tono debe ser periodístico pero fresco.
-            3. NO RESUMAS, mantén toda la información detallada.
-            4. El resultado debe ser ÍNTEGRAMENTE en CASTELLANO.
-            5. Si el original tiene varias frases, no las unas todas en una sola; mantén la riqueza del texto.
+            OBJETIVO: El lector no debe reconocer la fuente original, pero debe recibir exactamente la misma información fáctica (datos, nombres propios, cifras, cargos).
+            
+            ESTILO:
+            - Periodismo de alta calidad, directo y profesional.
+            - Cambia el orden de los párrafos si es necesario.
+            - Usa un vocabulario rico, evita las muletillas del original.
+            - Si el original es pasivo, usa voz activa.
+            - ÍNTEGRAMENTE EN CASTELLANO.
             
             Responde ÚNICAMENTE con el objeto JSON: {{"{json_key}": "..."}}"""
 
@@ -285,7 +287,7 @@ def _rewrite_chunk(text, type_label):
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": text}
                 ],
-                temperature=0.2,
+                temperature=0.7,
                 max_tokens=3000,
                 response_format={"type": "json_object"}
             )
@@ -300,8 +302,8 @@ def _rewrite_chunk(text, type_label):
                 words_rw = set(re.findall(r'\w+', rewritten.lower()))
                 if len(words_orig) > 0:
                     overlap = len(words_orig & words_rw) / len(words_orig)
-                    if overlap > 0.85:
-                        print(f"      ! Reescritura demasiado similar (overlap {overlap:.2f}), reintentando...")
+                    if overlap > 0.75:
+                        print(f"      ! Reescritura demasiado similar (overlap {overlap:.2f}), forzando mayor creatividad...")
                         continue 
 
             return rewritten
