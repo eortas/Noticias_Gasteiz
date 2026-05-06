@@ -4,10 +4,27 @@ from bs4 import BeautifulSoup
 import time
 
 # Configuración de la página
-st.set_page_config(page_title="Extractor de El Correo", page_icon="📰", layout="wide")
+st.set_page_config(page_title="Extractor de El Correo", page_icon="📰", layout="centered")
 
-st.title("📰 Extractor Manual de El Correo")
-st.markdown("Pega un enlace de El Correo para intentar extraer su contenido íntegro saltando el muro de pago visual.")
+# Estilos personalizados para mejorar la lectura
+st.markdown("""
+    <style>
+    .main .block-container {
+        max-width: 800px;
+        padding-top: 2rem;
+    }
+    .stMarkdown p {
+        font-size: 1.2rem !important;
+        line-height: 1.6 !important;
+        color: #333;
+    }
+    h1 {
+        font-size: 2.5rem !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+st.title("📰 Extractor de El Correo")
 
 # Función de extracción (la misma que manual_parse.py pero adaptada a Streamlit)
 def extract_content(url):
