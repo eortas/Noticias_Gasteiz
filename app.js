@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btn-es').classList.toggle('active', currentLang === 'es');
         document.getElementById('btn-eu').classList.toggle('active', currentLang === 'eu');
         document.getElementById('btn-pl').classList.toggle('active', currentLang === 'pl');
-        
+
         const subtitle = document.getElementById('subtitle-text');
         const moodTitle = document.getElementById('mood-title');
         const backBtnText = document.getElementById('back-btn-text');
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             todayStr = new Date().toLocaleDateString(currentLocale, { day: '2-digit', month: 'long' });
         }
-        
+
         if (liveUpdateBadge) {
             liveUpdateBadge.innerHTML = `<span class="ping"></span><span class="dot"></span>Live Update • ${todayStr.toUpperCase()}`;
         }
@@ -63,17 +63,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Podcast translations
         const podcastTitle = document.querySelector('.podcast-title');
-        const podcastSubtitle = document.querySelector('.podcast-subtitle');
-        if (podcastTitle && podcastSubtitle) {
+        if (podcastTitle) {
             if (currentLang === 'eu') {
                 podcastTitle.textContent = 'Eguneko Audio Laburpena';
-                podcastSubtitle.textContent = 'Entzun Gasteizko berriak 2 minututan';
             } else if (currentLang === 'pl') {
                 podcastTitle.textContent = 'Codzienne Podsumowanie Audio';
-                podcastSubtitle.textContent = 'Posłuchaj wiadomości z Vitoria-Gasteiz w 2 minuty';
             } else {
                 podcastTitle.textContent = 'Audio Resumen Diario';
-                podcastSubtitle.textContent = 'Escucha las noticias de Vitoria-Gasteiz en 2 minutos';
             }
         }
         updatePodcastPlayer();
@@ -100,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             newsGrid.innerHTML = '<p style="color:var(--text-muted); font-weight:300;">Error cargando las narrativas. Asegúrate de haber ejecutado el scraper.</p>';
         }
-        
+
         if (moodHistoryData && moodHistoryData.length > 0) {
             renderMoodWidget(moodHistoryData);
         }
@@ -108,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderStats() {
         if (!newsData || newsData.length === 0) return;
-        
+
         const total = newsData.length;
         const positivas = newsData.filter(n => n.sentiment === 'positiva').length;
         const negativas = newsData.filter(n => n.sentiment === 'negativa').length;
@@ -186,11 +182,11 @@ document.addEventListener('DOMContentLoaded', () => {
         newsData.sort((a, b) => {
             const aRead = readIds.includes(a.id);
             const bRead = readIds.includes(b.id);
-            
+
             // Si uno está leído y el otro no, el leído va al final
             if (aRead && !bRead) return 1;
             if (!aRead && bRead) return -1;
-            
+
             // Si ambos están en el mismo estado, mantener orden por fecha (descendente)
             return new Date(b.date) - new Date(a.date);
         });
@@ -205,8 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
-        
-        const filteredData = currentFilter 
+
+        const filteredData = currentFilter
             ? newsData.filter(item => item.sentiment === currentFilter)
             : newsData;
 
@@ -289,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Render Detail
         const sentimentColorClass = item.sentiment === 'positiva' ? 'text-emerald' : (item.sentiment === 'negativa' ? 'text-rose' : 'text-muted');
-        
+
         const isEu = currentLang === 'eu';
         const isPl = currentLang === 'pl';
         const displayTitle = (isEu && item.title_eu) ? item.title_eu : (isPl && item.title_pl ? item.title_pl : item.title);
@@ -361,18 +357,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderMoodWidget(history) {
         const widget = document.getElementById('mood-widget-container');
         if (!widget) return;
-        
+
         widget.style.display = 'block';
-        
+
         const todayMood = history[history.length - 1];
-        const score = todayMood.score; 
-        
+        const score = todayMood.score;
+
         const moodTextEl = document.getElementById('mood-text');
         const moodMarkerEl = document.getElementById('mood-marker');
-        
+
         let emoji = '😐';
         let text = currentLang === 'eu' ? 'Gasteiz neutroa da' : (currentLang === 'pl' ? 'Vitoria jest neutralna' : 'Vitoria está neutral');
-        
+
         if (score > 0.3) {
             emoji = '😄';
             text = currentLang === 'eu' ? 'Gasteiz umore bikainean dago' : (currentLang === 'pl' ? 'Vitoria jest w doskonałym nastroju' : 'Vitoria está de excelente humor');
@@ -386,31 +382,31 @@ document.addEventListener('DOMContentLoaded', () => {
             emoji = '😕';
             text = currentLang === 'eu' ? 'Gasteiz zertxobait goibel dago' : (currentLang === 'pl' ? 'Vitoria jest nieco przygnębiona' : 'Vitoria está algo decaída');
         }
-        
+
         moodTextEl.textContent = `${text} (Score: ${score > 0 ? '+' : ''}${score})`;
         moodMarkerEl.textContent = emoji;
-        
+
         let percent = ((score + 1) / 2) * 100;
         percent = Math.max(5, Math.min(95, percent));
-        
+
         setTimeout(() => {
             moodMarkerEl.style.left = `${percent}%`;
         }, 500);
-        
+
         const chartEl = document.getElementById('mood-history-chart');
         const isMobile = window.innerWidth <= 480;
         const daysToShow = isMobile ? 5 : 7;
         const lastDays = history.slice(-daysToShow);
-        
+
         chartEl.innerHTML = lastDays.map(day => {
             const dayScore = day.score;
             let barColor = 'var(--text-muted)';
             if (dayScore > 0.05) barColor = 'var(--emerald-400)';
             if (dayScore < -0.05) barColor = 'var(--rose-400)';
-            
+
             const absScore = Math.abs(dayScore);
             const heightPct = Math.max(10, absScore * 100);
-            
+
             const locales = { es: 'es-ES', eu: 'eu-ES', pl: 'pl-PL' };
             const date = new Date(day.date);
             let dStr = "";
@@ -419,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 dStr = date.toLocaleDateString(locales[currentLang] || 'es-ES', { day: 'numeric', month: 'short' }).replace('.', '');
             }
-            
+
             return `
                 <div class="history-bar-col" title="${day.date}: ${dayScore}">
                     <div class="history-bar" style="height: ${heightPct}%; background-color: ${barColor}"></div>
@@ -435,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Usamos el slug de Anchor que es más fiable para obtenerlo del RSS
         const slug = currentLang === 'eu' ? podcastData.eu_slug : podcastData.es_slug;
-        
+
         if (slug) {
             // El formato de embed de Anchor es muy compatible y estable
             const newSrc = `https://anchor.fm/eduardo-armentia/embed/episodes/${slug}`;
