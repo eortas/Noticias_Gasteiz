@@ -377,9 +377,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
         
         const chartEl = document.getElementById('mood-history-chart');
-        const last7 = history.slice(-7);
+        const isMobile = window.innerWidth <= 480;
+        const daysToShow = isMobile ? 5 : 7;
+        const lastDays = history.slice(-daysToShow);
         
-        chartEl.innerHTML = last7.map(day => {
+        chartEl.innerHTML = lastDays.map(day => {
             const dayScore = day.score;
             let barColor = 'var(--text-muted)';
             if (dayScore > 0.05) barColor = 'var(--emerald-400)';
