@@ -95,5 +95,3 @@ if st.button("Extraer Noticia") or url_input:
             st.error(f"No se pudo extraer la noticia. Detalle: {body}")
     elif url_input:
         st.error("Por favor, introduce una URL válida.")
-
-st.sidebar.info("Este script utiliza simulación de Googlebot para intentar evadir el muro de pago de El Correo.")
