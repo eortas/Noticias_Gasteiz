@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/api/extract", "destination": "/api/extract.py" }
+  ]
+}

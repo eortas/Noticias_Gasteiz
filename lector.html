@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adios Muro de Pago</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --accent-color: #2563eb;
+            --font-main: 'Outfit', sans-serif;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            line-height: 1.8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 800px;
+            margin: 50px auto;
+        }
+
+        h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 45px;
+            color: #0f172a;
+            letter-spacing: -1px;
+        }
+
+        .search-box {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 50px;
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            border: none;
+            padding: 15px 25px;
+            background: #f1f5f9;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            outline: none;
+            color: var(--text-color);
+        }
+
+        button {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0 35px;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.2);
+        }
+
+        #content {
+            background: var(--card-bg);
+            padding: 70px;
+            border-radius: 30px;
+            border: 1px solid var(--border-color);
+            display: none;
+            box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.05);
+            animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .article-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 40px;
+            color: #0f172a;
+        }
+
+        .article-body {
+            font-size: 1.5rem;
+            color: #334155;
+            text-align: justify;
+        }
+
+        .paragraph {
+            margin-bottom: 35px;
+        }
+
+        .loading {
+            text-align: center;
+            display: none;
+            margin: 30px;
+            font-weight: 700;
+            color: var(--accent-color);
+            font-size: 1.2rem;
+        }
+
+        .error-msg {
+            color: #b91c1c;
+            text-align: center;
+            padding: 20px;
+            background: #fee2e2;
+            border-radius: 15px;
+            display: none;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .footer {
+            margin-top: auto;
+            padding: 60px;
+            color: #94a3b8;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Lector de noticias</h1>
+
+        <div class="search-box">
+            <input type="url" id="newsUrl" placeholder="Pega el enlace de la noticia aquí..." required>
+            <button id="extractBtn" onclick="extractNews()">Extraer</button>
+        </div>
+
+        <div id="loading" class="loading">Desbloqueando noticia...</div>
+        <div id="error" class="error-msg"></div>
+
+        <div id="content">
+            <div id="title" class="article-title"></div>
+            <div id="body" class="article-body"></div>
+        </div>
+    </div>
+
+    <div class="footer">MADE WITH LOVE BY E.O.A</div>
+
+    <script>
+        async function extractNews() {
+            const urlInput = document.getElementById('newsUrl').value.trim();
+            const btn = document.getElementById('extractBtn');
+            const contentDiv = document.getElementById('content');
+            const loadingDiv = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+
+            if (!urlInput) return;
+
+            btn.disabled = true;
+            contentDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+            loadingDiv.style.display = 'block';
+
+            try {
+                // Llamada a la API Serverless de Vercel
+                const response = await fetch('/api/extract?url=' + encodeURIComponent(urlInput));
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+
+                document.getElementById('title').innerText = data.title;
+                document.getElementById('body').innerHTML = data.paragraphs
+                    .map(text => `<div class="paragraph">${text}</div>`)
+                    .join('');
+
+                contentDiv.style.display = 'block';
+                window.scrollTo({ top: contentDiv.offsetTop - 50, behavior: 'smooth' });
+
+            } catch (err) {
+                errorDiv.innerText = "Error: " + err.message;
+                errorDiv.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                loadingDiv.style.display = 'none';
+            }
+        }
+    </script>
+
+</body>
+
+</html>
