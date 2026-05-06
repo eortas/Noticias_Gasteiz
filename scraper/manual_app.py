@@ -16,7 +16,7 @@ st.markdown("""
     .stMarkdown p {
         font-size: 1.4rem !important;
         line-height: 1.6 !important;
-        color: #333;
+        font-weight: 400 !important;
     }
     h1 {
         font-size: 2.5rem !important;
