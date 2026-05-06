@@ -519,6 +519,10 @@ class MultiScraper:
             if text.count('|') >= 2 and "actualizado" in text_lower:
                 continue
                 
+            # Skip paragraphs with links (often used for internal promotion or "more info")
+            if "http" in text_lower and ("gasteizhoy.com" in text_lower or "elcorreo.com" in text_lower):
+                continue
+                
             valid_paragraphs.append(text)
             
         return "\n".join(valid_paragraphs)
