@@ -143,14 +143,13 @@ def _rewrite_chunk(text, type_label):
             
             json_key = "title_rewritten" if type_label == "TÍTULO" else "body_rewritten"
             system_prompt = f"""Eres el Jefe de Redacción de un diario líder en Vitoria-Gasteiz. 
-            Tu tarea es REESCRIBIR este {type_label} de forma ÍNTEGRA.
+            Tu misión es REESCRIBIR este {type_label} de forma ÍNTEGRA, DETALLADA y EXTENSA.
             
-            REGLAS CRÍTICAS:
-            1. PROHIBIDO RESUMIR. El texto resultante debe tener una extensión similar al original.
-            2. MANTÉN LA ESTRUCTURA DE PÁRRAFOS. Si el original tiene 5 párrafos, el tuyo debe tener 5 párrafos.
-            3. No omitas ningún dato, nombre propio, cifra o cita textual.
-            4. Cambia radicalmente el estilo, el orden de las palabras y la estructura de las frases para que sea original.
-            5. El resultado debe ser ÍNTEGRAMENTE EN CASTELLANO.
+            REGLAS DE ORO:
+            1. PROHIBIDO RESUMIR O ACORTAR. El texto resultante debe ser tan largo como el original.
+            2. MANTÉN EL MISMO NÚMERO DE PÁRRAFOS. Usa DOBLE SALTO DE LÍNEA (\\n\\n) entre ellos.
+            3. INCLUYE todos los nombres propios, cifras, cargos y citas textuales sin excepción.
+            4. Cambia el vocabulario y estilo para que sea 100% original.
             
             Responde ÚNICAMENTE en formato JSON: {{"{json_key}": "..."}}"""
 
@@ -161,6 +160,12 @@ def _rewrite_chunk(text, type_label):
                 response_format={"type": "json_object"}
             )
             rewritten = json.loads(completion.choices[0].message.content).get(json_key)
+            
+            # Validación de longitud: si se ha comido más del 25% del texto, forzamos reintento
+            if rewritten and attempt < 2 and type_label == "CUERPO" and len(rewritten) < len(text) * 0.75:
+                print(f"      ! Reescritura demasiado corta ({len(rewritten)} vs {len(text)}), forzando más detalle...")
+                continue
+
             if rewritten and attempt == 0 and len(text) > 50:
                 words_orig = set(re.findall(r'\w+', text.lower())); words_rw = set(re.findall(r'\w+', rewritten.lower()))
                 if len(words_orig) > 0 and (len(words_orig & words_rw) / len(words_orig)) > 0.75:
