@@ -14,7 +14,7 @@ st.markdown("""
         padding-top: 2rem;
     }
     .stMarkdown p {
-        font-size: 1.2rem !important;
+        font-size: 1.4rem !important;
         line-height: 1.6 !important;
         color: #333;
     }
