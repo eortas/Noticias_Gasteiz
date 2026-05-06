@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let newsData = [];
     let moodHistoryData = [];
+    let podcastData = null;
     let currentFilter = null;
     let currentLang = localStorage.getItem('vitoria_lang') || 'es';
     const READ_ARTICLES_KEY = 'vitoria_read_articles';
@@ -75,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 podcastSubtitle.textContent = 'Escucha las noticias de Vitoria-Gasteiz en 2 minutos';
             }
         }
+        updatePodcastPlayer();
     }
     applyLangUI();
 
@@ -84,10 +86,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load Data
     Promise.all([
         fetch('data/news.json').then(res => res.json()).catch(() => []),
-        fetch('data/mood_history.json').then(res => res.json()).catch(() => [])
-    ]).then(([news, moodHistory]) => {
+        fetch('data/mood_history.json').then(res => res.json()).catch(() => []),
+        fetch('data/podcast.json').then(res => res.json()).catch(() => null)
+    ]).then(([news, moodHistory, podcast]) => {
         newsData = news;
         moodHistoryData = moodHistory;
+        podcastData = podcast;
+        updatePodcastPlayer();
         if (newsData.length > 0) {
             sortNewsByReadState();
             renderStats();
@@ -422,6 +427,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
         }).join('');
+    }
+
+    function updatePodcastPlayer() {
+        const iframe = document.querySelector('.spotify-embed iframe');
+        if (!iframe || !podcastData) return;
+
+        // Usamos el episodio de Euskara si el idioma es EU, de lo contrario Castellano (también para PL por ahora)
+        const episodeId = currentLang === 'eu' ? podcastData.eu : podcastData.es;
+        
+        if (episodeId) {
+            const newSrc = `https://open.spotify.com/embed/episode/${episodeId}?utm_source=generator&theme=0`;
+            const currentSrc = iframe.getAttribute('src');
+            if (!currentSrc || !currentSrc.includes(episodeId)) {
+                iframe.setAttribute('src', newSrc);
+            }
+        }
     }
 });
 
