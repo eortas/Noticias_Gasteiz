@@ -111,8 +111,11 @@ class MultiScraper:
             if not title or not url:
                 continue
                 
-            # 1. Filtro 'EN DIRECTO'
+            # 1. Filtro 'EN DIRECTO' y contenido no deseado
             if any(x in title.upper() or x in body.upper() for x in ["EN DIRECTO", "ZUZENEAN"]):
+                continue
+                
+            if "viñeta de cerrajería" in title.lower():
                 continue
 
             # 2. Misma URL exacta

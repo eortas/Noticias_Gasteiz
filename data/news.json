@@ -272,23 +272,6 @@
     "lang": "es"
   },
   {
-    "id": "0c67eab813",
-    "source": "El Correo",
-    "url": "https://www.elcorreo.com/alava/araba/vineta-cerrajeria-sobre-autobuses-foronda-20260506194908-nt.html",
-    "title": "La viñeta de Cerrajería sobre los autobuses a Foronda",
-    "title_eu": "Cerrajería burdinaaren xehetasuna Forondara doan autobusetan",
-    "title_pl": "Wkładka ślusarska o autobusach do Forondy",
-    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s3.ppllstatics.com/elcorreo/www/multimedia/2026/05/05/tira.jpg",
-    "body": "Mercadona devolverá dinero por el retorno de botellas y latas en 72 de sus supermercados\nLa pescadería de Mercadona cambia para siempre: así es el nuevo modelo de la cadena\nUn interno de Dueñas «fuera de sí» rompe el menisco a un funcionario en un forcejeo\nUna mujer recibirá 125.000 euros de indemnización tras comprar un local ilegal que se había registrado en el catastro\nUna mujer y su bebé caen por un agujero de tres metros tras ceder un calado en Entrena",
-    "body_eu": "Mercadona diruaren itzulera egingo du botilak eta latak 72 supermerkatuetan itzultzeagatik. Mercadonako arrandegia betiko aldatu da: honela da katearen berria. Dueñasko barneko langile bat «bere buruaz kanpo» menisko bat apurtu zion funtzionario bati borroka batean. Emakume bati 125.000 euroko kalte-ordaina eman ko diote legez kanpoko lokal bat erostean, katastroan erregistratuta zegoena. Emakume bat eta haren umea hiru metroko zulo batean erori ziren Entrenan, oin-hobia hondatu ondoren.",
-    "body_pl": "Mercadona zwróci pieniądze za zwrot butelek i puszek w 72 swoich supermarketach, Rynek rybny Mercadony zmienia się na zawsze: oto nowy model sieci, Wewnętrzny pracownik Dueñas \"poza sobą\" uszkadza menisk funkcjonariuszowi podczas szarpaniny, Kobieta otrzyma 125 000 euro odszkodowania po zakupie nielegalnego lokalu, który został zarejestrowany w katastrze, Kobieta i jej niemowlę spadają przez trzymetrową dziurę po ugięciu się podłogi w Entrena",
-    "date": "2026-05-06T00:09:23+02:00",
-    "sentiment": "neutral",
-    "score": 0.0,
-    "category": "Sociedad",
-    "lang": "es"
-  },
-  {
     "id": "b65fd332f5",
     "source": "El Correo",
     "url": "https://www.elcorreo.com/alava/araba/moda-pone-punto-raya-vitoria-20260505211954-nt.html",
@@ -931,23 +914,6 @@
     "date": "2026-05-05T00:07:37+02:00",
     "sentiment": "neutral",
     "score": 0.0,
-    "category": "Sociedad",
-    "lang": "es"
-  },
-  {
-    "id": "b3b1912a1d",
-    "source": "El Correo",
-    "url": "https://www.elcorreo.com/alava/araba/vineta-cerrajeria-sobre-retirada-ayuda-domicilio-vitoria-20260505215016-nt.html",
-    "title": "La viñeta de Cerrajería sobre la retirada de la ayuda a domicilio en Vitoria",
-    "title_eu": "Cerrajeríaaren xedeatzea laguntza etxekoaren kentzearen gainean Gasteizen",
-    "title_pl": "Wkładka ślusarska o wycofaniu pomocy domowej w Vitorii",
-    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s1.ppllstatics.com/elcorreo/www/multimedia/2026/05/04/tira.jpg",
-    "body": "Un interno de Dueñas «fuera de sí» rompe el menisco a un funcionario en un forcejeo. \n   Una mujer recibirá 125.000 euros de indemnización tras comprar un local ilegal que se había registrado en el catastro. \n   ¿Pueden las aerolíneas aplicar un recargo por combustible a billetes ya confirmados? \n   El bar de las escaleras de la Riojana reclama 3.000 euros por cerrar y culpa al ascensor de la Gran Vía. \n   Dos pueblos de Cádiz se van de feria esta semana: habrá casetas, sevillanas y la mejor gastronomía de la provincia.",
-    "body_eu": "Dueñaseko preso bat «bere buruaz kanpo» menisko bat apurtu zion funtzionario bati borroka batean. \n   Emakume batek 125.000 euroko konpentsazioa jaso du legez kanpoko lokal bat erostean, katastroan erregistratuta zegoena. \n   Aire-konpainiek erregaiaren gainkarga aplikatu dezakete jada baieztatutako hegaldientzat? \n   La Riojanako eskaileren tabernak 3.000 euroko kalte-ordaina eskatzen du itxita egoteagatik eta Gran Vía-ko igogailuari leporatzen dio. \n   Cádizko bi herri ferian joan dira aste honetan: barrakak, sevillanak eta probintziako gastronomia onena izango dira.",
-    "body_pl": "Wewnętrzny konflikt w Dueñas: „poza sobą” porywa menisk funkcjonariusza w czasie szarpaniny. Kobieta otrzyma 125 000 euro odszkodowania po zakupie nielegalnego lokalu, który został zarejestrowany w katastrze. Czy linie lotnicze mogą naliczać opłatę za paliwo za już potwierdzone bilety? Bar ze schodów w Riojanie żąda 3 000 euro za zamknięcie i obwinił windę z Gran Vía. Dwa miasta w Cádiz opuszczają targi w tym tygodniu: będą bude i sevillany oraz najlepsza kuchnia w prowincji.",
-    "date": "2026-05-04T21:50:19+02:00",
-    "sentiment": "positiva",
-    "score": 1.0,
     "category": "Sociedad",
     "lang": "es"
   },
