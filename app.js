@@ -442,6 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentSrc = iframe.getAttribute('src');
             if (!currentSrc || !currentSrc.includes(slug)) {
                 iframe.setAttribute('src', newSrc);
+                iframe.setAttribute('scrolling', 'no'); // Evitar scrollbar
             }
         }
     }

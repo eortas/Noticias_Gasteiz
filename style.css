@@ -319,7 +319,12 @@ body {
     width: 100%;
     border-radius: 1.5rem;
     overflow: hidden;
-    height: 102px;
+    height: 161px; /* Altura exacta para que no salga scroll en Anchor */
+}
+
+.spotify-embed iframe {
+    display: block;
+    border: none;
 }
 
 @media (max-width: 480px) {
