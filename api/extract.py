@@ -31,18 +31,40 @@ class handler(BaseHTTPRequestHandler):
             title = title_match.group(1) if title_match else "Noticia"
             title = re.sub('<.*?>', '', title).strip()
 
-            # Extraer Párrafos y Limpiar
-            p_matches = re.findall(r'<p.*?>(.*?)</p>', html, re.DOTALL)
+            # Extraer Párrafos y Limpiar (Soporte Vocento: El Correo, Diario Vasco)
             paragraphs = []
-            blacklist = ["©", "todos los derechos reservados", "vídeo es exclusivo", "disfruta de acceso", "inicia sesión", "temas", "comentarios", "suscríbete"]
             
-            for p in p_matches:
-                text = re.sub('<.*?>', '', p).strip()
-                if len(text) > 40 and not any(b.lower() in text.lower() for b in blacklist):
-                    # Filtro de puntos finales
-                    if not re.search(r'[.!?]$', text) and len(text.split()) < 20:
-                        continue
-                    paragraphs.append(text)
+            # Intento 1: Extraer desde el JSON-LD (articleBody) que Googlebot recibe entero
+            ld_jsons = re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.DOTALL)
+            for ld in ld_jsons:
+                try:
+                    data = json.loads(ld)
+                    if isinstance(data, list):
+                        for item in data:
+                            if isinstance(item, dict) and 'articleBody' in item:
+                                paragraphs.extend(item['articleBody'].split('\n'))
+                    elif isinstance(data, dict):
+                        if 'articleBody' in data:
+                            paragraphs.extend(data['articleBody'].split('\n'))
+                except:
+                    pass
+
+            # Intento 2: Parsing HTML tradicional si no hay JSON-LD
+            if not paragraphs:
+                # Buscar tags con la clase específica de Vocento o <p> estándar
+                p_matches = re.findall(r'<(?:p|div)[^>]*class="[^"]*voc-p[^"]*"[^>]*>(.*?)</(?:p|div)>', html, re.DOTALL)
+                if not p_matches:
+                    p_matches = re.findall(r'<p.*?>(.*?)</p>', html, re.DOTALL)
+                
+                blacklist = ["©", "todos los derechos reservados", "vídeo es exclusivo", "disfruta de acceso", "inicia sesión", "temas", "comentarios", "suscríbete", "iniciar sesión"]
+                for p in p_matches:
+                    text = re.sub('<.*?>', '', p).strip()
+                    if len(text) > 40 and not any(b.lower() in text.lower() for b in blacklist):
+                        if not re.search(r'[.!?]$', text) and len(text.split()) < 20:
+                            continue
+                        paragraphs.append(text)
+            else:
+                paragraphs = [re.sub('<.*?>', '', p).strip() for p in paragraphs if len(p.strip()) > 30]
 
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
