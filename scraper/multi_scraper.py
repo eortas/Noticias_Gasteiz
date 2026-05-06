@@ -347,20 +347,27 @@ class MultiScraper:
         except: return None
 
     def _clean_article_body(self, p_tags):
-        blacklist = ["©", "todos los derechos reservados", "nexus, la llave en mano", "la pescadería de mercadona", "hacienda vigila", "mercadona devolverá", "de 'got talent'", "un interno de dueñas", "dos pueblos de cádiz", "siete lugares donde antes se fumaba", "los jubilados que cobran", "pueden las aerolíneas", "guardia civil investiga", "casa de 'alto standing'", "mujer recibirá 125.000", "primer periódico digital de vitoria", "noticias vitoria-álava", "aparece primero en gasteiz hoy"]
+        blacklist = [
+            "©", "todos los derechos reservados", "nexus, la llave en mano", "la pescadería de mercadona", 
+            "hacienda vigila", "mercadona devolverá", "de 'got talent'", "un interno de dueñas", 
+            "dos pueblos de cádiz", "siete lugares donde antes se fumaba", "los jubilados que cobran", 
+            "pueden las aerolíneas", "guardia civil investiga", "casa de 'alto standing'", 
+            "mujer recibirá 125.000", "primer periódico digital de vitoria", "noticias vitoria-álava", 
+            "aparece primero en gasteiz hoy", "capilla ardiente de carlos garaikoetxea",
+            "día de la danza 2026", "bailarán por el día", "garaikoetxea en ajuria enea"
+        ]
         valid_paragraphs = []
         for p in p_tags:
-            a_tag = p.find('a')
-            if a_tag:
-                href = a_tag.get('href', '')
-                p_text_clean = p.get_text().strip()
-                if (".html" in href or "gasteizhoy.com/" in href) and len(p_text_clean) < 180:
-                    if len(a_tag.get_text().strip()) > len(p_text_clean) * 0.7: continue
-            text = " ".join(p.get_text().split()).strip()
-            text = re.sub(r'^\d{2}·\d{2}·\d{2}\s*\|\s*\d{2}:\d{2}(\s*\|\s*Actualizado.*?)?', '', text).strip()
-            if len(text) < 40 or any(b in text.lower() for b in blacklist): continue
-            valid_paragraphs.append(text)
-        return "\n".join(valid_paragraphs)
+            text = p.get_text().strip()
+            text_lower = text.lower()
+            
+            # Filtro de longitud mínima y lista negra
+            if len(text) > 25 and not any(phrase in text_lower for phrase in blacklist):
+                # Evitar párrafos que son solo enlaces a otras noticias (suelen ser cortos y sin punto final)
+                if len(text.split()) < 15 and not text.endswith(('.', '!', '?', '"', '»')):
+                    continue
+                valid_paragraphs.append(text)
+        return "\n\n".join(valid_paragraphs)
 
     def _calculate_daily_mood(self):
         try:

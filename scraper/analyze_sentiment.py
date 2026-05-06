@@ -49,12 +49,16 @@ def analyze_sentiment(text):
     max_retries = 3
     for attempt in range(max_retries):
         try:
+            # Pool extendido con todas las llaves del .env
             keys = [
                 os.environ.get("GROQ_REWRITE_2"), os.environ.get("GROQ_REWRITE_3"),
                 os.environ.get("GROQ_REWRITE_KEY"), os.environ.get("groq_KEY"), 
-                os.environ.get("GROQ_API_KEY"), os.environ.get("GROQ_TRANSLATION_KEY")
+                os.environ.get("GROQ_TRANSLATION_KEY"), os.environ.get("GROQ_POLISH_KEY"),
+                os.environ.get("GROQ_EUSKERA2"), os.environ.get("GROQ_POLISH2"),
+                os.environ.get("GROQ_API_KEY")
             ]
             valid_keys = [k for k in keys if k]
+            # Rotación basada en el intento para asegurar que probamos varias si una falla
             api_key = valid_keys[(attempt + int(time.time())) % len(valid_keys)]
             
             client = Groq(api_key=api_key)
@@ -96,13 +100,17 @@ def _translate_chunk(text, type_label, target_lang, json_key):
     max_retries = 3
     for attempt in range(max_retries):
         try:
+            # Pool extendido para traducciones
             keys = [
                 os.environ.get("GROQ_REWRITE_2"), os.environ.get("GROQ_REWRITE_3"),
-                os.environ.get("GROQ_TRANSLATION_KEY"), os.environ.get("GROQ_POLISH_KEY"), 
-                os.environ.get("GROQ_EUSKERA2"), os.environ.get("GROQ_API_KEY")
+                os.environ.get("GROQ_REWRITE_KEY"), os.environ.get("groq_KEY"), 
+                os.environ.get("GROQ_TRANSLATION_KEY"), os.environ.get("GROQ_POLISH_KEY"),
+                os.environ.get("GROQ_EUSKERA2"), os.environ.get("GROQ_POLISH2"),
+                os.environ.get("GROQ_API_KEY")
             ]
             valid_keys = [k for k in keys if k]
             api_key = valid_keys[(attempt + int(time.time())) % len(valid_keys)]
+            
             client = Groq(api_key=api_key)
             
             system_prompt = f"Przetłumacz ten {type_label} na JĘZYK POLSKI. Odpowiedz wyłącznie w formacie JSON: {{\"{json_key}\": \"...\"}}" if "POL" in target_lang else f"Itzuli {type_label} hau EUSKARA. Erantzun JSON FORMATUAN soilik: {{\"{json_key}\": \"...\"}}"
@@ -133,12 +141,17 @@ def _rewrite_chunk(text, type_label):
     max_retries = 3
     for attempt in range(max_retries):
         try:
+            # Pool extendido para reescritura
             keys = [
                 os.environ.get("GROQ_REWRITE_2"), os.environ.get("GROQ_REWRITE_3"),
-                os.environ.get("GROQ_REWRITE_KEY"), os.environ.get("groq_KEY"), os.environ.get("GROQ_API_KEY")
+                os.environ.get("GROQ_REWRITE_KEY"), os.environ.get("groq_KEY"), 
+                os.environ.get("GROQ_TRANSLATION_KEY"), os.environ.get("GROQ_POLISH_KEY"),
+                os.environ.get("GROQ_EUSKERA2"), os.environ.get("GROQ_POLISH2"),
+                os.environ.get("GROQ_API_KEY")
             ]
             valid_keys = [k for k in keys if k]
             api_key = valid_keys[(attempt + int(time.time())) % len(valid_keys)]
+            
             client = Groq(api_key=api_key)
             
             json_key = "title_rewritten" if type_label == "TÍTULO" else "body_rewritten"
