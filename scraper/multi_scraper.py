@@ -228,15 +228,16 @@ class MultiScraper:
             if not body or "patrocinado" in title.lower() or "patrocinado" in body.lower(): 
                 return None
             
-            sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
 
-            title_rw, body_rw = rewrite_article(title, body)
-            time.sleep(1)
-            title_eu, body_eu = translate_to_euskara(title_rw or title, body_rw or body)
-            time.sleep(1)
-            title_pl, body_pl = translate_to_polish(title_rw or title, body_rw or body)
+            # Analyze/Rewrite (DESACTIVADO: Usamos original)
+            # title_rw, body_rw = rewrite_article(title, body)
+            title_rw, body_rw = title, body
+            
+            sentiment, score, category = analyze_sentiment(body)
+            title_eu, body_eu = translate_to_euskara(title, body)
+            title_pl, body_pl = translate_to_polish(title, body)
 
             return {
                 'id': article_id, 'source': 'El Correo', 'url': url,
@@ -328,11 +329,13 @@ class MultiScraper:
         try:
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
-            title_rw, body_rw = rewrite_article(title, body)
-            time.sleep(1)
-            title_eu, body_eu = translate_to_euskara(title_rw or title, body_rw or body)
-            time.sleep(1)
-            title_pl, body_pl = translate_to_polish(title_rw or title, body_rw or body)
+            # Analyze/Rewrite (DESACTIVADO: Usamos original)
+            # title_rw, body_rw = rewrite_article(title, body)
+            title_rw, body_rw = title, body
+            
+            sentiment, score, category = analyze_sentiment(title + " " + body[:500])
+            title_eu, body_eu = translate_to_euskara(title, body)
+            title_pl, body_pl = translate_to_polish(title, body)
             return {
                 'id': article_id, 'source': 'Gasteiz Hoy', 'url': url,
                 'title': title_rw or title, 'title_eu': title_eu, 'title_pl': title_pl,
