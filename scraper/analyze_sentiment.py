@@ -142,7 +142,17 @@ def _rewrite_chunk(text, type_label):
             client = Groq(api_key=api_key)
             
             json_key = "title_rewritten" if type_label == "TÍTULO" else "body_rewritten"
-            system_prompt = f"""Eres el Jefe de Redacción de un diario líder en Vitoria-Gasteiz. REESCRIBE este {type_label}. Objetivo: Originalidad total manteniendo datos reales. Estilo profesional y directo. ÍNTEGRAMENTE EN CASTELLANO. Responde JSON: {{"{json_key}": "..."}}"""
+            system_prompt = f"""Eres el Jefe de Redacción de un diario líder en Vitoria-Gasteiz. 
+            Tu tarea es REESCRIBIR este {type_label} de forma ÍNTEGRA.
+            
+            REGLAS CRÍTICAS:
+            1. PROHIBIDO RESUMIR. El texto resultante debe tener una extensión similar al original.
+            2. MANTÉN LA ESTRUCTURA DE PÁRRAFOS. Si el original tiene 5 párrafos, el tuyo debe tener 5 párrafos.
+            3. No omitas ningún dato, nombre propio, cifra o cita textual.
+            4. Cambia radicalmente el estilo, el orden de las palabras y la estructura de las frases para que sea original.
+            5. El resultado debe ser ÍNTEGRAMENTE EN CASTELLANO.
+            
+            Responde ÚNICAMENTE en formato JSON: {{"{json_key}": "..."}}"""
 
             completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
