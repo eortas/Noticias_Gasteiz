@@ -2,14 +2,10 @@ import os
 import json
 import time
 import sys
+from deep_translator import GoogleTranslator
 
 # Aseguramos que el script pueda encontrar el módulo scraper
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
-
-try:
-    from analyze_sentiment import translate_to_euskara, translate_to_polish
-except ImportError:
-    from scraper.analyze_sentiment import translate_to_euskara, translate_to_polish
 
 def is_untranslated(original, translated):
     if not translated:
@@ -19,6 +15,30 @@ def is_untranslated(original, translated):
     if len(original) > 50 and original.strip() == translated.strip():
         return True
     return False
+
+def translate_with_google(text, target_lang):
+    """Traducción simple usando Google Translate."""
+    try:
+        translator = GoogleTranslator(source='es', target=target_lang)
+        if len(text) < 4500:
+            return translator.translate(text)
+        else:
+            # Dividir en párrafos si es muy largo
+            paragraphs = text.split('\n')
+            translated_paragraphs = []
+            current_chunk = ""
+            for p in paragraphs:
+                if len(current_chunk) + len(p) < 4000:
+                    current_chunk += p + "\n"
+                else:
+                    translated_paragraphs.append(translator.translate(current_chunk))
+                    current_chunk = p + "\n"
+            if current_chunk:
+                translated_paragraphs.append(translator.translate(current_chunk))
+            return "\n".join(translated_paragraphs)
+    except Exception as e:
+        print(f"    ! Error en Google Translate ({target_lang}): {e}")
+        return None
 
 def main():
     news_file = 'data/news.json'
@@ -30,12 +50,12 @@ def main():
         news = json.load(f)
 
     print(f"Revisando {len(news)} noticias en busca de traducciones faltantes...")
+    print("Usando Google Translate para reparaciones (más estable para volumen alto).")
     
     modified = False
     count_eu = 0
     count_pl = 0
 
-    # Procesar de más reciente a más antigua (normalmente el orden en el JSON)
     for i, item in enumerate(news):
         title_es = item.get('title', '')
         body_es = item.get('body', '')
@@ -50,38 +70,33 @@ def main():
             print(f"[{i+1}/{len(news)}] Reparando: {title_es[:50]}...")
             
             if needs_eu:
-                print("  - Traduciendo a Euskara...")
-                t_eu, b_eu = translate_to_euskara(title_es, body_es)
-                if t_eu and b_eu and not is_untranslated(body_es, b_eu):
+                print("  - Traduciendo a Euskara (Google)...")
+                t_eu = translate_with_google(title_es, 'eu')
+                b_eu = translate_with_google(body_es, 'eu')
+                if t_eu and b_eu:
                     item['title_eu'] = t_eu
                     item['body_eu'] = b_eu
                     count_eu += 1
                     modified = True
-                else:
-                    print("    ! Fallo en traducción a Euskara.")
 
             if needs_pl:
-                print("  - Traduciendo a Polaco...")
-                # Pequeño delay para no saturar API
-                time.sleep(2)
-                t_pl, b_pl = translate_to_polish(title_es, body_es)
-                if t_pl and b_pl and not is_untranslated(body_es, b_pl):
+                print("  - Traduciendo a Polaco (Google)...")
+                t_pl = translate_with_google(title_es, 'pl')
+                b_pl = translate_with_google(body_es, 'pl')
+                if t_pl and b_pl:
                     item['title_pl'] = t_pl
                     item['body_pl'] = b_pl
                     count_pl += 1
                     modified = True
-                else:
-                    print("    ! Fallo en traducción a Polaco.")
             
-            # Guardar progreso cada noticia reparada para evitar perder trabajo si falla
             if modified:
                 with open(news_file, 'w', encoding='utf-8') as f:
                     json.dump(news, f, indent=2, ensure_ascii=False)
-                print(f"  ✓ Progreso guardado.")
-                modified = False # Reset flag for next check
+                print(f"  [OK] Progreso guardado.")
+                modified = False
             
-            # Cooldown entre noticias para evitar rate limits (TPM)
-            time.sleep(3)
+            # Pequeño respiro entre noticias
+            time.sleep(1)
 
     print(f"\nFinalizado. Reparadas: {count_eu} Euskara, {count_pl} Polaco.")
 

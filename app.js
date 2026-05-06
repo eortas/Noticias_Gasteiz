@@ -59,6 +59,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (footerCopyright) {
             footerCopyright.textContent = `© 2026 Vitoria Live • Powered by AI.`;
         }
+
+        // Podcast translations
+        const podcastTitle = document.querySelector('.podcast-title');
+        const podcastSubtitle = document.querySelector('.podcast-subtitle');
+        if (podcastTitle && podcastSubtitle) {
+            if (currentLang === 'eu') {
+                podcastTitle.textContent = 'Eguneko Audio Laburpena';
+                podcastSubtitle.textContent = 'Entzun Gasteizko berriak 2 minututan';
+            } else if (currentLang === 'pl') {
+                podcastTitle.textContent = 'Codzienne Podsumowanie Audio';
+                podcastSubtitle.textContent = 'Posłuchaj wiadomości z Vitoria-Gasteiz w 2 minuty';
+            } else {
+                podcastTitle.textContent = 'Audio Resumen Diario';
+                podcastSubtitle.textContent = 'Escucha las noticias de Vitoria-Gasteiz en 2 minutos';
+            }
+        }
     }
     applyLangUI();
 
