@@ -39,6 +39,17 @@ def parse_manual_link(url):
         # 2. Extraer Cuerpo (técnica El Correo)
         body_parts = []
         
+        # Lista negra de frases del muro de pago a ignorar
+        blacklist = [
+            "este vídeo es exclusivo para suscriptores",
+            "disfruta de acceso ilimitado",
+            "¿ya tienes una suscripción?",
+            "inicia sesión",
+            "hazte suscriptor",
+            "registrado",
+            "más información"
+        ]
+        
         # Intentamos buscar en el contenedor principal de la noticia
         content = soup.find('div', class_='v-p-b') or \
                   soup.find('div', class_='entry-content') or \
@@ -50,8 +61,13 @@ def parse_manual_link(url):
             paragraphs = content.find_all('p')
             for p in paragraphs:
                 text = p.get_text().strip()
-                # Limpieza básica de ruido común
-                if len(text) > 20 and "publicidad" not in text.lower() and "leer más" not in text.lower():
+                
+                # Filtrar ruidos y lista negra
+                text_lower = text.lower()
+                if any(phrase in text_lower for phrase in blacklist):
+                    continue
+                
+                if len(text) > 20 and "publicidad" not in text_lower:
                     body_parts.append(text)
         
         # Si no encontramos nada con los selectores, intentamos un fallback agresivo
