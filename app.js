@@ -433,13 +433,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const iframe = document.querySelector('.spotify-embed iframe');
         if (!iframe || !podcastData) return;
 
-        // Usamos el episodio de Euskara si el idioma es EU, de lo contrario Castellano (también para PL por ahora)
-        const episodeId = currentLang === 'eu' ? podcastData.eu : podcastData.es;
+        // Usamos el slug de Anchor que es más fiable para obtenerlo del RSS
+        const slug = currentLang === 'eu' ? podcastData.eu_slug : podcastData.es_slug;
         
-        if (episodeId) {
-            const newSrc = `https://open.spotify.com/embed/episode/${episodeId}?utm_source=generator&theme=0`;
+        if (slug) {
+            // El formato de embed de Anchor es muy compatible y estable
+            const newSrc = `https://anchor.fm/eduardo-armentia/embed/episodes/${slug}`;
             const currentSrc = iframe.getAttribute('src');
-            if (!currentSrc || !currentSrc.includes(episodeId)) {
+            if (!currentSrc || !currentSrc.includes(slug)) {
                 iframe.setAttribute('src', newSrc);
             }
         }

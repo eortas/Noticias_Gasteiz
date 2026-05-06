@@ -319,8 +319,7 @@ body {
     width: 100%;
     border-radius: 1.5rem;
     overflow: hidden;
-    background: #000; /* Pre-loader background */
-    height: 152px;
+    height: 102px;
 }
 
 @media (max-width: 480px) {
