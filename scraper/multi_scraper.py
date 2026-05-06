@@ -7,7 +7,7 @@ import time
 import os
 import hashlib
 import urllib.parse
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from dotenv import load_dotenv
 
@@ -71,7 +71,6 @@ class MultiScraper:
 
     def _save_news(self):
         os.makedirs(os.path.dirname(self.data_output), exist_ok=True)
-        # Combinar y eliminar duplicados por URL de nuevo por si acaso
         existing_news = []
         if os.path.exists(self.data_output):
             try:
@@ -82,19 +81,19 @@ class MultiScraper:
             except Exception as e:
                 print(f"Error reading existing news file: {e}")
                 if os.path.getsize(self.data_output) > 10:
-                    print("Aborting save to prevent wiping the database. Please verify data/news.json.")
                     return
                 
-        # Combinamos las noticias existentes con las nuevas
         all_news = existing_news + self.news_data
         
         def parse_date(date_str):
             try:
-                return datetime.fromisoformat(date_str).replace(tzinfo=None)
+                # Handle ISO format with potential Z or offsets
+                clean_date = date_str.replace('Z', '+00:00')
+                return datetime.fromisoformat(clean_date)
             except:
-                return datetime.min
+                return datetime.min.replace(tzinfo=timezone.utc)
 
-        # Ordenar todas por fecha descendente (más recientes primero)
+        # Ordenar todas por fecha descendente
         all_news.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
 
         unique_news = []
@@ -108,85 +107,68 @@ class MultiScraper:
             body = item.get('body', '')
             img_url = item.get('image', '')
             
-<<<<<<< Updated upstream
             if not title or not url:
-=======
-            # 1. Filtro 'EN DIRECTO' / 'ZUZENEAN'
-            if any(x in title.upper() or x in body.upper() for x in ["EN DIRECTO", "ZUZENEAN"]):
->>>>>>> Stashed changes
                 continue
                 
-            # 1. Filtro 'EN DIRECTO' y contenido no deseado
             if any(x in title.upper() or x in body.upper() for x in ["EN DIRECTO", "ZUZENEAN"]):
                 continue
                 
             if "viñeta de cerrajería" in title.lower():
                 continue
 
-            # 2. Misma URL exacta
             if url in seen_urls:
                 continue
                 
-            # 3. Misma Imagen (la clave para detectar la misma noticia de distinta fuente/momento)
             if img_url and img_url in seen_images:
                 continue
 
-            # 4. Normalizar título y evitar titulares muy similares
             clean_title = title.split('|')[0].split(' - ')[0].strip().lower()
             if ": " in clean_title[:15]:
                 clean_title = clean_title.split(": ", 1)[1]
                 
             norm_title = "".join(filter(str.isalnum, clean_title))
-            title_prefix = norm_title[:35] # Usamos 35 caracteres para comparar
+            title_prefix = norm_title[:35]
             
             if title_prefix and title_prefix in seen_titles:
                 continue
 
-            # Pasó los filtros, es única
             unique_news.append(item)
             seen_urls.add(url)
-            if img_url:
-                seen_images.add(img_url)
-            if title_prefix:
-                seen_titles.add(title_prefix)
+            if img_url: seen_images.add(img_url)
+            if title_prefix: seen_titles.add(title_prefix)
 
-        # Filtrar noticias con menos de 2 días de antigüedad usando un máximo de 100
-        now = datetime.now()
+        # Filtro "HOY Y AYER"
+        now = datetime.now(timezone.utc)
+        yesterday_start = (now - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+        
         latest_news = []
         for item in unique_news:
             item_date = parse_date(item.get('date', ''))
-            if (now - item_date).days < 2:
+            if item_date >= yesterday_start:
                 latest_news.append(item)
         
-<<<<<<< Updated upstream
+        # Cap de seguridad opcional
         latest_news = latest_news[:100]
-=======
-        # Opcional: Cap de seguridad de todas formas (ej. max 200)
-        latest_news = latest_news[:200]
->>>>>>> Stashed changes
         
         with open(self.data_output, 'w', encoding='utf-8') as f:
             json.dump(latest_news, f, indent=2, ensure_ascii=False)
+        
+        print(f"Scraping completado. Guardadas {len(latest_news)} noticias de hoy y ayer.")
 
     def _normalize_url(self, url):
-        """Elimina parámetros de consulta para evitar duplicados por variaciones de trackers"""
         if '?' in url:
             return url.split('?')[0]
         return url
 
     def _get_og_image(self, soup):
-        """Extrae la imagen original de los meta tags og:image."""
         meta = soup.find('meta', property='og:image')
         if meta and meta.get('content'):
             return meta['content'].strip()
         return None
 
     def _get_ddg_proxy_url(self, original_url):
-        """Envuelve una URL en el proxy de imágenes de DuckDuckGo."""
-        if not original_url:
-            return None
+        if not original_url: return None
         try:
-            # El "método DuckDuckGo" para evitar tracking/bloqueos y problemas legales
             encoded_url = urllib.parse.quote(original_url)
             return f"https://external-content.duckduckgo.com/iu/?u={encoded_url}"
         except:
@@ -211,7 +193,7 @@ class MultiScraper:
                     if full_url not in self.history:
                         links.append(full_url)
             
-            for link in links[:30]: # Limitamos por fuente para no saturar
+            for link in links[:30]:
                 data = self._extract_el_correo_detail(link)
                 if data:
                     self.news_data.append(data)
@@ -224,10 +206,7 @@ class MultiScraper:
         try:
             res = self.scraper.get(url, headers=self.headers, timeout=10)
             soup = BeautifulSoup(res.text, 'html.parser')
-            
-            # Metadata from JSON-LD
-            title = ""
-            date = ""
+            title = ""; date = ""
             script_tag = soup.find('script', type='application/ld+json')
             if script_tag:
                 ld = json.loads(script_tag.string)
@@ -238,7 +217,6 @@ class MultiScraper:
                 title = ld.get('headline', '')
                 date = ld.get('datePublished', '')
 
-            # Body from paragraphs
             p_tags = soup.select('div.v-p-b p, article p')
             body = self._clean_article_body(p_tags)
             if not body or "patrocinado" in title.lower() or "patrocinado" in body.lower(): 
@@ -246,8 +224,6 @@ class MultiScraper:
             
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
-            
-            # Usar imagen original envuelta en proxy de DuckDuckGo
             image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
 
             title_rw, body_rw = rewrite_article(title, body)
@@ -257,32 +233,20 @@ class MultiScraper:
             title_pl, body_pl = translate_to_polish(title_rw or title, body_rw or body)
 
             return {
-                'id': article_id,
-                'source': 'El Correo',
-                'url': url,
+                'id': article_id, 'source': 'El Correo', 'url': url,
                 'title': title_rw or title or soup.title.string,
-                'title_eu': title_eu,
-                'title_pl': title_pl,
-                'image': image_url,
-                'body': body_rw or body,
-                'body_eu': body_eu,
-                'body_pl': body_pl,
-                'date': date,
-                'sentiment': sentiment,
-                'score': score,
-                'category': category,
-                'lang': 'es'
+                'title_eu': title_eu, 'title_pl': title_pl,
+                'image': image_url, 'body': body_rw or body,
+                'body_eu': body_eu, 'body_pl': body_pl,
+                'date': date, 'sentiment': sentiment, 'score': score,
+                'category': category, 'lang': 'es'
             }
-        except:
-            return None
+        except: return None
 
     def scrape_gasteiz_hoy(self):
-        print(f"Scrapeando Gasteiz Hoy (RSS vía rss2json + Fallback HTML)")
+        print(f"Scrapeando Gasteiz Hoy (RSS vía rss2json)")
         links_data = {}
-        
-        # 1. Intentar RSS feed (usamos rss2json para evitar el bloqueo total de Cloudflare a GitHub Actions)
         try:
-<<<<<<< Updated upstream
             res_rss = requests.get("https://api.rss2json.com/v1/api.json?rss_url=https://www.gasteizhoy.com/feed/", timeout=15)
             if res_rss.status_code == 200:
                 data = res_rss.json()
@@ -290,53 +254,19 @@ class MultiScraper:
                     for item in data.get('items', []):
                         url = self._normalize_url(item.get('link', '').strip())
                         if url:
-                            body_html = item.get('content', '')
-                            if not body_html:
-                                body_html = item.get('description', '')
+                            body_html = item.get('content', '') or item.get('description', '')
                             links_data[url] = {
-                                'url': url,
-                                'title': item.get('title', ''),
-                                'body_html': body_html,
-                                'date_str': item.get('pubDate', '') # Formato: YYYY-MM-DD HH:MM:SS
+                                'url': url, 'title': item.get('title', ''),
+                                'body_html': body_html, 'date_str': item.get('pubDate', '')
                             }
-=======
-            res = requests.get(url, headers=self.headers, timeout=15)
-            soup = BeautifulSoup(res.text, 'html.parser')
-            links = []
-            
-            combined_selectors = soup.find_all(['h2', 'h3']) + soup.select('a.nueve-bloque-noticia, a.heronews, a.box-shadow, a.blogpost, a.breakblock.breakingtext, a.linknews, a.sixnewsblock')
-            
-            for item in combined_selectors:
-                if item.name in ['h2', 'h3']:
-                    a_tag = item.find('a') or item.find_parent('a')
-                else:
-                    a_tag = item
-                
-                if a_tag:
-                    href = a_tag.get('href', '')
-                    if href:
-                        # Limpiar href de slash inicial redundante si es necesario
-                        full_url = f"https://www.gasteizhoy.com{href}" if not href.startswith("http") else href
-                        if full_url not in self.history and full_url not in links:
-                            links.append(full_url)
-            
-            for link in links[:30]:
-                data = self._extract_gasteiz_hoy_detail(link)
-                if data:
-                    self.news_data.append(data)
-                    self.history.add(link)
-                time.sleep(1)
->>>>>>> Stashed changes
         except Exception as e:
-            print(f"Error obteniendo RSS de Gasteiz Hoy vía rss2json: {e}")
+            print(f"Error RSS Gasteiz Hoy: {e}")
 
-        # 2. Intentar HTML de la portada como complemento (puede fallar por Cloudflare)
         try:
             res = self.scraper.get("https://www.gasteizhoy.com/", headers=self.headers, timeout=15)
             if res.status_code == 200:
                 soup = BeautifulSoup(res.text, 'html.parser')
                 combined_selectors = soup.find_all(['h2', 'h3']) + soup.select('a.nueve-bloque-noticia, a.heronews, a.box-shadow, a.blogpost, a.breakblock.breakingtext, a.linknews, a.sixnewsblock')
-                
                 for item in combined_selectors:
                     a_tag = item.find('a') or item.find_parent('a') if item.name in ['h2', 'h3'] else item
                     if a_tag:
@@ -345,25 +275,15 @@ class MultiScraper:
                             href = re.sub(r'\s+', '', val)
                             parent = a_tag.find_parent()
                             block_text = (a_tag.get_text() + ' ' + (parent.get_text() if parent else '')).lower()
-                            
                             if any(keyword in block_text or keyword in href.lower() for keyword in ['patrocinado', 'concurso', 'publirreportaje']):
                                 continue
-                                
-                            classes = ' '.join(a_tag.get('class', []))
-                            if parent:
-                                classes += ' ' + ' '.join(parent.get('class', []))
-                            if 'patro-new' in classes or 'patrocinado' in classes:
-                                continue
-                                
                             full_url = self._normalize_url(f"https://www.gasteizhoy.com{href}" if not href.startswith("http") else href)
-                            
                             if full_url not in links_data:
                                 links_data[full_url] = {'url': full_url}
         except Exception as e:
-            print(f"Error scrapeando portada de Gasteiz Hoy: {e}")
+            print(f"Error portada Gasteiz Hoy: {e}")
 
         links_to_process = [url for url in links_data.keys() if url not in self.history]
-        
         for url in links_to_process[:30]:
             data = self._extract_gasteiz_hoy_detail(links_data[url])
             if data:
@@ -373,280 +293,65 @@ class MultiScraper:
 
     def _extract_gasteiz_hoy_detail(self, link_info):
         url = link_info['url']
-        body = None
-        title = None
-        date = None
-        image_url = None
-        
+        body = None; title = None; date = None; image_url = None
         try:
             res = self.scraper.get(url, headers=self.headers, timeout=10)
-            
             if res.status_code == 200:
                 soup = BeautifulSoup(res.text, 'html.parser')
                 h1 = soup.find('h1')
                 title = h1.get_text().strip() if h1 else soup.title.string.split('|')[0].strip()
-                
-                p_tags = soup.select('div.entry-content p, article p, div.contenido p, main p')
-                if not p_tags:
-                    p_tags = soup.find_all('p')
+                p_tags = soup.select('div.entry-content p, article p, div.contenido p, main p') or soup.find_all('p')
                 body = self._clean_article_body(p_tags)
-                
-                date_tag = soup.find('span', class_='published')
                 meta_date = soup.find('meta', property='article:published_time')
-                date_tag_time = soup.find('time')
-                
-                if meta_date and meta_date.get('content'):
-                    date = meta_date['content']
-                elif date_tag and date_tag.get('title'):
-                    date = self._parse_spanish_date(date_tag['title'])
-                else:
-                    date = date_tag_time['datetime'] if date_tag_time else datetime.now().isoformat()
-                    
+                date = meta_date['content'] if meta_date else datetime.now().isoformat()
                 image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
-            else:
-                raise Exception(f"Status code {res.status_code}")
-                
+            else: raise Exception(f"Status {res.status_code}")
         except Exception as e:
-            print(f"Excepción obteniendo HTML de GH {url}: {e}. Usando fallback RSS.")
-            if not link_info.get('title') or not link_info.get('body_html'):
-                print(f"GH Error en {url} y sin datos RSS de respaldo.")
-                return None
-<<<<<<< Updated upstream
-                
+            if not link_info.get('title'): return None
             title = link_info['title']
             soup_rss = BeautifulSoup(link_info['body_html'], 'html.parser')
-            p_tags = soup_rss.find_all('p')
-            body = self._clean_article_body(p_tags)
-            if not body:
-                body = soup_rss.get_text()[:2000] # Limitar texto en caso de fallo
-                
-            try:
-                # rss2json devuelve la fecha como "YYYY-MM-DD HH:MM:SS"
-                if link_info.get('date_str'):
-                    date_clean = link_info['date_str'].replace(' ', 'T')
-                    date = datetime.fromisoformat(date_clean).isoformat()
-                else:
-                    date = datetime.now().isoformat()
-            except Exception as d_e:
-                print(f"Error parseando fecha RSS {link_info.get('date_str')}: {d_e}")
-                date = datetime.now().isoformat()
-                
+            body = self._clean_article_body(soup_rss.find_all('p')) or soup_rss.get_text()[:2000]
+            if link_info.get('date_str'):
+                date = datetime.fromisoformat(link_info['date_str'].replace(' ', 'T')).isoformat()
+            else: date = datetime.now().isoformat()
             img_tag = soup_rss.find('img')
             image_url = self._get_ddg_proxy_url(img_tag['src']) if img_tag and img_tag.get('src') else None
 
-        if not body or "patrocinado" in title.lower() or "patrocinado" in body.lower(): 
-            return None
+        if not body or "patrocinado" in title.lower() or "patrocinado" in body.lower(): return None
         
         try:
-=======
-            
-            # Intentar extraer fecha del span.published (nuevo formato) o de time tag
-            date_tag = soup.find('span', class_='published')
-            if date_tag and date_tag.get('title'):
-                date = self._parse_spanish_date(date_tag['title'])
-            else:
-                date_tag_time = soup.find('time')
-                date = date_tag_time['datetime'] if date_tag_time else datetime.now().isoformat()
-            
->>>>>>> Stashed changes
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
-            
             title_rw, body_rw = rewrite_article(title, body)
             time.sleep(1)
             title_eu, body_eu = translate_to_euskara(title_rw or title, body_rw or body)
             time.sleep(1)
             title_pl, body_pl = translate_to_polish(title_rw or title, body_rw or body)
-
             return {
-                'id': article_id,
-                'source': 'Gasteiz Hoy',
-                'url': url,
-                'title': title_rw or title,
-                'title_eu': title_eu,
-                'title_pl': title_pl,
-                'image': image_url,
-                'body': body_rw or body,
-                'body_eu': body_eu,
-                'body_pl': body_pl,
-                'date': date,
-                'sentiment': sentiment,
-                'score': score,
-                'category': category,
-                'lang': 'es'
+                'id': article_id, 'source': 'Gasteiz Hoy', 'url': url,
+                'title': title_rw or title, 'title_eu': title_eu, 'title_pl': title_pl,
+                'image': image_url, 'body': body_rw or body,
+                'body_eu': body_eu, 'body_pl': body_pl,
+                'date': date, 'sentiment': sentiment, 'score': score,
+                'category': category, 'lang': 'es'
             }
-        except Exception as e:
-            print(f"Excepción en procesamiento IA para GH {url}: {e}")
-            return None
-
-    def _parse_spanish_date(self, date_str):
-        """Parsea fechas tipo: sábado, 28 marzo, 2026, 7:58"""
-        if not date_str:
-            return datetime.now().isoformat()
-<<<<<<< Updated upstream
-=======
-        try:
-            # Eliminar comas y pasar a minúsculas
-            clean_str = date_str.lower().replace(',', '').strip()
-            parts = clean_str.split()
-            # Esperamos algo como: [día_semana, día, mes, año, hora] o [día, mes, año, hora]
-            
-            months = {
-                'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4,
-                'mayo': 5, 'junio': 6, 'julio': 7, 'agosto': 8,
-                'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12
-            }
-            
-            day = None
-            month = None
-            year = None
-            time_val = "00:00"
-            
-            for part in parts:
-                if part in months:
-                    month = months[part]
-                elif ':' in part:
-                    time_val = part
-                elif part.isdigit():
-                    val = int(part)
-                    if val > 2000:
-                        year = val
-                    else:
-                        day = val
-            
-            if day and month and year:
-                h, m = map(int, time_val.split(':'))
-                return datetime(year, month, day, h, m).isoformat()
-        except Exception as e:
-            print(f"Error parsing date '{date_str}': {e}")
-            
-        return datetime.now().isoformat()
-
-    def scrape_dna(self):
-        url = "https://www.noticiasdealava.eus/vitoria-gasteiz/"
-        print(f"Scrapeando DNA: {url}")
->>>>>>> Stashed changes
-        try:
-            # Eliminar comas y pasar a minúsculas
-            clean_str = date_str.lower().replace(',', '').strip()
-            parts = clean_str.split()
-            # Esperamos algo como: [día_semana, día, mes, año, hora] o [día, mes, año, hora]
-            
-            months = {
-                'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4,
-                'mayo': 5, 'junio': 6, 'julio': 7, 'agosto': 8,
-                'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12
-            }
-            
-            day = None
-            month = None
-            year = None
-            time_val = "00:00"
-            
-            for part in parts:
-                if part in months:
-                    month = months[part]
-                elif ':' in part:
-                    time_val = part
-                elif part.isdigit():
-                    val = int(part)
-                    if val > 2000:
-                        year = val
-                    else:
-                        day = val
-            
-            if day and month and year:
-                h, m = map(int, time_val.split(':'))
-                return datetime(year, month, day, h, m).isoformat()
-        except Exception as e:
-            print(f"Error parsing date '{date_str}': {e}")
-            
-        return datetime.now().isoformat()
-
-
+        except: return None
 
     def _clean_article_body(self, p_tags):
-        blacklist = [
-            "©", "todos los derechos reservados", 
-            "una publicación compartida de", "síguenos en redes",
-            "fotografía:", "cedida", "| actualizado",
-            "lee la noticia completa", "suscríbete a",
-            "el acceso al contenido premium",
-            "por favor, inténtalo pasados unos minutos",
-            "al iniciar sesión desde un dispositivo",
-            "inicie sesión en este dispositivo",
-            "primer periódico digital de vitoria",
-            "noticias vitoria-álava",
-            "aparece primero en gasteiz hoy",
-            "nexus, la llave en mano",
-            "la pescadería de mercadona",
-            "hacienda vigila los regalos",
-            "mercadona devolverá dinero",
-            "de 'got talent' a las aulas",
-            "un interno de dueñas",
-            "dos pueblos de cádiz",
-            "siete lugares donde antes se fumaba",
-            "los jubilados que cobran 2.998",
-            "pueden las aerolíneas aplicar un recargo",
-            "la guardia civil investiga un presunto acoso",
-            "una casa de 'alto standing' en león",
-            "una mujer recibirá 125.000 euros"
-        ]
-        
+        blacklist = ["©", "todos los derechos reservados", "nexus, la llave en mano", "la pescadería de mercadona", "hacienda vigila", "mercadona devolverá", "de 'got talent'", "un interno de dueñas", "dos pueblos de cádiz", "siete lugares donde antes se fumaba", "los jubilados que cobran", "pueden las aerolíneas", "guardia civil investiga", "casa de 'alto standing'", "mujer recibirá 125.000", "primer periódico digital de vitoria", "noticias vitoria-álava", "aparece primero en gasteiz hoy"]
         valid_paragraphs = []
         for p in p_tags:
-            # 0. Heurística para detectar enlaces a otras noticias (común en El Correo al final)
-            # Si el párrafo contiene un link que es casi todo el texto del párrafo
             a_tag = p.find('a')
             if a_tag:
                 href = a_tag.get('href', '')
-                # Si el link apunta a otra noticia (.html) y el texto es corto (típico de titular)
                 p_text_clean = p.get_text().strip()
                 if (".html" in href or "gasteizhoy.com/" in href) and len(p_text_clean) < 180:
-                    # Si el link ocupa más del 70% del texto del párrafo, es probable que sea promo
-                    if len(a_tag.get_text().strip()) > len(p_text_clean) * 0.7:
-                        continue
-
-            # Limpiar espacios y saltos de línea internos que rompen el regex
+                    if len(a_tag.get_text().strip()) > len(p_text_clean) * 0.7: continue
             text = " ".join(p.get_text().split()).strip()
-            
-            # 1. Limpieza específica de DNA (Fechas, autores y prefijos)
-            # Eliminar patrones tipo: 25·03·26 | 18:30 (ahora sin saltos de línea internos)
             text = re.sub(r'^\d{2}·\d{2}·\d{2}\s*\|\s*\d{2}:\d{2}(\s*\|\s*Actualizado.*?)?', '', text).strip()
-            text = re.sub(r'^\|\s*\d{2}:\d{2}', '', text).strip() # Caso de barra huérfana
-            
-            # Eliminar "En imágenes: ..." al principio
-            text = re.sub(r'^en imágenes:.*$', '', text, flags=re.IGNORECASE).strip()
-            
-            # 2. Heurística para Nombres de Autores
-            # Si el párrafo es muy corto (autor solo) o comienza con nombre de autor conocido
-            if len(valid_paragraphs) <= 1 and len(text) < 40:
-                # Si parece un nombre (Palabras con Mayúsculas)
-                if text.istitle() or re.match(r'^[A-Z][a-z]+\s[A-Z][a-z]+', text):
-                    continue
-
-            # Skip short lines
-            if len(text) < 40:
-                continue
-                
-            # Skip if contains blacklist phrases
-            text_lower = text.lower()
-            if any(b in text_lower for b in blacklist):
-                continue
-                
-            # Skip if it looks like a date/time header (e.g. 25·03·26 | 18:50 | Actualizado)
-            if text.count('|') >= 2 and "actualizado" in text_lower:
-                continue
-                
-            # Skip paragraphs with links (often used for internal promotion or "more info")
-            if "http" in text_lower and ("gasteizhoy.com" in text_lower or "elcorreo.com" in text_lower):
-                continue
-                
+            if len(text) < 40 or any(b in text.lower() for b in blacklist): continue
             valid_paragraphs.append(text)
-            
         return "\n".join(valid_paragraphs)
-
-
 
     def _calculate_daily_mood(self):
         try:
@@ -655,44 +360,22 @@ class MultiScraper:
             if os.path.exists(mood_file):
                 with open(mood_file, 'r', encoding='utf-8') as f:
                     mood_history = json.load(f)
-
-            if not os.path.exists('data/news.json'):
-                return
-                
+            if not os.path.exists('data/news.json'): return
             with open('data/news.json', 'r', encoding='utf-8') as f:
                 news = json.load(f)
-            
             today_str = datetime.now().strftime("%Y-%m-%d")
-            today_scores = []
-            
-            for item in news:
-                item_date = item.get('date', '')
-                if item_date.startswith(today_str):
-                    today_scores.append(item.get('score', 0))
-                    
-            if not today_scores:
-                return
-                
+            today_scores = [item.get('score', 0) for item in news if item.get('date', '').startswith(today_str)]
+            if not today_scores: return
             avg_score = round(sum(today_scores) / len(today_scores), 2)
-            
             found = False
             for entry in mood_history:
                 if entry.get('date') == today_str:
-                    entry['score'] = avg_score
-                    found = True
-                    break
-                    
-            if not found:
-                mood_history.append({"date": today_str, "score": avg_score})
-                
+                    entry['score'] = avg_score; found = True; break
+            if not found: mood_history.append({"date": today_str, "score": avg_score})
             mood_history = sorted(mood_history, key=lambda x: x['date'])[-14:]
-            
             with open(mood_file, 'w', encoding='utf-8') as f:
                 json.dump(mood_history, f, indent=4, ensure_ascii=False)
-                
-            print(f"Daily mood calculated for {today_str}: {avg_score}")
-        except Exception as e:
-            print(f"Error calculating daily mood: {e}")
+        except Exception as e: print(f"Error mood: {e}")
 
     def run(self):
         self.scrape_el_correo()
@@ -701,7 +384,6 @@ class MultiScraper:
         self._save_history()
         self._cleanup_old_images()
         self._calculate_daily_mood()
-        print(f"Total noticias nuevas procesadas: {len(self.news_data)}")
 
 if __name__ == "__main__":
     scraper = MultiScraper()
