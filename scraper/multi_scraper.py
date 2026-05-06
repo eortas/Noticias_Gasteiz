@@ -108,7 +108,12 @@ class MultiScraper:
             body = item.get('body', '')
             img_url = item.get('image', '')
             
+<<<<<<< Updated upstream
             if not title or not url:
+=======
+            # 1. Filtro 'EN DIRECTO' / 'ZUZENEAN'
+            if any(x in title.upper() or x in body.upper() for x in ["EN DIRECTO", "ZUZENEAN"]):
+>>>>>>> Stashed changes
                 continue
                 
             # 1. Filtro 'EN DIRECTO' y contenido no deseado
@@ -153,7 +158,12 @@ class MultiScraper:
             if (now - item_date).days < 2:
                 latest_news.append(item)
         
+<<<<<<< Updated upstream
         latest_news = latest_news[:100]
+=======
+        # Opcional: Cap de seguridad de todas formas (ej. max 200)
+        latest_news = latest_news[:200]
+>>>>>>> Stashed changes
         
         with open(self.data_output, 'w', encoding='utf-8') as f:
             json.dump(latest_news, f, indent=2, ensure_ascii=False)
@@ -272,6 +282,7 @@ class MultiScraper:
         
         # 1. Intentar RSS feed (usamos rss2json para evitar el bloqueo total de Cloudflare a GitHub Actions)
         try:
+<<<<<<< Updated upstream
             res_rss = requests.get("https://api.rss2json.com/v1/api.json?rss_url=https://www.gasteizhoy.com/feed/", timeout=15)
             if res_rss.status_code == 200:
                 data = res_rss.json()
@@ -288,6 +299,34 @@ class MultiScraper:
                                 'body_html': body_html,
                                 'date_str': item.get('pubDate', '') # Formato: YYYY-MM-DD HH:MM:SS
                             }
+=======
+            res = requests.get(url, headers=self.headers, timeout=15)
+            soup = BeautifulSoup(res.text, 'html.parser')
+            links = []
+            
+            combined_selectors = soup.find_all(['h2', 'h3']) + soup.select('a.nueve-bloque-noticia, a.heronews, a.box-shadow, a.blogpost, a.breakblock.breakingtext, a.linknews, a.sixnewsblock')
+            
+            for item in combined_selectors:
+                if item.name in ['h2', 'h3']:
+                    a_tag = item.find('a') or item.find_parent('a')
+                else:
+                    a_tag = item
+                
+                if a_tag:
+                    href = a_tag.get('href', '')
+                    if href:
+                        # Limpiar href de slash inicial redundante si es necesario
+                        full_url = f"https://www.gasteizhoy.com{href}" if not href.startswith("http") else href
+                        if full_url not in self.history and full_url not in links:
+                            links.append(full_url)
+            
+            for link in links[:30]:
+                data = self._extract_gasteiz_hoy_detail(link)
+                if data:
+                    self.news_data.append(data)
+                    self.history.add(link)
+                time.sleep(1)
+>>>>>>> Stashed changes
         except Exception as e:
             print(f"Error obteniendo RSS de Gasteiz Hoy vía rss2json: {e}")
 
@@ -372,6 +411,7 @@ class MultiScraper:
             if not link_info.get('title') or not link_info.get('body_html'):
                 print(f"GH Error en {url} y sin datos RSS de respaldo.")
                 return None
+<<<<<<< Updated upstream
                 
             title = link_info['title']
             soup_rss = BeautifulSoup(link_info['body_html'], 'html.parser')
@@ -398,6 +438,17 @@ class MultiScraper:
             return None
         
         try:
+=======
+            
+            # Intentar extraer fecha del span.published (nuevo formato) o de time tag
+            date_tag = soup.find('span', class_='published')
+            if date_tag and date_tag.get('title'):
+                date = self._parse_spanish_date(date_tag['title'])
+            else:
+                date_tag_time = soup.find('time')
+                date = date_tag_time['datetime'] if date_tag_time else datetime.now().isoformat()
+            
+>>>>>>> Stashed changes
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             
@@ -432,6 +483,49 @@ class MultiScraper:
         """Parsea fechas tipo: sábado, 28 marzo, 2026, 7:58"""
         if not date_str:
             return datetime.now().isoformat()
+<<<<<<< Updated upstream
+=======
+        try:
+            # Eliminar comas y pasar a minúsculas
+            clean_str = date_str.lower().replace(',', '').strip()
+            parts = clean_str.split()
+            # Esperamos algo como: [día_semana, día, mes, año, hora] o [día, mes, año, hora]
+            
+            months = {
+                'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4,
+                'mayo': 5, 'junio': 6, 'julio': 7, 'agosto': 8,
+                'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12
+            }
+            
+            day = None
+            month = None
+            year = None
+            time_val = "00:00"
+            
+            for part in parts:
+                if part in months:
+                    month = months[part]
+                elif ':' in part:
+                    time_val = part
+                elif part.isdigit():
+                    val = int(part)
+                    if val > 2000:
+                        year = val
+                    else:
+                        day = val
+            
+            if day and month and year:
+                h, m = map(int, time_val.split(':'))
+                return datetime(year, month, day, h, m).isoformat()
+        except Exception as e:
+            print(f"Error parsing date '{date_str}': {e}")
+            
+        return datetime.now().isoformat()
+
+    def scrape_dna(self):
+        url = "https://www.noticiasdealava.eus/vitoria-gasteiz/"
+        print(f"Scrapeando DNA: {url}")
+>>>>>>> Stashed changes
         try:
             # Eliminar comas y pasar a minúsculas
             clean_str = date_str.lower().replace(',', '').strip()
