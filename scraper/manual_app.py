@@ -24,7 +24,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("📰 Extractor de El Correo")
+st.title("📰 Lector de Noticias")
 
 # Función de extracción (la misma que manual_parse.py pero adaptada a Streamlit)
 def extract_content(url):
