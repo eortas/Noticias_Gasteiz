@@ -3,6 +3,9 @@ import os
 import json
 import time
 from groq import Groq
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Fallback basic dictionaries
 PALABRAS_POSITIVAS = {
@@ -42,278 +45,129 @@ def heuristic_fallback(text):
     else: return 'neutral', score, 'Sociedad'
 
 def analyze_sentiment(text):
-    """
-    Analiza el sentimiento y la categoría de un texto usando Groq Llama 3.3.
-    Retorna (sentimiento, score, categoria).
-    """
-    try:
-        from dotenv import load_dotenv
-        load_dotenv()
-        api_key = os.environ.get("groq_KEY") or os.environ.get("GROQ_API_KEY")
-        if not api_key:
-            return heuristic_fallback(text)
-            
-        client = Groq(api_key=api_key)
-        
-        system_prompt = '''Eres un clasificador experto de noticias de Vitoria-Gasteiz para un portal local.
-        Dado un texto, debes extraer:
-        1. "sentiment": positiva, negativa, o neutral (basado en el tono y las implicaciones del evento).
-        2. "category": una sola categoría entre:
-           - Sociedad: Huelgas, sucesos, barrios (Zabalgana, Salburua).
-           - Política: Ayuntamiento, Diputación de Álava, elecciones.
-           - Deportes: Alavés, Baskonia, maratones, pelota vasca.
-           - Cultura: Magialdia, Festival de Jazz, eventos en el Iradier Arena.
-           - Urbanismo: Obras del BEI, tranvía, Anillo Verde.
-           Si no encaja en ninguna, usa "Otros".
-        
-        Responde estrictamente con un JSON válido que contenga sólamente esas dos claves.
-        
-        IMPORTANTE: Cualquier noticia relacionada con temas religiosos, procesiones, Semana Santa, festividades religiosas o cultos DEBE ser marcada como "negativa", independientemente de si el tono del texto parece positivo o neutral.
-        '''
-        
-        completion = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": text[:1500]}
-            ],
-            temperature=0, # Para máxima predictibilidad
-            max_tokens=100,
-            response_format={"type": "json_object"}
-        )
-        
-        result_str = completion.choices[0].message.content
-        data = json.loads(result_str)
-        sentiment = data.get("sentiment", "neutral").lower()
-        if sentiment not in ["positiva", "negativa", "neutral"]:
-            sentiment = "neutral"
-            
-        category = data.get("category", "Sociedad")
-        if category not in ["Sociedad", "Política", "Deportes", "Cultura", "Urbanismo", "Otros"]:
-            category = "Otros"
-            
-        # Puntación simple basada en la salida del modelo
-        score = 1.0 if sentiment == 'positiva' else (-1.0 if sentiment == 'negativa' else 0.0)
-        
-        return sentiment, score, category
-    except Exception as e:
-        print(f"Error clasificando con Groq: {e}. Usando fallback heurístico.")
-        return heuristic_fallback(text)
-
-def translate_to_euskara(title, body):
-    """
-    Traduce el título y cuerpo de una noticia al euskara usando Groq.
-    Si el cuerpo es muy largo, lo divide en fragmentos (chunks) para traducirlo completo.
-    """
-    # Traducir el título primero
-    title_eu = _translate_chunk(title, "TITLE", "EUSKARARA", "title_eu")
-    
-    # Dividir el cuerpo en fragmentos de unos 3500 caracteres
-    chunks = _split_text(body, 3500)
-    translated_chunks = []
-    
-    for i, chunk in enumerate(chunks):
-        print(f"      - Traduciendo fragmento de euskara {i+1}/{len(chunks)}...")
-        translated_chunk = _translate_chunk(chunk, "BODY", "EUSKARARA", "body_eu")
-        if translated_chunk:
-            translated_chunks.append(translated_chunk)
-        else:
-            # Si falla un fragmento, intentamos continuar o usamos el original como fallback
-            translated_chunks.append(chunk)
-        
-        if len(chunks) > 1:
-            import time
-            time.sleep(2) # Evitar TPM limit entre fragmentos
-
-    return title_eu, "\n\n".join(translated_chunks)
-
-def translate_to_polish(title, body):
-    """
-    Traduce el título y cuerpo de una noticia al polaco usando Groq.
-    Si el cuerpo es muy largo, lo divide en fragmentos (chunks) para traducirlo completo.
-    """
-    # Traducir el título primero
-    title_pl = _translate_chunk(title, "TITLE", "POLACO", "title_pl")
-    
-    # Dividir el cuerpo en fragmentos de unos 3500 caracteres
-    chunks = _split_text(body, 3500)
-    translated_chunks = []
-    
-    for i, chunk in enumerate(chunks):
-        print(f"      - Traduciendo fragmento de polaco {i+1}/{len(chunks)}...")
-        translated_chunk = _translate_chunk(chunk, "BODY", "JĘZYK POLSKI", "body_pl")
-        if translated_chunk:
-            translated_chunks.append(translated_chunk)
-        else:
-            translated_chunks.append(chunk)
-        
-        if len(chunks) > 1:
-            import time
-            time.sleep(2)
-
-    return title_pl, "\n\n".join(translated_chunks)
-
-def _split_text(text, max_chars):
-    """Divide un texto en fragmentos intentando no romper párrafos."""
-    if not text: return []
-    if len(text) <= max_chars: return [text]
-    
-    chunks = []
-    while text:
-        if len(text) <= max_chars:
-            chunks.append(text)
-            break
-        
-        # Buscar el último punto o salto de línea antes del límite
-        split_at = text.rfind('\n', 0, max_chars)
-        if split_at == -1:
-            split_at = text.rfind('. ', 0, max_chars)
-            if split_at != -1: split_at += 1
-            
-        if split_at == -1 or split_at < max_chars * 0.5:
-            split_at = max_chars # Forzar corte si no hay buen punto
-            
-        chunks.append(text[:split_at].strip())
-        text = text[split_at:].strip()
-    return chunks
-
-def _translate_chunk(text, type_label, target_lang, json_key):
-    """Helper para traducir un fragmento individual."""
+    """Analiza sentimiento y categoría usando Llama 70b con pool de llaves."""
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            from dotenv import load_dotenv
-            load_dotenv()
             keys = [
-                os.environ.get("GROQ_TRANSLATION_KEY"),
-                os.environ.get("GROQ_POLISH_KEY"),
-                os.environ.get("GROQ_EUSKERA2"),
-                os.environ.get("GROQ_API_KEY"),
-                os.environ.get("groq_KEY")
+                os.environ.get("GROQ_REWRITE_2"), os.environ.get("GROQ_REWRITE_3"),
+                os.environ.get("GROQ_REWRITE_KEY"), os.environ.get("groq_KEY"), 
+                os.environ.get("GROQ_API_KEY"), os.environ.get("GROQ_TRANSLATION_KEY")
             ]
             valid_keys = [k for k in keys if k]
-            api_key = valid_keys[(attempt + int(time.time()) % 10) % len(valid_keys)]
+            api_key = valid_keys[(attempt + int(time.time())) % len(valid_keys)]
             
-            from groq import Groq
             client = Groq(api_key=api_key)
+            system_prompt = """Eres un clasificador experto de noticias de Vitoria-Gasteiz.
+            Responde ÚNICAMENTE en JSON: {"sentiment": "positiva/negativa/neutral", "score": -1.0 a 1.0, "category": "Política/Economía/Sociedad/Deportes/Cultura/Sucesos/Urbanismo"}"""
             
-            system_prompt = f"Itzuli {type_label} hau {target_lang}. Erantzun JSON FORMATUAN soilik: {{\"{json_key}\": \"...\"}}. Ez idatzi azalpenik. Itzuli testu osoa zehatz-mehatz."
-            if "POL" in target_lang:
-                system_prompt = f"Przetłumacz ten {type_label} na JĘZYK POLSKI. Odpowiedz wyłącznie w formacie JSON: {{\"{json_key}\": \"...\"}}. Nie dodawaj wyjaśnień."
-
             completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"ITZULI ORAIN:\n\n{text}"}
-                ],
-                temperature=0.0,
-                max_tokens=3000, # Reducido para evitar TPM limit
+                messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text[:1000]}],
+                temperature=0.1,
                 response_format={"type": "json_object"}
             )
-            
-            result_str = completion.choices[0].message.content
-            data = json.loads(result_str)
-            return data.get(json_key)
+            data = json.loads(completion.choices[0].message.content)
+            return data.get('sentiment', 'neutral'), data.get('score', 0.0), data.get('category', 'Sociedad')
         except Exception as e:
-            if attempt < max_retries - 1:
-                import time
-                time.sleep(3)
-            else:
-                return None
+            if attempt == max_retries - 1:
+                print(f"Error clasificando con Groq: {e}. Usando fallback heurístico.")
+                return heuristic_fallback(text)
+            time.sleep(2)
+
+def translate_to_euskara(title, body):
+    return _translate_full(title, body, "EUSKARA", "title_eu", "body_eu")
+
+def translate_to_polish(title, body):
+    return _translate_full(title, body, "POLACO", "title_pl", "body_pl")
+
+def _translate_full(title, body, lang_label, title_key, body_key):
+    title_tr = _translate_chunk(title, "TÍTULO", lang_label, title_key)
+    chunks = _split_text(body, 3000)
+    translated_chunks = []
+    for i, chunk in enumerate(chunks):
+        print(f"      - Traduciendo fragmento de {lang_label.lower()} {i+1}/{len(chunks)}...")
+        tr_chunk = _translate_chunk(chunk, "CUERPO", lang_label, body_key)
+        translated_chunks.append(tr_chunk or chunk)
+        if len(chunks) > 1: time.sleep(1)
+    return title_tr, "\n\n".join(translated_chunks)
+
+def _translate_chunk(text, type_label, target_lang, json_key):
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            keys = [
+                os.environ.get("GROQ_REWRITE_2"), os.environ.get("GROQ_REWRITE_3"),
+                os.environ.get("GROQ_TRANSLATION_KEY"), os.environ.get("GROQ_POLISH_KEY"), 
+                os.environ.get("GROQ_EUSKERA2"), os.environ.get("GROQ_API_KEY")
+            ]
+            valid_keys = [k for k in keys if k]
+            api_key = valid_keys[(attempt + int(time.time())) % len(valid_keys)]
+            client = Groq(api_key=api_key)
+            
+            system_prompt = f"Przetłumacz ten {type_label} na JĘZYK POLSKI. Odpowiedz wyłącznie w formacie JSON: {{\"{json_key}\": \"...\"}}" if "POL" in target_lang else f"Itzuli {type_label} hau EUSKARA. Erantzun JSON FORMATUAN soilik: {{\"{json_key}\": \"...\"}}"
+            
+            completion = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text}],
+                temperature=0.0,
+                response_format={"type": "json_object"}
+            )
+            return json.loads(completion.choices[0].message.content).get(json_key)
+        except:
+            if attempt < max_retries - 1: time.sleep(2)
+    return None
 
 def rewrite_article(title, body):
-    """
-    Reescribe el título y cuerpo de una noticia en castellano con diferente estilo
-    para evitar problemas de copyright, manteniendo todos los hechos veraces.
-    """
-    # Reescribir el título
     title_rw = _rewrite_chunk(title, "TÍTULO")
-    
-    # Dividir el cuerpo en fragmentos para reescribir completo
     chunks = _split_text(body, 3500)
     rewritten_chunks = []
-    
     for i, chunk in enumerate(chunks):
         print(f"      - Reescribiendo fragmento {i+1}/{len(chunks)}...")
         rw_chunk = _rewrite_chunk(chunk, "CUERPO")
-        if rw_chunk:
-            rewritten_chunks.append(rw_chunk)
-        else:
-            rewritten_chunks.append(chunk)
-            
-        if len(chunks) > 1:
-            import time
-            time.sleep(2)
-
+        rewritten_chunks.append(rw_chunk or chunk)
+        if len(chunks) > 1: time.sleep(1)
     return title_rw, "\n\n".join(rewritten_chunks)
 
 def _rewrite_chunk(text, type_label):
-    """Helper para reescribir un fragmento individual."""
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            from dotenv import load_dotenv
-            load_dotenv()
             keys = [
-                os.environ.get("GROQ_REWRITE_KEY"),
-                os.environ.get("GROQ_API_KEY"),
-                os.environ.get("groq_KEY")
+                os.environ.get("GROQ_REWRITE_2"), os.environ.get("GROQ_REWRITE_3"),
+                os.environ.get("GROQ_REWRITE_KEY"), os.environ.get("groq_KEY"), os.environ.get("GROQ_API_KEY")
             ]
             valid_keys = [k for k in keys if k]
-            api_key = valid_keys[(attempt + int(time.time()) % 10) % len(valid_keys)]
-            
-            from groq import Groq
+            api_key = valid_keys[(attempt + int(time.time())) % len(valid_keys)]
             client = Groq(api_key=api_key)
-
+            
             json_key = "title_rewritten" if type_label == "TÍTULO" else "body_rewritten"
-            system_prompt = f"""Eres el Jefe de Redacción de un diario líder en Vitoria-Gasteiz. 
-            Tu misión es REESCRIBIR por completo este {type_label}. 
-            
-            OBJETIVO: El lector no debe reconocer la fuente original, pero debe recibir exactamente la misma información fáctica (datos, nombres propios, cifras, cargos).
-            
-            ESTILO:
-            - Periodismo de alta calidad, directo y profesional.
-            - Cambia el orden de los párrafos si es necesario.
-            - Usa un vocabulario rico, evita las muletillas del original.
-            - Si el original es pasivo, usa voz activa.
-            - ÍNTEGRAMENTE EN CASTELLANO.
-            
-            Responde ÚNICAMENTE con el objeto JSON: {{"{json_key}": "..."}}"""
+            system_prompt = f"""Eres el Jefe de Redacción de un diario líder en Vitoria-Gasteiz. REESCRIBE este {type_label}. Objetivo: Originalidad total manteniendo datos reales. Estilo profesional y directo. ÍNTEGRAMENTE EN CASTELLANO. Responde JSON: {{"{json_key}": "..."}}"""
 
             completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": text}
-                ],
+                messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text}],
                 temperature=0.7,
-                max_tokens=3000,
                 response_format={"type": "json_object"}
             )
-
-            result_str = completion.choices[0].message.content
-            data = json.loads(result_str)
-            rewritten = data.get(json_key)
-            
-            # Si el texto es prácticamente idéntico (poca variación), intentamos forzar más cambio en un reintento
+            rewritten = json.loads(completion.choices[0].message.content).get(json_key)
             if rewritten and attempt == 0 and len(text) > 50:
-                words_orig = set(re.findall(r'\w+', text.lower()))
-                words_rw = set(re.findall(r'\w+', rewritten.lower()))
-                if len(words_orig) > 0:
-                    overlap = len(words_orig & words_rw) / len(words_orig)
-                    if overlap > 0.75:
-                        print(f"      ! Reescritura demasiado similar (overlap {overlap:.2f}), forzando mayor creatividad...")
-                        continue 
-
+                words_orig = set(re.findall(r'\w+', text.lower())); words_rw = set(re.findall(r'\w+', rewritten.lower()))
+                if len(words_orig) > 0 and (len(words_orig & words_rw) / len(words_orig)) > 0.75:
+                    print(f"      ! Reescritura demasiado similar, forzando creatividad..."); continue
             return rewritten
-        except Exception as e:
-            if attempt < max_retries - 1:
-                import time
-                time.sleep(3)
-            else:
-                return None
+        except:
+            if attempt < max_retries - 1: time.sleep(2)
+    return None
 
-if __name__ == "__main__":
-    test_text = "El Deportivo Alaés inaugura un nuevo campo de entrenamiento y mejora sus instalaciones."
-    print(f"Test positivo: {analyze_sentiment(test_text)}")
+def _split_text(text, max_chars):
+    if not text: return []
+    chunks = []
+    while text:
+        if len(text) <= max_chars: chunks.append(text); break
+        split_at = text.rfind('\n', 0, max_chars)
+        if split_at == -1: split_at = text.rfind('. ', 0, max_chars)
+        if split_at == -1 or split_at < max_chars * 0.5: split_at = max_chars
+        chunks.append(text[:split_at].strip())
+        text = text[split_at:].strip()
+    return chunks
