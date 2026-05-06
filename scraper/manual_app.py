@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import time
 
 # Configuración de la página
-st.set_page_config(page_title="Extractor de El Correo", page_icon="📰", layout="centered")
+st.set_page_config(page_title="Lector de Noticias", page_icon="📰", layout="centered")
 
 # Estilos personalizados para mejorar la lectura
 st.markdown("""
