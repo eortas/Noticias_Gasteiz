@@ -483,11 +483,36 @@ class MultiScraper:
             "inicie sesión en este dispositivo",
             "primer periódico digital de vitoria",
             "noticias vitoria-álava",
-            "aparece primero en gasteiz hoy"
+            "aparece primero en gasteiz hoy",
+            "nexus, la llave en mano",
+            "la pescadería de mercadona",
+            "hacienda vigila los regalos",
+            "mercadona devolverá dinero",
+            "de 'got talent' a las aulas",
+            "un interno de dueñas",
+            "dos pueblos de cádiz",
+            "siete lugares donde antes se fumaba",
+            "los jubilados que cobran 2.998",
+            "pueden las aerolíneas aplicar un recargo",
+            "la guardia civil investiga un presunto acoso",
+            "una casa de 'alto standing' en león",
+            "una mujer recibirá 125.000 euros"
         ]
         
         valid_paragraphs = []
         for p in p_tags:
+            # 0. Heurística para detectar enlaces a otras noticias (común en El Correo al final)
+            # Si el párrafo contiene un link que es casi todo el texto del párrafo
+            a_tag = p.find('a')
+            if a_tag:
+                href = a_tag.get('href', '')
+                # Si el link apunta a otra noticia (.html) y el texto es corto (típico de titular)
+                p_text_clean = p.get_text().strip()
+                if (".html" in href or "gasteizhoy.com/" in href) and len(p_text_clean) < 180:
+                    # Si el link ocupa más del 70% del texto del párrafo, es probable que sea promo
+                    if len(a_tag.get_text().strip()) > len(p_text_clean) * 0.7:
+                        continue
+
             # Limpiar espacios y saltos de línea internos que rompen el regex
             text = " ".join(p.get_text().split()).strip()
             
