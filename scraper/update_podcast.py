@@ -17,10 +17,7 @@ def update_podcast_data():
         
         latest_es_slug = None
         latest_eu_slug = None
-        
-        # We also keep the hardcoded IDs I found as backup for today
-        # ES: 2lKOMW4BIBoZYtXP6rXsgT
-        # EU: 5Z35rN3TIcicXtoKUaqUfO
+        latest_pl_slug = None
         
         for item in root.findall("./channel/item"):
             title = item.find("title").text or ""
@@ -29,7 +26,6 @@ def update_podcast_data():
             link = link_element.text or ""
             
             # Extract the full slug after /episodes/
-            # Example: https://podcasters.spotify.com/pod/show/eduardo-armentia/episodes/Noticias-...-e3ivd5k
             slug_match = re.search(r'/episodes/([^/?]+)', link)
             if not slug_match: continue
             slug = slug_match.group(1)
@@ -37,20 +33,20 @@ def update_podcast_data():
             if title.startswith("(EU)"):
                 if not latest_eu_slug:
                     latest_eu_slug = slug
+            elif title.startswith("(PL)"):
+                if not latest_pl_slug:
+                    latest_pl_slug = slug
             else:
                 if not latest_es_slug:
                     latest_es_slug = slug
             
-            if latest_es_slug and latest_eu_slug:
+            if latest_es_slug and latest_eu_slug and latest_pl_slug:
                 break
         
-        # Si no encontramos slugs, usamos fallbacks conocidos
         podcast_data = {
             "es_slug": latest_es_slug or "Noticias-del-da-06-de-Mayo-de-2026-e3ivd5k",
             "eu_slug": latest_eu_slug or "EU-2026ko-maiatzaren-6ko-albisteak-e3iven8",
-            # También guardamos los IDs reales de Spotify por si acaso podemos usarlos
-            "es_id": "2lKOMW4BIBoZYtXP6rXsgT", 
-            "eu_id": "5Z35rN3TIcicXtoKUaqUfO",
+            "pl_slug": latest_pl_slug or latest_es_slug, # Fallback to ES if PL not found
             "last_update": time.strftime("%Y-%m-%d %H:%M:%S")
         }
         
@@ -58,7 +54,7 @@ def update_podcast_data():
         with open(podcast_file, 'w', encoding='utf-8') as f:
             json.dump(podcast_data, f, indent=2)
             
-        print(f"Podcast data updated: ES_SLUG={latest_es_slug}, EU_SLUG={latest_eu_slug}")
+        print(f"Podcast data updated: ES_SLUG={latest_es_slug}, EU_SLUG={latest_eu_slug}, PL_SLUG={latest_pl_slug}")
         
     except Exception as e:
         print(f"Error updating podcast data: {e}")

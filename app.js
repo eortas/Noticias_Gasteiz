@@ -429,8 +429,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const iframe = document.querySelector('.spotify-embed iframe');
         if (!iframe || !podcastData) return;
 
-        // Usamos el slug de Anchor que es más fiable para obtenerlo del RSS
-        const slug = currentLang === 'eu' ? podcastData.eu_slug : podcastData.es_slug;
+        // Seleccionamos el slug según el idioma
+        let slug = podcastData.es_slug;
+        if (currentLang === 'eu') slug = podcastData.eu_slug;
+        if (currentLang === 'pl') slug = podcastData.pl_slug;
 
         if (slug) {
             // El formato de embed de Anchor es muy compatible y estable
