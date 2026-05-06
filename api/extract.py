@@ -65,13 +65,39 @@ class handler(BaseHTTPRequestHandler):
                         paragraphs.append(text)
             else:
                 paragraphs = [re.sub('<.*?>', '', p).strip() for p in paragraphs if len(p.strip()) > 30]
+            # Limpieza final y formateo (eliminar 'Noticia relacionada' y dividir textos largos)
+            final_paragraphs = []
+            junk_patterns = [r'Noticia relacionada.*?No\s*No', r'Noticia relacionada.*']
+            
+            for p in paragraphs:
+                # Eliminar basura
+                for junk in junk_patterns:
+                    p = re.sub(junk, '', p, flags=re.IGNORECASE)
+                
+                p = p.strip()
+                if not p:
+                    continue
+                
+                # Dividir en oraciones (por cada punto, exclamación o interrogación)
+                sentences = re.split(r'(?<=[.!?])\s+', p)
+                chunk = []
+                for s in sentences:
+                    s = s.strip()
+                    if s:
+                        chunk.append(s)
+                    # Cada 3 oraciones hacemos un salto de párrafo (o si es muy largo)
+                    if len(chunk) >= 3:
+                        final_paragraphs.append(' '.join(chunk))
+                        chunk = []
+                if chunk:
+                    final_paragraphs.append(' '.join(chunk))
 
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({
                 "title": title,
-                "paragraphs": paragraphs
+                "paragraphs": final_paragraphs
             }).encode('utf-8'))
 
         except Exception as e:
