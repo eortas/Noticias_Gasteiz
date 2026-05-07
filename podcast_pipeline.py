@@ -218,7 +218,8 @@ def run_automation():
                 time.sleep(1)
             
             # 2. Pulsar 'Hecho' solo si es visible, si no, seguimos
-            btn_hecho = page.get_by_role("button", name=/Hecho|Done/i).first
+            import re
+            btn_hecho = page.get_by_role("button", name=re.compile(r"Hecho|Done", re.IGNORECASE)).first
             if btn_hecho.is_visible(timeout=3000):
                 btn_hecho.click()
             else:
@@ -247,14 +248,14 @@ def run_automation():
         time.sleep(3)
 
         # Configurar en el modal de ajustes
-        if page.get_by_text(/Personalizar resumen de audio|Customize audio/i).is_visible(timeout=5000):
+        if page.get_by_text(re.compile(r"Personalizar resumen de audio|Customize audio", re.IGNORECASE)).is_visible(timeout=5000):
             print("Configurando duración 'Corto'...")
             try:
-                page.get_by_text("Corto").or_(page.get_by_text("Short")).first.click(timeout=5000)
+                page.get_by_text(re.compile(r"Corto|Short", re.IGNORECASE)).first.click(timeout=5000)
                 time.sleep(1)
                 
                 # Clic en el botón azul Generar
-                page.get_by_role("button", name=/Generar|Generate/i).last.click(timeout=5000)
+                page.get_by_role("button", name=re.compile(r"Generar|Generate", re.IGNORECASE)).last.click(timeout=5000)
                 print("Generación manual iniciada con éxito.")
             except Exception as e:
                 print(f"Error dentro del modal de ajustes: {e}")
