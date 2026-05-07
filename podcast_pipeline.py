@@ -207,34 +207,46 @@ def run_automation():
             page.locator("button:has-text('Subir archivos'), button:has-text('Upload files')").first.click(force=True)
         fc_info.value.set_files(OUTPUT_TXT)
         
-        print("Archivo subido. Limpiando posibles modales de bienvenida...")
-        time.sleep(5)
-        page.keyboard.press("Escape") # Cerrar el modal de 'Personaliza la experiencia'
+        print("Archivo subido. Cerrando ventana de personalización...")
+        time.sleep(3)
+        try:
+            # Intentar pulsar 'Hecho' o la 'X' del modal
+            if page.locator("button:has-text('Hecho'), button:has-text('Done')").filter(visible=True).is_visible():
+                page.click("button:has-text('Hecho'), button:has-text('Done')")
+            else:
+                page.keyboard.press("Escape")
+        except:
+            page.keyboard.press("Escape")
         time.sleep(2)
         
-        print("Generando audio (Deep Dive)...")
+        print("Abriendo panel de Audio...")
         page.wait_for_selector("text=/Resumen de audio|Audio Overview/i >> visible=true", timeout=60000)
         page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first.click(force=True)
-        
-        print("Configurando duración 'Corto' en NotebookLM...")
-        try:
-            # 1. Clic en Personalizar (Customize)
-            btn_personalizar = page.wait_for_selector("text=/Personalizar|Customize/i", timeout=30000)
-            btn_personalizar.click(force=True)
-            print("Menú de personalización abierto. Esperando opciones...")
-            time.sleep(5) # Más tiempo para que carguen los chips de duración
-            
-            # 2. Seleccionar 'Corto' (Short)
-            print("Seleccionando opción de duración corta...")
-            opcion_corto = page.locator("text=/Corto|Short/i").filter(visible=True).first
-            opcion_corto.click(timeout=10000)
-            time.sleep(2)
-            
-            # 3. Cerrar menú
-            page.keyboard.press("Escape")
-            time.sleep(2)
-        except Exception as e:
-            print(f"Aviso: No se pudo personalizar la duración: {e}")
+        time.sleep(3)
+
+        # Comprobar si ya está generando automáticamente
+        if page.locator("text=/Generando|Generating/i").filter(visible=True).is_visible():
+            print("Google ya ha empezado a generar el audio automáticamente.")
+        else:
+            print("Configurando duración 'Corto' en NotebookLM...")
+            try:
+                # 1. Clic en Personalizar
+                btn_personalizar = page.wait_for_selector("text=/Personalizar|Customize/i", timeout=15000)
+                btn_personalizar.click(force=True)
+                time.sleep(3)
+                
+                # 2. Seleccionar 'Corto'
+                print("Seleccionando opción de duración corta...")
+                page.locator("text=/Corto|Short/i").filter(visible=True).first.click(timeout=5000)
+                time.sleep(1)
+                page.keyboard.press("Escape")
+                time.sleep(2)
+
+                # 3. Iniciar generación manual si no había empezado
+                print("Iniciando generación manual...")
+                page.locator("text=/Generar|Generate/i").filter(visible=True).first.click(timeout=10000)
+            except Exception as e:
+                print(f"Aviso: No se pudo personalizar o iniciar manualmente: {e}")
 
         # Bucle de generación
         for intento in range(4):
