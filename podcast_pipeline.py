@@ -101,68 +101,32 @@ def run_automation():
         
         # Subir archivo
         print("Subiendo archivo de noticias...")
-        # Pulsar escape por si hay algún diálogo de bienvenida
-        page.keyboard.press("Escape")
-        time.sleep(1)
-
-        # 1. Clic en 'Añadir fuentes'
-        print("Abriendo menú de fuentes...")
+        time.sleep(2) # Esperar a que el posible diálogo automático aparezca
         
-        # Intentar cerrar el banner de error de Google si existe (el de la X arriba a la derecha)
+        # 1. Comprobar si el diálogo de fuentes ya está abierto (como se ve en tu captura)
+        if not page.locator("text=/Crea resúmenes de audio|Añadir fuentes|Subir archivos/i").first.is_visible():
+            print("Abriendo menú de fuentes manualmente...")
+            page.locator("button:has-text('Añadir fuentes'), button:has-text('Add sources'), [aria-label*='fuente']").first.click(force=True)
+            time.sleep(2)
+
+        # 2. Clic en el botón específico 'Subir archivos' que vemos en la imagen
+        print("Seleccionando 'Subir archivos' del panel central...")
         try:
-            banner_close = page.locator("button[aria-label*='Cerrar'], button[aria-label*='Close']").first
-            if banner_close.is_visible():
-                banner_close.click()
-        except:
-            pass
-
-        page.keyboard.press("Escape")
-        time.sleep(1)
-        
-        # Intentamos clicar por texto exacto usando un filtro más amplio (div, span o button)
-        fuente_btn = page.locator("button, div, span").filter(has_text=re.compile(r"Añadir fuentes", re.I)).first
-        fuente_btn.scroll_into_view_if_needed()
-        fuente_btn.hover() # Un hover a veces ayuda a que Google registre el click
-        time.sleep(0.5)
-        fuente_btn.click(force=True)
-        
-        # Esperar a que aparezca el diálogo de fuentes
-        time.sleep(3) 
-
-        # 2. Clic en la opción de 'Subir archivo' o 'Texto'
-        print("Seleccionando opción de archivo local (Subir desde ordenador)...")
-        try:
-            # Esperamos a que aparezca cualquier opción de subida
-            page.wait_for_selector("text=/Subir|Upload|Ordenador|Computer|Archivo|File|Texto|Text/i", timeout=15000)
-            
             with page.expect_file_chooser(timeout=20000) as fc_info:
-                # Buscamos elementos que tengan pinta de ser el botón de subida
-                # Google suele usar divs o botones para estas tarjetas
-                opciones = [
-                    "text=/Subir desde el ordenador|Upload from computer/i",
-                    "text=/Seleccionar archivo|Select file/i",
-                    "text=/Archivo local|Local file/i",
-                    "text=/Texto|Text/i"
-                ]
-                
-                success = False
-                for selector in opciones:
-                    try:
-                        target = page.locator(selector).first
-                        if target.is_visible():
-                            target.click(force=True)
-                            success = True
-                            break
-                    except:
-                        continue
-                
-                if not success:
-                    # Último intento: cualquier cosa que diga Subir o Upload y sea clicable
-                    page.locator("button, [role='button'], div").filter(has_text=re.compile(r"Subir|Upload|Computer|Ordenador", re.I)).first.click(force=True)
-
+                # El botón exacto que sale en tu captura
+                page.locator("button:has-text('Subir archivos'), button:has-text('Upload files')").first.click(force=True)
+            
             file_chooser = fc_info.value
             file_chooser.set_files(OUTPUT_TXT)
             print("Archivo seleccionado con éxito.")
+        except Exception as e:
+            print(f"No se detectó el botón principal. Probando alternativas...")
+            # Fallback por si el botón tiene otro nombre o es una tarjeta
+            with page.expect_file_chooser(timeout=15000) as fc_info:
+                page.locator("text=/Subir|Upload|Ordenador|Computer|Archivo|File/i").first.click(force=True)
+            file_chooser = fc_info.value
+            file_chooser.set_files(OUTPUT_TXT)
+seleccionado con éxito.")
         except Exception as e:
             print(f"Error crítico en la subida: {e}")
             page.screenshot(path=os.path.join(DOWNLOAD_DIR, "error_notebooklm.png"))
