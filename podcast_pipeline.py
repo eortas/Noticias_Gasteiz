@@ -132,15 +132,24 @@ def run_automation():
             print(f"Se ha guardado una captura del error en: {DOWNLOAD_DIR}/error_notebooklm.png")
             raise e
         
-        print("Fuente procesada. Abriendo Guía del cuaderno...")
-        # Esperar a que aparezca la guía del cuaderno (ampliamos a 2 min)
-        page.wait_for_selector("text=/Notebook Guide|Guía del cuaderno/i", timeout=120000)
-        page.click("text=/Notebook Guide|Guía del cuaderno/i")
+        print("Fuente procesada. Iniciando generación de audio en el panel Studio...")
+        # En el nuevo diseño, buscamos directamente "Resumen de audio"
+        try:
+            page.wait_for_selector("text=/Resumen de audio|Audio Overview|Audio summary/i", timeout=60000)
+            page.click("text=/Resumen de audio|Audio Overview|Audio summary/i")
+            print("Panel de audio abierto.")
+        except:
+            print("No se encontró 'Resumen de audio'. Intentando abrir la guía primero...")
+            page.click("text=/Guía del cuaderno|Notebook Guide/i")
+            time.sleep(2)
+            page.click("text=/Resumen de audio|Audio Overview|Audio summary/i")
         
         # Click en Generar Audio (Deep Dive)
-        page.click("text=/Generate|Generar/i")
+        print("Haciendo clic en 'Generar'...")
+        page.wait_for_selector("text=/Generar|Generate/i", timeout=30000)
+        page.click("text=/Generar|Generate/i")
         
-        print("Generando audio... esto puede tardar varios minutos.")
+        print("Generando audio... esto puede tardar varios minutos (normalmente 2-5 min).")
         # Esperar a que el botón de descarga esté disponible (timeout de 10 min)
         download_btn = page.wait_for_selector('button[aria-label*="Download"]', timeout=600000)
         
