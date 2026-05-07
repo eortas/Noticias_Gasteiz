@@ -207,28 +207,31 @@ def run_automation():
             page.locator("button:has-text('Subir archivos'), button:has-text('Upload files')").first.click(force=True)
         fc_info.value.set_files(OUTPUT_TXT)
         
-        print("Archivo subido. Configurando preferencias en el modal...")
+        print("Archivo subido. Configurando preferencias en el modal inicial...")
         time.sleep(3)
         try:
-            # 1. Intentar activar el interruptor de 'Resumen personalizado' si aparece
-            # El selector suele ser un input tipo checkbox o un switch
-            switch = page.locator("role=switch, input[type='checkbox']").first
+            # 1. Buscar el interruptor de 'Configurar resumen personalizado'
+            # Este es el paso clave para que Google NO empiece solo.
+            switch = page.locator("text=/Configurar resumen personalizado/i, role=switch, input[type='checkbox']").first
             if switch.is_visible():
-                print("Activando 'Configurar resumen personalizado'...")
-                switch.click()
+                print("Interruptor detectado. Activándolo para frenar generación automática...")
+                switch.click(force=True)
                 time.sleep(1)
             
-            # 2. Pulsar 'Hecho'
-            if page.locator("button:has-text('Hecho'), button:has-text('Done')").filter(visible=True).is_visible():
-                page.click("button:has-text('Hecho'), button:has-text('Done')")
+            # 2. Pulsar 'Hecho' o la 'X'
+            btn_hecho = page.locator("button:has-text('Hecho'), button:has-text('Done')").filter(visible=True).first
+            if btn_hecho.is_visible():
+                btn_hecho.click()
             else:
                 page.keyboard.press("Escape")
         except Exception as e:
             print(f"Aviso al manejar modal: {e}")
             page.keyboard.press("Escape")
+        
         time.sleep(2)
         
-        print("Abriendo panel de Audio (vía flecha de tarjeta)...")
+        print("Abriendo panel de Audio para configurar duración...")
+        # ... (resto del proceso)
         try:
             # Buscar la tarjeta de Resumen de Audio y su botón de flecha/personalización
             tarjeta_audio = page.locator("text=/Resumen de audio|Audio Overview/i").first
