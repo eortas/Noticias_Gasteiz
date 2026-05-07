@@ -85,7 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('data/mood_history.json').then(res => res.json()).catch(() => []),
         fetch('data/podcast.json').then(res => res.json()).catch(() => null)
     ]).then(([news, moodHistory, podcast]) => {
-        newsData = news;
+        // Filter out broken entries (missing id, title, or body)
+        newsData = news.filter(n => n.id && n.title);
         moodHistoryData = moodHistory;
         podcastData = podcast;
         updatePodcastPlayer();
@@ -289,10 +290,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const isEu = currentLang === 'eu';
         const isPl = currentLang === 'pl';
         const displayTitle = (isEu && item.title_eu) ? item.title_eu : (isPl && item.title_pl ? item.title_pl : item.title);
-        const displayBody = (isEu && item.body_eu) ? item.body_eu : (isPl && item.body_pl ? item.body_pl : item.body);
+        const displayBody = (isEu && item.body_eu) ? item.body_eu : (isPl && item.body_pl ? item.body_pl : (item.body || ''));
 
         const paragraphs = displayBody ? displayBody.split('\n').filter(p => p.trim() !== '') : [];
-        const bodyHtml = paragraphs.map(p => `<p class="paragraph">${p}</p>`).join('');
+        const bodyHtml = paragraphs.length > 0 
+            ? paragraphs.map(p => `<p class="paragraph">${p}</p>`).join('')
+            : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">${isEu ? 'Eduki osoa ez dago eskuragarri.' : (isPl ? 'Pełna treść nie jest dostępna.' : 'El contenido completo no está disponible.')}</p>`;
 
         articleContent.innerHTML = `
             <div class="hero-wrap">
