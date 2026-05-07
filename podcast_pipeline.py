@@ -99,10 +99,15 @@ def run_automation():
             page.click("button[aria-label*='notebook'], button[aria-label*='cuaderno']")
         
         # Subir archivo
-        # Esperamos al input de archivos
         print("Subiendo archivo de noticias...")
+        # Pulsar escape por si hay algún diálogo de bienvenida
+        page.keyboard.press("Escape")
+        time.sleep(1)
+
+        # Buscar el botón real (evitando los textos explicativos)
         with page.expect_file_chooser() as fc_info:
-            page.click("text=/Cargar|Upload|Añadir fuente|Add source/i")
+            # Buscamos un botón que contenga el texto o un aria-label
+            page.click("button:has-text('Añadir fuente'), button:has-text('Add source'), button:has-text('Cargar'), button[aria-label*='fuente'], button[aria-label*='source']", force=True)
         file_chooser = fc_info.value
         file_chooser.set_files(OUTPUT_TXT)
         
