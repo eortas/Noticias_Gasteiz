@@ -227,38 +227,40 @@ def run_automation():
         except:
             page.keyboard.press("Escape")
         
-        time.sleep(2)
-        
         print("Buscando botón de ajustes (flecha >)...")
         try:
-            # Buscamos el botón PEQUEÑO que tiene la flecha, NO la tarjeta
-            # El selector [aria-label*='Resumen de audio'] + button suele ser el de la flecha
-            ajustes_audio = page.locator("button:has-text('>'), [aria-label*='personalizar'], [aria-label*='Audio overview settings']").filter(visible=True).first
+            # Opción 1: Buscar por el aria-label exacto que suele tener el botón de la flecha
+            import re
+            ajustes_audio = page.get_by_role("button", name=re.compile(r"Personalizar|Customize|Audio overview settings", re.IGNORECASE)).first
+            
+            # Opción 2: Si hay varios, preferir el que esté en el panel de la derecha (Studio)
+            if not ajustes_audio.is_visible(timeout=5000):
+                ajustes_audio = page.locator("button:has(svg)").filter(has=page.locator("text=/Resumen de audio|Audio Overview/i")).first
+
+            print("Botón de ajustes detectado, pulsando...")
             ajustes_audio.click(timeout=10000)
         except Exception as e:
-            print(f"No se pudo abrir ajustes vía flecha: {e}. Intentando alternativa...")
-            # Si falla, intentamos buscar el botón 'Personalizar' que sale a veces en el centro
-            btn_pers = page.get_by_role("button", name=/Personalizar|Customize/i).filter(visible=True).first
-            if btn_pers.is_visible():
-                btn_pers.click()
-            else:
-                print("¡Peligro! No se encuentra el botón de ajustes. Abortando clic para evitar generación por defecto.")
-                # Si llegamos aquí, mejor no pulsar la tarjeta o se generará mal
+            print(f"No se pudo abrir ajustes vía flecha: {e}. Intentando clic directo en tarjeta como último recurso...")
+            page.locator("text=/Resumen de audio|Audio Overview/i").first.click(force=True)
         
         time.sleep(3)
 
-        # Configurar en el modal de ajustes
-        if page.get_by_text(re.compile(r"Personalizar resumen de audio|Customize audio", re.IGNORECASE)).is_visible(timeout=5000):
-            print("Configurando duración 'Corto'...")
+        # Configurar en el modal de ajustes (Screenshot 2)
+        import re
+        panel_personalizar = page.get_by_text(re.compile(r"Personalizar resumen de audio|Customize audio", re.IGNORECASE))
+        if panel_personalizar.is_visible(timeout=5000):
+            print("Panel de personalización detectado. Configurando duración 'Corto'...")
             try:
+                # Clic en 'Corto'
                 page.get_by_text(re.compile(r"Corto|Short", re.IGNORECASE)).first.click(timeout=5000)
                 time.sleep(1)
                 
-                # Clic en el botón azul Generar
-                page.get_by_role("button", name=re.compile(r"Generar|Generate", re.IGNORECASE)).last.click(timeout=5000)
-                print("Generación manual iniciada con éxito.")
+                # Pulsar el botón azul 'Generar'
+                btn_generar = page.get_by_role("button", name=re.compile(r"Generar|Generate", re.IGNORECASE)).last
+                btn_generar.click(timeout=5000)
+                print("Generación manual iniciada.")
             except Exception as e:
-                print(f"Error dentro del modal de ajustes: {e}")
+                print(f"Error al interactuar con el panel: {e}")
                 page.keyboard.press("Enter")
 
         # Bucle de generación
