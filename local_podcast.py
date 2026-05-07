@@ -2,6 +2,7 @@ import json
 import asyncio
 import os
 import subprocess
+import shutil
 from datetime import datetime, timedelta, timezone
 from openai import OpenAI
 import edge_tts
@@ -73,11 +74,10 @@ def convertir_json_a_texto(json_file="data/news.json"):
 
 def generar_guion(texto_origen):
     """Genera un guion usando NVIDIA como fuente principal."""
-    # Modelos recomendados de NVIDIA (NIM)
     modelos_nvidia = [
-        "nvidia/llama-3.1-nemotron-70b-instruct",
         "meta/llama-3.1-70b-instruct",
-        "meta/llama-3.3-70b-instruct"
+        "meta/llama-3.3-70b-instruct",
+        "nvidia/llama-3.1-nemotron-70b-instruct"
     ]
     
     prompt = f"""
@@ -89,7 +89,6 @@ def generar_guion(texto_origen):
     {texto_origen}
     """
     
-    # 1. Intentar con NVIDIA
     client_nv = get_ai_client("nvidia")
     for modelo in modelos_nvidia:
         print(f"--- Intentando con NVIDIA: {modelo} ---")
@@ -105,7 +104,6 @@ def generar_guion(texto_origen):
             print(f"Fallo NVIDIA {modelo}: {e}")
             continue
 
-    # 2. Backup con OpenRouter si NVIDIA falla
     print("NVIDIA ha fallado. Usando OpenRouter como respaldo...")
     client_or = get_ai_client("openrouter")
     modelos_or = ["deepseek/deepseek-r1:free", "meta-llama/llama-3.1-8b-instruct:free"]
@@ -144,15 +142,22 @@ async def procesar_podcast(guion):
     print("--- Paso 4: Uniendo audio final ---")
     podcast_final = AudioSegment.empty()
     for archivo in archivos_temporales:
-        podcast_final += AudioSegment.from_mp3(archivo)
-        podcast_final += AudioSegment.silent(duration=400) 
-        os.remove(archivo)
+        try:
+            podcast_final += AudioSegment.from_mp3(archivo)
+            podcast_final += AudioSegment.silent(duration=400) 
+        except:
+            continue
     
-    os.rmdir(temp_dir)
     archivo_salida = f"downloads/podcast_local_{datetime.now().strftime('%Y%m%d')}.mp3"
     if not os.path.exists("downloads"): os.makedirs("downloads")
     podcast_final.export(archivo_salida, format="mp3", bitrate="192k")
     print(f"\n¡LISTO! Podcast generado en: {archivo_salida}")
+
+    # Limpieza robusta en Windows
+    try:
+        shutil.rmtree(temp_dir)
+    except:
+        print(f"Aviso: No se pudo borrar la carpeta temporal {temp_dir}. Puedes borrarla a mano.")
 
 if __name__ == "__main__":
     sincronizar_noticias()
