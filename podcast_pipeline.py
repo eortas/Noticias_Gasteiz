@@ -207,58 +207,58 @@ def run_automation():
             page.locator("button:has-text('Subir archivos'), button:has-text('Upload files')").first.click(force=True)
         fc_info.value.set_files(OUTPUT_TXT)
         
-        print("Archivo subido. Configurando preferencias en el modal inicial...")
+        print("Archivo subido. Gestionando modal inicial...")
         time.sleep(3)
         try:
-            # 1. Buscar el interruptor de 'Configurar resumen personalizado'
-            # Usamos locators separados para evitar errores de sintaxis
+            # 1. Intentar activar el interruptor si existe
             switch = page.get_by_role("switch").first
-            if not switch.is_visible():
-                switch = page.get_by_label("Configurar resumen personalizado").first
-            
-            if switch.is_visible():
-                print("Interruptor detectado. Activándolo...")
+            if switch.is_visible(timeout=3000):
+                print("Activando resumen personalizado...")
                 switch.click(force=True)
                 time.sleep(1)
             
-            # 2. Pulsar 'Hecho'
-            page.get_by_role("button", name="Hecho").or_(page.get_by_role("button", name="Done")).first.click()
-        except Exception as e:
-            print(f"Aviso al manejar modal: {e}")
+            # 2. Pulsar 'Hecho' solo si es visible, si no, seguimos
+            btn_hecho = page.get_by_role("button", name=/Hecho|Done/i).first
+            if btn_hecho.is_visible(timeout=3000):
+                btn_hecho.click()
+            else:
+                page.keyboard.press("Escape")
+        except:
             page.keyboard.press("Escape")
         
         time.sleep(2)
         
-        print("Abriendo panel de Personalización (vía flecha)...")
+        print("Buscando botón de ajustes (flecha >)...")
         try:
-            # Buscamos específicamente el botón que contiene la flecha o el aria-label de personalizar
-            btn_flecha = page.locator("button:has-text('>'), button[aria-label*='personalizar']").filter(visible=True).first
-            btn_flecha.click(timeout=15000)
-        except:
-            print("No se detectó la flecha, intentando vía texto...")
-            page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first.click()
+            # Buscamos el botón PEQUEÑO que tiene la flecha, NO la tarjeta
+            # El selector [aria-label*='Resumen de audio'] + button suele ser el de la flecha
+            ajustes_audio = page.locator("button:has-text('>'), [aria-label*='personalizar'], [aria-label*='Audio overview settings']").filter(visible=True).first
+            ajustes_audio.click(timeout=10000)
+        except Exception as e:
+            print(f"No se pudo abrir ajustes vía flecha: {e}. Intentando alternativa...")
+            # Si falla, intentamos buscar el botón 'Personalizar' que sale a veces en el centro
+            btn_pers = page.get_by_role("button", name=/Personalizar|Customize/i).filter(visible=True).first
+            if btn_pers.is_visible():
+                btn_pers.click()
+            else:
+                print("¡Peligro! No se encuentra el botón de ajustes. Abortando clic para evitar generación por defecto.")
+                # Si llegamos aquí, mejor no pulsar la tarjeta o se generará mal
         
         time.sleep(3)
 
-        # Configurar en el modal (Screenshot 2)
-        print("Configurando duración 'Corto' y Español...")
-        try:
-            # Seleccionar 'Corto'
-            page.get_by_text("Corto").or_(page.get_by_text("Short")).first.click(timeout=10000)
-            time.sleep(1)
-            
-            # Cambiar a español si es necesario
-            idioma_select = page.get_by_role("combobox").first
-            if idioma_select.is_visible():
-                idioma_select.click()
-                page.get_by_role("option", name="español").click()
-
-            # Clic en Generar
-            print("Pulsando botón azul 'Generar'...")
-            page.get_by_role("button", name="Generar").or_(page.get_by_role("button", name="Generate")).last.click(timeout=10000)
-        except Exception as e:
-            print(f"Aviso en personalización final: {e}")
-            page.keyboard.press("Enter")
+        # Configurar en el modal de ajustes
+        if page.get_by_text(/Personalizar resumen de audio|Customize audio/i).is_visible(timeout=5000):
+            print("Configurando duración 'Corto'...")
+            try:
+                page.get_by_text("Corto").or_(page.get_by_text("Short")).first.click(timeout=5000)
+                time.sleep(1)
+                
+                # Clic en el botón azul Generar
+                page.get_by_role("button", name=/Generar|Generate/i).last.click(timeout=5000)
+                print("Generación manual iniciada con éxito.")
+            except Exception as e:
+                print(f"Error dentro del modal de ajustes: {e}")
+                page.keyboard.press("Enter")
 
         # Bucle de generación
         for intento in range(4):
