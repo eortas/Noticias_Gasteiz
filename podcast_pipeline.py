@@ -4,7 +4,7 @@ import time
 import subprocess
 from datetime import datetime, timedelta
 from playwright.sync_api import sync_playwright
-from playwright_stealth import stealth
+from playwright_stealth import stealth_sync
 
 # --- CONFIGURACIÓN ---
 REPO_PATH = os.getcwd()
@@ -67,7 +67,7 @@ def run_automation():
             accept_downloads=True
         )
         page = context.new_page()
-        stealth(page) # Aplicar el parche de invisibilidad
+        stealth_sync(page) # Aplicar el parche de invisibilidad
 
         # --- NOTEBOOK LM ---
         print("--- Pasos 2-4: NotebookLM (Generación de Audio) ---")
