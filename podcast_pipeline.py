@@ -90,14 +90,14 @@ def run_automation():
         print("Esperando a que NotebookLM cargue por completo...")
         page.wait_for_load_state("networkidle")
         
-        # Intentar clicar en 'Nuevo cuaderno' o 'New notebook' usando Regex
+        # Intentar clicar en 'Crear cuaderno' o 'New notebook' usando Regex
         try:
-            nuevo_btn = page.wait_for_selector("text=/Nuevo cuaderno|New notebook/i", timeout=15000)
+            nuevo_btn = page.wait_for_selector("text=/Crear cuaderno|Nuevo cuaderno|New notebook/i", timeout=15000)
             nuevo_btn.click()
         except:
             print("No se encontró el botón con texto. Intentando por selector de icono...")
-            # Fallback: A veces es un botón con un icono de '+'
-            page.click("button[aria-label*='notebook'], button[aria-label*='cuaderno']")
+            # Fallback: El botón de arriba a la derecha
+            page.click("button:has-text('Crear'), button[aria-label*='notebook'], button[aria-label*='cuaderno']")
         
         # Subir archivo
         print("Subiendo archivo de noticias...")
@@ -107,9 +107,9 @@ def run_automation():
 
         # 1. Clic en el botón general de añadir fuente
         print("Abriendo menú de fuentes...")
-        # Intentamos varios selectores para el botón '+' de añadir fuente
-        page.locator("button:has-text('Añadir fuente'), button:has-text('Add source'), [aria-label*='fuente'], [aria-label*='source']").first.click(force=True)
-        time.sleep(3) # Un poco más de tiempo para la animación
+        # Intentamos varios selectores para el botón '+' de añadir fuentes
+        page.locator("button:has-text('Añadir fuentes'), button:has-text('Add sources'), [aria-label*='fuente'], [aria-label*='source']").first.click(force=True)
+        time.sleep(3) 
 
         # 2. Clic en la opción de 'Subir archivo' o 'Texto'
         print("Seleccionando opción de archivo local (Subir desde ordenador)...")
