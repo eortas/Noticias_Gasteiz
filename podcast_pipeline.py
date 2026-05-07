@@ -133,20 +133,31 @@ def run_automation():
             raise e
         
         print("Fuente procesada. Iniciando generación de audio en el panel Studio...")
-        # En el nuevo diseño, buscamos directamente "Resumen de audio"
+        # En el nuevo diseño, buscamos el texto "Resumen de audio" y clicamos en el elemento que lo contiene
         try:
-            page.wait_for_selector("text=/Resumen de audio|Audio Overview|Audio summary/i", timeout=60000)
-            page.click("text=/Resumen de audio|Audio Overview|Audio summary/i")
-            print("Panel de audio abierto.")
-        except:
-            print("No se encontró 'Resumen de audio'. Intentando abrir la guía primero...")
-            page.click("text=/Guía del cuaderno|Notebook Guide/i")
-            time.sleep(2)
-            page.click("text=/Resumen de audio|Audio Overview|Audio summary/i")
+            # Esperamos a que el panel Studio sea visible
+            page.wait_for_selector("text=/Resumen de audio|Audio Overview/i", timeout=60000)
+            time.sleep(2) # Pequeña espera para que la animación de Studio termine
+            
+            # Intentamos clicar en el elemento que contiene el texto exacto
+            audio_btn = page.locator("text=/Resumen de audio|Audio Overview/i").first
+            audio_btn.click(force=True)
+            print("Panel de audio abierto (clic forzado).")
+        except Exception as e:
+            print(f"No se pudo clicar directamente: {e}. Probando vía Guía...")
+            try:
+                page.click("text=/Guía del cuaderno|Notebook Guide/i", timeout=10000)
+                time.sleep(2)
+                page.locator("text=/Resumen de audio|Audio Overview/i").first.click(force=True)
+            except:
+                print("Fallo total al encontrar el botón de audio. Guardando captura...")
+                page.screenshot(path=os.path.join(DOWNLOAD_DIR, "error_studio.png"))
+                raise e
         
         # Click en Generar Audio (Deep Dive)
         print("Haciendo clic en 'Generar'...")
-        page.wait_for_selector("text=/Generar|Generate/i", timeout=30000)
+        # A veces el botón tarda en aparecer tras el clic anterior
+        page.wait_for_selector("text=/Generar|Generate/i", timeout=45000)
         page.click("text=/Generar|Generate/i")
         
         print("Generando audio... esto puede tardar varios minutos (normalmente 2-5 min).")
