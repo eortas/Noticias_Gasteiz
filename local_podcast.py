@@ -69,36 +69,39 @@ def convertir_json_a_texto(json_file="data/news.json"):
     return "\n\n".join(noticias_chunks)
 
 def generar_guion(texto_origen):
-    """Utiliza OpenRouter para generar un guion dinámico basado en chunks de noticias."""
+    """Genera un guion usando una cascada de modelos gratuitos de OpenRouter."""
+    modelos_a_probar = [
+        "meta-llama/llama-3.3-70b-instruct:free",
+        "google/gemini-2.0-flash-exp:free",
+        "mistralai/mistral-7b-instruct:free",
+        "google/gemma-2-9b-it:free"
+    ]
+    
     prompt = f"""
-    Actúa como un guionista de podcasts profesional. Te proporciono una lista de NOTICIAS en bloques numerados de Vitoria-Gasteiz. 
-    Tu tarea es crear un diálogo dinámico, informal y divertido entre Alex y María.
-    
-    ESTRUCTURA:
-    1. Introducción rápida y con chispa. Menciona que es el podcast de noticias de Vitoria.
-    2. Comentar cada bloque de noticia de forma natural, sin decir "Noticia 1".
-    3. Alex y María deben debatir o comentar brevemente los detalles más curiosos.
-    4. Despedida cálida.
-    
-    Usa expresiones de Vitoria-Gasteiz y España. Devuelve ÚNICAMENTE JSON con la estructura:
+    Actúa como un guionista de podcasts profesional. Crea un diálogo dinámico e informal entre Alex y María sobre estas noticias de Vitoria. 
+    Usa expresiones de España. Devuelve ÚNICAMENTE JSON:
     {{ "dialogo": [ {{ "speaker": "Alex", "text": "..." }}, {{ "speaker": "Maria", "text": "..." }} ] }}
     
-    Noticias por bloques:
+    Noticias:
     {texto_origen}
     """
     
-    print("--- Paso 2: Generando guion con OpenRouter (Llama 3.3 Free) ---")
-    try:
-        response = client.chat.completions.create(
-            model="meta-llama/llama-3.3-70b-instruct:free",
-            messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"},
-            temperature=0.8
-        )
-        return json.loads(response.choices[0].message.content).get("dialogo", [])
-    except Exception as e:
-        print(f"Error en OpenRouter: {e}")
-        return []
+    for modelo in modelos_a_probar:
+        print(f"--- Intentando generar guion con: {modelo} ---")
+        try:
+            response = client.chat.completions.create(
+                model=modelo,
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"},
+                temperature=0.8
+            )
+            return json.loads(response.choices[0].message.content).get("dialogo", [])
+        except Exception as e:
+            print(f"Fallo con {modelo}: {e}. Probando el siguiente...")
+            continue
+            
+    print("Error: Todos los modelos gratuitos han fallado.")
+    return []
 
 async def generar_audio_fragmento(texto, voz, archivo_salida):
     communicate = edge_tts.Communicate(texto, voz)
