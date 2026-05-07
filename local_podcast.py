@@ -6,6 +6,10 @@ from datetime import datetime, timedelta, timezone
 from groq import Groq
 import edge_tts
 from pydub import AudioSegment
+from dotenv import load_dotenv
+
+# Cargar variables de entorno desde .env
+load_dotenv()
 
 # Configuración
 client = Groq() 
