@@ -205,11 +205,22 @@ def run_automation():
                 if intento == 3: raise e
         
         print("Generando audio... esto puede tardar varios minutos (normalmente 2-5 min).")
-        # Esperar a que el botón de descarga esté disponible (timeout de 10 min)
-        # El selector del botón de descarga suele ser un icono de descarga (download)
-        download_btn = page.wait_for_selector('button[aria-label*="Download"], button[aria-label*="descargar"]', timeout=600000)
+        # Esperar a que el botón de descarga esté disponible (timeout de 12 min)
+        try:
+            # Buscamos por aria-label, texto o por el icono de descarga típico (SVG)
+            download_btn = page.wait_for_selector(
+                'button[aria-label*="Download"], button[aria-label*="descargar"], button:has-text("Download"), button:has-text("Descargar"), [aria-label*="download"]', 
+                timeout=720000,
+                state="visible"
+            )
+            print("¡Botón de descarga detectado!")
+        except Exception as e:
+            print("Error: No se detectó el botón de descarga tras 12 minutos.")
+            page.screenshot(path=os.path.join(DOWNLOAD_DIR, "error_timeout.png"))
+            print(f"Captura guardada en {DOWNLOAD_DIR}/error_timeout.png para revisión.")
+            raise e
         
-        with page.expect_download() as download_info:
+        with page.expect_download(timeout=60000) as download_info:
             download_btn.click()
         
         download = download_info.value
