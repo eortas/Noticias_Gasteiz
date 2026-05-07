@@ -105,10 +105,28 @@ def run_automation():
         page.keyboard.press("Escape")
         time.sleep(1)
 
-        # 1. Clic en el botón general de añadir fuente
+        # 1. Clic en 'Añadir fuentes'
         print("Abriendo menú de fuentes...")
-        # Intentamos varios selectores para el botón '+' de añadir fuentes
-        page.locator("button:has-text('Añadir fuentes'), button:has-text('Add sources'), [aria-label*='fuente'], [aria-label*='source']").first.click(force=True)
+        
+        # Intentar cerrar el banner de error de Google si existe (el de la X arriba a la derecha)
+        try:
+            banner_close = page.locator("button[aria-label*='Cerrar'], button[aria-label*='Close']").first
+            if banner_close.is_visible():
+                banner_close.click()
+        except:
+            pass
+
+        page.keyboard.press("Escape")
+        time.sleep(1)
+        
+        # Intentamos clicar por texto exacto usando un filtro más amplio (div, span o button)
+        fuente_btn = page.locator("button, div, span").filter(has_text=re.compile(r"Añadir fuentes", re.I)).first
+        fuente_btn.scroll_into_view_if_needed()
+        fuente_btn.hover() # Un hover a veces ayuda a que Google registre el click
+        time.sleep(0.5)
+        fuente_btn.click(force=True)
+        
+        # Esperar a que aparezca el diálogo de fuentes
         time.sleep(3) 
 
         # 2. Clic en la opción de 'Subir archivo' o 'Texto'
