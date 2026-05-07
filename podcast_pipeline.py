@@ -104,10 +104,17 @@ def run_automation():
         page.keyboard.press("Escape")
         time.sleep(1)
 
-        # Buscar el botón real (evitando los textos explicativos)
+        # 1. Clic en el botón general de añadir fuente
+        print("Abriendo menú de fuentes...")
+        page.click("button:has-text('Añadir fuente'), button:has-text('Add source'), button[aria-label*='fuente'], button[aria-label*='source']", force=True)
+        time.sleep(2)
+
+        # 2. Clic en la opción de 'Subir archivo' o 'Texto' que abre el explorador
+        print("Seleccionando opción de archivo local...")
         with page.expect_file_chooser() as fc_info:
-            # Buscamos un botón que contenga el texto o un aria-label
-            page.click("button:has-text('Añadir fuente'), button:has-text('Add source'), button:has-text('Cargar'), button[aria-label*='fuente'], button[aria-label*='source']", force=True)
+            # Buscamos la opción específica del menú
+            page.click("text=/Archivo|File|Texto|Text|Local/i", force=True)
+        
         file_chooser = fc_info.value
         file_chooser.set_files(OUTPUT_TXT)
         
