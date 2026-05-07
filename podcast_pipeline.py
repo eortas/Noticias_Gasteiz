@@ -133,22 +133,22 @@ def run_automation():
             raise e
         
         print("Fuente procesada. Iniciando generación de audio en el panel Studio...")
-        # En el nuevo diseño, buscamos el texto "Resumen de audio" y clicamos en el elemento que lo contiene
+        # Usamos .filter(visible=True) para evitar elementos ocultos de accesibilidad
         try:
             # Esperamos a que el panel Studio sea visible
-            page.wait_for_selector("text=/Resumen de audio|Audio Overview/i", timeout=60000)
-            time.sleep(2) # Pequeña espera para que la animación de Studio termine
+            page.wait_for_selector("text=/Resumen de audio|Audio Overview/i >> visible=true", timeout=60000)
+            time.sleep(2)
             
-            # Intentamos clicar en el elemento que contiene el texto exacto
-            audio_btn = page.locator("text=/Resumen de audio|Audio Overview/i").first
+            # Clic en el botón visible
+            audio_btn = page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first
             audio_btn.click(force=True)
-            print("Panel de audio abierto (clic forzado).")
+            print("Panel de audio abierto.")
         except Exception as e:
             print(f"No se pudo clicar directamente: {e}. Probando vía Guía...")
             try:
-                page.click("text=/Guía del cuaderno|Notebook Guide/i", timeout=10000)
+                page.locator("text=/Guía del cuaderno|Notebook Guide/i").filter(visible=True).first.click(timeout=10000)
                 time.sleep(2)
-                page.locator("text=/Resumen de audio|Audio Overview/i").first.click(force=True)
+                page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first.click(force=True)
             except:
                 print("Fallo total al encontrar el botón de audio. Guardando captura...")
                 page.screenshot(path=os.path.join(DOWNLOAD_DIR, "error_studio.png"))
@@ -159,21 +159,23 @@ def run_automation():
         for intento in range(3):
             try:
                 # Comprobar si sale el error de Google "No se ha podido generar"
-                if page.locator("text=/No se ha podido generar|Could not generate/i").is_visible():
+                error_msg = page.locator("text=/No se ha podido generar|Could not generate/i").filter(visible=True)
+                if error_msg.is_visible():
                     print(f"Detectado error de Google (intento {intento+1}). Reintentando...")
-                    page.click("text=/Eliminar|Delete|Remove/i")
+                    page.locator("text=/Eliminar|Delete|Remove/i").filter(visible=True).first.click()
                     time.sleep(2)
-                    page.locator("text=/Resumen de audio|Audio Overview/i").first.click(force=True)
+                    page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first.click(force=True)
                     time.sleep(3)
 
                 print("Buscando botón 'Generar'...")
-                page.wait_for_selector("text=/Generar|Generate/i", timeout=30000)
-                page.click("text=/Generar|Generate/i")
+                btn_generar = page.locator("text=/Generar|Generate/i").filter(visible=True).first
+                btn_generar.wait_for(timeout=30000)
+                btn_generar.click()
                 break # Éxito
             except Exception as e:
                 if intento == 2: raise e
                 print(f"Fallo al iniciar generación. Reintentando clic en Resumen de audio... ({intento + 1}/3)")
-                page.locator("text=/Resumen de audio|Audio Overview/i").first.click(force=True)
+                page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first.click(force=True)
                 time.sleep(5)
         
         print("Generando audio... esto puede tardar varios minutos (normalmente 2-5 min).")
