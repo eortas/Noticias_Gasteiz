@@ -19,8 +19,6 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 def update_repo():
     print("--- Paso 0: Sincronizando con GitHub (Opcional) ---")
     try:
-        # Intentamos un pull simple. Si falla por cambios locales, no pasa nada,
-        # seguiremos con lo que tenemos en local.
         subprocess.run(["git", "pull", "origin", "main"], check=False, capture_output=True)
     except:
         pass
@@ -34,9 +32,7 @@ def prepare_content():
     with open(DATA_FILE, 'r', encoding='utf-8') as f:
         noticias = json.load(f)
 
-    # Filtrar noticias de las últimas 24 horas para el podcast
     fecha_hoy = datetime.now().strftime('%Y-%m-%d')
-    # También incluimos ayer por si el podcast se graba temprano
     fecha_ayer = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
     
     count = 0
@@ -54,214 +50,124 @@ def prepare_content():
     print(f"Archivo generado con {count} noticias.")
     return count > 0
 
+def subir_a_spotify(page, audio_path):
+    """Lógica para subir el audio a Spotify for Podcasters."""
+    print("--- Paso 5: Spotify for Podcasters ---")
+    try:
+        page.goto("https://podcasters.spotify.com/pod/dashboard")
+        
+        if "login" in page.url:
+            print("AVISO: Por favor, inicia sesión en Spotify en la ventana del navegador.")
+            page.wait_for_url("**/dashboard**", timeout=0)
+
+        # Intentar pulsar 'Nuevo episodio' con espera
+        page.wait_for_selector("text=Nuevo episodio", timeout=20000)
+        page.click("text=Nuevo episodio")
+        
+        # Subida rápida
+        page.wait_for_selector("text=Subida rápida", timeout=20000)
+        page.click("text=Subida rápida")
+        
+        print("Subiendo audio a Spotify...")
+        page.set_input_files('input[type="file"]', audio_path)
+        
+        # Rellenar metadatos
+        page.fill('input[name="title"]', f"Noticias Vitoria-Gasteiz {datetime.now().strftime('%d/%m/%Y')}")
+        page.fill('textarea[name="description"]', f"Resumen diario de las noticias más importantes de Vitoria-Gasteiz del día {datetime.now().strftime('%d de %B')}.")
+        
+        print("Esperando a que Spotify procese el audio (esto puede tardar)...")
+        page.wait_for_selector("text=Procesamiento completado", timeout=300000)
+        
+        page.click("text=Publicar ahora")
+        print("¡PODCAST PUBLICADO EN SPOTIFY!")
+    except Exception as e:
+        print(f"Error en el paso de Spotify: {e}")
+        page.screenshot(path="downloads/error_spotify.png")
+        print("Se ha guardado una captura en downloads/error_spotify.png")
+
 def run_automation():
+    audio_path = os.path.join(DOWNLOAD_DIR, f"podcast_{datetime.now().strftime('%Y%m%d')}.wav")
+    
+    # --- COMPROBACIÓN: SI YA EXISTE EL AUDIO, IR DIRECTO A SPOTIFY ---
+    if os.path.exists(audio_path):
+        print(f"--- Audio de hoy detectado en: {audio_path} ---")
+        print("Saltando generación en NotebookLM y pasando a la subida...")
+        with sync_playwright() as p:
+            context = p.chromium.launch_persistent_context(
+                user_data_dir=USER_DATA_DIR,
+                headless=False,
+                channel="chrome",
+                args=["--disable-blink-features=AutomationControlled"],
+                ignore_default_args=["--enable-automation"]
+            )
+            page = context.pages[0]
+            subir_a_spotify(page, audio_path)
+            context.close()
+        return
+
+    # --- FLUJO NORMAL DE GENERACIÓN ---
     with sync_playwright() as p:
-        # Usamos launch_persistent_context para no tener que loguearnos cada vez
-        # La primera vez que lo corras, verás el navegador. Loguéate y cierra.
         print("Iniciando navegador Chrome (Modo Stealth)...")
         context = p.chromium.launch_persistent_context(
             user_data_dir=USER_DATA_DIR,
             headless=False,
-            channel="chrome", # Usar el Chrome del sistema
+            channel="chrome",
             args=["--disable-blink-features=AutomationControlled"],
             ignore_default_args=["--enable-automation"],
             slow_mo=500,
             accept_downloads=True
         )
         page = context.new_page()
-        
-        # Inyectar script para ocultar automatización (Stealth Nativo)
-        page.add_init_script("""
-            Object.defineProperty(navigator, 'webdriver', {
-                get: () => undefined
-            });
-        """)
+        page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
 
-        # --- NOTEBOOK LM ---
         print("--- Pasos 2-4: NotebookLM (Generación de Audio) ---")
         page.goto("https://notebooklm.google.com/")
-        
-        # Comprobar si estamos logueados
         if "accounts.google.com" in page.url:
-            print("AVISO: Por favor, inicia sesión en Google en la ventana del navegador.")
+            print("AVISO: Por favor, inicia sesión en Google.")
             page.wait_for_url("https://notebooklm.google.com/**", timeout=0)
 
-        # Esperar a que la página cargue y buscar el botón de nuevo cuaderno
-        print("Esperando a que NotebookLM cargue por completo...")
         page.wait_for_load_state("networkidle")
-        
-        # Intentar clicar en 'Crear cuaderno' o 'New notebook' usando Regex
         try:
             nuevo_btn = page.wait_for_selector("text=/Crear cuaderno|Nuevo cuaderno|New notebook/i", timeout=15000)
             nuevo_btn.click()
         except:
-            print("No se encontró el botón con texto. Intentando por selector de icono...")
-            # Fallback: El botón de arriba a la derecha
             page.click("button:has-text('Crear'), button[aria-label*='notebook'], button[aria-label*='cuaderno']")
         
-        # Subir archivo
         print("Subiendo archivo de noticias...")
-        time.sleep(2) # Esperar a que el posible diálogo automático aparezca
-        
-        # 1. Comprobar si el diálogo de fuentes ya está abierto (como se ve en tu captura)
+        time.sleep(2)
         if not page.locator("text=/Crea resúmenes de audio|Añadir fuentes|Subir archivos/i").first.is_visible():
-            print("Abriendo menú de fuentes manualmente...")
             page.locator("button:has-text('Añadir fuentes'), button:has-text('Add sources'), [aria-label*='fuente']").first.click(force=True)
             time.sleep(2)
 
-        # 2. Clic en el botón específico 'Subir archivos' que vemos en la imagen
-        print("Seleccionando 'Subir archivos' del panel central...")
-        try:
-            with page.expect_file_chooser(timeout=20000) as fc_info:
-                # El botón exacto que sale en tu captura
-                page.locator("button:has-text('Subir archivos'), button:has-text('Upload files')").first.click(force=True)
-            
-            file_chooser = fc_info.value
-            file_chooser.set_files(OUTPUT_TXT)
-            print("Archivo seleccionado con éxito.")
-        except Exception as e:
-            print(f"No se detectó el botón principal. Probando alternativas...")
-            # Fallback por si el botón tiene otro nombre o es una tarjeta
-            with page.expect_file_chooser(timeout=15000) as fc_info:
-                page.locator("text=/Subir|Upload|Ordenador|Computer|Archivo|File/i").first.click(force=True)
-            print("Archivo seleccionado con éxito. Esperando 20s a que NotebookLM procese la fuente...")
-            time.sleep(20)
-        except Exception as e:
-            print(f"Error crítico en la subida: {e}")
-            page.screenshot(path=os.path.join(DOWNLOAD_DIR, "error_notebooklm.png"))
-            print(f"Se ha guardado una captura del error en: {DOWNLOAD_DIR}/error_notebooklm.png")
-            raise e
+        with page.expect_file_chooser(timeout=20000) as fc_info:
+            page.locator("button:has-text('Subir archivos'), button:has-text('Upload files')").first.click(force=True)
+        fc_info.value.set_files(OUTPUT_TXT)
         
-        print("Fuente procesada. Iniciando generación de audio en el panel Studio...")
-        # Usamos .filter(visible=True) para evitar elementos ocultos de accesibilidad
-        try:
-            # Esperamos a que el panel Studio sea visible
-            page.wait_for_selector("text=/Resumen de audio|Audio Overview/i >> visible=true", timeout=60000)
-            time.sleep(2)
-            
-            # Clic en el botón visible
-            audio_btn = page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first
-            audio_btn.click(force=True)
-            print("Panel de audio abierto.")
-        except Exception as e:
-            print(f"No se pudo clicar directamente: {e}. Probando vía Guía...")
-            try:
-                page.locator("text=/Guía del cuaderno|Notebook Guide/i").filter(visible=True).first.click(timeout=10000)
-                time.sleep(2)
-                page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first.click(force=True)
-            except:
-                print("Fallo total al encontrar el botón de audio. Guardando captura...")
-                page.screenshot(path=os.path.join(DOWNLOAD_DIR, "error_studio.png"))
-                raise e
+        print("Generando audio (Deep Dive)...")
+        page.wait_for_selector("text=/Resumen de audio|Audio Overview/i >> visible=true", timeout=60000)
+        page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first.click(force=True)
         
-        # Click en Generar Audio (Deep Dive) con monitoreo activo de errores
-        print("Iniciando fase de generación...")
-        for intento in range(4): # 4 intentos por si Google falla mucho hoy
+        # Bucle de generación
+        for intento in range(4):
             try:
-                # 1. Asegurarnos de que el panel de audio está abierto
-                if not page.locator("text=/Generar|Generate/i").filter(visible=True).is_visible():
-                    print("Abriendo panel de audio...")
-                    page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first.click(force=True)
-                    time.sleep(3)
-
-                # 2. Comprobar si ya hay un error previo y limpiarlo
-                error_btn = page.locator("text=/Eliminar|Delete|Remove/i").filter(visible=True).first
-                if error_btn.is_visible():
-                    print("Limpiando error previo de Google...")
-                    error_btn.click()
-                    time.sleep(1)
-                    # Si aparece el diálogo de confirmación central, pulsamos el segundo 'Eliminar'
-                    confirm_btn = page.locator("button:has-text('Eliminar'), button:has-text('Delete')").filter(visible=True).last
-                    if confirm_btn.is_visible():
-                        confirm_btn.click()
-                    time.sleep(2)
-                    continue # Reintentar desde el principio del bucle
-
-                # 3. Intentar pulsar Generar
-                print(f"Intentando pulsar 'Generar' (Intento {intento+1})...")
                 btn_generar = page.locator("text=/Generar|Generate/i").filter(visible=True).first
                 btn_generar.click(timeout=10000)
-                
-                # 4. Vigilar si sale el error rojo justo después de pulsar
-                print("Vigilando si la generación comienza con éxito...")
                 time.sleep(5)
-                error_msg = page.locator("text=/No se ha podido generar|Could not generate/i").filter(visible=True)
-                if error_msg.is_visible():
-                    print("Google ha rechazado la generación. Reintentando...")
-                    page.locator("text=/Eliminar|Delete|Remove/i").filter(visible=True).first.click()
-                    time.sleep(1)
-                    # Confirmar eliminación si sale el diálogo
-                    confirm_btn = page.locator("button:has-text('Eliminar'), button:has-text('Delete')").filter(visible=True).last
-                    if confirm_btn.is_visible():
-                        confirm_btn.click()
-                    time.sleep(2)
-                    continue
-                
-                # Si llegamos aquí, parece que ha empezado bien
-                break
-            except Exception as e:
-                print(f"Aviso: Intento {intento+1} fallido. Reintentando en 5s...")
-                time.sleep(5)
-                if intento == 3: raise e
+                if not page.locator("text=/No se ha podido generar/i").filter(visible=True).is_visible():
+                    break
+                page.locator("text=/Eliminar|Delete/i").filter(visible=True).first.click()
+            except:
+                continue
         
-        print("Generando audio... esto puede tardar varios minutos (normalmente 2-5 min).")
-        # Esperar a que el botón de descarga esté disponible (timeout de 20 min)
-        try:
-            # Buscamos por aria-label, texto o por el icono de descarga típico (SVG)
-            download_btn = page.wait_for_selector(
-                'button[aria-label*="Download"], button[aria-label*="descargar"], button:has-text("Download"), button:has-text("Descargar"), [aria-label*="download"]', 
-                timeout=1200000,
-                state="visible"
-            )
-            print("¡Botón de descarga detectado!")
-        except Exception as e:
-            print("Error: No se detectó el botón de descarga tras 20 minutos.")
-            page.screenshot(path=os.path.join(DOWNLOAD_DIR, "error_timeout.png"))
-            print(f"Captura guardada en {DOWNLOAD_DIR}/error_timeout.png para revisión.")
-            raise e
-        
+        print("Esperando descarga (esto tarda)...")
+        download_btn = page.wait_for_selector('button[aria-label*="Download"], [aria-label*="download"]', timeout=1200000)
         with page.expect_download(timeout=60000) as download_info:
             download_btn.click()
-        
-        download = download_info.value
-        audio_path = os.path.join(DOWNLOAD_DIR, f"podcast_{datetime.now().strftime('%Y%m%d')}.wav")
-        download.save_as(audio_path)
+        download_info.value.save_as(audio_path)
         print(f"Audio descargado en: {audio_path}")
 
-        # --- SPOTIFY ---
-        print("--- Paso 5: Spotify for Podcasters ---")
-        try:
-            page.goto("https://podcasters.spotify.com/pod/dashboard")
-            
-            if "login" in page.url:
-                print("AVISO: Por favor, inicia sesión en Spotify en la ventana del navegador.")
-                page.wait_for_url("**/dashboard**", timeout=0)
-
-            # Intentar pulsar 'Nuevo episodio' con espera
-            page.wait_for_selector("text=Nuevo episodio", timeout=20000)
-            page.click("text=Nuevo episodio")
-            
-            # Subida rápida
-            page.wait_for_selector("text=Subida rápida", timeout=20000)
-            page.click("text=Subida rápida")
-            
-            print("Subiendo audio a Spotify...")
-            page.set_input_files('input[type="file"]', audio_path)
-            
-            # Rellenar metadatos
-            page.fill('input[name="title"]', f"Noticias Vitoria-Gasteiz {datetime.now().strftime('%d/%m/%Y')}")
-            page.fill('textarea[name="description"]', f"Resumen diario de las noticias más importantes de Vitoria-Gasteiz del día {datetime.now().strftime('%d de %B')}.")
-            
-            print("Esperando a que Spotify procese el audio (esto puede tardar)...")
-            page.wait_for_selector("text=Procesamiento completado", timeout=300000)
-            
-            page.click("text=Publicar ahora")
-            print("¡PODCAST PUBLICADO EN SPOTIFY!")
-        except Exception as e:
-            print(f"Error en el paso de Spotify: {e}")
-            page.screenshot(path="downloads/error_spotify.png")
-            print("Se ha guardado una captura en downloads/error_spotify.png")
-
+        # Pasamos a Spotify
+        subir_a_spotify(page, audio_path)
         context.close()
 
 if __name__ == "__main__":
