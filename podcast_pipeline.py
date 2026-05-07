@@ -4,6 +4,7 @@ import time
 import subprocess
 from datetime import datetime, timedelta
 from playwright.sync_api import sync_playwright
+from playwright_stealth.stealth import stealth as stealth_func
 import playwright_stealth
 
 # --- CONFIGURACIÓN ---
@@ -19,9 +20,12 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 def update_repo():
     print("--- Paso 0: Descargando últimas noticias de GitHub ---")
     try:
-        subprocess.run(["git", "pull", "origin", "main"], check=True)
+        # Hacemos stash por si hay cambios locales (como el JSON de noticias)
+        subprocess.run(["git", "stash"], check=False)
+        subprocess.run(["git", "pull", "origin", "main", "--rebase"], check=True)
+        subprocess.run(["git", "stash", "pop"], check=False)
     except Exception as e:
-        print(f"Error al hacer git pull: {e}")
+        print(f"Aviso: No se pudo sincronizar con GitHub (pero el script continuará): {e}")
 
 def prepare_content():
     print("--- Paso 1: Convirtiendo JSON a Texto para NotebookLM ---")
@@ -67,7 +71,7 @@ def run_automation():
             accept_downloads=True
         )
         page = context.new_page()
-        playwright_stealth.stealth(page) # Aplicar el parche de invisibilidad
+        stealth_func(page) # Aplicar el parche de invisibilidad
 
         # --- NOTEBOOK LM ---
         print("--- Pasos 2-4: NotebookLM (Generación de Audio) ---")
