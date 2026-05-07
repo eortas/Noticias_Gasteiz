@@ -12,7 +12,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuración
-client = Groq() 
+api_key = os.getenv("groq_KEY")
+client = Groq(api_key=api_key) 
 VOZ_ALEX = "es-ES-AlvaroNeural"
 VOZ_MARIA = "es-ES-ElviraNeural"
 
