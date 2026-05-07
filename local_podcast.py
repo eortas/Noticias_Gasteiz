@@ -87,10 +87,10 @@ def generar_guion(texto_origen):
     {texto_origen}
     """
     
-    print("--- Paso 2: Generando guion con OpenRouter (Gemma 4 31B) ---")
+    print("--- Paso 2: Generando guion con OpenRouter (Llama 3.3 70B) ---")
     try:
         response = client.chat.completions.create(
-            model="google/gemma-4-31b-it:free",
+            model="meta-llama/llama-3.3-70b-instruct",
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"},
             temperature=0.8
