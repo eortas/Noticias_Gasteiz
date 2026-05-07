@@ -4,6 +4,7 @@ import time
 import subprocess
 from datetime import datetime, timedelta
 from playwright.sync_api import sync_playwright
+from playwright_stealth import stealth_sync
 
 # --- CONFIGURACIÓN ---
 REPO_PATH = os.getcwd()
@@ -55,14 +56,18 @@ def run_automation():
     with sync_playwright() as p:
         # Usamos launch_persistent_context para no tener que loguearnos cada vez
         # La primera vez que lo corras, verás el navegador. Loguéate y cierra.
-        print("Iniciando navegador...")
+        print("Iniciando navegador Chrome (Modo Stealth)...")
         context = p.chromium.launch_persistent_context(
             user_data_dir=USER_DATA_DIR,
-            headless=False, # Ponlo en True una vez que todo funcione
+            headless=False,
+            channel="chrome", # Usar el Chrome del sistema
+            args=["--disable-blink-features=AutomationControlled"],
+            ignore_default_args=["--enable-automation"],
             slow_mo=500,
             accept_downloads=True
         )
         page = context.new_page()
+        stealth_sync(page) # Aplicar el parche de invisibilidad
 
         # --- NOTEBOOK LM ---
         print("--- Pasos 2-4: NotebookLM (Generación de Audio) ---")
