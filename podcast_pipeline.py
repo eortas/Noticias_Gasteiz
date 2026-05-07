@@ -2,6 +2,7 @@ import os
 import json
 import time
 import subprocess
+import re
 from datetime import datetime, timedelta
 from playwright.sync_api import sync_playwright
 
@@ -111,20 +112,44 @@ def run_automation():
         time.sleep(3) # Un poco más de tiempo para la animación
 
         # 2. Clic en la opción de 'Subir archivo' o 'Texto'
-        print("Seleccionando opción de archivo local...")
+        print("Seleccionando opción de archivo local (Subir desde ordenador)...")
         try:
+            # Esperamos a que aparezca cualquier opción de subida
+            page.wait_for_selector("text=/Subir|Upload|Ordenador|Computer|Archivo|File|Texto|Text/i", timeout=15000)
+            
             with page.expect_file_chooser(timeout=20000) as fc_info:
-                # Intentamos clicar en el texto que suele abrir el explorador (evitando duplicados con .first)
-                page.locator("text=/Archivo|File|Texto|Text|Local/i").first.click(force=True)
+                # Buscamos elementos que tengan pinta de ser el botón de subida
+                # Google suele usar divs o botones para estas tarjetas
+                opciones = [
+                    "text=/Subir desde el ordenador|Upload from computer/i",
+                    "text=/Seleccionar archivo|Select file/i",
+                    "text=/Archivo local|Local file/i",
+                    "text=/Texto|Text/i"
+                ]
+                
+                success = False
+                for selector in opciones:
+                    try:
+                        target = page.locator(selector).first
+                        if target.is_visible():
+                            target.click(force=True)
+                            success = True
+                            break
+                    except:
+                        continue
+                
+                if not success:
+                    # Último intento: cualquier cosa que diga Subir o Upload y sea clicable
+                    page.locator("button, [role='button'], div").filter(has_text=re.compile(r"Subir|Upload|Computer|Ordenador", re.I)).first.click(force=True)
+
             file_chooser = fc_info.value
             file_chooser.set_files(OUTPUT_TXT)
+            print("Archivo seleccionado con éxito.")
         except Exception as e:
-            print(f"Error al abrir el selector: {e}. Intentando click alternativo...")
-            # Fallback: buscar un input de tipo file que pueda haber aparecido
-            with page.expect_file_chooser(timeout=20000) as fc_info:
-                page.locator("mat-list-item:has-text('Archivo'), mat-list-item:has-text('File')").click(force=True)
-            file_chooser = fc_info.value
-            file_chooser.set_files(OUTPUT_TXT)
+            print(f"Error crítico en la subida: {e}")
+            page.screenshot(path=os.path.join(DOWNLOAD_DIR, "error_notebooklm.png"))
+            print(f"Se ha guardado una captura del error en: {DOWNLOAD_DIR}/error_notebooklm.png")
+            raise e
         
         print("Archivo subido. Generando Audio Overview...")
         # Esperar a que aparezca la guía del cuaderno
