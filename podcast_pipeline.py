@@ -94,11 +94,19 @@ def subir_a_spotify(page, audio_path):
         print("Rellenando detalles del episodio...")
         page.wait_for_selector('input[name="title"]', timeout=60000)
         page.fill('input[name="title"]', f"Noticias Vitoria-Gasteiz {datetime.now().strftime('%d/%m/%Y')}")
-        page.fill('textarea[name="description"]', f"Resumen diario de las noticias más importantes de Vitoria-Gasteiz del día {datetime.now().strftime('%d de %B')}.")
         
-        print("Esperando a que Spotify procese el audio (esto puede tardar)...")
-        page.wait_for_selector("text=Procesamiento completado", timeout=300000)
+        # Localizar el cuadro de descripción (editor enriquecido)
+        print("Escribiendo descripción...")
+        desc_box = page.locator('div[role="textbox"], [aria-label*="Descripción"], .ql-editor').first
+        desc_box.click()
+        desc_box.fill(f"Resumen diario de las noticias más importantes de Vitoria-Gasteiz del día {datetime.now().strftime('%d de %B')}.")
         
+        time.sleep(2)
+        print("Avanzando al siguiente paso...")
+        page.click("button:has-text('Siguiente')")
+        
+        # Paso de Revisión/Publicar
+        page.wait_for_selector("text=Publicar ahora", timeout=60000)
         page.click("text=Publicar ahora")
         print("¡PODCAST PUBLICADO EN SPOTIFY!")
     except Exception as e:
