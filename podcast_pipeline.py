@@ -77,14 +77,22 @@ def subir_a_spotify(page, audio_path):
         # Intentar pulsar 'Nuevo episodio'
         page.click("text=Nuevo episodio")
         
-        # Subida rápida
-        page.wait_for_selector("text=Subida rápida", timeout=20000)
-        page.click("text=Subida rápida")
-        
-        print("Subiendo audio a Spotify...")
-        page.set_input_files('input[type="file"]', audio_path)
-        
+        print("Preparando la subida del archivo...")
+        # Esperar a que aparezca el botón de seleccionar archivo o el área de subida
+        try:
+            # Buscamos el input de archivos oculto que siempre usa Spotify
+            page.wait_for_selector('input[type="file"]', timeout=30000)
+            print(f"Subiendo audio: {audio_path}")
+            page.set_input_files('input[type="file"]', audio_path)
+        except Exception as e:
+            print(f"No se detectó el input directo. Intentando vía botón... {e}")
+            with page.expect_file_chooser() as fc_info:
+                page.click("text=Seleccionar un archivo")
+            fc_info.value.set_files(audio_path)
+            
         # Rellenar metadatos
+        print("Rellenando detalles del episodio...")
+        page.wait_for_selector('input[name="title"]', timeout=60000)
         page.fill('input[name="title"]', f"Noticias Vitoria-Gasteiz {datetime.now().strftime('%d/%m/%Y')}")
         page.fill('textarea[name="description"]', f"Resumen diario de las noticias más importantes de Vitoria-Gasteiz del día {datetime.now().strftime('%d de %B')}.")
         
