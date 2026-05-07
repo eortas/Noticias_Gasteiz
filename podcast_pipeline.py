@@ -207,6 +207,11 @@ def run_automation():
             page.locator("button:has-text('Subir archivos'), button:has-text('Upload files')").first.click(force=True)
         fc_info.value.set_files(OUTPUT_TXT)
         
+        print("Archivo subido. Limpiando posibles modales de bienvenida...")
+        time.sleep(5)
+        page.keyboard.press("Escape") # Cerrar el modal de 'Personaliza la experiencia'
+        time.sleep(2)
+        
         print("Generando audio (Deep Dive)...")
         page.wait_for_selector("text=/Resumen de audio|Audio Overview/i >> visible=true", timeout=60000)
         page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first.click(force=True)
