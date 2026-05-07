@@ -125,17 +125,19 @@ class MultiScraper:
             if url in seen_urls:
                 continue
                 
-            if img_url and img_url in seen_images:
-                continue
+            # Deduplicación por imagen desactivada para evitar conflictos entre medios
+            # if img_url and img_url in seen_images:
+            #     continue
 
             clean_title = title.split('|')[0].split(' - ')[0].strip().lower()
             if ": " in clean_title[:15]:
                 clean_title = clean_title.split(": ", 1)[1]
                 
             norm_title = "".join(filter(str.isalnum, clean_title))
-            title_prefix = norm_title[:35]
+            title_prefix = norm_title[:60] # Aumentado de 35 a 60 para evitar falsos duplicados
             
             if title_prefix and title_prefix in seen_titles:
+                print(f"  [Deduplicación] Saltando: {title[:50]}...")
                 continue
 
             unique_news.append(item)
@@ -360,29 +362,33 @@ class MultiScraper:
 
     def _extract_gasteiz_hoy_detail(self, link_info):
         url = link_info['url']
-        body = None; title = None; date = None; image_url = None
-        try:
-            res = self.scraper.get(url, headers=self.headers, timeout=10)
-            if res.status_code == 200:
-                soup = BeautifulSoup(res.text, 'html.parser')
-                h1 = soup.find('h1')
-                title = h1.get_text().strip() if h1 else soup.title.string.split('|')[0].strip()
-                p_tags = soup.select('div.entry-content p, article p, div.contenido p, main p') or soup.find_all('p')
-                body = self._clean_article_body(p_tags)
-                meta_date = soup.find('meta', property='article:published_time')
-                date = meta_date['content'] if meta_date else datetime.now().isoformat()
-                image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
-            else: raise Exception(f"Status {res.status_code}")
-        except Exception as e:
-            if not link_info.get('title'): return None
-            title = link_info['title']
-            soup_rss = BeautifulSoup(link_info['body_html'], 'html.parser')
-            body = self._clean_article_body(soup_rss.find_all('p')) or soup_rss.get_text()[:2000]
-            if link_info.get('date_str'):
-                date = datetime.fromisoformat(link_info['date_str'].replace(' ', 'T')).isoformat()
-            else: date = datetime.now().isoformat()
-            img_tag = soup_rss.find('img')
-            image_url = self._get_ddg_proxy_url(img_tag['src']) if img_tag and img_tag.get('src') else None
+        body = None; title = link_info.get('title'); date = link_info.get('date_str'); image_url = link_info.get('image_url')
+        
+        # Si ya tenemos el contenido (de la API WP o RSS), no hace falta scrapear la web
+        if link_info.get('body_html'):
+            soup_content = BeautifulSoup(link_info['body_html'], 'html.parser')
+            p_tags = soup_content.find_all('p')
+            body = self._clean_article_body(p_tags) or soup_content.get_text()[:3000]
+            if not date: date = datetime.now().isoformat()
+        else:
+            # Si no tenemos contenido (ej: venimos de scraping de portada), scrapeamos
+            try:
+                res = self.scraper.get(url, headers=self.headers, timeout=10)
+                if res.status_code == 200:
+                    soup = BeautifulSoup(res.text, 'html.parser')
+                    if not title:
+                        h1 = soup.find('h1')
+                        title = h1.get_text().strip() if h1 else soup.title.string.split('|')[0].strip()
+                    p_tags = soup.select('div.entry-content p, article p, div.contenido p, main p') or soup.find_all('p')
+                    body = self._clean_article_body(p_tags)
+                    if not date:
+                        meta_date = soup.find('meta', property='article:published_time')
+                        date = meta_date['content'] if meta_date else datetime.now().isoformat()
+                    if not image_url:
+                        image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
+                else: raise Exception(f"Status {res.status_code}")
+            except Exception as e:
+                return None # Si no hay contenido previo y el scraping falla, no podemos hacer nada
 
         if not body or "patrocinado" in title.lower() or "patrocinado" in body.lower(): return None
         
@@ -453,8 +459,8 @@ class MultiScraper:
         except Exception as e: print(f"Error mood: {e}")
 
     def run(self):
-        self.scrape_el_correo()
         self.scrape_gasteiz_hoy()
+        self.scrape_el_correo()
         self._save_news()
         self._save_history()
         self._cleanup_old_images()
