@@ -41,8 +41,8 @@ def prepare_content():
         with open(PODCAST_HISTORY, 'r', encoding='utf-8') as f:
             historial_ids = json.load(f)
 
-    # Filtro temporal de seguridad (máximo 48 horas atrás)
-    fecha_limite = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
+    # Filtro temporal de seguridad (máximo 24 horas atrás)
+    fecha_limite = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
 
     noticias_nuevas = []
     for n in noticias:
