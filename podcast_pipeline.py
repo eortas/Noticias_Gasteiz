@@ -169,6 +169,11 @@ def run_automation():
                 if error_btn.is_visible():
                     print("Limpiando error previo de Google...")
                     error_btn.click()
+                    time.sleep(1)
+                    # Si aparece el diálogo de confirmación central, pulsamos el segundo 'Eliminar'
+                    confirm_btn = page.locator("button:has-text('Eliminar'), button:has-text('Delete')").filter(visible=True).last
+                    if confirm_btn.is_visible():
+                        confirm_btn.click()
                     time.sleep(2)
                     continue # Reintentar desde el principio del bucle
 
@@ -179,11 +184,16 @@ def run_automation():
                 
                 # 4. Vigilar si sale el error rojo justo después de pulsar
                 print("Vigilando si la generación comienza con éxito...")
-                # Esperamos un poco para ver si sale el error o si empieza a cargar
                 time.sleep(5)
-                if page.locator("text=/No se ha podido generar|Could not generate/i").filter(visible=True).is_visible():
+                error_msg = page.locator("text=/No se ha podido generar|Could not generate/i").filter(visible=True)
+                if error_msg.is_visible():
                     print("Google ha rechazado la generación. Reintentando...")
                     page.locator("text=/Eliminar|Delete|Remove/i").filter(visible=True).first.click()
+                    time.sleep(1)
+                    # Confirmar eliminación si sale el diálogo
+                    confirm_btn = page.locator("button:has-text('Eliminar'), button:has-text('Delete')").filter(visible=True).last
+                    if confirm_btn.is_visible():
+                        confirm_btn.click()
                     time.sleep(2)
                     continue
                 
