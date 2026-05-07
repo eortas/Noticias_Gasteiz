@@ -207,15 +207,24 @@ def run_automation():
             page.locator("button:has-text('Subir archivos'), button:has-text('Upload files')").first.click(force=True)
         fc_info.value.set_files(OUTPUT_TXT)
         
-        print("Archivo subido. Cerrando ventana de personalización...")
+        print("Archivo subido. Configurando preferencias en el modal...")
         time.sleep(3)
         try:
-            # Intentar pulsar 'Hecho' o la 'X' del modal
+            # 1. Intentar activar el interruptor de 'Resumen personalizado' si aparece
+            # El selector suele ser un input tipo checkbox o un switch
+            switch = page.locator("role=switch, input[type='checkbox']").first
+            if switch.is_visible():
+                print("Activando 'Configurar resumen personalizado'...")
+                switch.click()
+                time.sleep(1)
+            
+            # 2. Pulsar 'Hecho'
             if page.locator("button:has-text('Hecho'), button:has-text('Done')").filter(visible=True).is_visible():
                 page.click("button:has-text('Hecho'), button:has-text('Done')")
             else:
                 page.keyboard.press("Escape")
-        except:
+        except Exception as e:
+            print(f"Aviso al manejar modal: {e}")
             page.keyboard.press("Escape")
         time.sleep(2)
         
@@ -224,29 +233,37 @@ def run_automation():
         page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first.click(force=True)
         time.sleep(3)
 
-        # Comprobar si ya está generando automáticamente
-        if page.locator("text=/Generando|Generating/i").filter(visible=True).is_visible():
-            print("Google ya ha empezado a generar el audio automáticamente.")
-        else:
-            print("Configurando duración 'Corto' en NotebookLM...")
-            try:
-                # 1. Clic en Personalizar
-                btn_personalizar = page.wait_for_selector("text=/Personalizar|Customize/i", timeout=15000)
-                btn_personalizar.click(force=True)
-                time.sleep(3)
-                
-                # 2. Seleccionar 'Corto'
-                print("Seleccionando opción de duración corta...")
-                page.locator("text=/Corto|Short/i").filter(visible=True).first.click(timeout=5000)
-                time.sleep(1)
-                page.keyboard.press("Escape")
+        # Ahora sí, forzamos la personalización a 'Corto'
+        print("Configurando duración 'Corto' en NotebookLM...")
+        try:
+            # Si ya había empezado por error, lo paramos/borramos
+            btn_eliminar = page.locator("text=/Eliminar|Delete|Cancelar|Cancel/i").filter(visible=True).first
+            if btn_eliminar.is_visible():
+                print("Deteniendo generación automática para personalizar...")
+                btn_eliminar.click()
+                time.sleep(2)
+                # Confirmar si sale diálogo
+                confirm = page.locator("button:has-text('Eliminar'), button:has-text('Delete')").filter(visible=True).last
+                if confirm.is_visible(): confirm.click()
                 time.sleep(2)
 
-                # 3. Iniciar generación manual si no había empezado
-                print("Iniciando generación manual...")
-                page.locator("text=/Generar|Generate/i").filter(visible=True).first.click(timeout=10000)
-            except Exception as e:
-                print(f"Aviso: No se pudo personalizar o iniciar manualmente: {e}")
+            # 1. Clic en Personalizar
+            btn_personalizar = page.wait_for_selector("text=/Personalizar|Customize/i", timeout=15000)
+            btn_personalizar.click(force=True)
+            time.sleep(3)
+            
+            # 2. Seleccionar 'Corto'
+            print("Seleccionando duración corta...")
+            page.locator("text=/Corto|Short/i").filter(visible=True).first.click(timeout=5000)
+            time.sleep(1)
+            page.keyboard.press("Escape")
+            time.sleep(2)
+
+            # 3. Iniciar generación
+            print("Iniciando generación con ajustes personalizados...")
+            page.locator("text=/Generar|Generate/i").filter(visible=True).first.click(timeout=10000)
+        except Exception as e:
+            print(f"Aviso en personalización: {e}")
 
         # Bucle de generación
         for intento in range(4):
