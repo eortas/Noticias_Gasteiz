@@ -16,14 +16,13 @@ USER_DATA_DIR = os.path.join(REPO_PATH, 'browser_session')
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 def update_repo():
-    print("--- Paso 0: Descargando últimas noticias de GitHub ---")
+    print("--- Paso 0: Sincronizando con GitHub (Opcional) ---")
     try:
-        # Hacemos stash por si hay cambios locales (como el JSON de noticias)
-        subprocess.run(["git", "stash"], check=False)
-        subprocess.run(["git", "pull", "origin", "main", "--rebase"], check=True)
-        subprocess.run(["git", "stash", "pop"], check=False)
-    except Exception as e:
-        print(f"Aviso: No se pudo sincronizar con GitHub (pero el script continuará): {e}")
+        # Intentamos un pull simple. Si falla por cambios locales, no pasa nada,
+        # seguiremos con lo que tenemos en local.
+        subprocess.run(["git", "pull", "origin", "main"], check=False, capture_output=True)
+    except:
+        pass
 
 def prepare_content():
     print("--- Paso 1: Convirtiendo JSON a Texto para NotebookLM ---")
