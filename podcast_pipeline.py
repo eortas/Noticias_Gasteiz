@@ -23,32 +23,55 @@ def update_repo():
     except:
         pass
 
+PODCAST_HISTORY = os.path.join(REPO_PATH, 'scraper', 'podcast_history.json')
+
 def prepare_content():
-    print("--- Paso 1: Convirtiendo JSON a Texto para NotebookLM ---")
+    print("--- Paso 1: Seleccionando noticias NUEVAS para el podcast ---")
     if not os.path.exists(DATA_FILE):
         print(f"Error: No se encuentra {DATA_FILE}")
         return False
 
+    # Cargar noticias actuales
     with open(DATA_FILE, 'r', encoding='utf-8') as f:
         noticias = json.load(f)
 
-    fecha_hoy = datetime.now().strftime('%Y-%m-%d')
-    fecha_ayer = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-    
+    # Cargar historial de noticias ya usadas
+    historial_ids = []
+    if os.path.exists(PODCAST_HISTORY):
+        with open(PODCAST_HISTORY, 'r', encoding='utf-8') as f:
+            historial_ids = json.load(f)
+
+    noticias_nuevas = []
+    for n in noticias:
+        n_id = n.get('link')
+        if n_id not in historial_ids:
+            noticias_nuevas.append(n)
+
+    if not noticias_nuevas:
+        print("No hay noticias nuevas desde el último podcast.")
+        # Opcional: podrías devolver False aquí si quieres que el script se detenga
+        # si no hay nada nuevo. Pero para el ejemplo, devolveremos True si hay al menos una.
+        return False
+
+    # Generar el archivo de texto
     count = 0
     with open(OUTPUT_TXT, 'w', encoding='utf-8') as f:
-        f.write(f"NOTICIAS DE VITORIA-GASTEIZ - {fecha_hoy}\n")
+        f.write(f"NOTICIAS NUEVAS DE VITORIA-GASTEIZ - {datetime.now().strftime('%Y-%m-%d')}\n")
         f.write("=" * 60 + "\n\n")
-        for n in noticias:
-            f_noticia = n.get('date', '')[:10]
-            if f_noticia in [fecha_hoy, fecha_ayer]:
-                f.write(f"TITULAR: {n.get('title')}\n")
-                f.write(f"CONTENIDO: {n.get('body')}\n")
-                f.write("-" * 30 + "\n\n")
-                count += 1
+        for n in noticias_nuevas:
+            f.write(f"TITULAR: {n.get('title')}\n")
+            f.write(f"CONTENIDO: {n.get('body')}\n")
+            f.write("-" * 30 + "\n\n")
+            historial_ids.append(n.get('link'))
+            count += 1
     
-    print(f"Archivo generado con {count} noticias.")
-    return count > 0
+    # Guardar el historial actualizado (solo los últimos 500 para no crecer infinito)
+    os.makedirs(os.path.dirname(PODCAST_HISTORY), exist_ok=True)
+    with open(PODCAST_HISTORY, 'w', encoding='utf-8') as f:
+        json.dump(historial_ids[-500:], f, indent=2)
+
+    print(f"Archivo generado con {count} noticias nuevas.")
+    return True
 
 def subir_a_spotify(page, audio_path):
     """Lógica para subir el audio a Spotify for Podcasters con manejo de carga lenta."""
