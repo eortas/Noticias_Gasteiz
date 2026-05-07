@@ -57,18 +57,22 @@ def subir_a_spotify(page, audio_path):
         # 1. Navegar y esperar carga inicial
         page.goto("https://podcasters.spotify.com/pod/dashboard", wait_until="domcontentloaded")
         
-        print("Esperando a que el dashboard de Spotify cargue (esto puede tardar)...")
-        # Esperar a que desaparezcan los puntos de carga o aparezca el botón
+        # --- DETECCIÓN DE LOGIN ---
+        if "login" in page.url or page.locator("text=Log in").is_visible():
+            print("\n" + "!"*50)
+            print("AVISO: NO TIENES SESIÓN INICIADA EN SPOTIFY.")
+            print("Por favor, inicia sesión manualmente en la ventana del navegador.")
+            print("El script continuará automáticamente cuando llegues al Dashboard.")
+            print("!"*50 + "\n")
+            page.wait_for_url("**/dashboard**", timeout=0) # Espera infinita al login
+        
+        print("Esperando a que el dashboard de Spotify cargue...")
         try:
             page.wait_for_selector("text=Nuevo episodio", timeout=45000)
         except:
             print("Carga lenta detectada. Recargando página...")
             page.reload()
-            page.wait_for_selector("text=Nuevo episodio", timeout=45000)
-
-        if "login" in page.url:
-            print("AVISO: Por favor, inicia sesión en Spotify en la ventana del navegador.")
-            page.wait_for_url("**/dashboard**", timeout=0)
+            page.wait_for_selector("text=Nuevo episodio", timeout=60000)
 
         # Intentar pulsar 'Nuevo episodio'
         page.click("text=Nuevo episodio")
