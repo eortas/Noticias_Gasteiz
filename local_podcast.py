@@ -11,12 +11,18 @@ from dotenv import load_dotenv
 # Cargar variables de entorno desde .env
 load_dotenv()
 
-# Configuración de OpenRouter
-# Usamos el SDK de OpenAI con la URL base de OpenRouter
-client = OpenAI(
-  base_url="https://openrouter.ai/api/v1",
-  api_key=os.getenv("OPEN_ROUTER"),
-)
+# Configuración de Clientes (NVIDIA como primario, OpenRouter como backup)
+def get_ai_client(provider="nvidia"):
+    if provider == "nvidia":
+        return OpenAI(
+            base_url="https://integrate.api.nvidia.com/v1",
+            api_key=os.getenv("NVIDIA_API")
+        )
+    else:
+        return OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=os.getenv("OPEN_ROUTER")
+        )
 
 VOZ_ALEX = "es-ES-AlvaroNeural"
 VOZ_MARIA = "es-ES-ElviraNeural"
@@ -39,7 +45,6 @@ def convertir_json_a_texto(json_file="data/news.json"):
     with open(json_file, 'r', encoding='utf-8') as f:
         news = json.load(f)
 
-    # Filtrar noticias de las últimas 24 horas
     ahora = datetime.now(timezone.utc)
     hace_24h = ahora - timedelta(hours=24)
     
@@ -52,9 +57,7 @@ def convertir_json_a_texto(json_file="data/news.json"):
         except:
             continue
 
-    # Asegurar que tenemos al menos algunas noticias
     if not noticias_hoy:
-        print("No hay noticias en las últimas 24h. Usando las últimas 10 del archivo.")
         noticias_hoy = news[:10]
     else:
         noticias_hoy = noticias_hoy[:10]
@@ -69,28 +72,29 @@ def convertir_json_a_texto(json_file="data/news.json"):
     return "\n\n".join(noticias_chunks)
 
 def generar_guion(texto_origen):
-    """Genera un guion usando una cascada de modelos gratuitos de OpenRouter."""
-    modelos_a_probar = [
-        "deepseek/deepseek-r1:free",
-        "meta-llama/llama-3.1-8b-instruct:free",
-        "mistralai/mistral-7b-instruct:free",
-        "google/gemini-flash-1.5:free",
-        "google/gemma-2-9b-it:free"
+    """Genera un guion usando NVIDIA como fuente principal."""
+    # Modelos recomendados de NVIDIA (NIM)
+    modelos_nvidia = [
+        "nvidia/llama-3.1-nemotron-70b-instruct",
+        "meta/llama-3.1-70b-instruct",
+        "meta/llama-3.3-70b-instruct"
     ]
     
     prompt = f"""
     Actúa como un guionista de podcasts profesional. Crea un diálogo dinámico e informal entre Alex y María sobre estas noticias de Vitoria. 
-    Usa expresiones de España. Devuelve ÚNICAMENTE JSON:
+    Usa expresiones de España. Devuelve ÚNICAMENTE JSON con la estructura:
     {{ "dialogo": [ {{ "speaker": "Alex", "text": "..." }}, {{ "speaker": "Maria", "text": "..." }} ] }}
     
     Noticias:
     {texto_origen}
     """
     
-    for modelo in modelos_a_probar:
-        print(f"--- Intentando generar guion con: {modelo} ---")
+    # 1. Intentar con NVIDIA
+    client_nv = get_ai_client("nvidia")
+    for modelo in modelos_nvidia:
+        print(f"--- Intentando con NVIDIA: {modelo} ---")
         try:
-            response = client.chat.completions.create(
+            response = client_nv.chat.completions.create(
                 model=modelo,
                 messages=[{"role": "user", "content": prompt}],
                 response_format={"type": "json_object"},
@@ -98,10 +102,26 @@ def generar_guion(texto_origen):
             )
             return json.loads(response.choices[0].message.content).get("dialogo", [])
         except Exception as e:
-            print(f"Fallo con {modelo}: {e}. Probando el siguiente...")
+            print(f"Fallo NVIDIA {modelo}: {e}")
+            continue
+
+    # 2. Backup con OpenRouter si NVIDIA falla
+    print("NVIDIA ha fallado. Usando OpenRouter como respaldo...")
+    client_or = get_ai_client("openrouter")
+    modelos_or = ["deepseek/deepseek-r1:free", "meta-llama/llama-3.1-8b-instruct:free"]
+    for modelo in modelos_or:
+        try:
+            response = client_or.chat.completions.create(
+                model=modelo,
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"},
+                temperature=0.8
+            )
+            return json.loads(response.choices[0].message.content).get("dialogo", [])
+        except:
             continue
             
-    print("Error: Todos los modelos gratuitos han fallado.")
+    print("Error: Todos los proveedores han fallado.")
     return []
 
 async def generar_audio_fragmento(texto, voz, archivo_salida):
@@ -138,7 +158,6 @@ if __name__ == "__main__":
     sincronizar_noticias()
     noticias_texto = convertir_json_a_texto()
     if noticias_texto:
-        # 8000 caracteres son suficientes
         guion = generar_guion(noticias_texto[:8000])
         asyncio.run(procesar_podcast(guion))
     else:
