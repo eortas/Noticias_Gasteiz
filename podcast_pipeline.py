@@ -105,10 +105,17 @@ def subir_a_spotify(page, audio_path):
         print("Avanzando al siguiente paso...")
         page.click("button:has-text('Siguiente')")
         
-        # Paso de Revisión/Publicar
-        page.wait_for_selector("text=Publicar ahora", timeout=60000)
-        page.click("text=Publicar ahora")
-        print("¡PODCAST PUBLICADO EN SPOTIFY!")
+        # Paso de Revisión
+        print("Configurando publicación inmediata...")
+        page.wait_for_selector("text=Ahora", timeout=30000)
+        page.click("text=Ahora")
+        
+        print("Esperando a que Spotify finalice el procesamiento final...")
+        # Esperar a que el botón 'Publicar' esté habilitado y el texto de 'Generando...' desaparezca
+        page.wait_for_selector("button:has-text('Publicar'):not([disabled])", timeout=300000)
+        
+        page.click("button:has-text('Publicar')")
+        print("¡PODCAST PUBLICADO EXITOSAMENTE EN SPOTIFY!")
     except Exception as e:
         print(f"Error en el paso de Spotify: {e}")
         page.screenshot(path="downloads/error_spotify.png")
