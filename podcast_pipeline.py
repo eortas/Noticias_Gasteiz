@@ -154,15 +154,32 @@ def run_automation():
                 page.screenshot(path=os.path.join(DOWNLOAD_DIR, "error_studio.png"))
                 raise e
         
-        # Click en Generar Audio (Deep Dive)
-        print("Haciendo clic en 'Generar'...")
-        # A veces el botón tarda en aparecer tras el clic anterior
-        page.wait_for_selector("text=/Generar|Generate/i", timeout=45000)
-        page.click("text=/Generar|Generate/i")
+        # Click en Generar Audio (Deep Dive) con reintentos para fallos de Google
+        print("Iniciando fase de generación...")
+        for intento in range(3):
+            try:
+                # Comprobar si sale el error de Google "No se ha podido generar"
+                if page.locator("text=/No se ha podido generar|Could not generate/i").is_visible():
+                    print(f"Detectado error de Google (intento {intento+1}). Reintentando...")
+                    page.click("text=/Eliminar|Delete|Remove/i")
+                    time.sleep(2)
+                    page.locator("text=/Resumen de audio|Audio Overview/i").first.click(force=True)
+                    time.sleep(3)
+
+                print("Buscando botón 'Generar'...")
+                page.wait_for_selector("text=/Generar|Generate/i", timeout=30000)
+                page.click("text=/Generar|Generate/i")
+                break # Éxito
+            except Exception as e:
+                if intento == 2: raise e
+                print(f"Fallo al iniciar generación. Reintentando clic en Resumen de audio... ({intento + 1}/3)")
+                page.locator("text=/Resumen de audio|Audio Overview/i").first.click(force=True)
+                time.sleep(5)
         
         print("Generando audio... esto puede tardar varios minutos (normalmente 2-5 min).")
         # Esperar a que el botón de descarga esté disponible (timeout de 10 min)
-        download_btn = page.wait_for_selector('button[aria-label*="Download"]', timeout=600000)
+        # El selector del botón de descarga suele ser un icono de descarga (download)
+        download_btn = page.wait_for_selector('button[aria-label*="Download"], button[aria-label*="descargar"]', timeout=600000)
         
         with page.expect_download() as download_info:
             download_btn.click()
