@@ -69,6 +69,20 @@ class MultiScraper:
         if deleted_count > 0:
             print(f"Limpieza completada: {deleted_count} imágenes antiguas eliminadas.")
 
+    def _parse_date(self, date_str):
+        if not date_str: 
+            return datetime.min.replace(tzinfo=timezone.utc)
+        try:
+            # Normalizar formato Z y espacios
+            clean_date = date_str.replace('Z', '+00:00').replace(' ', 'T')
+            dt = datetime.fromisoformat(clean_date)
+            # Si es "naive" (sin zona horaria), asumimos UTC+2 (España verano)
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone(timedelta(hours=2)))
+            return dt
+        except:
+            return datetime.min.replace(tzinfo=timezone.utc)
+
     def _save_news(self):
         os.makedirs(os.path.dirname(self.data_output), exist_ok=True)
         existing_news = []
@@ -85,22 +99,8 @@ class MultiScraper:
                 
         all_news = existing_news + self.news_data
         
-        def parse_date(date_str):
-            if not date_str: 
-                return datetime.min.replace(tzinfo=timezone.utc)
-            try:
-                # Normalizar formato Z a offset +00:00
-                clean_date = date_str.replace('Z', '+00:00')
-                dt = datetime.fromisoformat(clean_date)
-                # Si es "naive" (sin zona horaria), asumimos UTC+2 (España verano)
-                if dt.tzinfo is None:
-                    dt = dt.replace(tzinfo=timezone(timedelta(hours=2)))
-                return dt
-            except:
-                return datetime.min.replace(tzinfo=timezone.utc)
-
         # Ordenar todas por fecha descendente
-        all_news.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
+        all_news.sort(key=lambda x: self._parse_date(x.get('date', '')), reverse=True)
 
         unique_news = []
         seen_images = set()
@@ -143,13 +143,13 @@ class MultiScraper:
             if img_url: seen_images.add(img_url)
             if title_prefix: seen_titles.add(title_prefix)
 
-        # Filtro "HOY Y AYER" (con margen de seguridad de 3 días para evitar problemas de TZ)
+        # Filtro estricto de 72 horas (3 días)
         now = datetime.now(timezone.utc)
-        limit_date = (now - timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
+        limit_date = now - timedelta(hours=72)
         
         latest_news = []
         for item in unique_news:
-            item_dt = parse_date(item.get('date', ''))
+            item_dt = self._parse_date(item.get('date', ''))
             if item_dt >= limit_date:
                 latest_news.append(item)
         
@@ -159,7 +159,7 @@ class MultiScraper:
         with open(self.data_output, 'w', encoding='utf-8') as f:
             json.dump(latest_news, f, indent=2, ensure_ascii=False)
         
-        print(f"Scraping completado. Guardadas {len(latest_news)} noticias de hoy y ayer.")
+        print(f"Scraping completado. Guardadas {len(latest_news)} noticias de las últimas 72h.")
 
     def _normalize_url(self, url):
         if '?' in url:
@@ -222,6 +222,10 @@ class MultiScraper:
                     if articles: ld = articles[0]
                 title = ld.get('headline', '')
                 date = ld.get('datePublished', '')
+                
+                # FILTRO 72H PREVENTIVO: Comprobar fecha antes de procesar cuerpo e IA
+                if date and self._parse_date(date) < (datetime.now(timezone.utc) - timedelta(hours=72)):
+                    return None
 
             p_tags = soup.select('div.v-p-b p, article p')
             body = self._clean_article_body(p_tags)
@@ -251,24 +255,67 @@ class MultiScraper:
         except: return None
 
     def scrape_gasteiz_hoy(self):
-        print(f"Scrapeando Gasteiz Hoy (RSS vía rss2json)")
+        print(f"Scrapeando Gasteiz Hoy (API WordPress + RSS)")
         links_data = {}
+        
+        # 1. API WordPress (Permite pedir 50 posts de golpe)
         try:
-            res_rss = requests.get("https://api.rss2json.com/v1/api.json?rss_url=https://www.gasteizhoy.com/feed/", timeout=15)
+            api_url = "https://www.gasteizhoy.com/wp-json/wp/v2/posts?per_page=50&_embed"
+            res_api = requests.get(api_url, headers=self.headers, timeout=15)
+            if res_api.status_code == 200:
+                posts = res_api.json()
+                for post in posts:
+                    url = self._normalize_url(post.get('link', ''))
+                    if url:
+                        img_url = None
+                        try:
+                            if '_embedded' in post and 'wp:featuredmedia' in post['_embedded']:
+                                img_url = post['_embedded']['wp:featuredmedia'][0]['source_url']
+                        except: pass
+                        
+                        links_data[url] = {
+                            'url': url,
+                            'title': post.get('title', {}).get('rendered', ''),
+                            'body_html': post.get('content', {}).get('rendered', ''),
+                            'date_str': post.get('date', ''),
+                            'image_url': img_url
+                        }
+                print(f"  API WordPress: {len(links_data)} artículos encontrados")
+        except Exception as e:
+            print(f"  Error API WordPress: {e}")
+
+        # 2. Respaldo RSS (si la API falla o hay pocos resultados)
+        try:
+            import xml.etree.ElementTree as ET
+            res_rss = requests.get("https://www.gasteizhoy.com/feed/", headers=self.headers, timeout=15)
             if res_rss.status_code == 200:
-                data = res_rss.json()
-                if data.get('status') == 'ok':
-                    for item in data.get('items', []):
-                        url = self._normalize_url(item.get('link', '').strip())
-                        if url:
-                            body_html = item.get('content', '') or item.get('description', '')
+                root = ET.fromstring(res_rss.content)
+                ns = {'content': 'http://purl.org/rss/1.0/modules/content/'}
+                channel = root.find('channel')
+                if channel is not None:
+                    for item in channel.findall('item'):
+                        link_el = item.find('link')
+                        url = self._normalize_url((link_el.text or '').strip()) if link_el is not None else ''
+                        if url and url not in links_data:
+                            title_el = item.find('title')
+                            pubdate_el = item.find('pubDate')
+                            body_el = item.find('content:encoded', ns) or item.find('description')
+                            body_html = body_el.text or '' if body_el is not None else ''
+                            date_str = pubdate_el.text or '' if pubdate_el is not None else ''
+                            try:
+                                date_iso = parsedate_to_datetime(date_str).isoformat()
+                            except: date_iso = date_str
+                            
                             links_data[url] = {
-                                'url': url, 'title': item.get('title', ''),
-                                'body_html': body_html, 'date_str': item.get('pubDate', '')
+                                'url': url,
+                                'title': title_el.text or '' if title_el is not None else '',
+                                'body_html': body_html,
+                                'date_str': date_iso
                             }
         except Exception as e:
-            print(f"Error RSS Gasteiz Hoy: {e}")
+            print(f"  Error RSS fallback: {e}")
 
+        # 3. Respaldo Portada (Para capturar enlaces que no estén en feeds)
         try:
             res = self.scraper.get("https://www.gasteizhoy.com/", headers=self.headers, timeout=15)
             if res.status_code == 200:
@@ -290,13 +337,26 @@ class MultiScraper:
         except Exception as e:
             print(f"Error portada Gasteiz Hoy: {e}")
 
-        links_to_process = [url for url in links_data.keys() if url not in self.history]
-        for url in links_to_process[:30]:
+        limit_72h = datetime.now(timezone.utc) - timedelta(hours=72)
+        links_to_process = []
+        for url in links_data.keys():
+            if url in self.history: continue
+            
+            # Si tenemos la fecha (de API o RSS), filtramos antes de procesar
+            info = links_data[url]
+            if info.get('date_str'):
+                if self._parse_date(info['date_str']) < limit_72h:
+                    continue
+            links_to_process.append(url)
+
+        print(f"  Procesando {len(links_to_process)} nuevas noticias de Gasteiz Hoy (recientes)")
+        for url in links_to_process[:40]:
             data = self._extract_gasteiz_hoy_detail(links_data[url])
             if data:
                 self.news_data.append(data)
                 self.history.add(url)
             time.sleep(1)
+
 
     def _extract_gasteiz_hoy_detail(self, link_info):
         url = link_info['url']
@@ -333,7 +393,6 @@ class MultiScraper:
             # title_rw, body_rw = rewrite_article(title, body)
             title_rw, body_rw = title, body
             
-            sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             title_eu, body_eu = translate_to_euskara(title, body)
             title_pl, body_pl = translate_to_polish(title, body)
             return {
