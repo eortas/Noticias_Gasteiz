@@ -106,17 +106,25 @@ def run_automation():
 
         # 1. Clic en el botón general de añadir fuente
         print("Abriendo menú de fuentes...")
-        page.click("button:has-text('Añadir fuente'), button:has-text('Add source'), button[aria-label*='fuente'], button[aria-label*='source']", force=True)
-        time.sleep(2)
+        # Intentamos varios selectores para el botón '+' de añadir fuente
+        page.locator("button:has-text('Añadir fuente'), button:has-text('Add source'), [aria-label*='fuente'], [aria-label*='source']").first.click(force=True)
+        time.sleep(3) # Un poco más de tiempo para la animación
 
-        # 2. Clic en la opción de 'Subir archivo' o 'Texto' que abre el explorador
+        # 2. Clic en la opción de 'Subir archivo' o 'Texto'
         print("Seleccionando opción de archivo local...")
-        with page.expect_file_chooser() as fc_info:
-            # Buscamos la opción específica del menú
-            page.click("text=/Archivo|File|Texto|Text|Local/i", force=True)
-        
-        file_chooser = fc_info.value
-        file_chooser.set_files(OUTPUT_TXT)
+        try:
+            with page.expect_file_chooser(timeout=20000) as fc_info:
+                # Intentamos clicar en el texto que suele abrir el explorador (evitando duplicados con .first)
+                page.locator("text=/Archivo|File|Texto|Text|Local/i").first.click(force=True)
+            file_chooser = fc_info.value
+            file_chooser.set_files(OUTPUT_TXT)
+        except Exception as e:
+            print(f"Error al abrir el selector: {e}. Intentando click alternativo...")
+            # Fallback: buscar un input de tipo file que pueda haber aparecido
+            with page.expect_file_chooser(timeout=20000) as fc_info:
+                page.locator("mat-list-item:has-text('Archivo'), mat-list-item:has-text('File')").click(force=True)
+            file_chooser = fc_info.value
+            file_chooser.set_files(OUTPUT_TXT)
         
         print("Archivo subido. Generando Audio Overview...")
         # Esperar a que aparezca la guía del cuaderno
