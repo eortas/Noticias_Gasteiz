@@ -51,17 +51,26 @@ def prepare_content():
     return count > 0
 
 def subir_a_spotify(page, audio_path):
-    """Lógica para subir el audio a Spotify for Podcasters."""
+    """Lógica para subir el audio a Spotify for Podcasters con manejo de carga lenta."""
     print("--- Paso 5: Spotify for Podcasters ---")
     try:
-        page.goto("https://podcasters.spotify.com/pod/dashboard")
+        # 1. Navegar y esperar carga inicial
+        page.goto("https://podcasters.spotify.com/pod/dashboard", wait_until="domcontentloaded")
         
+        print("Esperando a que el dashboard de Spotify cargue (esto puede tardar)...")
+        # Esperar a que desaparezcan los puntos de carga o aparezca el botón
+        try:
+            page.wait_for_selector("text=Nuevo episodio", timeout=45000)
+        except:
+            print("Carga lenta detectada. Recargando página...")
+            page.reload()
+            page.wait_for_selector("text=Nuevo episodio", timeout=45000)
+
         if "login" in page.url:
             print("AVISO: Por favor, inicia sesión en Spotify en la ventana del navegador.")
             page.wait_for_url("**/dashboard**", timeout=0)
 
-        # Intentar pulsar 'Nuevo episodio' con espera
-        page.wait_for_selector("text=Nuevo episodio", timeout=20000)
+        # Intentar pulsar 'Nuevo episodio'
         page.click("text=Nuevo episodio")
         
         # Subida rápida
