@@ -49,40 +49,38 @@ def convertir_json_a_texto(json_file="data/news.json"):
         except:
             continue
 
+    # Asegurar que tenemos al menos algunas noticias
     if not noticias_hoy:
-        print("No hay noticias en las últimas 24h. Usando las últimas 10 disponibles.")
+        print("No hay noticias en las últimas 24h. Usando las últimas 10 del archivo.")
         noticias_hoy = news[:10]
     else:
-        # Si hay muchas, nos quedamos con las 10 más recientes
         noticias_hoy = noticias_hoy[:10]
 
-    texto_final = f"NOTICIAS DE VITORIA-GASTEIZ - {datetime.now().strftime('%Y-%m-%d')}\n"
-    texto_final += "="*60 + "\n\n"
-
+    noticias_chunks = []
     for i, n in enumerate(noticias_hoy):
-        texto_final += f"TITULAR: {n['title']}\n"
-        # Cogemos solo los primeros 500 caracteres del cuerpo para no saturar
+        chunk = f"[NOTICIA {i+1}]\nTITULAR: {n['title']}\n"
         cuerpo = n.get('body', 'Sin descripción.')
-        cuerpo_corto = (cuerpo[:500] + '...') if len(cuerpo) > 500 else cuerpo
-        texto_final += f"CONTENIDO: {cuerpo_corto}\n"
-        texto_final += "-"*30 + "\n\n"
+        chunk += f"RESUMEN: {cuerpo[:600]}...\n"
+        noticias_chunks.append(chunk)
     
-    return texto_final
+    return "\n\n".join(noticias_chunks)
 
 def generar_guion(texto_origen):
-    """Utiliza Groq para generar un guion dinámico."""
+    """Utiliza Groq para generar un guion dinámico basado en chunks de noticias."""
     prompt = f"""
-    Actúa como un guionista de podcasts profesional. Convierte las noticias de Vitoria-Gasteiz proporcionadas en un diálogo dinámico, 
-    informal y muy entretenido entre dos presentadores: Alex (entusiasta) y María (cercana).
+    Actúa como un guionista de podcasts profesional. Te proporciono una lista de NOTICIAS en bloques numerados. 
+    Tu tarea es crear un diálogo dinámico, informal y divertido entre Alex y María.
     
-    - Usa expresiones de España y Vitoria.
-    - Diálogo fluido y natural.
-    - No leas las noticias; cuéntalas.
+    ESTRUCTURA:
+    1. Introducción rápida y con chispa.
+    2. Comentar cada bloque de noticia de forma natural, sin decir "Noticia 1".
+    3. Alex y María deben debatir o comentar brevemente los detalles más curiosos.
+    4. Despedida cálida.
     
-    Devuelve ÚNICAMENTE un objeto JSON:
+    Usa expresiones de Vitoria-Gasteiz y España. Devuelve ÚNICAMENTE JSON:
     {{ "dialogo": [ {{ "speaker": "Alex", "text": "..." }}, {{ "speaker": "Maria", "text": "..." }} ] }}
     
-    Noticias:
+    Noticias por bloques:
     {texto_origen}
     """
     
