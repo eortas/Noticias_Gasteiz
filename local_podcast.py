@@ -164,6 +164,15 @@ if __name__ == "__main__":
     noticias_texto = convertir_json_a_texto()
     if noticias_texto:
         guion = generar_guion(noticias_texto[:8000])
-        asyncio.run(procesar_podcast(guion))
+        if guion:
+            # Guardar el guion para que el usuario pueda verlo
+            fecha_str = datetime.now().strftime('%Y%m%d')
+            archivo_guion = f"downloads/guion_{fecha_str}.json"
+            if not os.path.exists("downloads"): os.makedirs("downloads")
+            with open(archivo_guion, 'w', encoding='utf-8') as f:
+                json.dump(guion, f, indent=2, ensure_ascii=False)
+            print(f"Guion guardado en: {archivo_guion}")
+            
+            asyncio.run(procesar_podcast(guion))
     else:
         print("Error: No se pudieron obtener noticias.")
