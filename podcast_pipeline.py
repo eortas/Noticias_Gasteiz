@@ -230,27 +230,37 @@ def run_automation():
 
         # --- SPOTIFY ---
         print("--- Paso 5: Spotify for Podcasters ---")
-        page.goto("https://podcasters.spotify.com/pod/dashboard")
-        
-        if "login" in page.url:
-            print("AVISO: Por favor, inicia sesión en Spotify en la ventana del navegador.")
-            page.wait_for_url("**/dashboard**", timeout=0)
+        try:
+            page.goto("https://podcasters.spotify.com/pod/dashboard")
+            
+            if "login" in page.url:
+                print("AVISO: Por favor, inicia sesión en Spotify en la ventana del navegador.")
+                page.wait_for_url("**/dashboard**", timeout=0)
 
-        page.click("text=Nuevo episodio")
-        page.click("text=Subida rápida") # O similar
-        
-        # Subir el audio
-        page.set_input_files('input[type="file"]', audio_path)
-        
-        # Rellenar metadatos
-        page.fill('input[name="title"]', f"Noticias Vitoria-Gasteiz {datetime.now().strftime('%d/%m/%Y')}")
-        page.fill('textarea[name="description"]', f"Resumen diario de las noticias más importantes de Vitoria-Gasteiz del día {datetime.now().strftime('%d de %B')}.")
-        
-        print("Esperando a que Spotify procese el audio...")
-        page.wait_for_selector("text=Procesamiento completado", timeout=300000)
-        
-        page.click("text=Publicar ahora")
-        print("¡PODCAST PUBLICADO EN SPOTIFY!")
+            # Intentar pulsar 'Nuevo episodio' con espera
+            page.wait_for_selector("text=Nuevo episodio", timeout=20000)
+            page.click("text=Nuevo episodio")
+            
+            # Subida rápida
+            page.wait_for_selector("text=Subida rápida", timeout=20000)
+            page.click("text=Subida rápida")
+            
+            print("Subiendo audio a Spotify...")
+            page.set_input_files('input[type="file"]', audio_path)
+            
+            # Rellenar metadatos
+            page.fill('input[name="title"]', f"Noticias Vitoria-Gasteiz {datetime.now().strftime('%d/%m/%Y')}")
+            page.fill('textarea[name="description"]', f"Resumen diario de las noticias más importantes de Vitoria-Gasteiz del día {datetime.now().strftime('%d de %B')}.")
+            
+            print("Esperando a que Spotify procese el audio (esto puede tardar)...")
+            page.wait_for_selector("text=Procesamiento completado", timeout=300000)
+            
+            page.click("text=Publicar ahora")
+            print("¡PODCAST PUBLICADO EN SPOTIFY!")
+        except Exception as e:
+            print(f"Error en el paso de Spotify: {e}")
+            page.screenshot(path="downloads/error_spotify.png")
+            print("Se ha guardado una captura en downloads/error_spotify.png")
 
         context.close()
 
