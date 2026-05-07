@@ -206,17 +206,33 @@ def run_automation():
         page.wait_for_selector("text=/Resumen de audio|Audio Overview/i >> visible=true", timeout=60000)
         page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first.click(force=True)
         
+        print("Configurando duración 'Corto' en NotebookLM...")
+        try:
+            # 1. Clic en Personalizar (Customize)
+            btn_personalizar = page.locator("text=/Personalizar|Customize/i").filter(visible=True).first
+            btn_personalizar.click(timeout=10000)
+            time.sleep(2)
+            
+            # 2. Seleccionar 'Corto' (Short)
+            # NotebookLM suele usar botones de opción o chips para esto
+            print("Seleccionando opción de duración corta...")
+            page.locator("text=/Corto|Short/i").filter(visible=True).first.click()
+            time.sleep(1)
+            
+            # 3. Guardar o volver (a veces es automático al seleccionar, pero por si acaso)
+            # Buscamos un botón de 'Listo' o similar, o simplemente esperamos
+            page.keyboard.press("Escape") # Cerrar el menú de personalización si es un popup
+            time.sleep(1)
+        except Exception as e:
+            print(f"Aviso: No se pudo personalizar la duración (usando por defecto): {e}")
+
         # Bucle de generación
         for intento in range(4):
             try:
+                print(f"Iniciando generación de audio (Intento {intento+1})...")
+                # El botón puede haber cambiado de texto tras personalizar
                 btn_generar = page.locator("text=/Generar|Generate/i").filter(visible=True).first
                 btn_generar.click(timeout=10000)
-                time.sleep(5)
-                if not page.locator("text=/No se ha podido generar/i").filter(visible=True).is_visible():
-                    break
-                page.locator("text=/Eliminar|Delete/i").filter(visible=True).first.click()
-            except:
-                continue
         
         print("Esperando descarga (esto tarda)...")
         download_btn = page.wait_for_selector('button[aria-label*="Download"], [aria-label*="download"]', timeout=1200000)
