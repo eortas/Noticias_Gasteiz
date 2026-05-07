@@ -71,6 +71,7 @@ def convertir_json_a_texto(json_file="data/news.json"):
 def generar_guion(texto_origen):
     """Genera un guion usando una cascada de modelos gratuitos de OpenRouter."""
     modelos_a_probar = [
+        "nvidia/nemotron-4-340b-instruct:free",
         "meta-llama/llama-3.3-70b-instruct:free",
         "google/gemini-2.0-flash-exp:free",
         "mistralai/mistral-7b-instruct:free",
