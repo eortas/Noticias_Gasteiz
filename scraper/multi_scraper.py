@@ -379,7 +379,11 @@ class MultiScraper:
     def _parse_date(self, date_str):
         if not date_str: return datetime.now(timezone.utc)
         try:
-            return datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+            # Intentar parsear ISO y asegurar que sea aware (UTC)
+            dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.astimezone(timezone.utc)
         except:
             return datetime.now(timezone.utc)
 
