@@ -148,16 +148,20 @@ async def procesar_podcast(guion):
         except:
             continue
     
-    archivo_salida = f"downloads/podcast_local_{datetime.now().strftime('%Y%m%d')}.mp3"
+    archivo_salida = os.path.abspath(f"downloads/podcast_local_{datetime.now().strftime('%Y%m%d')}.mp3")
     if not os.path.exists("downloads"): os.makedirs("downloads")
-    podcast_final.export(archivo_salida, format="mp3", bitrate="192k")
-    print(f"\n¡LISTO! Podcast generado en: {archivo_salida}")
+    
+    if len(podcast_final) > 0:
+        podcast_final.export(archivo_salida, format="mp3", bitrate="192k")
+        print(f"\n¡ÉXITO! Podcast generado en: {archivo_salida}")
+    else:
+        print("\nERROR: El audio final está vacío. Revisa las voces de Edge-TTS.")
 
     # Limpieza robusta en Windows
     try:
         shutil.rmtree(temp_dir)
     except:
-        print(f"Aviso: No se pudo borrar la carpeta temporal {temp_dir}. Puedes borrarla a mano.")
+        pass
 
 if __name__ == "__main__":
     sincronizar_noticias()
@@ -167,7 +171,7 @@ if __name__ == "__main__":
         if guion:
             # Guardar el guion para que el usuario pueda verlo
             fecha_str = datetime.now().strftime('%Y%m%d')
-            archivo_guion = f"downloads/guion_{fecha_str}.json"
+            archivo_guion = os.path.abspath(f"downloads/guion_{fecha_str}.json")
             if not os.path.exists("downloads"): os.makedirs("downloads")
             with open(archivo_guion, 'w', encoding='utf-8') as f:
                 json.dump(guion, f, indent=2, ensure_ascii=False)
