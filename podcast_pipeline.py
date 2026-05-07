@@ -230,11 +230,21 @@ def run_automation():
         for intento in range(4):
             try:
                 print(f"Iniciando generación de audio (Intento {intento+1})...")
-                # El botón puede haber cambiado de texto tras personalizar
                 btn_generar = page.locator("text=/Generar|Generate/i").filter(visible=True).first
                 btn_generar.click(timeout=10000)
+                
+                time.sleep(5)
+                # Si no sale el mensaje de error de Google, asumimos que ha empezado bien
+                if not page.locator("text=/No se ha podido generar/i").filter(visible=True).is_visible():
+                    break
+                
+                print("Google ha rechazado la generación. Limpiando y reintentando...")
+                page.locator("text=/Eliminar|Delete/i").filter(visible=True).first.click()
+            except Exception as e:
+                print(f"Aviso: Intento {intento+1} fallido: {e}")
+                time.sleep(5)
         
-        print("Esperando descarga (esto tarda)...")
+        print("Esperando descarga (esto tarda varios minutos)...")
         download_btn = page.wait_for_selector('button[aria-label*="Download"], [aria-label*="download"]', timeout=1200000)
         with page.expect_download(timeout=60000) as download_info:
             download_btn.click()
