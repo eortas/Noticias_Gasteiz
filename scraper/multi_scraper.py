@@ -149,6 +149,7 @@ class MultiScraper:
             return original_url
 
     def scrape_el_correo(self):
+        import hashlib
         url = "https://www.elcorreo.com/alava/araba/"
         print(f"Scrapeando El Correo: {url}")
         try:
@@ -179,13 +180,34 @@ class MultiScraper:
                     if "/alava/" not in full_url and "/vitoria/" not in full_url:
                         continue
 
+                    # Extraer subtítulo/resumen si existe
+                    subtitle_el = art.find(['p', 'span'], class_=lambda c: c and any(x in (c if isinstance(c, str) else ' '.join(c)) for x in ['subtitle', 'summary', 'lead', 'entradilla', 'deck']))
+                    subtitle = subtitle_el.get_text().strip() if subtitle_el else ""
+                    
+                    # Si no hay subtítulo, buscar cualquier <p> dentro del artículo
+                    if not subtitle:
+                        p_tags = art.find_all('p')
+                        for p in p_tags:
+                            text = p.get_text().strip()
+                            if len(text) > 40:
+                                subtitle = text
+                                break
+
+                    # Generar ID único
+                    article_id = hashlib.md5(full_url.encode()).hexdigest()[:10]
+
+                    # Imagen
+                    image = self._get_og_image(art) or self._get_ddg_proxy_url(art.find('img').get('src') if art.find('img') else None)
+
                     self.news_data.append({
+                        'id': article_id,
                         'title': title,
                         'url': full_url,
                         'source': 'El Correo',
+                        'body': subtitle or title,
                         'date': datetime.now(timezone.utc).isoformat(),
                         'sentiment': 0,
-                        'image': self._get_og_image(art) or self._get_ddg_proxy_url(art.find('img').get('src') if art.find('img') else None)
+                        'image': image
                     })
                     self.history.add(full_url)
         except Exception as e:
