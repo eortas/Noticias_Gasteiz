@@ -209,22 +209,22 @@ def run_automation():
         print("Configurando duración 'Corto' en NotebookLM...")
         try:
             # 1. Clic en Personalizar (Customize)
-            btn_personalizar = page.locator("text=/Personalizar|Customize/i").filter(visible=True).first
-            btn_personalizar.click(timeout=10000)
-            time.sleep(2)
+            btn_personalizar = page.wait_for_selector("text=/Personalizar|Customize/i", timeout=30000)
+            btn_personalizar.click(force=True)
+            print("Menú de personalización abierto. Esperando opciones...")
+            time.sleep(5) # Más tiempo para que carguen los chips de duración
             
             # 2. Seleccionar 'Corto' (Short)
-            # NotebookLM suele usar botones de opción o chips para esto
             print("Seleccionando opción de duración corta...")
-            page.locator("text=/Corto|Short/i").filter(visible=True).first.click()
-            time.sleep(1)
+            opcion_corto = page.locator("text=/Corto|Short/i").filter(visible=True).first
+            opcion_corto.click(timeout=10000)
+            time.sleep(2)
             
-            # 3. Guardar o volver (a veces es automático al seleccionar, pero por si acaso)
-            # Buscamos un botón de 'Listo' o similar, o simplemente esperamos
-            page.keyboard.press("Escape") # Cerrar el menú de personalización si es un popup
-            time.sleep(1)
+            # 3. Cerrar menú
+            page.keyboard.press("Escape")
+            time.sleep(2)
         except Exception as e:
-            print(f"Aviso: No se pudo personalizar la duración (usando por defecto): {e}")
+            print(f"Aviso: No se pudo personalizar la duración: {e}")
 
         # Bucle de generación
         for intento in range(4):
