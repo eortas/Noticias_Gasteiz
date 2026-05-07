@@ -231,6 +231,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="card-footer">
                             <span class="read-more">${currentLang === 'eu' ? 'Irakurri' : (currentLang === 'pl' ? 'Czytaj más' : 'Ver narrativa')}</span>
                             <div class="line"></div>
+                            <a href="${item.url}" target="_blank" class="card-link-icon" onclick="event.stopPropagation()" title="${currentLang === 'eu' ? 'Webgunean ireki' : (currentLang === 'pl' ? 'Otwórz w internecie' : 'Abrir en la web')}">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -321,6 +324,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 <div class="article-footer">
                     <div class="footer-note">${isEu ? 'IA bitartez egiaztatutako eta aztertutako dokumentua' : (isPl ? 'Dokument zweryfikowany i przeanalizowany przez AI' : 'Documento verificado y analizado por IA')}</div>
+                    
+                    <div style="display:flex; gap:1.5rem; align-items:center;">
+                        <a href="${item.url}" target="_blank" class="source-link">
+                            ${isEu ? 'Jatorrizko albistea' : (isPl ? 'Oryginalna wiadomość' : 'Noticia original')}
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                        </a>
+                        
+                        ${item.source === 'El Correo' ? `
+                        <a href="lector.html?url=${encodeURIComponent(item.url)}" target="_blank" class="source-link" style="color:var(--emerald-400)">
+                            ${isEu ? 'Lektore modua' : (isPl ? 'Tryb czytnika' : 'Modo Lector (Premium)')}
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                        </a>
+                        ` : ''}
+                    </div>
                 </div>
             </div>
         `;

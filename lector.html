@@ -176,8 +176,10 @@
     <div class="footer">MADE WITH LOVE BY E.O.A</div>
 
     <script>
-        async function extractNews() {
-            const urlInput = document.getElementById('newsUrl').value.trim();
+        async function extractNews(providedUrl = null) {
+            const urlInput = providedUrl || document.getElementById('newsUrl').value.trim();
+            if (providedUrl) document.getElementById('newsUrl').value = providedUrl;
+            
             const btn = document.getElementById('extractBtn');
             const contentDiv = document.getElementById('content');
             const loadingDiv = document.getElementById('loading');
@@ -213,6 +215,15 @@
                 loadingDiv.style.display = 'none';
             }
         }
+
+        // Auto-extract if URL is provided in query string
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            const urlParam = params.get('url');
+            if (urlParam) {
+                extractNews(urlParam);
+            }
+        };
     </script>
 
 </body>
