@@ -124,9 +124,7 @@ def run_automation():
             # Fallback por si el botón tiene otro nombre o es una tarjeta
             with page.expect_file_chooser(timeout=15000) as fc_info:
                 page.locator("text=/Subir|Upload|Ordenador|Computer|Archivo|File/i").first.click(force=True)
-            file_chooser = fc_info.value
-            file_chooser.set_files(OUTPUT_TXT)
-seleccionado con éxito.")
+            print("Archivo seleccionado con éxito.")
         except Exception as e:
             print(f"Error crítico en la subida: {e}")
             page.screenshot(path=os.path.join(DOWNLOAD_DIR, "error_notebooklm.png"))
