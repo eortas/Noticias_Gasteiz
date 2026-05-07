@@ -124,16 +124,17 @@ def run_automation():
             # Fallback por si el botón tiene otro nombre o es una tarjeta
             with page.expect_file_chooser(timeout=15000) as fc_info:
                 page.locator("text=/Subir|Upload|Ordenador|Computer|Archivo|File/i").first.click(force=True)
-            print("Archivo seleccionado con éxito.")
+            print("Archivo seleccionado con éxito. Esperando 20s a que NotebookLM procese la fuente...")
+            time.sleep(20)
         except Exception as e:
             print(f"Error crítico en la subida: {e}")
             page.screenshot(path=os.path.join(DOWNLOAD_DIR, "error_notebooklm.png"))
             print(f"Se ha guardado una captura del error en: {DOWNLOAD_DIR}/error_notebooklm.png")
             raise e
         
-        print("Archivo subido. Generando Audio Overview...")
-        # Esperar a que aparezca la guía del cuaderno
-        page.wait_for_selector("text=/Notebook Guide|Guía del cuaderno/i", timeout=60000)
+        print("Fuente procesada. Abriendo Guía del cuaderno...")
+        # Esperar a que aparezca la guía del cuaderno (ampliamos a 2 min)
+        page.wait_for_selector("text=/Notebook Guide|Guía del cuaderno/i", timeout=120000)
         page.click("text=/Notebook Guide|Guía del cuaderno/i")
         
         # Click en Generar Audio (Deep Dive)
