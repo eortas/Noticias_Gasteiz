@@ -154,29 +154,45 @@ def run_automation():
                 page.screenshot(path=os.path.join(DOWNLOAD_DIR, "error_studio.png"))
                 raise e
         
-        # Click en Generar Audio (Deep Dive) con reintentos para fallos de Google
+        # Click en Generar Audio (Deep Dive) con monitoreo activo de errores
         print("Iniciando fase de generación...")
-        for intento in range(3):
+        for intento in range(4): # 4 intentos por si Google falla mucho hoy
             try:
-                # Comprobar si sale el error de Google "No se ha podido generar"
-                error_msg = page.locator("text=/No se ha podido generar|Could not generate/i").filter(visible=True)
-                if error_msg.is_visible():
-                    print(f"Detectado error de Google (intento {intento+1}). Reintentando...")
-                    page.locator("text=/Eliminar|Delete|Remove/i").filter(visible=True).first.click()
-                    time.sleep(2)
+                # 1. Asegurarnos de que el panel de audio está abierto
+                if not page.locator("text=/Generar|Generate/i").filter(visible=True).is_visible():
+                    print("Abriendo panel de audio...")
                     page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first.click(force=True)
                     time.sleep(3)
 
-                print("Buscando botón 'Generar'...")
+                # 2. Comprobar si ya hay un error previo y limpiarlo
+                error_btn = page.locator("text=/Eliminar|Delete|Remove/i").filter(visible=True).first
+                if error_btn.is_visible():
+                    print("Limpiando error previo de Google...")
+                    error_btn.click()
+                    time.sleep(2)
+                    continue # Reintentar desde el principio del bucle
+
+                # 3. Intentar pulsar Generar
+                print(f"Intentando pulsar 'Generar' (Intento {intento+1})...")
                 btn_generar = page.locator("text=/Generar|Generate/i").filter(visible=True).first
-                btn_generar.wait_for(timeout=30000)
-                btn_generar.click()
-                break # Éxito
-            except Exception as e:
-                if intento == 2: raise e
-                print(f"Fallo al iniciar generación. Reintentando clic en Resumen de audio... ({intento + 1}/3)")
-                page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first.click(force=True)
+                btn_generar.click(timeout=10000)
+                
+                # 4. Vigilar si sale el error rojo justo después de pulsar
+                print("Vigilando si la generación comienza con éxito...")
+                # Esperamos un poco para ver si sale el error o si empieza a cargar
                 time.sleep(5)
+                if page.locator("text=/No se ha podido generar|Could not generate/i").filter(visible=True).is_visible():
+                    print("Google ha rechazado la generación. Reintentando...")
+                    page.locator("text=/Eliminar|Delete|Remove/i").filter(visible=True).first.click()
+                    time.sleep(2)
+                    continue
+                
+                # Si llegamos aquí, parece que ha empezado bien
+                break
+            except Exception as e:
+                print(f"Aviso: Intento {intento+1} fallido. Reintentando en 5s...")
+                time.sleep(5)
+                if intento == 3: raise e
         
         print("Generando audio... esto puede tardar varios minutos (normalmente 2-5 min).")
         # Esperar a que el botón de descarga esté disponible (timeout de 10 min)
