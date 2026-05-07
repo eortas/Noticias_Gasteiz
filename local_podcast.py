@@ -52,15 +52,19 @@ def convertir_json_a_texto(json_file="data/news.json"):
     if not noticias_hoy:
         print("No hay noticias en las últimas 24h. Usando las últimas 10 disponibles.")
         noticias_hoy = news[:10]
+    else:
+        # Si hay muchas, nos quedamos con las 10 más recientes
+        noticias_hoy = noticias_hoy[:10]
 
     texto_final = f"NOTICIAS DE VITORIA-GASTEIZ - {datetime.now().strftime('%Y-%m-%d')}\n"
     texto_final += "="*60 + "\n\n"
 
     for i, n in enumerate(noticias_hoy):
         texto_final += f"TITULAR: {n['title']}\n"
-        # Si tiene body/resumen lo incluimos (asumiendo que el JSON lo tiene o lo simulamos)
-        cuerpo = n.get('body', 'Sin descripción adicional.')
-        texto_final += f"CONTENIDO: {cuerpo}\n"
+        # Cogemos solo los primeros 500 caracteres del cuerpo para no saturar
+        cuerpo = n.get('body', 'Sin descripción.')
+        cuerpo_corto = (cuerpo[:500] + '...') if len(cuerpo) > 500 else cuerpo
+        texto_final += f"CONTENIDO: {cuerpo_corto}\n"
         texto_final += "-"*30 + "\n\n"
     
     return texto_final
@@ -129,7 +133,8 @@ if __name__ == "__main__":
     sincronizar_noticias()
     noticias_texto = convertir_json_a_texto()
     if noticias_texto:
-        guion = generar_guion(noticias_texto[:15000])
+        # 8000 caracteres son más que suficientes para un buen guion
+        guion = generar_guion(noticias_texto[:8000])
         asyncio.run(procesar_podcast(guion))
     else:
         print("Error: No se pudieron obtener noticias.")
