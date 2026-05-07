@@ -426,6 +426,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updatePodcastPlayer() {
+        // Dejamos que el reproductor nativo de Spotify del HTML maneje el feed.
+        // Spotify Show Embed se actualiza automáticamente con el último capítulo.
+        /*
         const iframe = document.querySelector('.spotify-embed iframe');
         if (!iframe || !podcastData) return;
 
@@ -443,6 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 iframe.setAttribute('scrolling', 'no'); // Evitar scrollbar
             }
         }
+        */
     }
 });
 
