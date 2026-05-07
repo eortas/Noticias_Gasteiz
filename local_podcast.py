@@ -3,7 +3,7 @@ import asyncio
 import os
 import subprocess
 from datetime import datetime, timedelta, timezone
-from groq import Groq
+from openai import OpenAI
 import edge_tts
 from pydub import AudioSegment
 from dotenv import load_dotenv
@@ -11,9 +11,13 @@ from dotenv import load_dotenv
 # Cargar variables de entorno desde .env
 load_dotenv()
 
-# Configuración
-api_key = os.getenv("GROQ_REWRITE_3")
-client = Groq(api_key=api_key) 
+# Configuración de OpenRouter
+# Usamos el SDK de OpenAI con la URL base de OpenRouter
+client = OpenAI(
+  base_url="https://openrouter.ai/api/v1",
+  api_key=os.getenv("OPEN_ROUTER"),
+)
+
 VOZ_ALEX = "es-ES-AlvaroNeural"
 VOZ_MARIA = "es-ES-ElviraNeural"
 
@@ -42,7 +46,6 @@ def convertir_json_a_texto(json_file="data/news.json"):
     noticias_hoy = []
     for n in news:
         try:
-            # Intentar parsear fecha ISO
             fecha_n = datetime.fromisoformat(n['date'].replace('Z', '+00:00'))
             if fecha_n >= hace_24h:
                 noticias_hoy.append(n)
@@ -66,35 +69,35 @@ def convertir_json_a_texto(json_file="data/news.json"):
     return "\n\n".join(noticias_chunks)
 
 def generar_guion(texto_origen):
-    """Utiliza Groq para generar un guion dinámico basado en chunks de noticias."""
+    """Utiliza OpenRouter para generar un guion dinámico basado en chunks de noticias."""
     prompt = f"""
-    Actúa como un guionista de podcasts profesional. Te proporciono una lista de NOTICIAS en bloques numerados. 
+    Actúa como un guionista de podcasts profesional. Te proporciono una lista de NOTICIAS en bloques numerados de Vitoria-Gasteiz. 
     Tu tarea es crear un diálogo dinámico, informal y divertido entre Alex y María.
     
     ESTRUCTURA:
-    1. Introducción rápida y con chispa.
+    1. Introducción rápida y con chispa. Menciona que es el podcast de noticias de Vitoria.
     2. Comentar cada bloque de noticia de forma natural, sin decir "Noticia 1".
     3. Alex y María deben debatir o comentar brevemente los detalles más curiosos.
     4. Despedida cálida.
     
-    Usa expresiones de Vitoria-Gasteiz y España. Devuelve ÚNICAMENTE JSON:
+    Usa expresiones de Vitoria-Gasteiz y España. Devuelve ÚNICAMENTE JSON con la estructura:
     {{ "dialogo": [ {{ "speaker": "Alex", "text": "..." }}, {{ "speaker": "Maria", "text": "..." }} ] }}
     
     Noticias por bloques:
     {texto_origen}
     """
     
-    print("--- Paso 2: Generando guion con Groq (Llama 3.3) ---")
+    print("--- Paso 2: Generando guion con OpenRouter (Llama 3.1 70B) ---")
     try:
-        chat_completion = client.chat.completions.create(
+        response = client.chat.completions.create(
+            model="meta-llama/llama-3.1-70b-instruct",
             messages=[{"role": "user", "content": prompt}],
-            model="llama-3.3-70b-versatile",
             response_format={"type": "json_object"},
             temperature=0.8
         )
-        return json.loads(chat_completion.choices[0].message.content).get("dialogo", [])
+        return json.loads(response.choices[0].message.content).get("dialogo", [])
     except Exception as e:
-        print(f"Error en Groq: {e}")
+        print(f"Error en OpenRouter: {e}")
         return []
 
 async def generar_audio_fragmento(texto, voz, archivo_salida):
@@ -131,7 +134,7 @@ if __name__ == "__main__":
     sincronizar_noticias()
     noticias_texto = convertir_json_a_texto()
     if noticias_texto:
-        # 8000 caracteres son más que suficientes para un buen guion
+        # 8000 caracteres son suficientes
         guion = generar_guion(noticias_texto[:8000])
         asyncio.run(procesar_podcast(guion))
     else:
