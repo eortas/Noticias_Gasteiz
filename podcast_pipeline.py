@@ -228,42 +228,43 @@ def run_automation():
             page.keyboard.press("Escape")
         time.sleep(2)
         
-        print("Abriendo panel de Audio...")
-        page.wait_for_selector("text=/Resumen de audio|Audio Overview/i >> visible=true", timeout=60000)
-        page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first.click(force=True)
+        print("Abriendo panel de Audio (vía flecha de tarjeta)...")
+        try:
+            # Buscar la tarjeta de Resumen de Audio y su botón de flecha/personalización
+            tarjeta_audio = page.locator("text=/Resumen de audio|Audio Overview/i").first
+            # Intentar pulsar la flecha (suele ser el botón al lado o dentro de la tarjeta)
+            flecha = page.locator("button:has([aria-label*='Resumen de audio']), button:has-text('>'), [aria-label*='personalizar']").filter(visible=True).first
+            if flecha.is_visible():
+                flecha.click()
+            else:
+                tarjeta_audio.click()
+        except:
+            page.locator("text=/Resumen de audio|Audio Overview/i").filter(visible=True).first.click(force=True)
+        
         time.sleep(3)
 
-        # Ahora sí, forzamos la personalización a 'Corto'
-        print("Configurando duración 'Corto' en NotebookLM...")
+        # Ahora estamos en el modal de personalización (Screenshot 2)
+        print("Configurando opciones en el modal de audio...")
         try:
-            # Si ya había empezado por error, lo paramos/borramos
-            btn_eliminar = page.locator("text=/Eliminar|Delete|Cancelar|Cancel/i").filter(visible=True).first
-            if btn_eliminar.is_visible():
-                print("Deteniendo generación automática para personalizar...")
-                btn_eliminar.click()
-                time.sleep(2)
-                # Confirmar si sale diálogo
-                confirm = page.locator("button:has-text('Eliminar'), button:has-text('Delete')").filter(visible=True).last
-                if confirm.is_visible(): confirm.click()
-                time.sleep(2)
-
-            # 1. Clic en Personalizar
-            btn_personalizar = page.wait_for_selector("text=/Personalizar|Customize/i", timeout=15000)
-            btn_personalizar.click(force=True)
-            time.sleep(3)
-            
-            # 2. Seleccionar 'Corto'
-            print("Seleccionando duración corta...")
-            page.locator("text=/Corto|Short/i").filter(visible=True).first.click(timeout=5000)
+            # 1. Seleccionar 'Corto' (Short)
+            print("Seleccionando duración 'Corto'...")
+            opcion_corto = page.locator("text=/Corto|Short/i").filter(visible=True).first
+            opcion_corto.click(timeout=10000)
             time.sleep(1)
-            page.keyboard.press("Escape")
-            time.sleep(2)
+            
+            # 2. Asegurar que el idioma sea español (opcional pero recomendado)
+            if page.locator("text=/español|spanish/i").is_visible():
+                print("Idioma confirmado: Español.")
 
-            # 3. Iniciar generación
-            print("Iniciando generación con ajustes personalizados...")
-            page.locator("text=/Generar|Generate/i").filter(visible=True).first.click(timeout=10000)
+            # 3. Clic en el botón azul 'Generar'
+            print("Pulsando botón 'Generar'...")
+            btn_generar = page.locator("button:has-text('Generar'), button:has-text('Generate')").filter(visible=True).last
+            btn_generar.click(timeout=10000)
+            
         except Exception as e:
-            print(f"Aviso en personalización: {e}")
+            print(f"Aviso: No se pudieron aplicar todos los ajustes: {e}")
+            # Fallback: intentar pulsar generar donde sea
+            page.keyboard.press("Enter")
 
         # Bucle de generación
         for intento in range(4):
