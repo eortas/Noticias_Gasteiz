@@ -134,9 +134,10 @@ class MultiScraper:
                 clean_title = clean_title.split(": ", 1)[1]
                 
             norm_title = "".join(filter(str.isalnum, clean_title))
-            title_prefix = norm_title[:60] # Aumentado de 35 a 60 para evitar falsos duplicados
+            title_prefix = norm_title[:60]
             
-            if title_prefix and title_prefix in seen_titles:
+            # Solo deduplicamos por título si NO es Gasteiz Hoy (queremos asegurar su entrada)
+            if item.get('source') != 'Gasteiz Hoy' and title_prefix and title_prefix in seen_titles:
                 print(f"  [Deduplicación] Saltando: {title[:50]}...")
                 continue
 
@@ -260,9 +261,9 @@ class MultiScraper:
         print(f"Scrapeando Gasteiz Hoy (API WordPress + RSS)")
         links_data = {}
         
-        # 1. API WordPress (Permite pedir 50 posts de golpe)
+        # 1. API WordPress (Permite pedir 100 posts de golpe)
         try:
-            api_url = "https://www.gasteizhoy.com/wp-json/wp/v2/posts?per_page=50&_embed"
+            api_url = "https://www.gasteizhoy.com/wp-json/wp/v2/posts?per_page=100&_embed"
             res_api = requests.get(api_url, headers=self.headers, timeout=15)
             if res_api.status_code == 200:
                 posts = res_api.json()
@@ -368,7 +369,10 @@ class MultiScraper:
         if link_info.get('body_html'):
             soup_content = BeautifulSoup(link_info['body_html'], 'html.parser')
             p_tags = soup_content.find_all('p')
-            body = self._clean_article_body(p_tags) or soup_content.get_text()[:3000]
+            body = self._clean_article_body(p_tags)
+            if not body:
+                # Si el limpiador falla, usamos el texto plano pero quitamos basura
+                body = soup_content.get_text(separator="\n\n").strip()
             if not date: date = datetime.now().isoformat()
         else:
             # Si no tenemos contenido (ej: venimos de scraping de portada), scrapeamos
@@ -388,28 +392,41 @@ class MultiScraper:
                         image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
                 else: raise Exception(f"Status {res.status_code}")
             except Exception as e:
-                return None # Si no hay contenido previo y el scraping falla, no podemos hacer nada
+                return None 
 
-        if not body or "patrocinado" in title.lower() or "patrocinado" in body.lower(): return None
+        if not body or "patrocinado" in title.lower() or "patrocinado" in body.lower(): 
+            if "rebelion-en-la-iglesia" in url: print(f"  [DEBUG] Noticia obispo descartada por cuerpo vacío o patrocinado")
+            return None
         
         try:
+            if "rebelion-en-la-iglesia" in url: print(f"  [DEBUG] Procesando noticia obispo: analizando sentimiento...")
             sentiment, score, category = analyze_sentiment(title + " " + body[:500])
             article_id = hashlib.md5(url.encode()).hexdigest()[:10]
             # Analyze/Rewrite (DESACTIVADO: Usamos original)
             # title_rw, body_rw = rewrite_article(title, body)
             title_rw, body_rw = title, body
             
+            if "rebelion-en-la-iglesia" in url: print(f"  [DEBUG] Noticia obispo: traduciendo...")
             title_eu, body_eu = translate_to_euskara(title, body)
             title_pl, body_pl = translate_to_polish(title, body)
+
+            if "rebelion-en-la-iglesia" in url: print(f"  [DEBUG] Noticia obispo LISTA para guardar.")
             return {
                 'id': article_id, 'source': 'Gasteiz Hoy', 'url': url,
-                'title': title_rw or title, 'title_eu': title_eu, 'title_pl': title_pl,
+                'title': title_rw or title,
+                'title_eu': title_eu, 'title_pl': title_pl,
                 'image': image_url, 'body': body_rw or body,
                 'body_eu': body_eu, 'body_pl': body_pl,
                 'date': date, 'sentiment': sentiment, 'score': score,
                 'category': category, 'lang': 'es'
             }
-        except: return None
+        except Exception as e:
+            print(f"Error procesando noticia ({url}): {e}")
+            return {
+                'id': hashlib.md5(url.encode()).hexdigest()[:10], 'source': 'Gasteiz Hoy', 'url': url,
+                'title': title, 'image': image_url, 'body': body, 'date': date,
+                'sentiment': 'neutral', 'score': 0, 'category': 'Sociedad', 'lang': 'es'
+            }
 
     def _clean_article_body(self, p_tags):
         blacklist = [
