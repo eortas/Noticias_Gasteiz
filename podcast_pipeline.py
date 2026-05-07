@@ -85,24 +85,34 @@ def run_automation():
             print("AVISO: Por favor, inicia sesión en Google en la ventana del navegador.")
             page.wait_for_url("https://notebooklm.google.com/**", timeout=0)
 
-        # Crear nuevo cuaderno
-        page.click("text=Nuevo cuaderno")
+        # Esperar a que la página cargue y buscar el botón de nuevo cuaderno
+        print("Esperando a que NotebookLM cargue por completo...")
+        page.wait_for_load_state("networkidle")
+        
+        # Intentar clicar en 'Nuevo cuaderno' o 'New notebook' usando Regex
+        try:
+            nuevo_btn = page.wait_for_selector("text=/Nuevo cuaderno|New notebook/i", timeout=15000)
+            nuevo_btn.click()
+        except:
+            print("No se encontró el botón con texto. Intentando por selector de icono...")
+            # Fallback: A veces es un botón con un icono de '+'
+            page.click("button[aria-label*='notebook'], button[aria-label*='cuaderno']")
         
         # Subir archivo
         # Esperamos al input de archivos
+        print("Subiendo archivo de noticias...")
         with page.expect_file_chooser() as fc_info:
-            page.click("text=Cargar") # O el botón de upload
+            page.click("text=/Cargar|Upload|Añadir fuente|Add source/i")
         file_chooser = fc_info.value
         file_chooser.set_files(OUTPUT_TXT)
         
         print("Archivo subido. Generando Audio Overview...")
-        # Los selectores de NotebookLM pueden variar, estos son aproximados
-        # Debes verificar los IDs reales en tu cuenta
-        page.wait_for_selector("text=Notebook Guide", timeout=60000)
-        page.click("text=Notebook Guide")
+        # Esperar a que aparezca la guía del cuaderno
+        page.wait_for_selector("text=/Notebook Guide|Guía del cuaderno/i", timeout=60000)
+        page.click("text=/Notebook Guide|Guía del cuaderno/i")
         
         # Click en Generar Audio (Deep Dive)
-        page.click("text=Generate")
+        page.click("text=/Generate|Generar/i")
         
         print("Generando audio... esto puede tardar varios minutos.")
         # Esperar a que el botón de descarga esté disponible (timeout de 10 min)
