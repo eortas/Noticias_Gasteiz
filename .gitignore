@@ -28,3 +28,5 @@ __pycache__/
 
 # jetbrains setting folder
 .idea/
+
+browser_session/
