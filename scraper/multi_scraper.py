@@ -150,6 +150,8 @@ class MultiScraper:
 
     def scrape_el_correo(self):
         import hashlib
+        import urllib.request
+        import json
         url = "https://www.elcorreo.com/alava/araba/"
         print(f"Scrapeando El Correo: {url}")
         try:
@@ -157,7 +159,14 @@ class MultiScraper:
             if res.status_code == 200:
                 soup = BeautifulSoup(res.text, 'html.parser')
                 articles = soup.find_all('article')
-                for art in articles:
+                
+                # Googlebot headers para saltar el muro de pago en artículos individuales
+                gb_headers = {
+                    'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+                }
+                
+                for art in articles[:15]:  # Limitamos a los 15 primeros para no saturar
                     link = art.find('a')
                     if not link or not link.get('href'): continue
                     
@@ -172,26 +181,60 @@ class MultiScraper:
                     title = title_el.get_text().strip() if title_el else ""
                     if not title: continue
 
-                    # Filtro "El Boulevard" / Publicidad
+                    # Filtros de exclusión
                     if any(x in title.lower() for x in ['el boulevard', 'publirreportaje', 'patrocinado']):
                         continue
-
-                    # Solo Alava/Vitoria
                     if "/alava/" not in full_url and "/vitoria/" not in full_url:
                         continue
 
-                    # Extraer subtítulo/resumen si existe
-                    subtitle_el = art.find(['p', 'span'], class_=lambda c: c and any(x in (c if isinstance(c, str) else ' '.join(c)) for x in ['subtitle', 'summary', 'lead', 'entradilla', 'deck']))
-                    subtitle = subtitle_el.get_text().strip() if subtitle_el else ""
+                    # Extraer cuerpo completo visitando el artículo con Googlebot
+                    body_text = ""
+                    try:
+                        req = urllib.request.Request(full_url, headers=gb_headers)
+                        with urllib.request.urlopen(req, timeout=10) as response:
+                            html = response.read().decode('utf-8', errors='ignore')
+                            
+                            paragraphs = []
+                            # Intento 1: Extraer desde el JSON-LD (articleBody)
+                            ld_jsons = re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.DOTALL)
+                            for ld in ld_jsons:
+                                try:
+                                    data = json.loads(ld)
+                                    if isinstance(data, list):
+                                        for item in data:
+                                            if isinstance(item, dict) and 'articleBody' in item:
+                                                paragraphs.extend(item['articleBody'].split('\n'))
+                                    elif isinstance(data, dict):
+                                        if 'articleBody' in data:
+                                            paragraphs.extend(data['articleBody'].split('\n'))
+                                except:
+                                    pass
+                                    
+                            # Intento 2: Parsing HTML tradicional si no hay JSON-LD
+                            if not paragraphs:
+                                p_matches = re.findall(r'<(?:p|div)[^>]*class="[^"]*voc-p[^"]*"[^>]*>(.*?)</(?:p|div)>', html, re.DOTALL)
+                                if not p_matches:
+                                    p_matches = re.findall(r'<p.*?>(.*?)</p>', html, re.DOTALL)
+                                
+                                blacklist = ["©", "todos los derechos reservados", "vídeo es exclusivo", "disfruta de acceso", "inicia sesión", "temas", "comentarios", "suscríbete", "iniciar sesión"]
+                                for p in p_matches:
+                                    text = re.sub('<.*?>', '', p).strip()
+                                    if len(text) > 40 and not any(b.lower() in text.lower() for b in blacklist):
+                                        if not re.search(r'[.!?]$', text) and len(text.split()) < 20:
+                                            continue
+                                        paragraphs.append(text)
+                            else:
+                                paragraphs = [re.sub('<.*?>', '', p).strip() for p in paragraphs if len(p.strip()) > 30]
+                                
+                            if paragraphs:
+                                body_text = "\n\n".join(paragraphs)
+                    except Exception as e:
+                        print(f"  Error obteniendo body de {full_url}: {e}")
                     
-                    # Si no hay subtítulo, buscar cualquier <p> dentro del artículo
-                    if not subtitle:
-                        p_tags = art.find_all('p')
-                        for p in p_tags:
-                            text = p.get_text().strip()
-                            if len(text) > 40:
-                                subtitle = text
-                                break
+                    # Si falla la extracción completa, usar el subtítulo de la portada
+                    if not body_text:
+                        subtitle_el = art.find(['p', 'span'], class_=lambda c: c and any(x in (c if isinstance(c, str) else ' '.join(c)) for x in ['subtitle', 'summary', 'lead', 'entradilla', 'deck']))
+                        body_text = subtitle_el.get_text().strip() if subtitle_el else title
 
                     # Generar ID único
                     article_id = hashlib.md5(full_url.encode()).hexdigest()[:10]
@@ -204,12 +247,13 @@ class MultiScraper:
                         'title': title,
                         'url': full_url,
                         'source': 'El Correo',
-                        'body': subtitle or title,
+                        'body': body_text,
                         'date': datetime.now(timezone.utc).isoformat(),
                         'sentiment': 0,
                         'image': image
                     })
                     self.history.add(full_url)
+                    time.sleep(1) # Pausa entre peticiones para evitar bloqueos
         except Exception as e:
             print(f"Error scraping El Correo: {e}")
 
