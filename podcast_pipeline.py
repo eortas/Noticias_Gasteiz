@@ -3,7 +3,7 @@ import json
 import time
 import subprocess
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from playwright.sync_api import sync_playwright
 
 # --- CONFIGURACIÓN ---
@@ -24,6 +24,53 @@ def update_repo():
         pass
 
 PODCAST_HISTORY = os.path.join(REPO_PATH, 'scraper', 'podcast_history.json')
+PODCAST_PENDING_HISTORY = os.path.join(REPO_PATH, 'scraper', 'podcast_pending_history.json')
+
+def get_article_key(article):
+    return article.get('url') or article.get('id')
+
+def parse_article_date(date_str):
+    if not date_str:
+        return None
+
+    try:
+        parsed = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+    except ValueError:
+        return None
+
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+
+    return parsed.astimezone(timezone.utc)
+
+def load_podcast_history():
+    if not os.path.exists(PODCAST_HISTORY):
+        return []
+
+    with open(PODCAST_HISTORY, 'r', encoding='utf-8') as f:
+        return [item for item in json.load(f) if item]
+
+def save_podcast_history(history):
+    os.makedirs(os.path.dirname(PODCAST_HISTORY), exist_ok=True)
+    with open(PODCAST_HISTORY, 'w', encoding='utf-8') as f:
+        json.dump(history[-500:], f, indent=2)
+
+def mark_podcast_content_used():
+    if not os.path.exists(PODCAST_PENDING_HISTORY):
+        return
+
+    with open(PODCAST_PENDING_HISTORY, 'r', encoding='utf-8') as f:
+        pending_ids = [item for item in json.load(f) if item]
+
+    historial_ids = load_podcast_history()
+    historial_set = set(historial_ids)
+    for item in pending_ids:
+        if item not in historial_set:
+            historial_ids.append(item)
+            historial_set.add(item)
+
+    save_podcast_history(historial_ids)
+    os.remove(PODCAST_PENDING_HISTORY)
 
 def prepare_content():
     print("--- Paso 1: Seleccionando noticias NUEVAS para el podcast ---")
@@ -36,20 +83,24 @@ def prepare_content():
         noticias = json.load(f)
 
     # Cargar historial de noticias ya usadas
-    historial_ids = []
-    if os.path.exists(PODCAST_HISTORY):
-        with open(PODCAST_HISTORY, 'r', encoding='utf-8') as f:
-            historial_ids = json.load(f)
+    historial_ids = load_podcast_history()
+    historial_set = set(historial_ids)
 
     # Filtro temporal de seguridad (máximo 24 horas atrás)
-    fecha_limite = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+    fecha_limite = datetime.now(timezone.utc) - timedelta(days=1)
 
     noticias_nuevas = []
     for n in noticias:
-        n_id = n.get('link')
-        f_noticia = n.get('date', '')[:10]
+        n_id = get_article_key(n)
+        if not n_id:
+            continue
+
+        f_noticia = parse_article_date(n.get('date', ''))
+        if not f_noticia:
+            continue
+
         # Debe ser nueva Y reciente
-        if n_id not in historial_ids and f_noticia >= fecha_limite:
+        if n_id not in historial_set and f_noticia >= fecha_limite:
             noticias_nuevas.append(n)
 
     if not noticias_nuevas:
@@ -67,13 +118,12 @@ def prepare_content():
             f.write(f"TITULAR: {n.get('title')}\n")
             f.write(f"CONTENIDO: {n.get('body')}\n")
             f.write("-" * 30 + "\n\n")
-            historial_ids.append(n.get('link'))
             count += 1
-    
-    # Guardar el historial actualizado (solo los últimos 500 para no crecer infinito)
+
+    pending_ids = [get_article_key(n) for n in noticias_nuevas if get_article_key(n)]
     os.makedirs(os.path.dirname(PODCAST_HISTORY), exist_ok=True)
-    with open(PODCAST_HISTORY, 'w', encoding='utf-8') as f:
-        json.dump(historial_ids[-500:], f, indent=2)
+    with open(PODCAST_PENDING_HISTORY, 'w', encoding='utf-8') as f:
+        json.dump(pending_ids, f, indent=2)
 
     print(f"Archivo generado con {count} noticias nuevas.")
     return True
@@ -144,10 +194,12 @@ def subir_a_spotify(page, audio_path):
         
         page.click("button:has-text('Publicar')")
         print("¡PODCAST PUBLICADO EXITOSAMENTE EN SPOTIFY!")
+        return True
     except Exception as e:
         print(f"Error en el paso de Spotify: {e}")
         page.screenshot(path="downloads/error_spotify.png")
         print("Se ha guardado una captura en downloads/error_spotify.png")
+        return False
 
 def run_automation():
     audio_path = os.path.join(DOWNLOAD_DIR, f"podcast_{datetime.now().strftime('%Y%m%d')}.wav")
@@ -165,7 +217,8 @@ def run_automation():
                 ignore_default_args=["--enable-automation"]
             )
             page = context.pages[0]
-            subir_a_spotify(page, audio_path)
+            if subir_a_spotify(page, audio_path):
+                mark_podcast_content_used()
             context.close()
         return
 
@@ -291,7 +344,8 @@ def run_automation():
         print(f"Audio descargado en: {audio_path}")
 
         # Pasamos a Spotify
-        subir_a_spotify(page, audio_path)
+        if subir_a_spotify(page, audio_path):
+            mark_podcast_content_used()
         context.close()
 
 if __name__ == "__main__":
