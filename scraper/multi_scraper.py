@@ -3,6 +3,8 @@ import os
 import time
 import re
 import urllib.parse
+import html as html_utils
+import hashlib
 from datetime import datetime, timedelta, timezone
 import cloudscraper
 from bs4 import BeautifulSoup
@@ -148,10 +150,96 @@ class MultiScraper:
         except:
             return original_url
 
+    def _clean_el_correo_paragraph(self, raw_text):
+        text = html_utils.unescape(raw_text or "")
+        text = re.sub(r'\s+', ' ', text).strip()
+        return text
+
+    def _valid_el_correo_paragraph(self, text):
+        if len(text) < 40:
+            return False
+
+        lower = text.lower()
+        blacklist = [
+            "©", "todos los derechos reservados", "vídeo es exclusivo",
+            "disfruta de acceso", "inicia sesión", "temas", "comentarios",
+            "suscríbete", "iniciar sesión", "lo más leído", "te puede interesar",
+            "esta funcionalidad es exclusiva", "reporta un error", "whatsapp",
+            "facebook"
+        ]
+        if any(item in lower for item in blacklist):
+            return False
+
+        if not re.search(r'[.!?…»"]$', text) and len(text.split()) < 20:
+            return False
+
+        return True
+
+    def _find_article_body_in_jsonld(self, data):
+        if isinstance(data, dict):
+            body = data.get('articleBody')
+            if isinstance(body, str) and body.strip():
+                return body
+            for value in data.values():
+                found = self._find_article_body_in_jsonld(value)
+                if found:
+                    return found
+        elif isinstance(data, list):
+            for item in data:
+                found = self._find_article_body_in_jsonld(item)
+                if found:
+                    return found
+        return None
+
+    def _extract_el_correo_body(self, html):
+        soup = BeautifulSoup(html, 'html.parser')
+
+        paragraphs = []
+        seen = set()
+
+        # El Correo publica los párrafos reales como p.v-d-p. Se extraen antes
+        # que el JSON-LD porque articleBody llega como un único bloque corrido.
+        selectors = [
+            'article p.v-d-p',
+            'main p.v-d-p',
+            'p.v-d-p',
+            'article p[class*="voc-p"]',
+            'main p[class*="voc-p"]',
+            'article p',
+            'main p',
+        ]
+        for selector in selectors:
+            for tag in soup.select(selector):
+                text = self._clean_el_correo_paragraph(tag.get_text(" ", strip=True))
+                if not self._valid_el_correo_paragraph(text):
+                    continue
+                key = text.lower()
+                if key in seen:
+                    continue
+                seen.add(key)
+                paragraphs.append(text)
+            if len(paragraphs) >= 2:
+                return "\n\n".join(paragraphs)
+
+        for script in soup.find_all('script', type='application/ld+json'):
+            try:
+                data = json.loads(script.string or script.get_text())
+            except Exception:
+                continue
+
+            body = self._find_article_body_in_jsonld(data)
+            if not body:
+                continue
+
+            body = self._clean_el_correo_paragraph(body)
+            body = re.sub(r'(?<=[a-záéíóúñ0-9][.!?])(?=[A-ZÁÉÍÓÚÑ¿¡])', ' ', body)
+            if self._valid_el_correo_paragraph(body):
+                return body
+
+        return ""
+
     def scrape_el_correo(self):
-        import hashlib
         import urllib.request
-        import json
         url = "https://www.elcorreo.com/alava/araba/"
         print(f"Scrapeando El Correo: {url}")
         try:
@@ -193,41 +281,7 @@ class MultiScraper:
                         req = urllib.request.Request(full_url, headers=gb_headers)
                         with urllib.request.urlopen(req, timeout=10) as response:
                             html = response.read().decode('utf-8', errors='ignore')
-                            
-                            paragraphs = []
-                            # Intento 1: Extraer desde el JSON-LD (articleBody)
-                            ld_jsons = re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.DOTALL)
-                            for ld in ld_jsons:
-                                try:
-                                    data = json.loads(ld)
-                                    if isinstance(data, list):
-                                        for item in data:
-                                            if isinstance(item, dict) and 'articleBody' in item:
-                                                paragraphs.extend(item['articleBody'].split('\n'))
-                                    elif isinstance(data, dict):
-                                        if 'articleBody' in data:
-                                            paragraphs.extend(data['articleBody'].split('\n'))
-                                except:
-                                    pass
-                                    
-                            # Intento 2: Parsing HTML tradicional si no hay JSON-LD
-                            if not paragraphs:
-                                p_matches = re.findall(r'<(?:p|div)[^>]*class="[^"]*voc-p[^"]*"[^>]*>(.*?)</(?:p|div)>', html, re.DOTALL)
-                                if not p_matches:
-                                    p_matches = re.findall(r'<p.*?>(.*?)</p>', html, re.DOTALL)
-                                
-                                blacklist = ["©", "todos los derechos reservados", "vídeo es exclusivo", "disfruta de acceso", "inicia sesión", "temas", "comentarios", "suscríbete", "iniciar sesión"]
-                                for p in p_matches:
-                                    text = re.sub('<.*?>', '', p).strip()
-                                    if len(text) > 40 and not any(b.lower() in text.lower() for b in blacklist):
-                                        if not re.search(r'[.!?]$', text) and len(text.split()) < 20:
-                                            continue
-                                        paragraphs.append(text)
-                            else:
-                                paragraphs = [re.sub('<.*?>', '', p).strip() for p in paragraphs if len(p.strip()) > 30]
-                                
-                            if paragraphs:
-                                body_text = "\n\n".join(paragraphs)
+                            body_text = self._extract_el_correo_body(html)
                     except Exception as e:
                         print(f"  Error obteniendo body de {full_url}: {e}")
                     
@@ -420,9 +474,11 @@ class MultiScraper:
 
         sentiment = self._analyze_sentiment(title + " " + body)
         return {
+            'id': hashlib.md5(url.encode()).hexdigest()[:10],
             'title': title,
             'url': url,
             'source': 'Gasteiz Hoy',
+            'body': body,
             'date': date,
             'sentiment': sentiment,
             'image': image_url
