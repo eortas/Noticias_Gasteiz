@@ -157,7 +157,8 @@ class MultiScraper:
             'publirreportaje',
             'patrocinado',
             'la viñeta de cerrajería',
-            'la vineta de cerrajeria'
+            'la vineta de cerrajeria',
+            'vitoria hoy sabe de'
         ]
         return any(term in title_lower for term in excluded)
 
