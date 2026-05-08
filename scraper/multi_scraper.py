@@ -150,6 +150,17 @@ class MultiScraper:
         except:
             return original_url
 
+    def _is_excluded_title(self, title):
+        title_lower = (title or "").lower()
+        excluded = [
+            'el boulevard',
+            'publirreportaje',
+            'patrocinado',
+            'la viñeta de cerrajería',
+            'la vineta de cerrajeria'
+        ]
+        return any(term in title_lower for term in excluded)
+
     def _clean_el_correo_paragraph(self, raw_text):
         text = html_utils.unescape(raw_text or "")
         text = re.sub(r'\s+', ' ', text).strip()
@@ -270,7 +281,7 @@ class MultiScraper:
                     if not title: continue
 
                     # Filtros de exclusión
-                    if any(x in title.lower() for x in ['el boulevard', 'publirreportaje', 'patrocinado']):
+                    if self._is_excluded_title(title):
                         continue
                     if "/alava/" not in full_url and "/vitoria/" not in full_url:
                         continue
