@@ -1,7 +1,7 @@
 import re
 import os
 import json
-import time
+import random
 from groq import Groq
 from dotenv import load_dotenv
 
@@ -49,7 +49,7 @@ def analyze_sentiment(text):
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            # Pool extendido con todas las llaves del .env
+            # Pool de llaves actualizado
             keys = [
                 os.environ.get("GROQ_REWRITE_2"), os.environ.get("GROQ_REWRITE_3"),
                 os.environ.get("GROQ_REWRITE_KEY"), os.environ.get("groq_KEY"), 
@@ -58,8 +58,10 @@ def analyze_sentiment(text):
                 os.environ.get("GROQ_API_KEY")
             ]
             valid_keys = [k for k in keys if k]
-            # Rotación basada en el intento para asegurar que probamos varias si una falla
-            api_key = valid_keys[(attempt + int(time.time())) % len(valid_keys)]
+            if not valid_keys:
+                return heuristic_fallback(text)
+                
+            api_key = random.choice(valid_keys)
             
             client = Groq(api_key=api_key)
             system_prompt = """Eres un clasificador experto de noticias de Vitoria-Gasteiz.
@@ -81,21 +83,41 @@ def analyze_sentiment(text):
 
 
 def rewrite_article(title, body):
+    """Reescribe un artículo completo, manejando el título y el cuerpo por fragmentos de párrafos."""
     title_rw = _rewrite_chunk(title, "TÍTULO")
-    chunks = _split_text(body, 3500)
+    
+    # Dividir el cuerpo en fragmentos que respeten los párrafos
+    paragraphs = body.split('\n\n')
+    chunks = []
+    current_chunk = []
+    current_length = 0
+    
+    for p in paragraphs:
+        if not p.strip(): continue
+        if current_length + len(p) > 2500 and current_chunk:
+            chunks.append("\n\n".join(current_chunk))
+            current_chunk = [p]
+            current_length = len(p)
+        else:
+            current_chunk.append(p)
+            current_length += len(p) + 2
+            
+    if current_chunk:
+        chunks.append("\n\n".join(current_chunk))
+
     rewritten_chunks = []
     for i, chunk in enumerate(chunks):
         print(f"      - Reescribiendo fragmento {i+1}/{len(chunks)}...")
-        rw_chunk = _rewrite_chunk(chunk, "CUERPO")
+        rw_chunk = _rewrite_chunk(chunk, "CUERPO", context_title=title_rw or title)
         rewritten_chunks.append(rw_chunk or chunk)
-        if len(chunks) > 1: time.sleep(1)
-    return title_rw, "\n\n".join(rewritten_chunks)
+        if len(chunks) > 1: time.sleep(0.5)
+        
+    return title_rw or title, "\n\n".join(rewritten_chunks)
 
-def _rewrite_chunk(text, type_label):
+def _rewrite_chunk(text, type_label, context_title=None):
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            # Pool extendido para reescritura
             keys = [
                 os.environ.get("GROQ_REWRITE_2"), os.environ.get("GROQ_REWRITE_3"),
                 os.environ.get("GROQ_REWRITE_KEY"), os.environ.get("groq_KEY"), 
@@ -104,52 +126,58 @@ def _rewrite_chunk(text, type_label):
                 os.environ.get("GROQ_API_KEY")
             ]
             valid_keys = [k for k in keys if k]
-            api_key = valid_keys[(attempt + int(time.time())) % len(valid_keys)]
+            api_key = random.choice(valid_keys)
             
             client = Groq(api_key=api_key)
-            
             json_key = "title_rewritten" if type_label == "TÍTULO" else "body_rewritten"
-            system_prompt = f"""Eres el Jefe de Redacción de un diario líder en Vitoria-Gasteiz. 
-            Tu misión es REESCRIBIR este {type_label} de forma ÍNTEGRA, DETALLADA y EXTENSA.
             
-            REGLAS DE ORO:
-            1. PROHIBIDO RESUMIR O ACORTAR. El texto resultante debe ser tan largo como el original.
-            2. MANTÉN EL MISMO NÚMERO DE PÁRRAFOS. Usa DOBLE SALTO DE LÍNEA (\\n\\n) entre ellos.
-            3. INCLUYE todos los nombres propios, cifras, cargos y citas textuales sin excepción.
-            4. Cambia el vocabulario y estilo para que sea 100% original.
+            system_prompt = f"""Eres un Redactor Senior experto en periodismo local de Vitoria-Gasteiz.
+            Tu tarea es REESCRIBIR el siguiente {type_label} para que parezca contenido original, manteniendo el rigor informativo.
+
+            INSTRUCCIONES CRÍTICAS:
+            1. NO RESUMAS. El texto resultante debe tener una longitud similar al original.
+            2. CAMBIA EL LENGUAJE: Usa sinónimos y reestructura oraciones para evitar el "copy-paste".
+            3. INTEGRIDAD DE DATOS: Mantén todos los nombres, cifras, fechas y cargos exactos.
+            4. CITAS TEXTUALES: Mantén las declaraciones entre comillas íntegras.
+            5. ESTRUCTURA: Mantén los párrafos originales (usa \\n\\n).
             
-            Responde ÚNICAMENTE en formato JSON: {{"{json_key}": "..."}}"""
+            Responde exclusivamente en formato JSON: {{"{json_key}": "..."}}"""
+
+            user_content = text
+            if context_title and type_label == "CUERPO":
+                user_content = f"NOTICIA: {context_title}\n\nTEXTO A REESCRIBIR:\n{text}"
 
             completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
-                messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text}],
-                temperature=0.7,
+                messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_content}],
+                temperature=0.6,
                 response_format={"type": "json_object"}
             )
+            
             rewritten = json.loads(completion.choices[0].message.content).get(json_key)
             
-            # Validación de longitud: si se ha comido más del 25% del texto, forzamos reintento
-            if rewritten and attempt < 2 and type_label == "CUERPO" and len(rewritten) < len(text) * 0.75:
-                print(f"      ! Reescritura demasiado corta ({len(rewritten)} vs {len(text)}), forzando más detalle...")
-                continue
+            if rewritten and type_label == "CUERPO" and len(rewritten) < len(text) * 0.7:
+                if attempt < max_retries - 1: continue
 
-            if rewritten and attempt == 0 and len(text) > 50:
-                words_orig = set(re.findall(r'\w+', text.lower())); words_rw = set(re.findall(r'\w+', rewritten.lower()))
-                if len(words_orig) > 0 and (len(words_orig & words_rw) / len(words_orig)) > 0.75:
-                    print(f"      ! Reescritura demasiado similar, forzando creatividad..."); continue
             return rewritten
-        except:
-            if attempt < max_retries - 1: time.sleep(2)
+        except Exception:
+            if attempt < max_retries - 1: time.sleep(1)
+            
     return None
 
+
 def _split_text(text, max_chars):
+    # Esta función se mantiene por compatibilidad si se usa en otros sitios, 
+    # aunque ahora rewrite_article implementa su propia lógica de párrafos.
     if not text: return []
     chunks = []
     while text:
         if len(text) <= max_chars: chunks.append(text); break
-        split_at = text.rfind('\n', 0, max_chars)
+        split_at = text.rfind('\n\n', 0, max_chars)
+        if split_at == -1: split_at = text.rfind('\n', 0, max_chars)
         if split_at == -1: split_at = text.rfind('. ', 0, max_chars)
-        if split_at == -1 or split_at < max_chars * 0.5: split_at = max_chars
+        if split_at == -1: split_at = max_chars
         chunks.append(text[:split_at].strip())
         text = text[split_at:].strip()
     return chunks
+

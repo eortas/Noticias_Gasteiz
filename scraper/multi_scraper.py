@@ -666,11 +666,14 @@ class MultiScraper:
     _sentiment_call_count = 0
 
     def _analyze_sentiment(self, text):
-        """Analiza sentimiento rotando entre GROQ_POLISH_KEY y GROQ_POLISH2.
+        """Analiza sentimiento rotando entre todas las llaves de Groq disponibles.
         Fallback a heurística española si Groq no está disponible."""
         sentiment_keys = [
-            os.environ.get("GROQ_POLISH_KEY"),
-            os.environ.get("GROQ_POLISH2"),
+            os.environ.get("GROQ_REWRITE_2"), os.environ.get("GROQ_REWRITE_3"),
+            os.environ.get("GROQ_REWRITE_KEY"), os.environ.get("groq_KEY"), 
+            os.environ.get("GROQ_TRANSLATION_KEY"), os.environ.get("GROQ_POLISH_KEY"),
+            os.environ.get("GROQ_EUSKERA2"), os.environ.get("GROQ_POLISH2"),
+            os.environ.get("GROQ_API_KEY")
         ]
         valid_keys = [k for k in sentiment_keys if k]
 
