@@ -662,16 +662,35 @@ class MultiScraper:
                 clean_p.append(text)
         return "\n\n".join(clean_p)
 
+    # Contador de llamadas para rotar entre las dos keys de sentimiento
+    _sentiment_call_count = 0
+
     def _analyze_sentiment(self, text):
-        """Analiza sentimiento usando Groq/Llama si está disponible, si no heurística española."""
-        if groq_analyze_sentiment and os.environ.get("GROQ_API_KEY") or any(
-            os.environ.get(k) for k in ["GROQ_REWRITE_KEY", "GROQ_REWRITE_2", "GROQ_TRANSLATION_KEY"]
-        ):
+        """Analiza sentimiento rotando entre GROQ_POLISH_KEY y GROQ_POLISH2.
+        Fallback a heurística española si Groq no está disponible."""
+        sentiment_keys = [
+            os.environ.get("GROQ_POLISH_KEY"),
+            os.environ.get("GROQ_POLISH2"),
+        ]
+        valid_keys = [k for k in sentiment_keys if k]
+
+        if groq_analyze_sentiment and valid_keys:
+            # Rotar por número de llamada para distribuir carga
+            api_key = valid_keys[MultiScraper._sentiment_call_count % len(valid_keys)]
+            MultiScraper._sentiment_call_count += 1
             try:
+                import os as _os
+                _orig = _os.environ.get("GROQ_API_KEY")
+                _os.environ["GROQ_API_KEY"] = api_key
                 _sentiment_label, score, _category = groq_analyze_sentiment(text[:1000])
+                if _orig is not None:
+                    _os.environ["GROQ_API_KEY"] = _orig
+                else:
+                    _os.environ.pop("GROQ_API_KEY", None)
                 return round(score, 4)
             except Exception as e:
-                print(f"  Groq sentiment falló: {e}, usando heurística")
+                print(f"  Groq sentiment falló ({api_key[:8]}...): {e}, usando heurística")
+
         # Fallback heurístico español
         if heuristic_fallback:
             try:
