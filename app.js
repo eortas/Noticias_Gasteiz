@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
 
         const filteredData = currentFilter
-            ? newsData.filter(item => item.sentiment === currentFilter)
+            ? newsData.filter(item => item.sentiment_label === currentFilter)
             : newsData;
 
         if (filteredData.length === 0) {
@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         newsGrid.innerHTML = filteredData.map((item, index) => {
             const isRead = readIds.includes(item.id);
+            const sentimentClass = item.sentiment_label || 'neutral';
             let html = `
                 <div class="card glass ${isRead ? 'card-read' : ''}" data-id="${item.id}" data-source="${item.source}">
                     <div class="card-img-wrap">
@@ -75,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="img-overlay"></div>
                         <div class="card-top-badges">
                             <div class="card-source-badge">
-                                <div class="sentiment-dot dot-${item.sentiment}" title="Sentimiento: ${item.sentiment}"></div>
+                                <div class="sentiment-dot dot-${sentimentClass}" title="Sentimiento: ${sentimentClass}"></div>
                             </div>
                             ${item.category && item.category !== 'Otros' ? `<div class="badge-category cat-${item.category.toLowerCase().replace('í', 'i')}">${item.category}</div>` : ''}
                         </div>
@@ -105,7 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderStats() {
         const counts = { 'positiva': 0, 'neutral': 0, 'negativa': 0 };
         newsData.forEach(item => {
-            if (counts.hasOwnProperty(item.sentiment)) counts[item.sentiment]++;
+            const label = item.sentiment_label || 'neutral';
+            if (counts.hasOwnProperty(label)) counts[label]++;
         });
 
         statsContainer.innerHTML = `
@@ -312,6 +314,14 @@ document.addEventListener('DOMContentLoaded', () => {
             newsData = await newsRes.json();
             moodHistoryData = await moodRes.json();
             podcastData = await podcastRes.json();
+            
+            // Normalize sentiment scores to labels
+            newsData.forEach(item => {
+                const score = parseFloat(item.sentiment);
+                if (score > 0.05) item.sentiment_label = 'positiva';
+                else if (score < -0.05) item.sentiment_label = 'negativa';
+                else item.sentiment_label = 'neutral';
+            });
             
             sortNewsByReadState();
             renderStats();
