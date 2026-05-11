@@ -147,6 +147,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showDetail(id, fromPopState = false) {
+        if (!fromPopState) {
+            lastScrollPos = window.scrollY;
+        }
         const item = newsData.find(n => n.id === id);
         if (!item) return;
 
