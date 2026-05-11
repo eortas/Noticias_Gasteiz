@@ -215,8 +215,11 @@ document.addEventListener('DOMContentLoaded', () => {
         detailView.classList.replace('view-active', 'view-hidden');
         backNav.classList.replace('view-active', 'view-hidden');
         mainView.classList.replace('view-hidden', 'view-active');
-        // Restore scroll position
-        window.scrollTo({ top: lastScrollPos, behavior: 'instant' });
+        
+        // Use a small timeout to ensure the DOM has reflowed before scrolling
+        setTimeout(() => {
+            window.scrollTo({ top: lastScrollPos, behavior: 'instant' });
+        }, 10);
 
         if (!fromPopState && history.state && history.state.view === 'detail') {
             history.back();
