@@ -22,7 +22,7 @@ def parallel_rewrite_news(max_workers=6):
         return
 
     total = len(to_process)
-    print(f"Iniciando reescritura paralela de {total} noticias con {max_workers} hilos...")
+    print(f"Iniciando reescritura paralela de {total} noticias con {max_workers} hilos...", flush=True)
 
     def process_item(item):
         title_orig = item.get('title', '')
@@ -50,7 +50,7 @@ def parallel_rewrite_news(max_workers=6):
             else:
                 return False
         except Exception as e:
-            print(f"Error procesando {url}: {e}")
+            print(f"Error procesando {url}: {e}", flush=True)
             return False
 
     processed_count = 0
@@ -63,19 +63,19 @@ def parallel_rewrite_news(max_workers=6):
             processed_count += 1
             
             status = "OK" if success else "FALLÓ"
-            print(f"[{processed_count}/{total}] {status}: {item.get('url')}")
+            print(f"[{processed_count}/{total}] {status}: {item.get('url')}", flush=True)
             
             # Guardar cada 5 finalizados para no perder progreso
             if processed_count % 5 == 0:
                 with open(news_file, 'w', encoding='utf-8') as f:
                     json.dump(news, f, indent=2, ensure_ascii=False)
-                print(f"--- Progreso guardado ({processed_count}/{total}) ---")
+                print(f"--- Progreso guardado ({processed_count}/{total}) ---", flush=True)
 
     # Guardado final
     with open(news_file, 'w', encoding='utf-8') as f:
         json.dump(news, f, indent=2, ensure_ascii=False)
     
-    print(f"\nProceso completado. {processed_count} noticias procesadas.")
+    print(f"\nProceso completado. {processed_count} noticias procesadas.", flush=True)
 
 if __name__ == "__main__":
     # Usamos 6 workers como pidió el usuario (basado en sus 6 keys)

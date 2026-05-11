@@ -2,6 +2,7 @@ import re
 import os
 import json
 import random
+import time
 from groq import Groq
 from dotenv import load_dotenv
 
@@ -107,7 +108,7 @@ def rewrite_article(title, body):
 
     rewritten_chunks = []
     for i, chunk in enumerate(chunks):
-        print(f"      - Reescribiendo fragmento {i+1}/{len(chunks)}...")
+        print(f"      - Reescribiendo fragmento {i+1}/{len(chunks)}...", flush=True)
         rw_chunk = _rewrite_chunk(chunk, "CUERPO", context_title=title_rw or title)
         rewritten_chunks.append(rw_chunk or chunk)
         if len(chunks) > 1: time.sleep(0.5)
