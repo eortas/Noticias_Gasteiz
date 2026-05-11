@@ -156,6 +156,45 @@ class MultiScraper:
             raise last_error
         return None
 
+    def _jina_reader_url(self, url):
+        return f"https://r.jina.ai/http://{url}"
+
+    def _extract_jina_content(self, text):
+        marker = "Markdown Content:"
+        if marker in text:
+            return text.split(marker, 1)[1].strip()
+        return text
+
+    def _get_via_jina(self, url, timeout=30):
+        jina_url = self._jina_reader_url(url)
+        try:
+            res = self.requests_session.get(jina_url, headers=self.headers, timeout=timeout)
+            if res.status_code == 200:
+                print(f"  OK via jina reader: {url}")
+                return self._extract_jina_content(res.text)
+            print(f"  jina reader status {res.status_code}: {url}")
+        except Exception as e:
+            print(f"  jina reader error {type(e).__name__}: {url} - {e}")
+        return None
+
+    def _get_json_with_reader_fallback(self, url, allow_reader=True):
+        res = self._get(url, timeout=20)
+        if res:
+            return res.json()
+
+        if not allow_reader:
+            return None
+
+        text = self._get_via_jina(url)
+        if not text:
+            return None
+
+        try:
+            return json.loads(text)
+        except Exception as e:
+            print(f"  Error parseando JSON desde jina reader: {e}")
+            return None
+
     def _normalize_url(self, url):
         if '?' in url:
             return url.split('?')[0]
@@ -356,13 +395,13 @@ class MultiScraper:
         api_urls = [
             "https://www.gasteizhoy.com/wp-json/wp/v2/posts?per_page=100&_embed",
             "https://www.gasteizhoy.com/wp-json/wp/v2/posts?per_page=100",
+            "https://www.gasteizhoy.com/wp-json/wp/v2/posts?per_page=100&_fields=id,date,date_gmt,link,title",
         ]
         for api_url in api_urls:
             try:
-                res = self._get(api_url, timeout=20)
-                if not res:
+                posts = self._get_json_with_reader_fallback(api_url, allow_reader="_fields=" in api_url)
+                if not posts:
                     continue
-                posts = res.json()
                 print(f"  API WP OK: {len(posts)} posts en {api_url}")
                 for post in posts:
                     url = post.get('link', '')
@@ -405,8 +444,9 @@ class MultiScraper:
         try:
             rss_url = "https://www.gasteizhoy.com/feed/"
             res = self._get(rss_url, timeout=20)
-            if res.status_code == 200:
-                soup = BeautifulSoup(res.text, 'xml')
+            rss_text = res.text if res else self._get_via_jina(rss_url)
+            if rss_text:
+                soup = BeautifulSoup(rss_text, 'xml')
                 rss_count = 0
                 for item in soup.find_all('item'):
                     url = item.link.text if item.link else ''
@@ -437,9 +477,11 @@ class MultiScraper:
 
         # 3. Respaldo Portada
         try:
-            res = self._get("https://www.gasteizhoy.com/", timeout=20)
-            if res.status_code == 200:
-                soup = BeautifulSoup(res.text, 'html.parser')
+            home_url = "https://www.gasteizhoy.com/"
+            res = self._get(home_url, timeout=20)
+            home_text = res.text if res else self._get_via_jina(home_url)
+            if home_text:
+                soup = BeautifulSoup(home_text, 'html.parser')
                 home_count = 0
                 combined_selectors = soup.find_all(['h2', 'h3']) + soup.select('a.nueve-bloque-noticia, a.heronews, a.box-shadow, a.blogpost, a.breakblock.breakingtext, a.linknews, a.sixnewsblock')
                 for item in combined_selectors:
@@ -513,10 +555,15 @@ class MultiScraper:
                     if not image_url:
                         image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
                 else: raise Exception(f"Status {res.status_code}")
-            except:
-                return None 
+            except Exception as e:
+                print(f"  Error detalle Gasteiz Hoy directo {url}: {e}")
 
         if not body or not title:
+            markdown = self._get_via_jina(url)
+            if markdown:
+                fallback = self._extract_gasteiz_hoy_markdown(link_info, markdown)
+                if fallback:
+                    return fallback
             return None
 
         # Filtro final por seguridad
@@ -533,6 +580,68 @@ class MultiScraper:
             'body': body,
             'date': date,
             'sentiment': sentiment,
+            'image': image_url
+        }
+
+    def _extract_gasteiz_hoy_markdown(self, link_info, markdown):
+        url = link_info['url']
+        title = link_info.get('title')
+        image_url = link_info.get('image_url')
+        paragraphs = []
+        started = False
+
+        for raw_line in markdown.splitlines():
+            line = raw_line.strip()
+            if not line:
+                continue
+            if line.startswith("# ") and not title:
+                title = line[2:].strip()
+                continue
+            if title and title.lower() in line.lower():
+                started = True
+                continue
+            if not started and line.startswith("**"):
+                started = True
+
+            if line.startswith("![") and not image_url:
+                match = re.search(r'\((https?://[^)]+)\)', line)
+                candidate = match.group(1) if match else None
+                if candidate and not any(x in candidate.lower() for x in ["publicidad", "banner", "logo"]):
+                    image_url = self._get_ddg_proxy_url(candidate)
+                continue
+
+            lower = line.lower()
+            if (
+                line.startswith(("#", "*", "[", "![", "[]("))
+                or "http://" in lower
+                or "https://" in lower
+                or "publicidad" in lower
+                or "close the sidebar" in lower
+                or "buscar:" in lower
+                or len(line) < 40
+            ):
+                continue
+
+            clean_line = re.sub(r'[*_`]+', '', line).strip()
+            if clean_line and clean_line not in paragraphs:
+                paragraphs.append(clean_line)
+
+        body = "\n\n".join(paragraphs[:12])
+        if not body or not title:
+            return None
+
+        content_lower = (title + " " + body).lower()
+        if any(x in content_lower for x in ['el boulevard', 'publirreportaje', 'patrocinado']):
+            return None
+
+        return {
+            'id': hashlib.md5(url.encode()).hexdigest()[:10],
+            'title': title,
+            'url': url,
+            'source': 'Gasteiz Hoy',
+            'body': body,
+            'date': link_info.get('date_str') or datetime.now(timezone.utc).isoformat(),
+            'sentiment': self._analyze_sentiment(title + " " + body),
             'image': image_url
         }
 
