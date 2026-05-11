@@ -7,4 +7,3 @@ urllib3
 lxml
 cloudscraper
 deep-translator
-textblob

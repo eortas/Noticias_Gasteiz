@@ -9,7 +9,16 @@ from datetime import datetime, timedelta, timezone
 import cloudscraper
 import requests
 from bs4 import BeautifulSoup
-from textblob import TextBlob
+
+# Importar el analizador de sentimiento español basado en Groq/Llama
+try:
+    from scraper.analyze_sentiment import analyze_sentiment as groq_analyze_sentiment, heuristic_fallback
+except ImportError:
+    try:
+        from analyze_sentiment import analyze_sentiment as groq_analyze_sentiment, heuristic_fallback
+    except ImportError:
+        groq_analyze_sentiment = None
+        heuristic_fallback = None
 
 class MultiScraper:
     def __init__(self):
@@ -654,10 +663,23 @@ class MultiScraper:
         return "\n\n".join(clean_p)
 
     def _analyze_sentiment(self, text):
-        try:
-            return TextBlob(text).sentiment.polarity
-        except:
-            return 0
+        """Analiza sentimiento usando Groq/Llama si está disponible, si no heurística española."""
+        if groq_analyze_sentiment and os.environ.get("GROQ_API_KEY") or any(
+            os.environ.get(k) for k in ["GROQ_REWRITE_KEY", "GROQ_REWRITE_2", "GROQ_TRANSLATION_KEY"]
+        ):
+            try:
+                _sentiment_label, score, _category = groq_analyze_sentiment(text[:1000])
+                return round(score, 4)
+            except Exception as e:
+                print(f"  Groq sentiment falló: {e}, usando heurística")
+        # Fallback heurístico español
+        if heuristic_fallback:
+            try:
+                _label, score, _cat = heuristic_fallback(text)
+                return round(score, 4)
+            except:
+                pass
+        return 0
 
     def _parse_date(self, date_str):
         if not date_str: return datetime.now(timezone.utc)
