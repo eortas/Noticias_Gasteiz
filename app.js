@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function showDetail(id) {
+    function showDetail(id, fromPopState = false) {
         const item = newsData.find(n => n.id === id);
         if (!item) return;
 
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem(READ_ARTICLES_KEY, JSON.stringify(readIds));
         }
 
-        const sentimentColorClass = item.sentiment === 'positiva' ? 'text-emerald' : (item.sentiment === 'negativa' ? 'text-rose' : 'text-muted');
+        const sentimentColorClass = item.sentiment_label === 'positiva' ? 'text-emerald' : (item.sentiment_label === 'negativa' ? 'text-rose' : 'text-muted');
         const paragraphs = (item.body || '').split('\n').filter(p => p.trim() !== '');
         const bodyHtml = paragraphs.length > 0 
             ? paragraphs.map(p => `<p class="paragraph">${p}</p>`).join('')
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="hero-overlay"></div>
                 <div class="hero-content">
                     <div class="hero-badges">
-                        <span class="badge-sentiment ${sentimentColorClass}"># ${item.sentiment}</span>
+                        <span class="badge-sentiment ${sentimentColorClass}"># ${item.sentiment_label}</span>
                         ${item.category ? `<span class="badge-source">${item.category}</span>` : ''}
                     </div>
                     <h1 class="hero-title">${item.title}</h1>
@@ -200,9 +200,13 @@ document.addEventListener('DOMContentLoaded', () => {
         detailView.classList.replace('view-hidden', 'view-active');
         backNav.classList.replace('view-hidden', 'view-active');
         window.scrollTo({ top: 0, behavior: 'instant' });
+
+        if (!fromPopState) {
+            history.pushState({ view: 'detail', id: id }, '');
+        }
     }
 
-    backBtn.addEventListener('click', () => {
+    function closeDetail(fromPopState = false) {
         sortNewsByReadState();
         renderNewsFeed();
         detailView.classList.replace('view-active', 'view-hidden');
@@ -210,6 +214,22 @@ document.addEventListener('DOMContentLoaded', () => {
         mainView.classList.replace('view-hidden', 'view-active');
         // Restore scroll position
         window.scrollTo({ top: lastScrollPos, behavior: 'instant' });
+
+        if (!fromPopState && history.state && history.state.view === 'detail') {
+            history.back();
+        }
+    }
+
+    backBtn.addEventListener('click', () => {
+        closeDetail();
+    });
+
+    window.addEventListener('popstate', (event) => {
+        if (event.state && event.state.view === 'detail') {
+            showDetail(event.state.id, true);
+        } else {
+            closeDetail(true);
+        }
     });
 
     // Handle language changes from the toggle buttons
