@@ -1131,3 +1131,35 @@ body {
         border-radius: 2rem;
     }
 }
+/* Footer Legal Links */
+.footer {
+    margin-top: 6rem;
+    padding: 3rem 0;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.footer-left {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.footer-right {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.footer-right a {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-right a:hover {
+    color: var(--indigo-500);
+}
