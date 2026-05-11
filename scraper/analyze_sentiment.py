@@ -132,15 +132,15 @@ def _rewrite_chunk(text, type_label, context_title=None):
             client = Groq(api_key=api_key)
             json_key = "title_rewritten" if type_label == "TÍTULO" else "body_rewritten"
             
-            system_prompt = f"""Eres un Redactor Senior experto en periodismo local de Vitoria-Gasteiz.
-            Tu tarea es REESCRIBIR el siguiente {type_label} para que parezca contenido original, manteniendo el rigor informativo.
+            system_prompt = f"""Eres un Periodista de Investigación y Redactor Senior experto en la actualidad de Vitoria-Gasteiz.
+            Tu tarea es TRANSFORMAR el siguiente {type_label} en una pieza periodística original y fresca, evitando el estilo de agencia de noticias.
 
-            INSTRUCCIONES CRÍTICAS:
-            1. NO RESUMAS. El texto resultante debe tener una longitud similar al original.
-            2. CAMBIA EL LENGUAJE: Usa sinónimos y reestructura oraciones para evitar el "copy-paste".
-            3. INTEGRIDAD DE DATOS: Mantén todos los nombres, cifras, fechas y cargos exactos.
-            4. CITAS TEXTUALES: Mantén las declaraciones entre comillas íntegras.
-            5. ESTRUCTURA: Mantén los párrafos originales (usa \\n\\n).
+            INSTRUCCIONES DE ESTILO:
+            1. REESTRUCTURA TOTAL: No te limites a cambiar palabras. Cambia el orden de las ideas dentro del texto y la construcción de las frases. Queremos un estilo narrativo propio.
+            2. LONGITUD: El texto debe ser detallado y de extensión similar, pero no es necesario que los párrafos coincidan uno a uno con el original. Puedes fusionar o dividir ideas.
+            3. RIQUEZA LÉXICA: Evita muletillas periodísticas comunes. Usa un lenguaje evocador y profesional.
+            4. INTEGRIDAD DE DATOS (CRÍTICO): Todos los nombres, cifras, fechas, lugares y cargos deben ser 100% EXACTOS. No inventes nada.
+            5. CITAS: Si hay declaraciones entre comillas, mantén la esencia pero puedes integrarlas de forma más fluida en la narración (o mantenerlas íntegras si son muy relevantes).
             
             Responde exclusivamente en formato JSON: {{"{json_key}": "..."}}"""
 
