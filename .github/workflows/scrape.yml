@@ -29,12 +29,11 @@ jobs:
         env:
             HF_TOKEN: ${{ secrets.HF_TOKEN }}
             GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-            GROQ_TRANSLATION_KEY: ${{ secrets.GROQ_TRANSLATION_KEY }}
             GROQ_REWRITE_KEY: ${{ secrets.GROQ_REWRITE_KEY }}
             GROQ_REWRITE_2: ${{ secrets.GROQ_REWRITE_2 }}
             GROQ_REWRITE_3: ${{ secrets.GROQ_REWRITE_3 }}
             GROQ_POLISH_KEY: ${{ secrets.GROQ_POLISH_KEY }}
-            GROQ_EUSKERA2: ${{ secrets.GROQ_EUSKERA2 }}
+            GROQ_POLISH2: ${{ secrets.GROQ_POLISH2 }}
         run: |
           python scraper/multi_scraper.py
           python scraper/update_podcast.py
@@ -43,7 +42,7 @@ jobs:
         run: |
           git config --global user.name "Vitoria Scraper Bot"
           git config --global user.email "bot@vitoriachronicle.com"
-          git pull --rebase origin main
           git add data/news.json scraper/history.json data/mood_history.json data/podcast.json
-          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Automated news update - $(date +'%Y-%m-%d %H:%M')"
+          git diff --cached --quiet || git commit -m "Automated news update - $(date +'%Y-%m-%d %H:%M')"
+          git pull --rebase origin main
           git push origin main

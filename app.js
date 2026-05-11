@@ -12,164 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let moodHistoryData = [];
     let podcastData = null;
     let currentFilter = null;
-    let currentLang = localStorage.getItem('vitoria_lang') || 'es';
-    const READ_ARTICLES_KEY = 'vitoria_read_articles';
+        const READ_ARTICLES_KEY = 'vitoria_read_articles';
 
     // Apply initial lang state
-    function applyLangUI() {
-        document.getElementById('btn-es').classList.toggle('active', currentLang === 'es');
-        document.getElementById('btn-eu').classList.toggle('active', currentLang === 'eu');
-        document.getElementById('btn-pl').classList.toggle('active', currentLang === 'pl');
-
-        const subtitle = document.getElementById('subtitle-text');
-        const moodTitle = document.getElementById('mood-title');
-        const backBtnText = document.getElementById('back-btn-text');
-        const footerCopyright = document.getElementById('footer-copyright');
-
-        const locales = { es: 'es-ES', eu: 'eu-ES', pl: 'pl-PL' };
-        const currentLocale = locales[currentLang] || 'es-ES';
-        let todayStr = "";
-        if (currentLang === 'eu') {
-            todayStr = getEuskaraDate(new Date());
-        } else {
-            todayStr = new Date().toLocaleDateString(currentLocale, { day: '2-digit', month: 'long' });
-        }
-
-        if (liveUpdateBadge) {
-            liveUpdateBadge.innerHTML = `<span class="ping"></span><span class="dot"></span>Live Update • ${todayStr.toUpperCase()}`;
-        }
-
-        if (subtitle) {
-            if (currentLang === 'eu') {
-                subtitle.innerHTML = 'Gasteiz-ko berrien ataria. Informazioaren fluxua <span class="italic">bisual-narratibetan</span> bihurtzen dugu, adimen artifizialarekin aztertuta.';
-            } else if (currentLang === 'pl') {
-                subtitle.innerHTML = 'Twój portal informacyjny Vitoria-Gasteiz. Przekształcamy przepływ informacji w <span class="italic">wizualne narracje</span> analizowane przez sztuczną inteligencję.';
-            } else {
-                subtitle.innerHTML = 'Tu portal de noticias de Vitoria-Gasteiz. Transformamos el flujo de información en <span class="italic">narrativas visuales</span> analizadas por inteligencia artificial.';
-            }
-        }
-
-        if (moodTitle) {
-            moodTitle.textContent = currentLang === 'eu' ? 'Gasteizko "Mood"-a' : (currentLang === 'pl' ? 'Atmosfera Vitoria' : 'El "Mood"');
-        }
-
-        if (backBtnText) {
-            backBtnText.textContent = currentLang === 'eu' ? 'Atariara itzuli' : (currentLang === 'pl' ? 'Powrót do portalu' : 'Volver al portal');
-        }
-
-        if (footerCopyright) {
-            footerCopyright.textContent = `© 2026 Vitoria Live • Powered by AI.`;
-        }
-
-        // Podcast translations
-        const podcastTitle = document.querySelector('.podcast-title');
-        if (podcastTitle) {
-            if (currentLang === 'eu') {
-                podcastTitle.textContent = 'Eguneko Audio Laburpena';
-            } else if (currentLang === 'pl') {
-                podcastTitle.textContent = 'Codzienne Podsumowanie Audio';
-            } else {
-                podcastTitle.textContent = 'Audio Resumen Diario';
-            }
-        }
-        updatePodcastPlayer();
-    }
-    applyLangUI();
-
-
-    // Initial date will be set by applyLangUI()
-
-    // Load Data
-    Promise.all([
-        fetch('data/news.json').then(res => res.json()).catch(() => []),
-        fetch('data/mood_history.json').then(res => res.json()).catch(() => []),
-        fetch('data/podcast.json').then(res => res.json()).catch(() => null)
-    ]).then(([news, moodHistory, podcast]) => {
-        // Filter out broken entries (missing id, title, or body)
-        newsData = news.filter(n => n.id && n.title);
-        moodHistoryData = moodHistory;
-        podcastData = podcast;
-        updatePodcastPlayer();
-        if (newsData.length > 0) {
-            sortNewsByReadState();
-            renderStats();
-            renderNewsFeed();
-        } else {
-            newsGrid.innerHTML = '<p style="color:var(--text-muted); font-weight:300;">Error cargando las narrativas. Asegúrate de haber ejecutado el scraper.</p>';
-        }
-
-        if (moodHistoryData && moodHistoryData.length > 0) {
-            renderMoodWidget(moodHistoryData);
-        }
-    });
-
-    function renderStats() {
-        if (!newsData || newsData.length === 0) return;
-
-        const total = newsData.length;
-        const positivas = newsData.filter(n => n.sentiment === 'positiva').length;
-        const negativas = newsData.filter(n => n.sentiment === 'negativa').length;
-        const pctPositivas = total > 0 ? Math.round((positivas / total) * 100) : 0;
-
-        const hasFilter = currentFilter !== null;
-
-        const eu = currentLang === 'eu';
-        const pl = currentLang === 'pl';
-        statsContainer.innerHTML = `
-            <div class="stat-item ${currentFilter === null ? 'stat-active' : ''}" id="stat-all" style="cursor:pointer">
-                <div class="stat-label">${eu ? 'Bolumena' : (pl ? 'Wolumen' : 'Volumen')}</div>
-                <div class="stat-value">${total} <span style="font-size:1rem; font-weight:600; color:var(--text-muted); letter-spacing:0">${eu ? 'Albisteak' : (pl ? 'Wiadomości' : 'Noticias')}</span> ${currentFilter === null ? '<span class="filter-dot"></span>' : ''}</div>
-            </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item ${currentFilter === 'positiva' ? 'stat-active' : ''}" id="stat-pos" style="cursor:pointer">
-                <div class="stat-label">${eu ? 'Bibrazio Positiboa' : (pl ? 'Pozytywne Wibracje' : 'Vibe Positivo')}</div>
-                <div class="stat-value text-emerald">${pctPositivas}% ${currentFilter === 'positiva' ? '<span class="filter-dot"></span>' : ''}</div>
-            </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item ${currentFilter === 'negativa' ? 'stat-active' : ''}" id="stat-neg" style="cursor:pointer">
-                <div class="stat-label">${eu ? 'Bibrazio Negatiboa' : (pl ? 'Negatywne Wibracje' : 'Vibe Negativo')}</div>
-                <div class="stat-value text-rose">${negativas} ${currentFilter === 'negativa' ? '<span class="filter-dot"></span>' : ''}</div>
-            </div>
-        `;
-
-        // Listeners for stats
-        document.getElementById('stat-all').onclick = () => setFilter(null);
-        document.getElementById('stat-pos').onclick = () => setFilter('positiva');
-        document.getElementById('stat-neg').onclick = () => setFilter('negativa');
-    }
-
-    function setFilter(sentiment) {
-        currentFilter = sentiment;
-        renderStats();
-        renderNewsFeed();
-    }
-
-    function getEuskaraDate(date, long = false) {
-        const months = ['urtarrilaren', 'otsailaren', 'martxoaren', 'apirilaren', 'maiatzaren', 'ekainaren', 'uztailaren', 'abuztuaren', 'irailaren', 'urriaren', 'azaroaren', 'abenduaren'];
-        const weekdays = ['igandea', 'astelehena', 'asteartea', 'asteazkena', 'osteguna', 'ostirala', 'larunbata'];
-        const d = date.getDate();
-        const m = months[date.getMonth()];
-        const y = date.getFullYear();
-        if (long) {
-            const w = weekdays[date.getDay()];
-            return `${y}(e)ko ${m} ${d}a, ${w}`;
-        }
-        return `${m} ${d}a`;
-    }
-
-    function formatDate(dateStr) {
-        const locales = { es: 'es-ES', eu: 'eu-ES', pl: 'pl-PL' };
-        try {
-            const date = new Date(dateStr);
-            if (currentLang === 'eu') return getEuskaraDate(date);
-            return date.toLocaleDateString(locales[currentLang] || 'es-ES', { day: '2-digit', month: 'short' });
-        } catch {
-            return currentLang === 'eu' ? 'Berria' : (currentLang === 'pl' ? 'Najnowsze' : 'Reciente');
-        }
-    }
-    function formatLongDate(dateStr) {
-        const locales = { es: 'es-ES', eu: 'eu-ES', pl: 'pl-PL' };
-        try {
+        function formatLongDate(dateStr) {
+                try {
             const date = new Date(dateStr);
             if (currentLang === 'eu') return getEuskaraDate(date, true);
             return date.toLocaleDateString(locales[currentLang] || 'es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -227,10 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div class="card-content">
-                        <div class="card-date">${formatDate(item.date)} ${isRead ? `<span class="read-tag">• ${currentLang === 'eu' ? 'Irakurrita' : (currentLang === 'pl' ? 'Przeczytane' : 'Leído')}</span>` : ''}</div>
-                        <h2 class="card-title">${currentLang === 'eu' && item.title_eu ? item.title_eu : (currentLang === 'pl' && item.title_pl ? item.title_pl : item.title)}</h2>
+                        <div class="card-date">${formatDate(item.date)} ${isRead ? `<span class="read-tag">• ${'Leído'}</span>` : ''}</div>
+                        <h2 class="card-title">${item.title}</h2>
                         <div class="card-footer">
-                            <span class="read-more">${currentLang === 'eu' ? 'Irakurri' : (currentLang === 'pl' ? 'Czytaj más' : 'Ver narrativa')}</span>
+                            <span class="read-more">${'Ver narrativa'}</span>
                             <div class="line"></div>
                         </div>
                     </div>
@@ -242,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if ((index + 1) % 4 === 0) {
                 html += `
                     <div class="card-ad glass">
-                        <span class="ad-label">${currentLang === 'eu' ? 'PUBLIZITATEA' : (currentLang === 'pl' ? 'REKLAMA' : 'PUBLICIDAD')}</span>
+                        <span class="ad-label">${'PUBLICIDAD'}</span>
                         <div class="ad-placeholder">
                             <ins class="adsbygoogle"
                                  style="display:block"
@@ -346,17 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Handle language changes from the toggle buttons
-    document.getElementById('main-view').addEventListener('langchange', (e) => {
-        currentLang = e.detail;
-        localStorage.setItem('vitoria_lang', currentLang);
-        applyLangUI();
-        renderStats();
-        renderNewsFeed();
-        if (moodHistoryData && moodHistoryData.length > 0) {
-            renderMoodWidget(moodHistoryData);
-        }
-    });
-
+    
     function renderMoodWidget(history) {
         const widget = document.getElementById('mood-widget-container');
         if (!widget) return;
@@ -370,20 +207,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const moodMarkerEl = document.getElementById('mood-marker');
 
         let emoji = '😐';
-        let text = currentLang === 'eu' ? 'Gasteiz neutroa da' : (currentLang === 'pl' ? 'Vitoria jest neutralna' : 'Vitoria está neutral');
+        let text = 'Vitoria está neutral';
 
         if (score > 0.3) {
             emoji = '😄';
-            text = currentLang === 'eu' ? 'Gasteiz umore bikainean dago' : (currentLang === 'pl' ? 'Vitoria jest w doskonałym nastroju' : 'Vitoria está de excelente humor');
+            text = 'Vitoria está de excelente humor';
         } else if (score > 0.05) {
             emoji = '🙂';
-            text = currentLang === 'eu' ? 'Gasteizko eguna ona da' : (currentLang === 'pl' ? 'Vitoria ma dobry dzień' : 'Vitoria tiene un buen día');
+            text = 'Vitoria tiene un buen día';
         } else if (score < -0.3) {
             emoji = '😞';
-            text = currentLang === 'eu' ? 'Gasteizek egun zaila du' : (currentLang === 'pl' ? 'Vitoria ma trudny dzień' : 'Vitoria tiene un día difícil');
+            text = 'Vitoria tiene un día difícil';
         } else if (score < -0.05) {
             emoji = '😕';
-            text = currentLang === 'eu' ? 'Gasteiz zertxobait goibel dago' : (currentLang === 'pl' ? 'Vitoria jest nieco przygnębiona' : 'Vitoria está algo decaída');
+            text = 'Vitoria está algo decaída';
         }
 
         moodTextEl.textContent = `${text} (Score: ${score > 0 ? '+' : ''}${score})`;
@@ -410,8 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const absScore = Math.abs(dayScore);
             const heightPct = Math.max(10, absScore * 100);
 
-            const locales = { es: 'es-ES', eu: 'eu-ES', pl: 'pl-PL' };
-            const date = new Date(day.date);
+                        const date = new Date(day.date);
             let dStr = "";
             if (currentLang === 'eu') {
                 dStr = getEuskaraDate(date);
@@ -454,9 +290,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Global function so onclick in HTML can reach it
-function setLang(lang) {
-    const app = document.getElementById('main-view');
-    if (!app) return;
-    // Dispatch a custom event so the DOMContentLoaded scope can handle it
-    app.dispatchEvent(new CustomEvent('langchange', { detail: lang }));
-}

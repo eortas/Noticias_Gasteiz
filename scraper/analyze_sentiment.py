@@ -79,52 +79,6 @@ def analyze_sentiment(text):
                 return heuristic_fallback(text)
             time.sleep(2)
 
-def translate_to_euskara(title, body):
-    return _translate_full(title, body, "EUSKARA", "title_eu", "body_eu")
-
-def translate_to_polish(title, body):
-    return _translate_full(title, body, "POLACO", "title_pl", "body_pl")
-
-def _translate_full(title, body, lang_label, title_key, body_key):
-    title_tr = _translate_chunk(title, "TÍTULO", lang_label, title_key)
-    chunks = _split_text(body, 3000)
-    translated_chunks = []
-    for i, chunk in enumerate(chunks):
-        print(f"      - Traduciendo fragmento de {lang_label.lower()} {i+1}/{len(chunks)}...")
-        tr_chunk = _translate_chunk(chunk, "CUERPO", lang_label, body_key)
-        translated_chunks.append(tr_chunk or chunk)
-        if len(chunks) > 1: time.sleep(1)
-    return title_tr, "\n\n".join(translated_chunks)
-
-def _translate_chunk(text, type_label, target_lang, json_key):
-    max_retries = 3
-    for attempt in range(max_retries):
-        try:
-            # Pool extendido para traducciones
-            keys = [
-                os.environ.get("GROQ_REWRITE_2"), os.environ.get("GROQ_REWRITE_3"),
-                os.environ.get("GROQ_REWRITE_KEY"), os.environ.get("groq_KEY"), 
-                os.environ.get("GROQ_TRANSLATION_KEY"), os.environ.get("GROQ_POLISH_KEY"),
-                os.environ.get("GROQ_EUSKERA2"), os.environ.get("GROQ_POLISH2"),
-                os.environ.get("GROQ_API_KEY")
-            ]
-            valid_keys = [k for k in keys if k]
-            api_key = valid_keys[(attempt + int(time.time())) % len(valid_keys)]
-            
-            client = Groq(api_key=api_key)
-            
-            system_prompt = f"Przetłumacz ten {type_label} na JĘZYK POLSKI. Odpowiedz wyłącznie w formacie JSON: {{\"{json_key}\": \"...\"}}" if "POL" in target_lang else f"Itzuli {type_label} hau EUSKARA. Erantzun JSON FORMATUAN soilik: {{\"{json_key}\": \"...\"}}"
-            
-            completion = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text}],
-                temperature=0.0,
-                response_format={"type": "json_object"}
-            )
-            return json.loads(completion.choices[0].message.content).get(json_key)
-        except:
-            if attempt < max_retries - 1: time.sleep(2)
-    return None
 
 def rewrite_article(title, body):
     title_rw = _rewrite_chunk(title, "TÍTULO")
