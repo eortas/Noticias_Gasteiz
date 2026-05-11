@@ -12,74 +12,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let moodHistoryData = [];
     let podcastData = null;
     let currentFilter = null;
-    let currentLang = localStorage.getItem('vitoria_lang') || 'es';
     const READ_ARTICLES_KEY = 'vitoria_read_articles';
-
-    const locales = {
-        'es': 'es-ES',
-        'eu': 'eu-ES',
-        'pl': 'pl-PL'
-    };
-
-    const translations = {
-        'es': {
-            'subtitle': 'Tu portal de noticias de Vitoria-Gasteiz. Transformamos el flujo de información en narrativas visuales analizadas por IA.',
-            'ver_narrativa': 'Ver narrativa',
-            'leer_mas': 'Leer más',
-            'volver': 'Volver al portal',
-            'publicidad': 'PUBLICIDAD',
-            'mood_title': 'El "Mood"',
-            'verificado': 'Documento verificado y analizado por IA',
-            'no_noticias': 'No hay noticias disponibles.',
-            'no_sentimiento': 'No hay noticias con este sentimiento hoy.',
-            'loading': 'Cargando narrativas de la ciudad...'
-        },
-        'eu': {
-            'subtitle': 'Vitoria-Gasteizko zure albiste ataria. Informazio fluxua IA bidez aztertutako narrazio bisualetan bihurtzen dugu.',
-            'ver_narrativa': 'Irakurri narrazioa',
-            'leer_mas': 'Irakurri gehiago',
-            'volver': 'Itzuli atarira',
-            'publicidad': 'PUBLIZITATEA',
-            'mood_title': '"Mood"-a',
-            'verificado': 'IA bitartez egiaztatutako eta aztertutako dokumentua',
-            'no_noticias': 'Ez dago albisterik eskuragarri.',
-            'no_sentimiento': 'Ez dago sentimendu honetako albisterik gaur.',
-            'loading': 'Hiriko narrazioak kargatzen...'
-        },
-        'pl': {
-            'subtitle': 'Twój portal informacyjny Vitoria-Gasteiz. Przekształcamy przepływ informacji w wizualne narracje analizowane przez AI.',
-            'ver_narrativa': 'Zobacz narrację',
-            'leer_mas': 'Czytaj więcej',
-            'volver': 'Wróć do portalu',
-            'publicidad': 'REKLAMA',
-            'mood_title': '"Mood"',
-            'verificado': 'Dokument zweryfikowany i przeanalizowany przez AI',
-            'no_noticias': 'Brak dostępnych wiadomości.',
-            'no_sentimiento': 'Brak wiadomości o tym nastroju dzisiaj.',
-            'loading': 'Ładowanie narracji miejskich...'
-        }
-    };
-
-    function getEuskaraDate(date, long = false) {
-        const months = ['urtarrilaren', 'otsailaren', 'martxoaren', 'apirilaren', 'maiatzaren', 'ekainaren', 'uztailaren', 'abuztuaren', 'irailearen', 'urriaren', 'azaroaren', 'abenduaren'];
-        const days = ['igandea', 'astelehena', 'asteartea', 'asteazkena', 'osteguna', 'ostirala', 'larunbata'];
-        
-        const dayNum = date.getDate();
-        const month = months[date.getMonth()];
-        const year = date.getFullYear();
-        const dayName = days[date.getDay()];
-        
-        if (long) {
-            return `${year}ko ${month} ${dayNum}a, ${dayName}`;
-        }
-        return `${month} ${dayNum}a`;
-    }
 
     function formatDate(dateStr) {
         try {
             const date = new Date(dateStr);
-            if (currentLang === 'eu') return getEuskaraDate(date);
-            return date.toLocaleDateString(locales[currentLang] || 'es-ES', { month: 'short', day: 'numeric' });
+            return date.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' });
+        } catch {
+            return dateStr;
+        }
+    }
+
+    function formatLongDate(dateStr) {
+        try {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         } catch {
             return dateStr;
         }
@@ -121,14 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         newsGrid.innerHTML = filteredData.map((item, index) => {
             const isRead = readIds.includes(item.id);
-            const isEu = currentLang === 'eu';
-            const isPl = currentLang === 'pl';
-            const displayTitle = (isEu && item.title_eu) ? item.title_eu : (isPl && item.title_pl ? item.title_pl : item.title);
-
             let html = `
                 <div class="card glass ${isRead ? 'card-read' : ''}" data-id="${item.id}" data-source="${item.source}">
                     <div class="card-img-wrap">
-                        <img src="${item.image || ''}" alt="${displayTitle}" class="card-img" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
+                        <img src="${item.image || ''}" alt="${item.title}" class="card-img" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
                         <div class="img-overlay"></div>
                         <div class="card-top-badges">
                             <div class="card-source-badge">
@@ -138,10 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div class="card-content">
-                        <div class="card-date">${formatDate(item.date)} ${isRead ? `<span class="read-tag">• ${translations[currentLang].leer_mas}</span>` : ''}</div>
-                        <h2 class="card-title">${displayTitle}</h2>
+                        <div class="card-date">${formatDate(item.date)} ${isRead ? `<span class="read-tag">• Leído</span>` : ''}</div>
+                        <h2 class="card-title">${item.title}</h2>
                         <div class="card-footer">
-                            <span class="read-more">${translations[currentLang].ver_narrativa}</span>
+                            <span class="read-more">Ver narrativa</span>
                             <div class="line"></div>
                         </div>
                     </div>
@@ -213,28 +156,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Render Detail
-        const sentimentColorClass = item.sentiment === 'positiva' ? 'text-emerald' : (item.sentiment === 'negativa' ? 'text-rose' : 'text-muted');
-
-        const isEu = currentLang === 'eu';
-        const isPl = currentLang === 'pl';
-        const displayTitle = (isEu && item.title_eu) ? item.title_eu : (isPl && item.title_pl ? item.title_pl : item.title);
-        const displayBody = (isEu && item.body_eu) ? item.body_eu : (isPl && item.body_pl ? item.body_pl : (item.body || ''));
-
-        const paragraphs = displayBody ? displayBody.split('\n').filter(p => p.trim() !== '') : [];
-        const bodyHtml = paragraphs.length > 0 
-            ? paragraphs.map(p => `<p class="paragraph">${p}</p>`).join('')
-            : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">${isEu ? 'Eduki osoa ez dago eskuragarri.' : (isPl ? 'Pełna treść nie jest dostępna.' : 'El contenido completo no está disponible.')}</p>`;
-
         articleContent.innerHTML = `
             <div class="hero-wrap">
-                <img src="${item.image || ''}" alt="${displayTitle}" class="hero-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
+                <img src="${item.image || ''}" alt="${item.title}" class="hero-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
                 <div class="hero-overlay"></div>
                 <div class="hero-content">
                     <div class="hero-badges">
                         <span class="badge-sentiment ${sentimentColorClass}"># ${item.sentiment}</span>
                         ${item.category ? `<span class="badge-source">${item.category}</span>` : ''}
                     </div>
-                    <h1 class="hero-title">${displayTitle}</h1>
+                    <h1 class="hero-title">${item.title}</h1>
                 </div>
             </div>
             
@@ -251,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 
                 <div class="article-footer">
-                    <div class="footer-note">${isEu ? 'IA bitartez egiaztatutako eta aztertutako dokumentua' : (isPl ? 'Dokument zweryfikowany i przeanalizowany przez AI' : 'Documento verificado y analizado por IA')}</div>
+                    <div class="footer-note">Documento verificado y analizado por IA</div>
                 </div>
             </div>
         `;
@@ -386,43 +317,11 @@ document.addEventListener('DOMContentLoaded', () => {
             renderNewsFeed();
             renderMoodWidget(moodHistoryData);
             updatePodcastPlayer();
-            updateUIStrings();
         } catch (error) {
             console.error("Error loading data:", error);
             newsGrid.innerHTML = '<p style="color:var(--text-muted); padding: 2rem;">Error cargando datos. Por favor, recarga la página.</p>';
         }
     }
-
-    function updateLanguage(lang) {
-        currentLang = lang;
-        localStorage.setItem('vitoria_lang', lang);
-        
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
-        });
-
-        updateUIStrings();
-        renderNewsFeed();
-        renderMoodWidget(moodHistoryData);
-    }
-
-    function updateUIStrings() {
-        const t = translations[currentLang];
-        document.getElementById('subtitle-text').innerHTML = t.subtitle;
-        document.getElementById('mood-title').textContent = t.mood_title;
-        document.getElementById('back-btn-text').textContent = t.volver;
-        
-        // Update copyright if it exists
-        const copyright = document.getElementById('footer-copyright');
-        if (copyright) copyright.textContent = `© 2026 Vitoria Live • Powered by AI.`;
-    }
-
-    // Add language listeners
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            updateLanguage(btn.getAttribute('data-lang'));
-        });
-    });
 
     fetchData();
 });
