@@ -7,6 +7,7 @@ import html as html_utils
 import hashlib
 from datetime import datetime, timedelta, timezone
 import cloudscraper
+import requests
 from bs4 import BeautifulSoup
 from textblob import TextBlob
 
@@ -29,6 +30,8 @@ class MultiScraper:
         self.history_file = "scraper/history.json"
         self.news_data = []
         self.history = self._load_history()
+        self.requests_session = requests.Session()
+        self.requests_session.headers.update(self.headers)
 
     def _load_history(self):
         if os.path.exists(self.history_file):
@@ -123,6 +126,8 @@ class MultiScraper:
             if item_dt >= limit_date:
                 latest_news.append(item)
         
+        latest_news.sort(key=lambda item: self._parse_date(item.get('date', '')), reverse=True)
+
         # Cap de seguridad de max 200
         latest_news = latest_news[:200]
         
@@ -130,6 +135,26 @@ class MultiScraper:
             json.dump(latest_news, f, indent=2, ensure_ascii=False)
         
         print(f"Scraping completado. Guardadas {len(latest_news)} noticias de las últimas 72h.")
+
+    def _get(self, url, timeout=15):
+        last_error = None
+        for client_name, getter in (
+            ("cloudscraper", self.scraper.get),
+            ("requests", self.requests_session.get),
+        ):
+            try:
+                res = getter(url, headers=self.headers, timeout=timeout)
+                if res.status_code == 200:
+                    if client_name != "cloudscraper":
+                        print(f"  OK via {client_name}: {url}")
+                    return res
+                print(f"  {client_name} status {res.status_code}: {url}")
+            except Exception as e:
+                last_error = e
+                print(f"  {client_name} error {type(e).__name__}: {url} - {e}")
+        if last_error:
+            raise last_error
+        return None
 
     def _normalize_url(self, url):
         if '?' in url:
@@ -328,11 +353,17 @@ class MultiScraper:
         links_data = {}
 
         # 1. API WordPress
-        try:
-            api_url = "https://www.gasteizhoy.com/wp-json/wp/v2/posts?per_page=100&_embed"
-            res = self.scraper.get(api_url, headers=self.headers, timeout=15)
-            if res.status_code == 200:
+        api_urls = [
+            "https://www.gasteizhoy.com/wp-json/wp/v2/posts?per_page=100&_embed",
+            "https://www.gasteizhoy.com/wp-json/wp/v2/posts?per_page=100",
+        ]
+        for api_url in api_urls:
+            try:
+                res = self._get(api_url, timeout=20)
+                if not res:
+                    continue
                 posts = res.json()
+                print(f"  API WP OK: {len(posts)} posts en {api_url}")
                 for post in posts:
                     url = post.get('link', '')
                     if not url: continue
@@ -348,7 +379,8 @@ class MultiScraper:
                         continue
 
                     body_html = post.get('content', {}).get('rendered', '')
-                    date_iso = post.get('date_gmt', post.get('date', '')) + "Z"
+                    raw_date = post.get('date_gmt') or post.get('date') or datetime.now(timezone.utc).isoformat()
+                    date_iso = raw_date if raw_date.endswith(('Z', '+00:00')) else raw_date + "Z"
                     
                     img = None
                     try:
@@ -364,15 +396,18 @@ class MultiScraper:
                         'date_str': date_iso,
                         'image_url': self._get_ddg_proxy_url(img) if img else None
                     }
-        except Exception as e:
-            print(f"  Error API WP: {e}")
+                if links_data:
+                    break
+            except Exception as e:
+                print(f"  Error API WP: {e}")
 
         # 2. RSS Fallback
         try:
             rss_url = "https://www.gasteizhoy.com/feed/"
-            res = self.scraper.get(rss_url, headers=self.headers, timeout=15)
+            res = self._get(rss_url, timeout=20)
             if res.status_code == 200:
                 soup = BeautifulSoup(res.text, 'xml')
+                rss_count = 0
                 for item in soup.find_all('item'):
                     url = item.link.text if item.link else ''
                     if url and url not in links_data:
@@ -395,14 +430,17 @@ class MultiScraper:
                             'body_html': body_html,
                             'date_str': date_iso
                         }
+                        rss_count += 1
+                print(f"  RSS OK: {rss_count} enlaces añadidos")
         except Exception as e:
             print(f"  Error RSS fallback: {e}")
 
         # 3. Respaldo Portada
         try:
-            res = self.scraper.get("https://www.gasteizhoy.com/", headers=self.headers, timeout=15)
+            res = self._get("https://www.gasteizhoy.com/", timeout=20)
             if res.status_code == 200:
                 soup = BeautifulSoup(res.text, 'html.parser')
+                home_count = 0
                 combined_selectors = soup.find_all(['h2', 'h3']) + soup.select('a.nueve-bloque-noticia, a.heronews, a.box-shadow, a.blogpost, a.breakblock.breakingtext, a.linknews, a.sixnewsblock')
                 for item in combined_selectors:
                     a_tag = item.find('a') or item.find_parent('a') if item.name in ['h2', 'h3'] else item
@@ -421,6 +459,8 @@ class MultiScraper:
                             full_url = self._normalize_url(f"https://www.gasteizhoy.com{href}" if not href.startswith("http") else href)
                             if full_url not in links_data:
                                 links_data[full_url] = {'url': full_url}
+                                home_count += 1
+                print(f"  Portada OK: {home_count} enlaces añadidos")
         except Exception as e:
             print(f"Error portada Gasteiz Hoy: {e}")
 
