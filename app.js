@@ -155,6 +155,12 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem(READ_ARTICLES_KEY, JSON.stringify(readIds));
         }
 
+        const sentimentColorClass = item.sentiment === 'positiva' ? 'text-emerald' : (item.sentiment === 'negativa' ? 'text-rose' : 'text-muted');
+        const paragraphs = (item.body || '').split('\n').filter(p => p.trim() !== '');
+        const bodyHtml = paragraphs.length > 0 
+            ? paragraphs.map(p => `<p class="paragraph">${p}</p>`).join('')
+            : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">El contenido completo no está disponible.</p>`;
+
         // Render Detail
         articleContent.innerHTML = `
             <div class="hero-wrap">
