@@ -259,13 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const absScore = Math.abs(dayScore);
             const heightPct = Math.max(10, absScore * 100);
 
-                        const date = new Date(day.date);
-            let dStr = "";
-            if (currentLang === 'eu') {
-                dStr = getEuskaraDate(date);
-            } else {
-                dStr = date.toLocaleDateString(locales[currentLang] || 'es-ES', { day: 'numeric', month: 'short' }).replace('.', '');
-            }
+            const date = new Date(day.date);
+            const dStr = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).replace('.', '');
 
             return `
                 <div class="history-bar-col" title="${day.date}: ${dayScore}">
