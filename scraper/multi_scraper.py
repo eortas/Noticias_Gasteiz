@@ -673,10 +673,20 @@ class MultiScraper:
 
     def _clean_article_body(self, p_tags):
         clean_p = []
+        # Frases de autobombo detectadas en Gasteiz Hoy y otros
+        blacklist = [
+            'cookies', 'leer más', 'notificaciones', 'haz clic', 
+            'en gasteiz hoy, seguimos informando', 'visión completa de la ciudad',
+            'ofreciendo a nuestros lectores', 'nuestros lectores una visión',
+            'noticias sobre ocio, turismo, obras', 'síguenos en redes sociales'
+        ]
+        
         for p in p_tags:
             text = p.get_text().strip()
-            if len(text) > 40 and not any(x in text.lower() for x in ['cookies', 'leer más', 'notificaciones', 'haz clic']):
-                clean_p.append(text)
+            if len(text) > 40:
+                lower_text = text.lower()
+                if not any(x in lower_text for x in blacklist):
+                    clean_p.append(text)
         return "\n\n".join(clean_p)
 
     # Contador de llamadas para rotar entre las dos keys de sentimiento
