@@ -547,7 +547,15 @@ class MultiScraper:
             if not body:
                 body = soup_content.get_text(separator="\n\n").strip()
             if not date: date = datetime.now(timezone.utc).isoformat()
-        else:
+            
+            # If image is missing from API, try to find it in body_html
+            if not image_url:
+                first_img = soup_content.find('img')
+                if first_img and first_img.get('src'):
+                    image_url = self._get_ddg_proxy_url(first_img['src'])
+        
+        # If still missing image or body, fetch the page
+        if not body or not image_url:
             try:
                 res = self.scraper.get(url, headers=self.headers, timeout=10)
                 if res.status_code == 200:
@@ -556,16 +564,25 @@ class MultiScraper:
                         h1 = soup.find('h1')
                         title = h1.get_text().strip() if h1 else soup.title.string.split('|')[0].strip()
                     
-                    p_tags = soup.select('div.entry-content p, article p, div.contenido p, main p') or soup.find_all('p')
-                    body = self._clean_article_body(p_tags)
+                    if not body:
+                        p_tags = soup.select('div.entry-content p, article p, div.contenido p, main p') or soup.find_all('p')
+                        body = self._clean_article_body(p_tags)
+                    
                     if not date:
                         meta_date = soup.find('meta', property='article:published_time')
                         date = meta_date['content'] if meta_date else datetime.now(timezone.utc).isoformat()
+                    
                     if not image_url:
+                        # Extract image from og:image or first content image
                         image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
+                        if not image_url:
+                            img_tag = soup.select_one('article img, .entry-content img, main img')
+                            if img_tag and img_tag.get('src'):
+                                image_url = self._get_ddg_proxy_url(img_tag['src'])
                 else: raise Exception(f"Status {res.status_code}")
             except Exception as e:
-                print(f"  Error detalle Gasteiz Hoy directo {url}: {e}")
+                if not body: # Only print error if we don't have body yet
+                    print(f"  Error detalle Gasteiz Hoy directo {url}: {e}")
 
         if not body or not title:
             markdown = self._get_via_jina(url)
