@@ -13,8 +13,7 @@ def clean_history_autobombo():
 
     # Frases a buscar y eliminar (variaciones detectadas)
     patterns = [
-        r"En Gasteiz Hoy,? seguimos informando sobre la actualidad de Vitoria-Gasteiz y Álava.*",
-        r"En Gasteiz Hoy encuentra las últimas noticias de Vitoria-Gasteiz y Álava.*",
+        r"En Gasteiz Hoy.*", # Regla general agresiva
         r"Ocio en Vitoria, Turismo Vitoria, Obras de Vitoria.*",
         r"Periodismo ciudadano e independiente para lectores alaveses.*",
         r"Gasteiz Hoy, todos los derechos reservados.*",

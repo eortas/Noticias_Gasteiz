@@ -685,6 +685,10 @@ class MultiScraper:
             text = p.get_text().strip()
             if len(text) > 40:
                 lower_text = text.lower()
+                # Regla general: Si empieza por "En Gasteiz Hoy", es autobombo
+                if lower_text.startswith("en gasteiz hoy"):
+                    continue
+                    
                 if not any(x in lower_text for x in blacklist):
                     clean_p.append(text)
         return "\n\n".join(clean_p)
