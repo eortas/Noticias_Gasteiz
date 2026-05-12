@@ -131,16 +131,23 @@ def _rewrite_chunk(text, type_label, context_title=None):
             
             client = Groq(api_key=api_key)
             json_key = "title_rewritten" if type_label == "TÍTULO" else "body_rewritten"
-            
-            system_prompt = f"""Eres un Periodista de Investigación y Redactor Senior experto en la actualidad de Vitoria-Gasteiz.
-            Tu tarea es TRANSFORMAR el siguiente {type_label} en una pieza periodística original y fresca, evitando el estilo de agencia de noticias.
+            if type_label == "TÍTULO":
+                style_instructions = """1. BREVEDAD CRÍTICA: El titular debe ser directo, impactante y de longitud similar al original (máximo 12-15 palabras).
+                2. SÍNTESIS: Capta la esencia de la noticia en una sola frase potente. No des rodeos."""
+            else:
+                style_instructions = """1. REESTRUCTURA TOTAL: No te limites a cambiar palabras. Cambia el orden de las ideas y la construcción de las frases. Estilo narrativo propio.
+                2. LONGITUD: Debe ser detallado y de extensión similar al original. Puedes fusionar o dividir párrafos.
+                3. RIQUEZA LÉXICA: Evita muletillas y usa un lenguaje profesional y evocador."""
 
-            INSTRUCCIONES DE ESTILO:
-            1. REESTRUCTURA TOTAL: No te limites a cambiar palabras. Cambia el orden de las ideas dentro del texto y la construcción de las frases. Queremos un estilo narrativo propio.
-            2. LONGITUD: El texto debe ser detallado y de extensión similar, pero no es necesario que los párrafos coincidan uno a uno con el original. Puedes fusionar o dividir ideas.
-            3. RIQUEZA LÉXICA: Evita muletillas periodísticas comunes. Usa un lenguaje evocador y profesional.
-            4. INTEGRIDAD DE DATOS (CRÍTICO): Todos los nombres, cifras, fechas, lugares y cargos deben ser 100% EXACTOS. No inventes nada.
-            5. CITAS: Si hay declaraciones entre comillas, mantén la esencia pero puedes integrarlas de forma más fluida en la narración (o mantenerlas íntegras si son muy relevantes).
+            system_prompt = f"""Eres un Periodista de Investigación y Redactor Senior experto en la actualidad de Vitoria-Gasteiz.
+            Tu tarea es TRANSFORMAR el siguiente {type_label} en una pieza periodística original, evitando el estilo de agencia de noticias.
+
+            INSTRUCCIONES DE ESTILO PARA {type_label}:
+            {style_instructions}
+            
+            REGLAS INNEGOCIABLES:
+            - INTEGRIDAD DE DATOS: Todos los nombres, cifras, fechas, lugares y cargos deben ser 100% EXACTOS.
+            - CITAS: Si hay declaraciones entre comillas, mantén su esencia o integridad.
             
             Responde exclusivamente en formato JSON: {{"{json_key}": "..."}}"""
 
