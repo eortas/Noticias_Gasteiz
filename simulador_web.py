@@ -13,9 +13,10 @@ BROWSER_EXE = "chrome.exe"
 
 def open_browser():
     timestamp = datetime.now().strftime('%H:%M:%S')
-    print(f"[{timestamp}] Abriendo web (minimizado): {URL}")
-    # Intentamos abrir minimizado y en una ventana nueva para mayor efectividad
-    subprocess.Popen(f"start /min chrome --new-window {URL}", shell=True)
+    print(f"[{timestamp}] Abriendo web (enviando a segundo plano): {URL}")
+    # Chrome ignora /min frecuentemente, así que usamos trucos de posición y tamaño
+    # Lo abrimos en una posición fuera de la pantalla y con tamaño mínimo
+    subprocess.Popen(f"start chrome --new-window --window-position=9999,9999 --window-size=1,1 {URL}", shell=True)
 
 def close_browser():
     timestamp = datetime.now().strftime('%H:%M:%S')
