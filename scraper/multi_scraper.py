@@ -217,6 +217,8 @@ class MultiScraper:
 
     def _get_ddg_proxy_url(self, original_url):
         if not original_url: return None
+        if "duckduckgo.com/iu/?u=" in original_url:
+            return original_url
         try:
             encoded_url = urllib.parse.quote(original_url)
             return f"https://external-content.duckduckgo.com/iu/?u={encoded_url}"
@@ -582,8 +584,20 @@ class MultiScraper:
                                 image_url = self._get_ddg_proxy_url(img_tag['src'])
                 else: raise Exception(f"Status {res.status_code}")
             except Exception as e:
-                if not body: # Only print error if we don't have body yet
+                # Print error if we are missing either body or image
+                if not body or not image_url:
                     print(f"  Error detalle Gasteiz Hoy directo {url}: {e}")
+                
+                # If everything failed, try to get at least the image via a fresh scraper
+                if not image_url:
+                    try:
+                        fresh_scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True})
+                        res = fresh_scraper.get(url, headers=self.headers, timeout=10)
+                        if res.status_code == 200:
+                            soup = BeautifulSoup(res.text, 'html.parser')
+                            image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
+                            if image_url: print(f"  Recuperada imagen via fresh scraper: {url}")
+                    except: pass
 
         if not body or not title:
             markdown = self._get_via_jina(url)
