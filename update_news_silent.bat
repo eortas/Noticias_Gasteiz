@@ -1,4 +1,10 @@
 @echo off
+if not "%minimized%"=="" goto :minimized
+set minimized=true
+start /min "" "%~dpnx0"
+exit
+
+:minimized
 cd /d "%~dp0"
 
 :: Versión silenciosa para el Programador de Tareas (sin pausas)

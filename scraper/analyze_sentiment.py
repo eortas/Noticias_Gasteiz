@@ -22,7 +22,9 @@ PALABRAS_NEGATIVAS = {
     'muerte', 'fallece', 'accidente', 'robo', 'detenido', 'agresión', 'pelea', 'herido',
     'denuncia', 'corte', 'huelga', 'protesta', 'incendio', 'atropello', 'crimen', 'estafa',
     'pérdida', 'caída', 'baja', 'tensión', 'riesgo', 'peligro', 'inseguro', 'sucio', 'abandono',
-    'cierre', 'cierran', 'despido', 'despidos', 'semana santa', 'procesión', 'religión', 'iglesia', 'culto'
+    'cierre', 'cierran', 'despido', 'despidos', 'semana santa', 'procesión', 'religión', 'iglesia', 
+    'culto', 'cura', 'obispo', 'religioso', 'religiosa', 'papa', 'vaticano', 'misa', 'católico', 
+    'cofradía', 'peregrinación', 'peregrinar', 'diócesis'
 }
 
 NEGACIONES = {'no', 'ni', 'nunca', 'tampoco', 'sin'}
@@ -31,11 +33,12 @@ def heuristic_fallback(text):
     if not text: return 'neutral', 0.0, 'Sociedad'
     text_lower = text.lower()
     
-    # REGLA ESPECIAL GUARDIA CIVIL
-    if 'guardia civil' in text_lower:
+    # REGLAS ESPECIALES (usando regex para evitar falsos positivos como "curarse")
+    if re.search(r'\b(guardia civil|iglesia|cura|curas|obispo|obispos|religioso|religiosos|peregrinación|peregrinar|diócesis)\b', text_lower):
         return 'negativa', -0.8, 'Sociedad'
     
     words = re.findall(r'\w+', text_lower)
+
     pos_count = 0; neg_count = 0
     for i, word in enumerate(words):
         if word in PALABRAS_POSITIVAS:
@@ -73,7 +76,7 @@ def analyze_sentiment(text):
             client = Groq(api_key=api_key)
             system_prompt = """Eres un clasificador experto de noticias de Vitoria-Gasteiz.
             Responde ÚNICAMENTE en JSON: {"sentiment": "positiva/negativa/neutral", "score": -1.0 a 1.0, "category": "Política/Economía/Sociedad/Deportes/Cultura/Sucesos/Urbanismo"}
-            REGLA ESPECIAL: Cualquier noticia que mencione a la "Guardia Civil" debe ser clasificada siempre como "negativa" con un score de -0.8."""
+            REGLA ESPECIAL: Cualquier noticia que mencione a la "Guardia Civil", "Iglesia", "Curas", "Obispos", "Diócesis", "Peregrinación" o temas religiosos debe ser clasificada siempre como "negativa" con un score de -0.8."""
             
             completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
@@ -156,6 +159,7 @@ def _rewrite_chunk(text, type_label, context_title=None):
             REGLAS INNEGOCIABLES:
             - INTEGRIDAD DE DATOS: Todos los nombres, cifras, fechas, lugares y cargos deben ser 100% EXACTOS.
             - PROHIBIDO RESUMIR: No omitas listas, enumeraciones de proyectos ni detalles técnicos. Si el original es largo, la reescritura debe ser larga.
+            - PROHIBIDO utilizar la expresión "en el corazón de Vitoria-Gasteiz" o similares muletillas geográficas repetitivas. Busca alternativas originales.
             - CITAS: Si hay declaraciones entre comillas, mantén su esencia o integridad.
             
             Responde exclusivamente en formato JSON: {{"{json_key}": "..."}}"""
