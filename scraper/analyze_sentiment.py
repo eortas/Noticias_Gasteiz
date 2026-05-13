@@ -136,8 +136,9 @@ def _rewrite_chunk(text, type_label, context_title=None):
                 2. SÍNTESIS: Capta la esencia de la noticia en una sola frase potente. No des rodeos."""
             else:
                 style_instructions = """1. REESTRUCTURA TOTAL: No te limites a cambiar palabras. Cambia el orden de las ideas y la construcción de las frases. Estilo narrativo propio.
-                2. LONGITUD: Debe ser detallado y de extensión similar al original. Puedes fusionar o dividir párrafos.
-                3. RIQUEZA LÉXICA: Evita muletillas y usa un lenguaje profesional y evocador."""
+                2. FIDELIDAD TOTAL A LOS DATOS: NO ELIMINES NINGÚN DATO RELEVANTE. Si el texto original menciona proyectos específicos, nombres de calles, cifras, listas de medidas o promesas pendientes, DEBEN aparecer íntegramente en la reescritura.
+                3. EXTENSIÓN: El texto reescrito debe tener una longitud similar o superior al original. Está prohibido resumir eliminando detalles técnicos o enumeraciones.
+                4. RIQUEZA LÉXICA: Evita muletillas y usa un lenguaje profesional y evocador."""
 
             system_prompt = f"""Eres un Periodista de Investigación y Redactor Senior experto en la actualidad de Vitoria-Gasteiz.
             Tu tarea es TRANSFORMAR el siguiente {type_label} en una pieza periodística original, evitando el estilo de agencia de noticias.
@@ -147,6 +148,7 @@ def _rewrite_chunk(text, type_label, context_title=None):
             
             REGLAS INNEGOCIABLES:
             - INTEGRIDAD DE DATOS: Todos los nombres, cifras, fechas, lugares y cargos deben ser 100% EXACTOS.
+            - PROHIBIDO RESUMIR: No omitas listas, enumeraciones de proyectos ni detalles técnicos. Si el original es largo, la reescritura debe ser larga.
             - CITAS: Si hay declaraciones entre comillas, mantén su esencia o integridad.
             
             Responde exclusivamente en formato JSON: {{"{json_key}": "..."}}"""

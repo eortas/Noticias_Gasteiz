@@ -542,8 +542,9 @@ class MultiScraper:
         
         if link_info.get('body_html'):
             soup_content = BeautifulSoup(link_info['body_html'], 'html.parser')
-            p_tags = soup_content.find_all('p')
-            body = self._clean_article_body(p_tags)
+            # Seleccionar p, li y encabezados para no perder listas ni estructura
+            tags = soup_content.find_all(['p', 'li', 'h2', 'h3'])
+            body = self._clean_article_body(tags)
             if not body:
                 body = soup_content.get_text(separator="\n\n").strip()
             if not date: date = datetime.now(timezone.utc).isoformat()
@@ -565,8 +566,8 @@ class MultiScraper:
                         title = h1.get_text().strip() if h1 else soup.title.string.split('|')[0].strip()
                     
                     if not body:
-                        p_tags = soup.select('div.entry-content p, article p, div.contenido p, main p') or soup.find_all('p')
-                        body = self._clean_article_body(p_tags)
+                        tags = soup.select('div.entry-content p, div.entry-content li, div.entry-content h2, div.entry-content h3, article p, article li, div.contenido p, main p, main li') or soup.find_all(['p', 'li', 'h2', 'h3'])
+                        body = self._clean_article_body(tags)
                     
                     if not date:
                         meta_date = soup.find('meta', property='article:published_time')
@@ -671,7 +672,7 @@ class MultiScraper:
             'image': image_url
         }
 
-    def _clean_article_body(self, p_tags):
+    def _clean_article_body(self, tags):
         clean_p = []
         # Frases de autobombo detectadas en Gasteiz Hoy y otros
         blacklist = [
@@ -685,9 +686,10 @@ class MultiScraper:
             'todos los derechos reservados'
         ]
         
-        for p in p_tags:
-            text = p.get_text().strip()
-            if len(text) > 40:
+        for tag in tags:
+            text = tag.get_text().strip()
+            # Bajamos el umbral a 25 para capturar puntos de listas cortos pero informativos
+            if len(text) > 25:
                 lower_text = text.lower()
                 # Regla general: Si empieza por "En Gasteiz Hoy", es autobombo
                 if lower_text.startswith("en gasteiz hoy"):
@@ -697,6 +699,9 @@ class MultiScraper:
                     continue
                     
                 if not any(x in lower_text for x in blacklist):
+                    # Si es un li, le añadimos un punto o guión para mantener formato de lista
+                    if tag.name == 'li' and not text.startswith(('•', '-', '*')):
+                        text = f"• {text}"
                     clean_p.append(text)
         return "\n\n".join(clean_p)
 
