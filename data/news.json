@@ -1,5 +1,18 @@
 [
   {
+    "id": "495f6f0481",
+    "title": "Accidente en Salburua: camión volcado corta tráfico en Antonio Amat",
+    "url": "https://www.elcorreo.com/alava/araba/cortada-circulacion-salburua-volcar-camion-calle-antonio-20260513151008-nt.html",
+    "source": "El Correo",
+    "body": "En un incidente que ha interrumpido el flujo de tráfico en una de las zonas más concurridas de la ciudad, un camión ha perdido el control y volcado en el momento de salir de la rotonda que conecta el Bulevar de Salburua con la calle Antonio Amat Maiz, precisamente minutos antes de las tres de la tarde. La gravedad del accidente ha requerido la intervención inmediata de los bomberos de Vitoria, quienes han acudido al lugar junto con dos ambulancias medicalizadas para prestar asistencia al conductor del vehículo siniestrado. Como consecuencia directa del accidente, se ha visto obligada a cortar temporalmente la circulación en la zona afectada, mientras los servicios de emergencia llevaban a cabo el operativo de rescate y asistencia al herido.",
+    "date": "2026-05-13T13:27:04.860778+00:00",
+    "sentiment": 0,
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//s1.ppllstatics.com/elcorreo/www/multimedia/2026/05/13/PHOTO-2026-05-13-15-00-24-U201395571538ANF--562x315%40El%2520Correo.jpg",
+    "original_title": "Cortada la circulación en Salburua al volcar un camión en la calle Antonio Amat",
+    "original_body": "Un camión ha volcado poco antes de las tres de la tarde al salir de la rotonda ubicada entre las calles Bulevar de Salburua y ... Antonio Amat Maiz. Bomberos de Vitoria y dos ambulancias medicalizadas han acudido al lugar del accidente para atender al conductor del vehículo.\n\nEl accidente ha obligado a cortar la circulación en la zona mientras el operativo de emergencias asistía al herido.",
+    "rewritten": true
+  },
+  {
     "id": "59348089a8",
     "title": "Vitoria conmemora 182 años de la Guardia Civil",
     "url": "https://www.elcorreo.com/alava/araba/guardia-civil-celebra-182-anos-vitoria-desfile-cuartel-sansomendi-20260513134317-nt.html",
