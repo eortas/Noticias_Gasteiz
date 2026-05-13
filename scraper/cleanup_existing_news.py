@@ -39,10 +39,12 @@ def cleanup_news():
         "casa de 'alto standing'", "etxea", "dom",
         "mujer recibirá 125.000", "emakume batek", "kobieta otrzyma",
         "aparece primero en gasteiz hoy", "gasteiz hoy", "el correo",
-        "primer periódico digital",
+        "primer periódico digital", "en el corazón de la ciudad",
+        "visión integral de la actualidad local", "fuente confiable para los ciudadanos",
+        "enfoque de periodismo ciudadano e independiente", "lectores alaveses que buscan una cobertura",
         "noticias vitoria-álava",
         "asistencia técnica congresual", "laguntza teknikoaren", "pomocy technicznej",
-        "pescadería", "arrandegia", "sprzedawca ryb"
+        "pescadería", "arrandegia", "sprzedawca ryb", "todos los derechos reservados"
     ]
 
     cleaned_count = 0

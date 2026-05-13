@@ -20,7 +20,13 @@ def clean_history_autobombo():
         r"ofreciendo a nuestros lectores una visión completa de la ciudad y sus barrios.*",
         r"noticias sobre ocio, turismo, obras y tráfico en la región.*",
         r"Sigue la actualidad de Vitoria-Gasteiz y Álava en Gasteiz Hoy.*",
-        r"El primer periódico digital de Vitoria-Gasteiz sobre la ciudad.*"
+        r"El primer periódico digital de Vitoria-Gasteiz sobre la ciudad.*",
+        r"En el corazón de la ciudad, Gasteiz Hoy se erige.*",
+        r"ofreciendo una visión integral de la actualidad local.*",
+        r"fuente confiable para los ciudadanos de Vitoria-Gasteiz.*",
+        r"enfoque de periodismo ciudadano e independiente.*",
+        r"lectores alaveses que buscan una cobertura informativa rigurosa.*",
+        r"Todos los derechos reservados\."
     ]
 
     count = 0

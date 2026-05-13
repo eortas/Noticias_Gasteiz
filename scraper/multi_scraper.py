@@ -678,7 +678,11 @@ class MultiScraper:
             'cookies', 'leer más', 'notificaciones', 'haz clic', 
             'en gasteiz hoy, seguimos informando', 'visión completa de la ciudad',
             'ofreciendo a nuestros lectores', 'nuestros lectores una visión',
-            'noticias sobre ocio, turismo, obras', 'síguenos en redes sociales'
+            'noticias sobre ocio, turismo, obras', 'síguenos en redes sociales',
+            'en el corazón de la ciudad, gasteiz hoy', 'se erige como el primer periódico digital',
+            'ofreciendo una visión integral de la actualidad local', 'fuente confiable para los ciudadanos de vitoria-gasteiz',
+            'enfoque de periodismo ciudadano e independiente', 'lectores alaveses que buscan una cobertura informativa rigurosa',
+            'todos los derechos reservados'
         ]
         
         for p in p_tags:
@@ -687,6 +691,9 @@ class MultiScraper:
                 lower_text = text.lower()
                 # Regla general: Si empieza por "En Gasteiz Hoy", es autobombo
                 if lower_text.startswith("en gasteiz hoy"):
+                    continue
+                # Si empieza por "En el corazón de la ciudad", suele ser el nuevo autobombo
+                if lower_text.startswith("en el corazón de la ciudad"):
                     continue
                     
                 if not any(x in lower_text for x in blacklist):
