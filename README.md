@@ -26,7 +26,7 @@ Un portal de noticias inteligente para Vitoria-Gasteiz, impulsado por Inteligenc
 ## 📦 Instalación y Uso
 
 
--   Visita **https://gasteizlive.pages.dev/** actualización automática para no perderte nada.
+-   Visita **https://gasteizlive.vercel.app/** actualización automática para no perderte nada.
 
 ---
 *Desarrollado con ❤️ para Vitoria-Gasteiz.*
