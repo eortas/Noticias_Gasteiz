@@ -29,7 +29,7 @@ def close_browser():
 def main():
     print("=== Simulador de Sesiones de Navegación ===")
     print(f"URL: {URL}")
-    print(f"Ciclo: Cada 5 minutos")
+    print(f"Pausa entre sesiones: 5-10 segundos")
     print(f"Tiempo abierto: Aleatorio entre 2:00 y 4:40")
     print("Presiona Ctrl+C para detener el script.\n")
     
@@ -51,12 +51,10 @@ def main():
         # 4. Cerrar el navegador
         close_browser()
         
-        # 5. Calcular cuánto tiempo queda para llegar a los 5 minutos (300 segundos)
-        total_cycle = 300
-        elapsed = time.time() - cycle_start
-        wait_until_next = max(1, total_cycle - elapsed)
+        # 5. Esperar un tiempo corto antes del siguiente ciclo (entre 5 y 10 segundos)
+        wait_until_next = random.randint(5, 10)
         
-        print(f"-> Esperando {int(wait_until_next)}s hasta el próximo ciclo de 5 min...\n")
+        print(f"-> Esperando {int(wait_until_next)}s hasta el próximo ciclo...\n")
         time.sleep(wait_until_next)
 
 if __name__ == "__main__":
