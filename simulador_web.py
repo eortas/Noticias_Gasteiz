@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 # URL de la web a abrir
-URL = "https://gasteizlive.pages.dev/"
+URL = "https://gasteizlive.vercel.app/"
 
 # Navegador a usar (chrome.exe, msedge.exe, etc.)
 # Nota: En Windows, 'start chrome' forzará la apertura en Chrome.
@@ -13,9 +13,9 @@ BROWSER_EXE = "chrome.exe"
 
 def open_browser():
     timestamp = datetime.now().strftime('%H:%M:%S')
-    print(f"[{timestamp}] Abriendo web: {URL}")
-    # Forzamos la apertura en Chrome
-    subprocess.Popen(f"start chrome {URL}", shell=True)
+    print(f"[{timestamp}] Abriendo web (minimizado): {URL}")
+    # Intentamos abrir minimizado usando el flag /min de Windows
+    subprocess.Popen(f"start /min chrome {URL}", shell=True)
 
 def close_browser():
     timestamp = datetime.now().strftime('%H:%M:%S')
