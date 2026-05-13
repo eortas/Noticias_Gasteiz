@@ -29,7 +29,13 @@ NEGACIONES = {'no', 'ni', 'nunca', 'tampoco', 'sin'}
 
 def heuristic_fallback(text):
     if not text: return 'neutral', 0.0, 'Sociedad'
-    words = re.findall(r'\w+', text.lower())
+    text_lower = text.lower()
+    
+    # REGLA ESPECIAL GUARDIA CIVIL
+    if 'guardia civil' in text_lower:
+        return 'negativa', -0.8, 'Sociedad'
+    
+    words = re.findall(r'\w+', text_lower)
     pos_count = 0; neg_count = 0
     for i, word in enumerate(words):
         if word in PALABRAS_POSITIVAS:
@@ -66,7 +72,8 @@ def analyze_sentiment(text):
             
             client = Groq(api_key=api_key)
             system_prompt = """Eres un clasificador experto de noticias de Vitoria-Gasteiz.
-            Responde ÚNICAMENTE en JSON: {"sentiment": "positiva/negativa/neutral", "score": -1.0 a 1.0, "category": "Política/Economía/Sociedad/Deportes/Cultura/Sucesos/Urbanismo"}"""
+            Responde ÚNICAMENTE en JSON: {"sentiment": "positiva/negativa/neutral", "score": -1.0 a 1.0, "category": "Política/Economía/Sociedad/Deportes/Cultura/Sucesos/Urbanismo"}
+            REGLA ESPECIAL: Cualquier noticia que mencione a la "Guardia Civil" debe ser clasificada siempre como "negativa" con un score de -0.8."""
             
             completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
