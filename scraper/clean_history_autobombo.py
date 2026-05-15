@@ -36,10 +36,19 @@ def clean_history_autobombo():
             if item.get(field):
                 original_text = item[field]
                 new_text = original_text
+                
+                # Regla de los patrones específicos
                 for pattern in patterns:
-                    # Buscamos y eliminamos (incluyendo espacios previos si hay)
                     new_text = re.sub(r'\s*' + pattern, '', new_text, flags=re.IGNORECASE | re.DOTALL)
                 
+                # Nueva Regla del Usuario: si el último párrafo contiene "Gasteiz Hoy", se elimina
+                paragraphs = new_text.split('\n\n')
+                if paragraphs:
+                    last_p = paragraphs[-1].strip().lower()
+                    if "gasteiz hoy" in last_p:
+                        paragraphs.pop()
+                        new_text = '\n\n'.join(paragraphs).strip()
+
                 if new_text != original_text:
                     item[field] = new_text.strip()
                     changed = True

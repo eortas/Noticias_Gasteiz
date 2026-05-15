@@ -717,6 +717,15 @@ class MultiScraper:
                     if tag.name == 'li' and not text.startswith(('•', '-', '*')):
                         text = f"• {text}"
                     clean_p.append(text)
+        
+        # Regla de oro: si el último párrafo contiene "Gasteiz Hoy", probablemente es autobombo
+        if clean_p:
+            last_p = clean_p[-1].lower()
+            if "gasteiz hoy" in last_p:
+                # Solo lo eliminamos si es corto o contiene frases típicas de cierre
+                # Pero según el usuario, la regla es: si es el último y contiene Gasteiz Hoy, fuera.
+                clean_p.pop()
+
         return "\n\n".join(clean_p)
 
     # Contador de llamadas para rotar entre las dos keys de sentimiento
