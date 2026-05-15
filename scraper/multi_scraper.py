@@ -248,15 +248,15 @@ class MultiScraper:
 
     def _get_og_image(self, soup):
         # 1. Open Graph
-        meta = soup.find('meta', property='og:image')
+        meta = soup.find('meta', attrs={'property': 'og:image'})
         if meta and meta.get('content'):
             return meta['content'].strip()
         # 2. Twitter
-        meta = soup.find('meta', name='twitter:image')
+        meta = soup.find('meta', attrs={'name': 'twitter:image'})
         if meta and meta.get('content'):
             return meta['content'].strip()
         # 3. Schema.org / Thumbnail
-        meta = soup.find('meta', name='thumbnail')
+        meta = soup.find('meta', attrs={'name': 'thumbnail'})
         if meta and meta.get('content'):
             return meta['content'].strip()
         # 4. Link image_src
@@ -400,30 +400,6 @@ class MultiScraper:
                     return found
         return None
 
-    def _find_image_in_jsonld(self, data):
-        if isinstance(data, dict):
-            # Buscar en keys típicas de imagen
-            for key in ['image', 'thumbnailUrl', 'primaryImageOfPage']:
-                val = data.get(key)
-                if isinstance(val, str) and val.startswith('http'):
-                    return val
-                if isinstance(val, dict) and val.get('url'):
-                    return val.get('url')
-                if isinstance(val, list) and val:
-                    first = val[0]
-                    if isinstance(first, str): return first
-                    if isinstance(first, dict): return first.get('url')
-            
-            for value in data.values():
-                found = self._find_image_in_jsonld(value)
-                if found:
-                    return found
-        elif isinstance(data, list):
-            for item in data:
-                found = self._find_image_in_jsonld(item)
-                if found:
-                    return found
-        return None
 
     def scrape_el_correo(self):
         import urllib.request
