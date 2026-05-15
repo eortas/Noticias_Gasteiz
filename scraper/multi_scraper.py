@@ -209,10 +209,60 @@ class MultiScraper:
             return url.split('?')[0]
         return url
 
+    def _search_ddg_image(self, query):
+        """Busca una imagen real en DDG cuando el scraper falla. Técnica de respaldo avanzada."""
+        if not query: return None
+        print(f"  Buscando imagen de respaldo en DDG para: {query}")
+        try:
+            # 1. Obtener el token vqd
+            search_url = "https://duckduckgo.com/"
+            res = self.requests_session.get(search_url, params={"q": query}, timeout=10)
+            vqd = re.search(r'vqd=([\d-]+)&', res.text)
+            if not vqd:
+                vqd = re.search(r'vqd=["\']([\d-]+)["\']', res.text)
+            
+            if vqd:
+                vqd_token = vqd.group(1)
+                # 2. Llamar a la API interna de imágenes de DDG
+                img_api_url = "https://duckduckgo.com/i.js"
+                params = {
+                    "q": query,
+                    "o": "json",
+                    "vqd": vqd_token,
+                    "f": ",,,",
+                    "p": "1"
+                }
+                res = self.requests_session.get(img_api_url, params=params, timeout=10)
+                time.sleep(1) # Pequeño delay para no saturar DDG
+                data = res.json()
+                if data.get("results"):
+                    # Priorizar resultados de gasteizhoy.com si están disponibles
+                    for result in data["results"]:
+                        if "gasteizhoy.com" in result.get("url", ""):
+                            return self._get_ddg_proxy_url(result["image"])
+                    # Si no, el primer resultado
+                    return self._get_ddg_proxy_url(data["results"][0]["image"])
+        except Exception as e:
+            print(f"  Error en búsqueda DDG ({query}): {e}")
+        return None
+
     def _get_og_image(self, soup):
+        # 1. Open Graph
         meta = soup.find('meta', property='og:image')
         if meta and meta.get('content'):
             return meta['content'].strip()
+        # 2. Twitter
+        meta = soup.find('meta', name='twitter:image')
+        if meta and meta.get('content'):
+            return meta['content'].strip()
+        # 3. Schema.org / Thumbnail
+        meta = soup.find('meta', name='thumbnail')
+        if meta and meta.get('content'):
+            return meta['content'].strip()
+        # 4. Link image_src
+        link = soup.find('link', rel='image_src')
+        if link and link.get('href'):
+            return link['href'].strip()
         return None
 
     def _get_ddg_proxy_url(self, original_url):
@@ -324,6 +374,56 @@ class MultiScraper:
                 return body
 
         return ""
+
+    def _find_image_in_jsonld(self, data):
+        if isinstance(data, dict):
+            # Buscar en keys típicas de imagen
+            for key in ['image', 'thumbnailUrl', 'primaryImageOfPage']:
+                val = data.get(key)
+                if isinstance(val, str) and val.startswith('http'):
+                    return val
+                if isinstance(val, dict) and val.get('url'):
+                    return val.get('url')
+                if isinstance(val, list) and val:
+                    first = val[0]
+                    if isinstance(first, str): return first
+                    if isinstance(first, dict): return first.get('url')
+            
+            for value in data.values():
+                found = self._find_image_in_jsonld(value)
+                if found:
+                    return found
+        elif isinstance(data, list):
+            for item in data:
+                found = self._find_image_in_jsonld(item)
+                if found:
+                    return found
+        return None
+
+    def _find_image_in_jsonld(self, data):
+        if isinstance(data, dict):
+            # Buscar en keys típicas de imagen
+            for key in ['image', 'thumbnailUrl', 'primaryImageOfPage']:
+                val = data.get(key)
+                if isinstance(val, str) and val.startswith('http'):
+                    return val
+                if isinstance(val, dict) and val.get('url'):
+                    return val.get('url')
+                if isinstance(val, list) and val:
+                    first = val[0]
+                    if isinstance(first, str): return first
+                    if isinstance(first, dict): return first.get('url')
+            
+            for value in data.values():
+                found = self._find_image_in_jsonld(value)
+                if found:
+                    return found
+        elif isinstance(data, list):
+            for item in data:
+                found = self._find_image_in_jsonld(item)
+                if found:
+                    return found
+        return None
 
     def scrape_el_correo(self):
         import urllib.request
@@ -588,7 +688,7 @@ class MultiScraper:
                 if not body or not image_url:
                     print(f"  Error detalle Gasteiz Hoy directo {url}: {e}")
                 
-                # If everything failed, try to get at least the image via a fresh scraper
+                # FALLBACK 1: Fresh Scraper
                 if not image_url:
                     try:
                         fresh_scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True})
@@ -596,8 +696,46 @@ class MultiScraper:
                         if res.status_code == 200:
                             soup = BeautifulSoup(res.text, 'html.parser')
                             image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
+                            
+                            # Intento extra: JSON-LD
+                            if not image_url:
+                                for script in soup.find_all('script', type='application/ld+json'):
+                                    try:
+                                        data = json.loads(script.string or script.get_text())
+                                        image_url = self._get_ddg_proxy_url(self._find_image_in_jsonld(data))
+                                        if image_url: break
+                                    except: continue
+                            
                             if image_url: print(f"  Recuperada imagen via fresh scraper: {url}")
                     except: pass
+                
+                # FALLBACK 2: Jina Reader (Extracción de Markdown)
+                if not image_url:
+                    markdown = self._get_via_jina(url)
+                    if markdown:
+                        # Intento A: Regex de imagen Markdown estándar
+                        match = re.search(r'!\[.*?\]\((https?://.*?)\)', markdown)
+                        if not match:
+                            # Intento B: Buscar cualquier URL de imagen en el texto si el primero falla
+                            match = re.search(r'(https?://[^\s)]+\.(?:jpg|jpeg|png|webp|gif))', markdown, re.IGNORECASE)
+                        
+                        if match:
+                            candidate = match.group(1)
+                            # Filtro de ruido
+                            if not any(x in candidate.lower() for x in ["publicidad", "banner", "logo", "avatar", "icon", "pixel"]):
+                                image_url = self._get_ddg_proxy_url(candidate)
+                                print(f"  Imagen recuperada via Jina Reader: {url}")
+
+                # FALLBACK 3: DuckDuckGo Image Search (URL o Título)
+                if not image_url:
+                    # Intento A: Buscar por la URL exacta (Técnica sugerida por el usuario)
+                    image_url = self._search_ddg_image(url)
+                    if not image_url and title:
+                        # Intento B: Buscar por titular + fuente
+                        image_url = self._search_ddg_image(f"{title} Gasteiz Hoy")
+                    
+                    if image_url: 
+                        print(f"  Imagen recuperada via DDG Search: {url}")
 
         if not body or not title:
             markdown = self._get_via_jina(url)
