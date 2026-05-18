@@ -1024,10 +1024,11 @@ body {
         align-items: center;
         gap: 1rem;
         width: 100%;
+        padding-left: 0.5rem;
     }
 
     .title {
-        font-size: 2.2rem;
+        font-size: 2.5rem;
         margin-bottom: 0;
         line-height: 0.95;
         flex-shrink: 0;
