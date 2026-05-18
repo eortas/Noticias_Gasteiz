@@ -202,7 +202,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-    align-items: center;
+    align-items: flex-start;
     gap: 2rem;
     margin-bottom: 5rem;
     width: 100%;
