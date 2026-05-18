@@ -160,6 +160,7 @@ def _rewrite_chunk(text, type_label, context_title=None):
             - INTEGRIDAD DE DATOS: Todos los nombres, cifras, fechas, lugares y cargos deben ser 100% EXACTOS.
             - PROHIBIDO RESUMIR: No omitas listas, enumeraciones de proyectos ni detalles técnicos. Si el original es largo, la reescritura debe ser larga.
             - PROHIBIDO utilizar la expresión "en el corazón de Vitoria-Gasteiz" o similares muletillas geográficas repetitivas. Busca alternativas originales.
+            - PROHIBIDO INVENTAR: No añadas conclusiones propias, ni menciones a medios de comunicación (como "Gasteiz Hoy", "El Correo"), ni incluyas frases de autobombo o firmas periodísticas al final del texto. Limítate a reescribir los hechos.
             - CITAS: Si hay declaraciones entre comillas, mantén su esencia o integridad.
             
             Responde exclusivamente en formato JSON: {{"{json_key}": "..."}}"""
