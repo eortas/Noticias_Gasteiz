@@ -25,8 +25,9 @@ def parallel_rewrite_news(max_workers=6):
     print(f"Iniciando reescritura paralela de {total} noticias con {max_workers} hilos...", flush=True)
 
     def process_item(item):
-        title_orig = item.get('title', '')
-        body_orig = item.get('body', '')
+        # Priorizar siempre los originales si ya existen para evitar reescribir sobre reescrito
+        title_orig = item.get('original_title') or item.get('title', '')
+        body_orig = item.get('original_body') or item.get('body', '')
         url = item.get('url', 'URL desconocida')
 
         if not title_orig or not body_orig:
