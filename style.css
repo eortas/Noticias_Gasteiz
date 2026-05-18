@@ -1309,3 +1309,32 @@ body {
     font-size: 0.8rem;
     color: var(--text-muted);
 }
+
+/* Mobile overrides for categories - MUST come after base .category-btn */
+@media (max-width: 480px) {
+    .categories-bar {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.4rem;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .category-btn {
+        padding: 0.4rem 0.15rem;
+        font-size: 0.5rem;
+        font-weight: 600;
+        text-transform: none;
+        letter-spacing: -0.02em;
+        gap: 0;
+        justify-content: center;
+        text-align: center;
+        border-radius: 8px;
+        box-sizing: border-box;
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+}
