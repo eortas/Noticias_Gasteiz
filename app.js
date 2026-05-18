@@ -135,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${currentFilter === 'positiva' ? '<div class="filter-dot"></div>' : ''}
                 </div>
             </div>
-            <div class="stat-divider"></div>
             <div class="stat-item ${currentFilter === 'neutral' ? 'stat-active' : ''}" data-filter="neutral">
                 <div class="stat-label">Neutrales</div>
                 <div class="stat-value">
@@ -143,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${currentFilter === 'neutral' ? '<div class="filter-dot"></div>' : ''}
                 </div>
             </div>
-            <div class="stat-divider"></div>
             <div class="stat-item ${currentFilter === 'negativa' ? 'stat-active' : ''}" data-filter="negativa">
                 <div class="stat-label">Negativas</div>
                 <div class="stat-value text-rose">
@@ -151,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${currentFilter === 'negativa' ? '<div class="filter-dot"></div>' : ''}
                 </div>
             </div>
-            <div class="stat-divider"></div>
             <div class="stat-item ${currentFilter === 'leidas' ? 'stat-active' : ''}" data-filter="leidas">
                 <div class="stat-label">Leídas</div>
                 <div class="stat-value text-indigo">
