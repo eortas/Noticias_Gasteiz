@@ -21,6 +21,12 @@ echo [4/4] Actualizando Pipeline de Podcast...
 python scraper/update_podcast.py
 if %ERRORLEVEL% NEQ 0 goto error
 
+echo [5/5] Subiendo cambios a GitHub...
+git add .
+git commit -m "Auto-update noticias: %date% %time%"
+git push
+if %ERRORLEVEL% NEQ 0 goto error
+
 echo.
 echo ==========================================
 echo   ACTUALIZACION COMPLETADA CON EXITO

@@ -13,4 +13,8 @@ python scraper/parallel_rewrite.py
 python scraper/update_mood.py
 python scraper/update_podcast.py
 
+git add .
+git commit -m "Auto-update noticias: %date% %time%"
+git push
+
 exit
