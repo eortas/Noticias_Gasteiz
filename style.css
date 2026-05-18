@@ -278,6 +278,10 @@ body {
     color: var(--rose-400);
 }
 
+.text-indigo {
+    color: var(--indigo-400);
+}
+
 /* Mood Widget */
 .mood-widget {
     background: rgba(255, 255, 255, 0.6);

@@ -58,11 +58,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
 
         const filteredData = currentFilter
-            ? newsData.filter(item => item.sentiment_label === currentFilter)
+            ? (currentFilter === 'leidas'
+                ? newsData.filter(item => readIds.includes(item.id))
+                : newsData.filter(item => item.sentiment_label === currentFilter))
             : newsData;
 
         if (filteredData.length === 0) {
-            newsGrid.innerHTML = '<p style="color:var(--text-muted); font-weight:300; padding: 2rem;">No hay noticias con este sentimiento hoy.</p>';
+            const noNewsText = currentFilter === 'leidas'
+                ? 'No hay noticias leídas todavía.'
+                : 'No hay noticias con este sentimiento hoy.';
+            newsGrid.innerHTML = `<p style="color:var(--text-muted); font-weight:300; padding: 2rem;">${noNewsText}</p>`;
             return;
         }
 
@@ -110,6 +115,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (counts.hasOwnProperty(label)) counts[label]++;
         });
 
+        const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
+        const readCount = newsData.filter(item => readIds.includes(item.id)).length;
+
         statsContainer.innerHTML = `
             <div class="stat-item ${currentFilter === 'positiva' ? 'stat-active' : ''}" data-filter="positiva">
                 <div class="stat-label">Positivas</div>
@@ -132,6 +140,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="stat-value text-rose">
                     ${counts.negativa}
                     ${currentFilter === 'negativa' ? '<div class="filter-dot"></div>' : ''}
+                </div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item ${currentFilter === 'leidas' ? 'stat-active' : ''}" data-filter="leidas">
+                <div class="stat-label">Leídas</div>
+                <div class="stat-value text-indigo">
+                    ${readCount}
+                    ${currentFilter === 'leidas' ? '<div class="filter-dot"></div>' : ''}
                 </div>
             </div>
         `;
@@ -211,6 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function closeDetail(fromPopState = false) {
         sortNewsByReadState();
+        renderStats();
         renderNewsFeed();
         detailView.classList.replace('view-active', 'view-hidden');
         backNav.classList.replace('view-active', 'view-hidden');
