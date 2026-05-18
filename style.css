@@ -1108,6 +1108,8 @@ body {
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 0.4rem;
         width: 100%;
+        max-width: 100%;
+        overflow: hidden;
         margin-bottom: 1.5rem;
     }
 
@@ -1122,6 +1124,10 @@ body {
         text-align: center;
         border-radius: 8px;
         box-sizing: border-box;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .nav-back {
