@@ -1200,6 +1200,13 @@ body {
     box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.2);
 }
 
+.category-btn.cat-empty {
+    opacity: 0.4;
+    cursor: default;
+    pointer-events: none;
+    filter: grayscale(1);
+}
+
 /* Specific Category Colors on Active */
 .category-btn.active[data-category="Economía"] {
     background: linear-gradient(135deg, #10b981, #047857);

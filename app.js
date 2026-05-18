@@ -59,13 +59,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function getSectionData() {
-        // Filtra newsData por la sección activa
         if (currentCategory) {
             const key = SECTION_MAP[currentCategory] || currentCategory.toLowerCase();
             return newsData.filter(item => item.source_section === key);
         }
-        // Por defecto: Álava (source_section === 'alava' o sin source_section para artículos antiguos)
-        return newsData.filter(item => !item.source_section || item.source_section === 'alava');
+        // Default: mostrar todo EXCEPTO artículos que pertenecen explícitamente a otra sección
+        const sectionKeys = Object.values(SECTION_MAP);
+        return newsData.filter(item => !sectionKeys.includes(item.source_section));
     }
 
     function renderNewsFeed() {
@@ -185,26 +185,25 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderCategories() {
         const categoriesContainer = document.getElementById('categories-container');
         if (!categoriesContainer) return;
-        
-        // Comprobar qué secciones tienen artículos
-        const availableSections = new Set(newsData.map(item => item.source_section).filter(Boolean));
-        const categoriesList = [
+
+        // Siempre mostrar los 4 botones fijos; se habilitan/deshabilitan visualmente según datos
+        const allCategories = [
             { label: 'Economía', key: 'economia' },
             { label: 'Sociedad',  key: 'sociedad' },
             { label: 'Deportes', key: 'deportes' },
             { label: 'Cultura',  key: 'cultura' }
-        ].filter(c => availableSections.has(c.key));
-        
-        if (categoriesList.length === 0) {
-            categoriesContainer.innerHTML = '';
-            return;
-        }
+        ];
 
-        categoriesContainer.innerHTML = categoriesList.map(cat => `
-            <div class="category-btn ${currentCategory === cat.label ? 'active' : ''}" data-category="${cat.label}">
+        const availableSections = new Set(newsData.map(item => item.source_section).filter(Boolean));
+
+        categoriesContainer.innerHTML = allCategories.map(cat => {
+            const hasData = availableSections.has(cat.key);
+            return `
+            <div class="category-btn ${currentCategory === cat.label ? 'active' : ''} ${!hasData ? 'cat-empty' : ''}" 
+                 data-category="${cat.label}" title="${!hasData ? 'Sin noticias hoy en esta sección' : cat.label}">
                 ${cat.label}
-            </div>
-        `).join('');
+            </div>`;
+        }).join('');
 
         categoriesContainer.querySelectorAll('.category-btn').forEach(btn => {
             btn.addEventListener('click', () => {
