@@ -50,6 +50,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let lastScrollPos = 0;
 
+    // Mapa de nombre visible -> clave source_section
+    const SECTION_MAP = {
+        'Economía': 'economia',
+        'Sociedad': 'sociedad',
+        'Deportes': 'deportes',
+        'Cultura': 'cultura'
+    };
+
+    function getSectionData() {
+        // Filtra newsData por la sección activa
+        if (currentCategory) {
+            const key = SECTION_MAP[currentCategory] || currentCategory.toLowerCase();
+            return newsData.filter(item => item.source_section === key);
+        }
+        // Por defecto: Álava (source_section === 'alava' o sin source_section para artículos antiguos)
+        return newsData.filter(item => !item.source_section || item.source_section === 'alava');
+    }
+
     function renderNewsFeed() {
         if (!newsData || newsData.length === 0) {
             newsGrid.innerHTML = '<p style="color:var(--text-muted); font-weight:300;">No hay noticias disponibles.</p>';
@@ -57,8 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
-
-        let filteredData = newsData;
+        let filteredData = getSectionData();
 
         if (currentFilter) {
             if (currentFilter === 'leidas') {
@@ -68,14 +85,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        if (currentCategory) {
-            filteredData = filteredData.filter(item => item.category === currentCategory);
-        }
-
         if (filteredData.length === 0) {
             let noNewsText = 'No hay noticias que coincidan con estos filtros hoy.';
-            if (currentFilter === 'leidas' && !currentCategory) noNewsText = 'No hay noticias leídas todavía.';
-            if (currentFilter && currentFilter !== 'leidas' && !currentCategory) noNewsText = 'No hay noticias con este sentimiento hoy.';
+            if (currentFilter === 'leidas') noNewsText = 'No hay noticias leídas en esta sección todavía.';
             newsGrid.innerHTML = `<p style="color:var(--text-muted); font-weight:300; padding: 2rem;">${noNewsText}</p>`;
             return;
         }
@@ -118,14 +130,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderStats() {
+        // Contar solo la sección activa
+        const sectionData = getSectionData();
         const counts = { 'positiva': 0, 'neutral': 0, 'negativa': 0 };
-        newsData.forEach(item => {
+        sectionData.forEach(item => {
             const label = item.sentiment_label || 'neutral';
             if (counts.hasOwnProperty(label)) counts[label]++;
         });
 
         const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
-        const readCount = newsData.filter(item => readIds.includes(item.id)).length;
+        const readCount = sectionData.filter(item => readIds.includes(item.id)).length;
 
         statsContainer.innerHTML = `
             <div class="stat-item ${currentFilter === 'positiva' ? 'stat-active' : ''}" data-filter="positiva">
@@ -172,14 +186,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const categoriesContainer = document.getElementById('categories-container');
         if (!categoriesContainer) return;
         
-        const availableCategories = new Set();
-        newsData.forEach(item => {
-            if (item.category && item.category !== 'Otros') {
-                availableCategories.add(item.category);
-            }
-        });
-        
-        const categoriesList = ['Economía', 'Sociedad', 'Deportes', 'Cultura'].filter(c => availableCategories.has(c));
+        // Comprobar qué secciones tienen artículos
+        const availableSections = new Set(newsData.map(item => item.source_section).filter(Boolean));
+        const categoriesList = [
+            { label: 'Economía', key: 'economia' },
+            { label: 'Sociedad',  key: 'sociedad' },
+            { label: 'Deportes', key: 'deportes' },
+            { label: 'Cultura',  key: 'cultura' }
+        ].filter(c => availableSections.has(c.key));
         
         if (categoriesList.length === 0) {
             categoriesContainer.innerHTML = '';
@@ -187,8 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         categoriesContainer.innerHTML = categoriesList.map(cat => `
-            <div class="category-btn ${currentCategory === cat ? 'active' : ''}" data-category="${cat}">
-                ${cat}
+            <div class="category-btn ${currentCategory === cat.label ? 'active' : ''}" data-category="${cat.label}">
+                ${cat.label}
             </div>
         `).join('');
 
@@ -196,6 +210,8 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', () => {
                 const cat = btn.getAttribute('data-category');
                 currentCategory = (currentCategory === cat) ? null : cat;
+                currentFilter = null; // Resetear filtro de sentimiento al cambiar sección
+                renderStats();
                 renderCategories();
                 renderNewsFeed();
             });

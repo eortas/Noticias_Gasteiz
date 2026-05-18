@@ -401,7 +401,7 @@ class MultiScraper:
         return None
 
 
-    def _scrape_el_correo_section(self, url, section_name, is_alava=False):
+    def _scrape_el_correo_section(self, url, section_name, source_section, is_alava=False):
         import urllib.request
         print(f"Scrapeando El Correo ({section_name or 'Portada Alava'}): {url}")
         try:
@@ -466,7 +466,8 @@ class MultiScraper:
                         'body': body_text,
                         'date': datetime.now(timezone.utc).isoformat(),
                         'sentiment': 0,
-                        'image': image
+                        'image': image,
+                        'source_section': source_section
                     }
                     
                     if section_name:
@@ -479,12 +480,12 @@ class MultiScraper:
             print(f"Error scraping El Correo ({section_name or 'Portada'}): {e}")
 
     def scrape_el_correo(self):
-        self._scrape_el_correo_section("https://www.elcorreo.com/alava/araba/", None, is_alava=True)
-        self._scrape_el_correo_section("https://www.elcorreo.com/economia/", "Economía")
-        self._scrape_el_correo_section("https://www.elcorreo.com/sociedad/", "Sociedad")
-        self._scrape_el_correo_section("https://www.elcorreo.com/alaves/", "Deportes")
-        self._scrape_el_correo_section("https://www.elcorreo.com/baskonia/", "Deportes")
-        self._scrape_el_correo_section("https://www.elcorreo.com/culturas/", "Cultura")
+        self._scrape_el_correo_section("https://www.elcorreo.com/alava/araba/", None, "alava", is_alava=True)
+        self._scrape_el_correo_section("https://www.elcorreo.com/economia/", "Economía", "economia")
+        self._scrape_el_correo_section("https://www.elcorreo.com/sociedad/", "Sociedad", "sociedad")
+        self._scrape_el_correo_section("https://www.elcorreo.com/alaves/", "Deportes", "deportes")
+        self._scrape_el_correo_section("https://www.elcorreo.com/baskonia/", "Deportes", "deportes")
+        self._scrape_el_correo_section("https://www.elcorreo.com/culturas/", "Cultura", "cultura")
 
     def scrape_gasteiz_hoy(self):
         print("Scrapeando Gasteiz Hoy (API WP + RSS + Portada)...")
