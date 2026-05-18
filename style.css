@@ -1112,12 +1112,16 @@ body {
     }
 
     .category-btn {
-        padding: 0.5rem 0;
-        font-size: 0.5rem;
-        letter-spacing: 0;
+        padding: 0.45rem 0;
+        font-size: 0.55rem;
+        font-weight: 600;
+        text-transform: none;
+        letter-spacing: -0.01em;
         gap: 0.2rem;
         justify-content: center;
         text-align: center;
+        border-radius: 8px;
+        box-sizing: border-box;
     }
 
     .nav-back {
