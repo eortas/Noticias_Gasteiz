@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let moodHistoryData = [];
     let podcastData = null;
     let currentFilter = null;
+    let currentCategory = null;
     const READ_ARTICLES_KEY = 'vitoria_read_articles';
 
     function formatDate(dateStr) {
@@ -57,16 +58,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
 
-        const filteredData = currentFilter
-            ? (currentFilter === 'leidas'
-                ? newsData.filter(item => readIds.includes(item.id))
-                : newsData.filter(item => item.sentiment_label === currentFilter))
-            : newsData;
+        let filteredData = newsData;
+
+        if (currentFilter) {
+            if (currentFilter === 'leidas') {
+                filteredData = filteredData.filter(item => readIds.includes(item.id));
+            } else {
+                filteredData = filteredData.filter(item => item.sentiment_label === currentFilter);
+            }
+        }
+
+        if (currentCategory) {
+            filteredData = filteredData.filter(item => item.category === currentCategory);
+        }
 
         if (filteredData.length === 0) {
-            const noNewsText = currentFilter === 'leidas'
-                ? 'No hay noticias leídas todavía.'
-                : 'No hay noticias con este sentimiento hoy.';
+            let noNewsText = 'No hay noticias que coincidan con estos filtros hoy.';
+            if (currentFilter === 'leidas' && !currentCategory) noNewsText = 'No hay noticias leídas todavía.';
+            if (currentFilter && currentFilter !== 'leidas' && !currentCategory) noNewsText = 'No hay noticias con este sentimiento hoy.';
             newsGrid.innerHTML = `<p style="color:var(--text-muted); font-weight:300; padding: 2rem;">${noNewsText}</p>`;
             return;
         }
@@ -157,6 +166,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 const filter = item.getAttribute('data-filter');
                 currentFilter = (currentFilter === filter) ? null : filter;
                 renderStats();
+                renderNewsFeed();
+            });
+        });
+    }
+
+    function renderCategories() {
+        const categoriesContainer = document.getElementById('categories-container');
+        if (!categoriesContainer) return;
+        
+        const availableCategories = new Set();
+        newsData.forEach(item => {
+            if (item.category && item.category !== 'Otros') {
+                availableCategories.add(item.category);
+            }
+        });
+        
+        const categoriesList = ['Economía', 'Sociedad', 'Deportes', 'Cultura'].filter(c => availableCategories.has(c));
+        
+        if (categoriesList.length === 0) {
+            categoriesContainer.innerHTML = '';
+            return;
+        }
+
+        categoriesContainer.innerHTML = categoriesList.map(cat => `
+            <div class="category-btn ${currentCategory === cat ? 'active' : ''}" data-category="${cat}">
+                ${cat}
+            </div>
+        `).join('');
+
+        categoriesContainer.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const cat = btn.getAttribute('data-category');
+                currentCategory = (currentCategory === cat) ? null : cat;
+                renderCategories();
                 renderNewsFeed();
             });
         });
@@ -368,6 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             sortNewsByReadState();
             renderStats();
+            renderCategories();
             renderNewsFeed();
             renderMoodWidget(moodHistoryData);
             updatePodcastPlayer();

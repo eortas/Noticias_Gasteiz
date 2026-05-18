@@ -401,10 +401,9 @@ class MultiScraper:
         return None
 
 
-    def scrape_el_correo(self):
+    def _scrape_el_correo_section(self, url, section_name, is_alava=False):
         import urllib.request
-        url = "https://www.elcorreo.com/alava/araba/"
-        print(f"Scrapeando El Correo: {url}")
+        print(f"Scrapeando El Correo ({section_name or 'Portada Alava'}): {url}")
         try:
             res = self.scraper.get(url, headers=self.headers, timeout=15)
             if res.status_code == 200:
@@ -435,7 +434,7 @@ class MultiScraper:
                     # Filtros de exclusión
                     if self._is_excluded_title(title):
                         continue
-                    if "/alava/" not in full_url and "/vitoria/" not in full_url:
+                    if is_alava and "/alava/" not in full_url and "/vitoria/" not in full_url:
                         continue
 
                     # Extraer cuerpo completo visitando el artículo con Googlebot
@@ -459,7 +458,7 @@ class MultiScraper:
                     # Imagen
                     image = self._get_og_image(art) or self._get_ddg_proxy_url(art.find('img').get('src') if art.find('img') else None)
 
-                    self.news_data.append({
+                    item = {
                         'id': article_id,
                         'title': title,
                         'url': full_url,
@@ -468,11 +467,24 @@ class MultiScraper:
                         'date': datetime.now(timezone.utc).isoformat(),
                         'sentiment': 0,
                         'image': image
-                    })
+                    }
+                    
+                    if section_name:
+                        item['category'] = section_name
+
+                    self.news_data.append(item)
                     self.history.add(full_url)
                     time.sleep(1) # Pausa entre peticiones para evitar bloqueos
         except Exception as e:
-            print(f"Error scraping El Correo: {e}")
+            print(f"Error scraping El Correo ({section_name or 'Portada'}): {e}")
+
+    def scrape_el_correo(self):
+        self._scrape_el_correo_section("https://www.elcorreo.com/alava/araba/", None, is_alava=True)
+        self._scrape_el_correo_section("https://www.elcorreo.com/economia/", "Economía")
+        self._scrape_el_correo_section("https://www.elcorreo.com/sociedad/", "Sociedad")
+        self._scrape_el_correo_section("https://www.elcorreo.com/alaves/", "Deportes")
+        self._scrape_el_correo_section("https://www.elcorreo.com/baskonia/", "Deportes")
+        self._scrape_el_correo_section("https://www.elcorreo.com/culturas/", "Cultura")
 
     def scrape_gasteiz_hoy(self):
         print("Scrapeando Gasteiz Hoy (API WP + RSS + Portada)...")
