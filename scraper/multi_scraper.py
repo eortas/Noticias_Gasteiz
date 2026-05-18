@@ -781,7 +781,16 @@ class MultiScraper:
             if clean_line and clean_line not in paragraphs:
                 paragraphs.append(clean_line)
 
-        body = "\n\n".join(paragraphs[:12])
+        body_paragraphs = paragraphs[:12]
+        
+        # Regla estricta: cortar desde la aparición de "gasteiz hoy" si está en la segunda mitad
+        cut_index = len(body_paragraphs)
+        for i, p in enumerate(body_paragraphs):
+            if i >= len(body_paragraphs) * 0.5 and "gasteiz hoy" in p.lower():
+                cut_index = i
+                break
+                
+        body = "\n\n".join(body_paragraphs[:cut_index])
         if not body or not title:
             return None
 
@@ -832,13 +841,15 @@ class MultiScraper:
                         text = f"• {text}"
                     clean_p.append(text)
         
-        # Regla de oro: si el último párrafo contiene "Gasteiz Hoy", probablemente es autobombo
-        if clean_p:
-            last_p = clean_p[-1].lower()
-            if "gasteiz hoy" in last_p:
-                # Solo lo eliminamos si es corto o contiene frases típicas de cierre
-                # Pero según el usuario, la regla es: si es el último y contiene Gasteiz Hoy, fuera.
-                clean_p.pop()
+        # Regla estricta del usuario: si aparece "Gasteiz Hoy" en la segunda mitad del artículo, borrar desde ahí hasta el final.
+        cut_index = len(clean_p)
+        for i, p in enumerate(clean_p):
+            if i >= len(clean_p) * 0.5 and "gasteiz hoy" in p.lower():
+                cut_index = i
+                break
+                
+        if cut_index < len(clean_p):
+            clean_p = clean_p[:cut_index]
 
         return "\n\n".join(clean_p)
 
