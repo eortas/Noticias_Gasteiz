@@ -2,7 +2,7 @@ name: Daily Vitoria Scraper
 
 on:
   schedule:
-    - cron: '0 * * * *' # Cada hora
+    - cron: '*/30 * * * *' # Cada 30 minutos
   workflow_dispatch: # Permite ejecución manual
 
 permissions:
