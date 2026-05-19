@@ -30,6 +30,12 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none;   /* Safari */
+             -khtml-user-select: none;   /* Konqueror HTML */
+               -moz-user-select: none;   /* Old versions of Firefox */
+                -ms-user-select: none;   /* Internet Explorer/Edge */
+                    user-select: none;   /* Non-prefixed version */
         }
 
         .container {
@@ -67,6 +73,8 @@
             font-size: 1.1rem;
             outline: none;
             color: var(--text-color);
+            -webkit-user-select: text; /* Asegura la selección/escritura en Safari */
+            user-select: text;
         }
 
         button {
