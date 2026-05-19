@@ -19,12 +19,12 @@ PALABRAS_POSITIVAS = {
 
 PALABRAS_NEGATIVAS = {
     'malo', 'mala', 'peor', 'negativo', 'fracaso', 'error', 'problema', 'crisis', 'daño', 
-    'muerte', 'fallece', 'accidente', 'robo', 'detenido', 'agresión', 'pelea', 'herido',
-    'denuncia', 'corte', 'huelga', 'protesta', 'incendio', 'atropello', 'crimen', 'estafa',
+    'muerte', 'fallece', 'accidente', 'robo', 'robos', 'detenido', 'detenidos', 'agresión', 'pelea', 'herido',
+    'denuncia', 'denuncias', 'corte', 'huelga', 'huelgas', 'protesta', 'incendio', 'atropello', 'crimen', 'estafa',
     'pérdida', 'caída', 'baja', 'tensión', 'riesgo', 'peligro', 'inseguro', 'sucio', 'abandono',
     'cierre', 'cierran', 'despido', 'despidos', 'semana santa', 'procesión', 'religión', 'iglesia', 
     'culto', 'cura', 'obispo', 'religioso', 'religiosa', 'papa', 'vaticano', 'misa', 'católico', 
-    'cofradía', 'peregrinación', 'peregrinar', 'diócesis'
+    'cofradía', 'peregrinación', 'peregrinar', 'diócesis', 'paralisis', 'parálisis'
 }
 
 NEGACIONES = {'no', 'ni', 'nunca', 'tampoco', 'sin'}
@@ -34,7 +34,7 @@ def heuristic_fallback(text):
     text_lower = text.lower()
     
     # REGLAS ESPECIALES (usando regex para evitar falsos positivos como "curarse")
-    if re.search(r'\b(guardia civil|iglesia|cura|curas|obispo|obispos|religioso|religiosos|peregrinación|peregrinar|diócesis)\b', text_lower):
+    if re.search(r'\b(guardia civil|iglesia|cura|curas|obispo|obispos|religioso|religiosos|peregrinación|peregrinar|diócesis|semana santa|tensión pol[íi]tica)\b', text_lower):
         return 'negativa', -0.8, 'Sociedad'
     
     words = re.findall(r'\w+', text_lower)
@@ -55,7 +55,13 @@ def heuristic_fallback(text):
     else: return 'neutral', score, 'Sociedad'
 
 def analyze_sentiment(text):
-    """Analiza sentimiento y categoría usando Llama 70b con pool de llaves."""
+    """Analiza sentimiento y categoría. Primero pasa por el modelo heurístico y, si es neutral, pasa por la IA."""
+    # 1. Pasar primero por el modelo heurístico
+    heur_sentiment, heur_score, heur_category = heuristic_fallback(text)
+    if heur_sentiment in ('positiva', 'negativa'):
+        return heur_sentiment, heur_score, heur_category
+        
+    # 2. Si es neutral, recurrir a la IA (Groq)
     max_retries = 3
     for attempt in range(max_retries):
         try:
@@ -69,7 +75,7 @@ def analyze_sentiment(text):
             ]
             valid_keys = [k for k in keys if k]
             if not valid_keys:
-                return heuristic_fallback(text)
+                return heur_sentiment, heur_score, heur_category
                 
             api_key = random.choice(valid_keys)
             
@@ -88,8 +94,8 @@ def analyze_sentiment(text):
             return data.get('sentiment', 'neutral'), data.get('score', 0.0), data.get('category', 'Sociedad')
         except Exception as e:
             if attempt == max_retries - 1:
-                print(f"Error clasificando con Groq: {e}. Usando fallback heurístico.")
-                return heuristic_fallback(text)
+                print(f"Error clasificando con Groq: {e}. Usando el resultado heurístico original.")
+                return heur_sentiment, heur_score, heur_category
             time.sleep(2)
 
 
