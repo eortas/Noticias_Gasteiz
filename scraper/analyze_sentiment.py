@@ -24,7 +24,8 @@ PALABRAS_NEGATIVAS = {
     'pérdida', 'caída', 'baja', 'tensión', 'riesgo', 'peligro', 'inseguro', 'sucio', 'abandono',
     'cierre', 'cierran', 'despido', 'despidos', 'semana santa', 'procesión', 'religión', 'iglesia', 
     'culto', 'cura', 'obispo', 'religioso', 'religiosa', 'papa', 'vaticano', 'misa', 'católico', 
-    'cofradía', 'peregrinación','PP', 'VOX', 'peregrinar', 'diócesis', 'paralisis', 'parálisis'
+    'cofradía', 'peregrinación','PP', 'VOX', 'peregrinar', 'diócesis', 'paralisis', 'parálisis',
+    'rechazo', 'rechazos', 'oposición', 'oposicion', 'enfrentamiento', 'enfrentamientos'
 }
 
 NEGACIONES = {'no', 'ni', 'nunca', 'tampoco', 'sin'}
