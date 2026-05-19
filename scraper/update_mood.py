@@ -13,9 +13,12 @@ def update_mood_history():
     with open(news_file, 'r', encoding='utf-8') as f:
         news = json.load(f)
 
-    # Agrupar sentimientos por fecha (YYYY-MM-DD)
+    # Agrupar sentimientos por fecha (YYYY-MM-DD) - Solo para la sección 'alava'
     daily_scores = {}
     for item in news:
+        if item.get('source_section') != 'alava':
+            continue
+            
         date_str = item.get('date', '')
         try:
             # Extraer solo la parte de la fecha YYYY-MM-DD
