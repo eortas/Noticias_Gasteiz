@@ -19,7 +19,10 @@ PALABRAS_POSITIVAS = {
 
 PALABRAS_NEGATIVAS = {
     'malo', 'mala', 'peor', 'negativo', 'fracaso', 'error', 'problema', 'crisis', 'daño', 
-    'muerte', 'fallece', 'accidente', 'robo', 'robos', 'detenido', 'detenidos', 'agresión', 'pelea', 'herido',
+    'muerte', 'fallece', 'accidente', 'robo', 'robos', 'robar', 'robado', 'robada', 'robados', 'robadas',
+    'detenido', 'detenidos', 'detenida', 'detenidas', 'agresión', 'agresiones', 'pelea', 'peleas',
+    'herido', 'herida', 'heridos', 'heridas', 'lesionado', 'lesionada', 'lesionados', 'lesionadas',
+    'asesinato', 'asesinado', 'asesinada', 'asesinados', 'asesinadas', 'matar', 'apuñalado', 'apuñalada', 'apuñalar',
     'denuncia', 'denuncias', 'corte', 'huelga', 'huelgas', 'protesta', 'incendio', 'atropello', 'crimen', 'estafa',
     'pérdida', 'caída', 'baja', 'tensión', 'riesgo', 'peligro', 'inseguro', 'sucio', 'abandono',
     'cierre', 'cierran', 'despido', 'despidos', 'semana santa', 'procesión', 'religión', 'iglesia', 

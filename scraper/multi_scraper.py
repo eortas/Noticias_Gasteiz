@@ -471,7 +471,7 @@ class MultiScraper:
                         'source': 'El Correo',
                         'body': body_text,
                         'date': datetime.now(timezone.utc).isoformat(),
-                        'sentiment': 0,
+                        'sentiment': self._analyze_sentiment(title + " " + body_text),
                         'image': image,
                         'source_section': source_section
                     }
