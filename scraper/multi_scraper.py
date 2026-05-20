@@ -835,32 +835,40 @@ class MultiScraper:
         }
 
     def scrape_diario_de_noticias(self):
-        print("Scrapeando Diario de Noticias de Álava...")
-        url = "https://www.noticiasdealava.eus/alava/"
+        print("Scrapeando Diario de Noticias de Álava y Vitoria-Gasteiz...")
         try:
-            res = self._get(url, timeout=15)
-            if not res or res.status_code != 200:
-                print(f"  Error obteniendo la portada de Diario de Noticias: {res.status_code if res else 'No response'}")
-                return
-
-            soup = BeautifulSoup(res.content, 'html.parser')
+            urls = [
+                "https://www.noticiasdealava.eus/alava/",
+                "https://www.noticiasdealava.eus/vitoria-gasteiz/"
+            ]
             
-            # Extraer enlaces
             links = []
-            for a in soup.find_all('a', href=True):
-                href = a['href']
-                # Filtrar enlaces de Álava que terminen en .html
-                if '/alava/' in href:
-                    if href.endswith('.html'):
-                        full_url = href
-                        if not full_url.startswith('http'):
-                            full_url = "https://www.noticiasdealava.eus" + full_url
-                        
-                        full_url = self._normalize_url(full_url)
-                        if full_url not in links:
-                            links.append(full_url)
+            for url in urls:
+                try:
+                    res = self._get(url, timeout=15)
+                    if not res or res.status_code != 200:
+                        print(f"  Error obteniendo la portada ({url}): {res.status_code if res else 'No response'}")
+                        continue
 
-            print(f"  Encontrados {len(links)} enlaces potenciales de Álava en Diario de Noticias")
+                    soup = BeautifulSoup(res.content, 'html.parser')
+                    
+                    # Extraer enlaces
+                    for a in soup.find_all('a', href=True):
+                        href = a['href']
+                        # Filtrar enlaces de Álava, Vitoria-Gasteiz o Gasteiz que terminen en .html
+                        if any(x in href for x in ['/alava/', '/vitoria-gasteiz/', '/gasteiz/']):
+                            if href.endswith('.html'):
+                                full_url = href
+                                if not full_url.startswith('http'):
+                                    full_url = "https://www.noticiasdealava.eus" + full_url
+                                
+                                full_url = self._normalize_url(full_url)
+                                if full_url not in links:
+                                    links.append(full_url)
+                except Exception as e:
+                    print(f"  Error al procesar la portada {url}: {e}")
+
+            print(f"  Encontrados {len(links)} enlaces potenciales en Diario de Noticias")
             
             # Procesar cada artículo nuevo
             count = 0
