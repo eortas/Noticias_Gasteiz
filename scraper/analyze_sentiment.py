@@ -25,7 +25,8 @@ PALABRAS_NEGATIVAS = {
     'cierre', 'cierran', 'despido', 'despidos', 'semana santa', 'procesión', 'religión', 'iglesia', 
     'culto', 'cura', 'obispo', 'religioso', 'religiosa', 'papa', 'vaticano', 'misa', 'católico', 
     'cofradía', 'peregrinación','PP', 'VOX', 'peregrinar', 'diócesis', 'paralisis', 'parálisis',
-    'rechazo', 'rechazos', 'oposición', 'oposicion', 'enfrentamiento', 'enfrentamientos'
+    'rechazo', 'rechazos', 'oposición', 'oposicion', 'enfrentamiento', 'enfrentamientos',
+    'guardia civil', 'guardias civiles', 'guardia zibila', 'guardia zibilak'
 }
 
 NEGACIONES = {'no', 'ni', 'nunca', 'tampoco', 'sin'}
@@ -35,7 +36,7 @@ def heuristic_fallback(text):
     text_lower = text.lower()
     
     # REGLAS ESPECIALES (usando regex para evitar falsos positivos como "curarse")
-    if re.search(r'\b(guardia civil|iglesia|cura|curas|obispo|obispos|religioso|religiosos|peregrinación|peregrinar|diócesis|semana santa|tensión pol[íi]tica)\b', text_lower):
+    if re.search(r'\b(guardias?\s+civil(?:es)?|guardia\s+zibila?k?|iglesia|cura|curas|obispo|obispos|religioso|religiosos|peregrinación|peregrinar|diócesis|semana santa|tensión pol[íi]tica)\b', text_lower):
         return 'negativa', -0.8, 'Sociedad'
     
     words = re.findall(r'\w+', text_lower)

@@ -166,7 +166,10 @@ class MultiScraper:
         return None
 
     def _jina_reader_url(self, url):
-        return f"https://r.jina.ai/http://{url}"
+        if url.startswith("http://") or url.startswith("https://"):
+            return f"https://r.jina.ai/{url}"
+        return f"https://r.jina.ai/https://{url}"
+
 
     def _extract_jina_content(self, text):
         marker = "Markdown Content:"
@@ -177,7 +180,7 @@ class MultiScraper:
     def _get_via_jina(self, url, timeout=30):
         jina_url = self._jina_reader_url(url)
         try:
-            res = self.requests_session.get(jina_url, headers=self.headers, timeout=timeout)
+            res = self.scraper.get(jina_url, headers=self.headers, timeout=timeout)
             if res.status_code == 200:
                 print(f"  OK via jina reader: {url}")
                 return self._extract_jina_content(res.text)
@@ -216,7 +219,7 @@ class MultiScraper:
         try:
             # 1. Obtener el token vqd
             search_url = "https://duckduckgo.com/"
-            res = self.requests_session.get(search_url, params={"q": query}, timeout=10)
+            res = self.scraper.get(search_url, params={"q": query}, timeout=10)
             vqd = re.search(r'vqd=([\d-]+)&', res.text)
             if not vqd:
                 vqd = re.search(r'vqd=["\']([\d-]+)["\']', res.text)
@@ -232,7 +235,7 @@ class MultiScraper:
                     "f": ",,,",
                     "p": "1"
                 }
-                res = self.requests_session.get(img_api_url, params=params, timeout=10)
+                res = self.scraper.get(img_api_url, params=params, timeout=10)
                 time.sleep(1) # Pequeño delay para no saturar DDG
                 data = res.json()
                 if data.get("results"):
@@ -283,6 +286,9 @@ class MultiScraper:
             'patrocinado',
             'la viñeta de cerrajería',
             'la vineta de cerrajeria',
+            'tira de cerrajería',
+            'tira de cerrajeria',
+            'el mirador',
             'vitoria hoy sabe de'
         ]
         return any(term in title_lower for term in excluded)
