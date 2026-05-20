@@ -7,7 +7,7 @@ def run_script(script_path):
     try:
         # Usamos sys.executable para asegurar que usamos el mismo python que este script
         subprocess.run([sys.executable, script_path], check=True)
-        print(f"✓ {script_path} completado con éxito.")
+        print(f"[OK] {script_path} completado con éxito.")
     except subprocess.CalledProcessError as e:
         print(f"X Error al ejecutar {script_path}: {e}")
         return False
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     
     for script in scripts:
         if not run_script(script):
-            print("\n⚠ El proceso se detuvo por un error.")
+            print("\n[ERROR] El proceso se detuvo por un error.")
             sys.exit(1)
     
-    print("\n✨ Actualización completa finalizada con éxito.")
+    print("\n*** Actualización completa finalizada con éxito. ***")

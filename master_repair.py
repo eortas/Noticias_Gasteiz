@@ -3,10 +3,43 @@ import os
 import time
 import sys
 sys.path.append(os.path.join(os.getcwd(), 'scraper'))
-from analyze_sentiment import translate_to_euskara, translate_to_polish, rewrite_article
+from analyze_sentiment import rewrite_article
 from dotenv import load_dotenv
+from deep_translator import GoogleTranslator
 
 load_dotenv()
+
+def translate_with_google(text, target_lang):
+    """Traducción simple usando Google Translate."""
+    if not text:
+        return ""
+    try:
+        translator = GoogleTranslator(source='auto', target=target_lang)
+        if len(text) < 4500:
+            return translator.translate(text)
+        else:
+            # Dividir en párrafos si es muy largo
+            paragraphs = text.split('\n')
+            translated_paragraphs = []
+            current_chunk = ""
+            for p in paragraphs:
+                if len(current_chunk) + len(p) < 4000:
+                    current_chunk += p + "\n"
+                else:
+                    translated_paragraphs.append(translator.translate(current_chunk))
+                    current_chunk = p + "\n"
+            if current_chunk:
+                translated_paragraphs.append(translator.translate(current_chunk))
+            return "\n".join(translated_paragraphs)
+    except Exception as e:
+        print(f"    ! Error en Google Translate ({target_lang}): {e}")
+        return None
+
+def translate_to_euskara(title, body):
+    return translate_with_google(title, 'eu'), translate_with_google(body, 'eu')
+
+def translate_to_polish(title, body):
+    return translate_with_google(title, 'pl'), translate_with_google(body, 'pl')
 
 def master_repair():
     news_file = 'data/news.json'
@@ -23,8 +56,8 @@ def master_repair():
     any_change = False
     for i, article in enumerate(news_data):
         changed = False
-        source_title = article.get('title', '')
-        source_body = article.get('body', '')
+        source_title = article.get('original_title') or article.get('title', '')
+        source_body = article.get('original_body') or article.get('body', '')
         
         # 1. Euskara
         if not article.get('title_eu') or not article.get('body_eu'):
@@ -34,8 +67,8 @@ def master_repair():
                 article['title_eu'] = title_eu
                 article['body_eu'] = body_eu
                 changed = True
-                print("   ✓ EU Fix")
-            time.sleep(2)
+                print("   [OK] EU Fix")
+            time.sleep(1)
 
         # 2. Polish
         if not article.get('title_pl') or not article.get('body_pl'):
@@ -45,20 +78,22 @@ def master_repair():
                 article['title_pl'] = title_pl
                 article['body_pl'] = body_pl
                 changed = True
-                print("   ✓ PL Fix")
-            time.sleep(2)
+                print("   [OK] PL Fix")
+            time.sleep(1)
 
-        # 3. Rewrite (si no es ya un rewrite o fuente EU)
-        if not article.get('body_rw') and not article.get('is_rewritten') and article.get('lang') != 'eu':
+        # 3. Rewrite (si no está reescrito aún)
+        if not article.get('rewritten'):
             print(f"[{i+1}/{total}] Reparando REWRITE: {source_title[:40]}...")
             title_rw, body_rw = rewrite_article(source_title, source_body)
             if title_rw and body_rw:
+                article['original_title'] = source_title
+                article['original_body'] = source_body
                 article['title'] = title_rw
                 article['body'] = body_rw
-                article['is_rewritten'] = True
+                article['rewritten'] = True
                 changed = True
-                print("   ✓ RW Fix")
-            time.sleep(2)
+                print("   [OK] RW Fix")
+            time.sleep(1)
 
         if changed:
             any_change = True

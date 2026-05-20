@@ -4,10 +4,43 @@ import json
 import time
 import hashlib
 from bs4 import BeautifulSoup
-from analyze_sentiment import analyze_sentiment, translate_to_euskara, translate_to_polish, rewrite_article
+from analyze_sentiment import analyze_sentiment, rewrite_article
+from deep_translator import GoogleTranslator
 
 # Re-importing clean_body logic to be standalone
 import re
+
+def translate_with_google(text, target_lang):
+    """Traducción simple usando Google Translate."""
+    if not text:
+        return ""
+    try:
+        translator = GoogleTranslator(source='auto', target=target_lang)
+        if len(text) < 4500:
+            return translator.translate(text)
+        else:
+            # Dividir en párrafos si es muy largo
+            paragraphs = text.split('\n')
+            translated_paragraphs = []
+            current_chunk = ""
+            for p in paragraphs:
+                if len(current_chunk) + len(p) < 4000:
+                    current_chunk += p + "\n"
+                else:
+                    translated_paragraphs.append(translator.translate(current_chunk))
+                    current_chunk = p + "\n"
+            if current_chunk:
+                translated_paragraphs.append(translator.translate(current_chunk))
+            return "\n".join(translated_paragraphs)
+    except Exception as e:
+        print(f"    ! Error en Google Translate ({target_lang}): {e}")
+        return None
+
+def translate_to_euskara(title, body):
+    return translate_with_google(title, 'eu'), translate_with_google(body, 'eu')
+
+def translate_to_polish(title, body):
+    return translate_with_google(title, 'pl'), translate_with_google(body, 'pl')
 
 def clean_body(p_tags):
     blacklist = ["©", "todos los derechos reservados", "fotografía:", "cedida", "| actualizado", "primer periódico digital de vitoria", "noticias vitoria-álava"]
@@ -50,7 +83,7 @@ def extract_original_content(url, source):
         elif "noticiasdealava.eus" in url:
             h1 = soup.find('h1')
             title = h1.get_text().strip() if h1 else ""
-            p_tags = soup.select('div.v-p-b p, article p, div.contenido p, main p')
+            p_tags = soup.select('div.article-body p, div.v-p-b p, article p, div.contenido p, main p')
             body = clean_body(p_tags)
             
         return title, body
@@ -97,9 +130,12 @@ def main():
         if len(item.get('body', '')) < 800:
             new_title_rw, new_body_rw = rewrite_article(orig_title, orig_body)
             if new_title_rw and new_body_rw:
+                item['original_title'] = orig_title
+                item['original_body'] = orig_body
                 item['title'] = new_title_rw
                 item['body'] = new_body_rw
-                print("  ✓ Título y cuerpo reescritos con detalle.")
+                item['rewritten'] = True
+                print("  [OK] Título y cuerpo reescritos con detalle.")
             else:
                 print("  ! Fallo en reescritura.")
             
@@ -110,7 +146,7 @@ def main():
             if title_eu: 
                 item['title_eu'] = title_eu
                 item['body_eu'] = body_eu
-                print("  ✓ Traducción Euskara actualizada.")
+                print("  [OK] Traducción Euskara actualizada.")
             else:
                 print("  ! Fallo en traducción Euskara.")
             
@@ -120,7 +156,7 @@ def main():
             if title_pl:
                 item['title_pl'] = title_pl
                 item['body_pl'] = body_pl
-                print("  ✓ Traducción Polaco actualizada.")
+                print("  [OK] Traducción Polaco actualizada.")
             else:
                 print("  ! Fallo en traducción Polaco.")
             

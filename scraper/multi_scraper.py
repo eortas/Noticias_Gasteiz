@@ -70,6 +70,12 @@ class MultiScraper:
         except Exception as e:
             print(f"Error Gasteiz Hoy: {e}")
 
+        # Diario de Noticias de Álava
+        try:
+            self.scrape_diario_de_noticias()
+        except Exception as e:
+            print(f"Error Diario de Noticias: {e}")
+
         # Guardar resultados
         self._save_results()
         self._save_history()
@@ -827,6 +833,159 @@ class MultiScraper:
             'sentiment': self._analyze_sentiment(title + " " + body),
             'image': image_url
         }
+
+    def scrape_diario_de_noticias(self):
+        print("Scrapeando Diario de Noticias de Álava...")
+        url = "https://www.noticiasdealava.eus/alava/"
+        try:
+            res = self._get(url, timeout=15)
+            if not res or res.status_code != 200:
+                print(f"  Error obteniendo la portada de Diario de Noticias: {res.status_code if res else 'No response'}")
+                return
+
+            soup = BeautifulSoup(res.content, 'html.parser')
+            
+            # Extraer enlaces
+            links = []
+            for a in soup.find_all('a', href=True):
+                href = a['href']
+                # Filtrar enlaces de Álava que terminen en .html
+                if '/alava/' in href:
+                    if href.endswith('.html'):
+                        full_url = href
+                        if not full_url.startswith('http'):
+                            full_url = "https://www.noticiasdealava.eus" + full_url
+                        
+                        full_url = self._normalize_url(full_url)
+                        if full_url not in links:
+                            links.append(full_url)
+
+            print(f"  Encontrados {len(links)} enlaces potenciales de Álava en Diario de Noticias")
+            
+            # Procesar cada artículo nuevo
+            count = 0
+            for full_url in links[:30]: # Limitar a los primeros 30 para evitar sobrecarga
+                if full_url in self.history:
+                    continue
+                
+                print(f"  Procesando artículo de Diario de Noticias: {full_url}")
+                try:
+                    art_res = self._get(full_url, timeout=15)
+                    if not art_res or art_res.status_code != 200:
+                        continue
+                    
+                    art_soup = BeautifulSoup(art_res.content, 'html.parser')
+                    
+                    # 1. Título
+                    h1 = art_soup.find('h1')
+                    title = h1.get_text().strip() if h1 else ""
+                    if not title:
+                        continue
+                    
+                    if self._is_excluded_title(title):
+                        continue
+                    
+                    # 2. Subtítulo
+                    subtitle_el = art_soup.select_one('.article-subtitle, .subtitle, .lead, .entradilla, .article-lead')
+                    subtitle = subtitle_el.get_text().strip() if subtitle_el else ""
+                    
+                    # 3. Párrafos
+                    p_tags = art_soup.select('div.article-body p')
+                    if not p_tags:
+                        p_tags = art_soup.select('div.v-p-b p, article p, div.contenido p, main p')
+                        
+                    body_paragraphs = []
+                    blacklist = [
+                        "©", "todos los derechos reservados", "fotografía:", "cedida",
+                        "síguenos en redes sociales", "siguenos en redes sociales", "2026"
+                    ]
+                    for p in p_tags:
+                        text = " ".join(p.get_text().split()).strip()
+                        if not text:
+                            continue
+                        if any(b in text.lower() for b in blacklist):
+                            continue
+                        if len(text) < 40:
+                            continue
+                        body_paragraphs.append(text)
+                        
+                    body_text = "\n\n".join(body_paragraphs)
+                    if not body_text:
+                        body_text = subtitle if subtitle else title
+                        
+                    # 4. Filtrar Patrocinados (Requisito estricto del usuario)
+                    combined_text = (title + " " + subtitle + " " + body_text).lower()
+                    if "contenido ofrecido por" in combined_text or "ofrecido por" in combined_text:
+                        print(f"  [FILTRADO] Omitiendo noticia patrocinada por 'ofrecido por': {full_url}")
+                        continue
+                    
+                    # 5. Imagen
+                    image_url = self._get_og_image(art_soup)
+                    if not image_url:
+                        img_tag = art_soup.select_one('div.article-body img, article img')
+                        if img_tag and img_tag.get('src'):
+                            image_url = img_tag['src']
+                            
+                    if image_url:
+                        image_url = self._get_ddg_proxy_url(image_url)
+                    else:
+                        image_url = self._search_ddg_image(f"{title} Diario de Noticias de Álava")
+                        
+                    # 6. Fecha
+                    date = None
+                    meta_date = art_soup.find('meta', property='article:published_time')
+                    if meta_date and meta_date.get('content'):
+                        date = meta_date['content']
+                    
+                    if not date:
+                        for script in art_soup.find_all('script', type='application/ld+json'):
+                            try:
+                                data = json.loads(script.string or script.get_text())
+                                if isinstance(data, dict) and data.get('datePublished'):
+                                    date = data.get('datePublished')
+                                    break
+                                elif isinstance(data, list):
+                                    for item in data:
+                                        if isinstance(item, dict) and item.get('datePublished'):
+                                            date = item.get('datePublished')
+                                            break
+                                    if date:
+                                        break
+                            except:
+                                pass
+                                
+                    if not date:
+                        date = datetime.now(timezone.utc).isoformat()
+                        
+                    # 7. Sentimiento
+                    sentiment = self._analyze_sentiment(title + " " + body_text)
+                    
+                    article_id = hashlib.md5(full_url.encode()).hexdigest()[:10]
+                    
+                    item = {
+                        'id': article_id,
+                        'title': title,
+                        'url': full_url,
+                        'source': 'Diario de Noticias',
+                        'body': body_text,
+                        'date': date,
+                        'sentiment': sentiment,
+                        'image': image_url,
+                        'source_section': 'alava'
+                    }
+                    
+                    self.news_data.append(item)
+                    self.history.add(full_url)
+                    count += 1
+                    time.sleep(1)
+                    
+                except Exception as ex:
+                    print(f"  Error procesando detalle del artículo {full_url}: {ex}")
+                    
+            print(f"  Diario de Noticias completado. Añadidas {count} noticias nuevas.")
+            
+        except Exception as e:
+            print(f"Error scraping Diario de Noticias: {e}")
 
     def _clean_article_body(self, tags):
         clean_p = []

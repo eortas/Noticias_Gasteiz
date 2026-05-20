@@ -9,7 +9,7 @@ if os.path.exists(news_file):
     total = len(data)
     eu_missing = [x.get('id') for x in data if not x.get('title_eu')]
     pl_missing = [x.get('id') for x in data if not x.get('title_pl')]
-    rw_missing = [x.get('id') for x in data if not x.get('body_rw') and not x.get('is_rewritten')]
+    rw_missing = [x.get('id') for x in data if not x.get('rewritten')]
 
     print(f"Total articulos: {total}")
     print(f"Euskara missing: {len(eu_missing)}")
