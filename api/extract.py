@@ -15,16 +15,39 @@ class handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b'Falta el parametro URL')
             return
-
         try:
-            # SIMULACIÓN DE GOOGLEBOT
-            headers = {
+            is_elpais = 'elpais.com' in target_url.lower()
+            
+            headers_chrome = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8'
+            }
+            
+            headers_googlebot = {
                 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
             }
-            req = urllib.request.Request(target_url, headers=headers)
-            with urllib.request.urlopen(req, timeout=10) as response:
-                html = response.read().decode('utf-8', errors='ignore')
+            
+            # El Pais blocks Googlebot User-Agent with 403 unless verified.
+            # We prefer Chrome headers directly for El Pais to avoid latency.
+            if is_elpais:
+                primary_headers, fallback_headers = headers_chrome, headers_googlebot
+            else:
+                primary_headers, fallback_headers = headers_googlebot, headers_chrome
+
+            html = None
+            try:
+                req = urllib.request.Request(target_url, headers=primary_headers)
+                with urllib.request.urlopen(req, timeout=10) as response:
+                    html = response.read().decode('utf-8', errors='ignore')
+            except Exception as e:
+                try:
+                    req = urllib.request.Request(target_url, headers=fallback_headers)
+                    with urllib.request.urlopen(req, timeout=10) as response:
+                        html = response.read().decode('utf-8', errors='ignore')
+                except Exception as fallback_err:
+                    raise Exception(f"Error fetching URL. Primary: {e}. Fallback: {fallback_err}")
 
             # Extraer Título
             title_match = re.search(r'<h1.*?>(.*?)</h1>', html, re.DOTALL)
