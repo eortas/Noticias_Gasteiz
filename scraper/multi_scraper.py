@@ -186,7 +186,7 @@ class MultiScraper:
     def _get_via_jina(self, url, timeout=30):
         jina_url = self._jina_reader_url(url)
         try:
-            res = self.scraper.get(jina_url, headers=self.headers, timeout=timeout)
+            res = requests.get(jina_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=timeout)
             if res.status_code == 200:
                 print(f"  OK via jina reader: {url}")
                 return self._extract_jina_content(res.text)
@@ -219,9 +219,9 @@ class MultiScraper:
         return url
 
     def _search_ddg_image(self, query):
-        """Busca una imagen real en DDG cuando el scraper falla. Técnica de respaldo avanzada."""
+        """Busca una imagen real en DDG o Bing cuando el scraper falla. Técnica de respaldo avanzada."""
         if not query: return None
-        print(f"  Buscando imagen de respaldo en DDG para: {query}")
+        print(f"  Buscando imagen de respaldo en DDG/Bing para: {query}")
         try:
             # 1. Obtener el token vqd
             search_url = "https://duckduckgo.com/"
@@ -252,7 +252,32 @@ class MultiScraper:
                     # Si no, el primer resultado
                     return self._get_ddg_proxy_url(data["results"][0]["image"])
         except Exception as e:
-            print(f"  Error en búsqueda DDG ({query}): {e}")
+            print(f"  Error en búsqueda DDG ({query}): {e}. Usando Bing como fallback...")
+
+        # Fallback a Bing image search
+        try:
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"}
+            res = requests.get("https://www.bing.com/images/search", params={"q": query}, headers=headers, timeout=10)
+            if res.status_code == 200:
+                soup = BeautifulSoup(res.text, "html.parser")
+                # Intentamos extraer el enlace original del JSON en a.iusc
+                for a in soup.select("a.iusc"):
+                    m_attr = a.get("m")
+                    if m_attr:
+                        try:
+                            m_data = json.loads(m_attr)
+                            img_url = m_data.get("murl")
+                            if img_url:
+                                return self._get_ddg_proxy_url(img_url)
+                        except:
+                            pass
+                # Si no, fallback a mimg thumbnail
+                for img in soup.select("img.mimg"):
+                    src = img.get("src") or img.get("data-src")
+                    if src:
+                        return self._get_ddg_proxy_url(src)
+        except Exception as e:
+            print(f"  Error en búsqueda de imagen de respaldo en Bing: {e}")
         return None
 
     def _get_og_image(self, soup):
@@ -661,7 +686,7 @@ class MultiScraper:
         # If still missing image or body, fetch the page
         if not body or not image_url:
             try:
-                res = self.scraper.get(url, headers=self.headers, timeout=10)
+                res = self._get(url, timeout=10)
                 if res.status_code == 200:
                     soup = BeautifulSoup(res.text, 'html.parser')
                     if not title:
@@ -669,7 +694,9 @@ class MultiScraper:
                         title = h1.get_text().strip() if h1 else soup.title.string.split('|')[0].strip()
                     
                     if not body:
-                        tags = soup.select('div.entry-content p, div.entry-content li, div.entry-content h2, div.entry-content h3, article p, article li, div.contenido p, main p, main li') or soup.find_all(['p', 'li', 'h2', 'h3'])
+                        tags = soup.select('.articulotexto p, .articulotexto li, .articulotexto h2, .articulotexto h3, .contenido-noticia p, .contenido-noticia li, .contenido-noticia h2, .contenido-noticia h3, div.entry-content p, div.entry-content li, div.entry-content h2, div.entry-content h3')
+                        if not tags:
+                            tags = soup.select('article p, article li, div.contenido p, main p, main li') or soup.find_all(['p', 'li', 'h2', 'h3'])
                         body = self._clean_article_body(tags)
                     
                     if not date:
