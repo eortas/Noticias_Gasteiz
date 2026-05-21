@@ -2,7 +2,7 @@ name: Daily Vitoria Scraper (Quarterly)
 
 on:
   schedule:
-    - cron: '15,45 * * * *' # Cada 30 minutos (a las :15 y :45)
+    - cron: '5,15,25,35,45,55 * * * *' # Cada 10 minutos (a las :05, :15, :25, :35, :45, :55)
   workflow_dispatch: # Permite ejecución manual
 
 permissions:
