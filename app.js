@@ -91,36 +91,56 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         });
         
-        const clusters = [];
-        const visited = new Set();
+        const n = tokenized.length;
         const threshold = 0.25;
         
-        for (let i = 0; i < tokenized.length; i++) {
-            const current = tokenized[i];
-            if (visited.has(current.item.id)) continue;
-            
-            const cluster = {
-                id: current.item.id,
-                primary: current.item,
-                items: [current.item]
-            };
-            visited.add(current.item.id);
-            
-            for (let j = i + 1; j < tokenized.length; j++) {
-                const other = tokenized[j];
-                if (visited.has(other.item.id)) continue;
-                
-                const sim = jaccardSimilarity(current.tokens, other.tokens);
-                if (sim >= threshold) {
-                    cluster.items.push(other.item);
-                    visited.add(other.item.id);
+        // Build similarity graph adjacency list
+        const adj = Array.from({ length: n }, () => []);
+        for (let i = 0; i < n; i++) {
+            for (let j = i + 1; j < n; j++) {
+                if (jaccardSimilarity(tokenized[i].tokens, tokenized[j].tokens) >= threshold) {
+                    adj[i].push(j);
+                    adj[j].push(i);
                 }
             }
-            clusters.push(cluster);
+        }
+        
+        const visited = new Set();
+        const clusters = [];
+        
+        for (let i = 0; i < n; i++) {
+            if (visited.has(i)) continue;
+            
+            const componentIndices = [];
+            const queue = [i];
+            visited.add(i);
+            
+            while (queue.length > 0) {
+                const u = queue.shift();
+                componentIndices.push(u);
+                
+                for (const v of adj[u]) {
+                    if (!visited.has(v)) {
+                        visited.add(v);
+                        queue.push(v);
+                    }
+                }
+            }
+            
+            // Sort component indices to preserve the original sorted order of items
+            componentIndices.sort((x, y) => x - y);
+            const componentItems = componentIndices.map(idx => tokenized[idx].item);
+            
+            clusters.push({
+                id: componentItems[0].id,
+                primary: componentItems[0],
+                items: componentItems
+            });
         }
         
         return clusters;
     }
+
 
     let lastScrollPos = 0;
 
@@ -316,11 +336,10 @@ document.addEventListener('DOMContentLoaded', () => {
         sourcesList.innerHTML = cluster.items.map(item => {
             const sentimentClass = item.sentiment_label || 'neutral';
             return `
-                <button class="source-option-btn" data-id="${item.id}">
+                <button class="source-option-btn" data-id="${item.id}" data-source="${item.source}">
                     <div>
                         <div class="source-option-name">
                             <div class="sentiment-dot dot-${sentimentClass}"></div>
-                            ${item.source}
                         </div>
                         <div class="source-option-title">${item.title}</div>
                     </div>
@@ -379,9 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="selector-label">Comparar fuentes:</span>
                     <div class="selector-pills">
                         ${cluster.items.map(it => `
-                            <button class="source-pill ${it.id === id ? 'active' : ''}" data-id="${it.id}">
-                                ${it.source}
-                            </button>
+                            <button class="source-pill ${it.id === id ? 'active' : ''}" data-id="${it.id}" data-source="${it.source}"></button>
                         `).join('')}
                     </div>
                 </div>

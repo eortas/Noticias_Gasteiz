@@ -1485,24 +1485,58 @@ body {
 }
 
 .source-option-btn {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
     background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    border: none !important;
     border-radius: 1.25rem;
     padding: 1.25rem 1.75rem;
     cursor: pointer;
     transition: all 0.2s ease;
     text-align: left;
     width: 100%;
+    z-index: 1;
+}
+
+.source-option-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 1.25rem;
+    padding: 2px;
+    background: rgba(0, 0, 0, 0.05);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.source-option-btn[data-source="El Correo"]::before {
+    background: linear-gradient(135deg, #ef4444, #000000);
+}
+
+.source-option-btn[data-source="Gasteiz Hoy"]::before {
+    background: linear-gradient(135deg, #22c55e, #ef4444);
+}
+
+.source-option-btn[data-source="Diario de Noticias"]::before {
+    background: linear-gradient(135deg, #3b82f6, #ffffff);
 }
 
 .source-option-btn:hover {
     background: white;
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.source-option-btn:hover::before {
+    opacity: 1;
 }
 
 .source-option-name {
@@ -1560,28 +1594,55 @@ body {
 }
 
 .source-pill {
-    background: white;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    color: var(--text-muted);
-    font-family: inherit;
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.4rem 1rem;
-    border-radius: 999px;
+    position: relative;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.6;
+}
+
+.source-pill::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    padding: 2px;
+    background: transparent;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.source-pill[data-source="El Correo"] {
+    background: linear-gradient(135deg, #ef4444, #000000);
+}
+
+.source-pill[data-source="Gasteiz Hoy"] {
+    background: linear-gradient(135deg, #22c55e, #ef4444);
+}
+
+.source-pill[data-source="Diario de Noticias"] {
+    background: linear-gradient(135deg, #3b82f6, #ffffff);
 }
 
 .source-pill:hover {
-    border-color: rgba(99, 102, 241, 0.3);
-    color: var(--text-main);
-    transform: translateY(-1px);
+    transform: scale(1.1);
+    opacity: 0.9;
 }
 
 .source-pill.active {
-    background: var(--indigo-400);
-    border-color: var(--indigo-400);
-    color: white;
-    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+    opacity: 1;
+    transform: scale(1.15);
 }
+
+.source-pill.active::before {
+    background: var(--text-main);
+}
+
 
