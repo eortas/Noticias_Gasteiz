@@ -136,33 +136,39 @@ def main():
         if not item.get("rewritten"):
             continue
             
-        if item.get("telegram_sent"):
-            continue
-            
         source = item.get("source", "")
         section = item.get("source_section", "")
         
-        # Filtro de Álava
-        is_alava = (
-            (source == "El Correo" and section == "alava") or
+        # Filtro de Álava o Deportes
+        is_target = (
+            (source == "El Correo" and section in ["alava", "deportes"]) or
             (source == "Gasteiz Hoy") or
-            (source == "Diario de Noticias")
+            (source == "Diario de Noticias") or
+            (section == "deportes")
         )
         
-        if is_alava:
+        # Si estaba marcada como omitida ('skipped') pero califica bajo las nuevas reglas, la restauramos
+        if item.get("telegram_sent") == "skipped" and is_target:
+            item["telegram_sent"] = None
+            has_changes = True
+            
+        if item.get("telegram_sent"):
+            continue
+        
+        if is_target:
             candidates.append(item)
         else:
-            # Omitimos las noticias que no son de Álava para no volver a evaluarlas
+            # Omitimos las noticias que no son de Álava o deportes para no volver a evaluarlas
             item["telegram_sent"] = "skipped"
             has_changes = True
 
     if not candidates:
-        print("No hay noticias nuevas de Álava listas para enviar a Telegram.")
+        print("No hay noticias nuevas de Álava o Deportes listas para enviar a Telegram.")
         if has_changes:
             try:
                 with open(news_file, "w", encoding="utf-8") as f:
                     json.dump(news, f, indent=2, ensure_ascii=False)
-                print(f"Archivo {news_file} actualizado. Se marcaron las noticias que no son de Álava como omitidas.")
+                print(f"Archivo {news_file} actualizado. Se marcaron las noticias no pertinentes como omitidas.")
             except Exception as e:
                 print(f"[ERROR] No se pudo escribir en el archivo de noticias al omitir: {e}")
         return
@@ -174,7 +180,7 @@ def main():
     MAX_SENDS_PER_RUN = 5
     to_send = candidates[:MAX_SENDS_PER_RUN]
     
-    print(f"Detectadas {len(candidates)} noticias de Álava pendientes. Enviando un lote de {len(to_send)}...")
+    print(f"Detectadas {len(candidates)} noticias de Álava o Deportes pendientes. Enviando un lote de {len(to_send)}...")
 
     sent_count = 0
     for item in to_send:
