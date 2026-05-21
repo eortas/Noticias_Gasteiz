@@ -25,7 +25,8 @@ if __name__ == "__main__":
         "scraper/multi_scraper.py",
         "scraper/parallel_rewrite.py",
         "scraper/update_mood.py",
-        "scraper/update_podcast.py"
+        "scraper/update_podcast.py",
+        "scraper/enviar_telegram.py"
     ]
     
     for script in scripts:
