@@ -184,7 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="card-top-badges">
                             <div class="card-source-badge">
                                 <div class="sentiment-dot dot-${sentimentClass}" title="Sentimiento: ${sentimentClass}"></div>
-                                ${isMultiSource ? '' : `<span class="source-text" style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); margin-left: 0.25rem;">${item.source}</span>`}
                             </div>
                             ${isMultiSource ? `<div class="badge-multi-source">${cluster.items.length} Fuentes</div>` : ''}
                             ${item.category && item.category !== 'Otros' ? `<div class="badge-category cat-${item.category.toLowerCase().replace('í', 'i')}">${item.category}</div>` : ''}
