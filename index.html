@@ -137,6 +137,18 @@
         </article>
     </main>
 
+    <!-- Modal for multi-source news selection -->
+    <div id="sources-modal" class="modal-overlay view-hidden">
+        <div class="modal-content glass">
+            <button class="modal-close" id="modal-close-btn">&times;</button>
+            <h3 class="modal-title">Selecciona la fuente de información</h3>
+            <p class="modal-subtitle">Esta noticia ha sido publicada por varios medios locales. Elige qué versión prefieres leer:</p>
+            <div class="sources-list" id="modal-sources-list">
+                <!-- Sources will be injected here dynamically -->
+            </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
 

@@ -48,6 +48,80 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function tokenize(text) {
+        if (!text) return new Set();
+        const stopwords = new Set([
+            'de', 'la', 'el', 'en', 'y', 'a', 'los', 'un', 'una', 'con', 'para', 'este', 'esta', 'por', 'del', 
+            'al', 'se', 'las', 'su', 'sus', 'o', 'u', 'como', 'para', 'que', 'en', 'del', 'lo', 'lo', 'los', 'un', 
+            'una', 'uno', 'unas', 'unos', 'al', 'del', 'los', 'las', 'correo', 'gasteiz', 'hoy', 'noticias', 
+            'alava', 'vitoria', 'diario'
+        ]);
+        const words = text.toLowerCase()
+            .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'']/g, "")
+            .split(/\s+/);
+        const tokens = new Set();
+        for (const w of words) {
+            if (w.length > 2 && !stopwords.has(w)) {
+                tokens.add(w);
+            }
+        }
+        return tokens;
+    }
+
+    function jaccardSimilarity(setA, setB) {
+        if (setA.size === 0 || setB.size === 0) return 0;
+        let intersection = 0;
+        for (const elem of setA) {
+            if (setB.has(elem)) {
+                intersection++;
+            }
+        }
+        const union = setA.size + setB.size - intersection;
+        return intersection / union;
+    }
+
+    function groupNewsItems(items) {
+        if (!items || items.length === 0) return [];
+        
+        const tokenized = items.map(item => {
+            const textToCompare = (item.title || "") + " " + (item.original_title || "");
+            return {
+                item: item,
+                tokens: tokenize(textToCompare)
+            };
+        });
+        
+        const clusters = [];
+        const visited = new Set();
+        const threshold = 0.25;
+        
+        for (let i = 0; i < tokenized.length; i++) {
+            const current = tokenized[i];
+            if (visited.has(current.item.id)) continue;
+            
+            const cluster = {
+                id: current.item.id,
+                primary: current.item,
+                items: [current.item]
+            };
+            visited.add(current.item.id);
+            
+            for (let j = i + 1; j < tokenized.length; j++) {
+                const other = tokenized[j];
+                if (visited.has(other.item.id)) continue;
+                
+                const sim = jaccardSimilarity(current.tokens, other.tokens);
+                if (sim >= threshold) {
+                    cluster.items.push(other.item);
+                    visited.add(other.item.id);
+                }
+            }
+            clusters.push(cluster);
+        }
+        
+        return clusters;
+    }
+
     let lastScrollPos = 0;
 
     // Mapa de nombre visible -> clave source_section
@@ -75,35 +149,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
-        let filteredData = getSectionData();
+        const sectionData = getSectionData();
+        let clusters = groupNewsItems(sectionData);
 
         if (currentFilter) {
             if (currentFilter === 'leidas') {
-                filteredData = filteredData.filter(item => readIds.includes(item.id));
+                clusters = clusters.filter(cluster => cluster.items.some(item => readIds.includes(item.id)));
             } else {
-                filteredData = filteredData.filter(item => item.sentiment_label === currentFilter);
+                clusters = clusters.filter(cluster => cluster.primary.sentiment_label === currentFilter);
             }
         }
 
-        if (filteredData.length === 0) {
+        if (clusters.length === 0) {
             let noNewsText = 'No hay noticias que coincidan con estos filtros hoy.';
             if (currentFilter === 'leidas') noNewsText = 'No hay noticias leídas en esta sección todavía.';
             newsGrid.innerHTML = `<p style="color:var(--text-muted); font-weight:300; padding: 2rem;">${noNewsText}</p>`;
             return;
         }
 
-        newsGrid.innerHTML = filteredData.map((item, index) => {
-            const isRead = readIds.includes(item.id);
+        newsGrid.innerHTML = clusters.map((cluster, index) => {
+            const item = cluster.primary;
+            const isRead = cluster.items.some(it => readIds.includes(it.id));
             const sentimentClass = item.sentiment_label || 'neutral';
-            let html = `
-                <div class="card glass ${isRead ? 'card-read' : ''}" data-id="${item.id}" data-source="${item.source}">
+            const isMultiSource = cluster.items.length > 1;
+
+            return `
+                <div class="card glass ${isRead ? 'card-read' : ''} ${isMultiSource ? 'card-multi-source' : ''}" 
+                     data-cluster-index="${index}" 
+                     ${isMultiSource ? '' : `data-source="${item.source}"`} 
+                     data-id="${item.id}">
                     <div class="card-img-wrap">
                         <img src="${item.image || ''}" alt="${item.title}" class="card-img" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
                         <div class="img-overlay"></div>
                         <div class="card-top-badges">
                             <div class="card-source-badge">
                                 <div class="sentiment-dot dot-${sentimentClass}" title="Sentimiento: ${sentimentClass}"></div>
+                                ${isMultiSource ? '' : `<span class="source-text" style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); margin-left: 0.25rem;">${item.source}</span>`}
                             </div>
+                            ${isMultiSource ? `<div class="badge-multi-source">${cluster.items.length} Fuentes</div>` : ''}
                             ${item.category && item.category !== 'Otros' ? `<div class="badge-category cat-${item.category.toLowerCase().replace('í', 'i')}">${item.category}</div>` : ''}
                         </div>
                     </div>
@@ -117,14 +200,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
-            return html;
         }).join('');
 
         document.querySelectorAll('.card').forEach(card => {
             card.addEventListener('click', (e) => {
                 lastScrollPos = window.scrollY;
-                const id = e.currentTarget.getAttribute('data-id');
-                showDetail(id);
+                const clusterIdx = e.currentTarget.getAttribute('data-cluster-index');
+                const cluster = clusters[clusterIdx];
+                if (cluster.items.length > 1) {
+                    openSourcesModal(cluster);
+                } else {
+                    showDetail(cluster.primary.id);
+                }
             });
         });
     }
@@ -132,14 +219,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderStats() {
         // Contar solo la sección activa
         const sectionData = getSectionData();
+        const clusters = groupNewsItems(sectionData);
+        
         const counts = { 'positiva': 0, 'neutral': 0, 'negativa': 0 };
-        sectionData.forEach(item => {
-            const label = item.sentiment_label || 'neutral';
-            if (counts.hasOwnProperty(label)) counts[label]++;
-        });
-
         const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
-        const readCount = sectionData.filter(item => readIds.includes(item.id)).length;
+        let readCount = 0;
+
+        clusters.forEach(cluster => {
+            const label = cluster.primary.sentiment_label || 'neutral';
+            if (counts.hasOwnProperty(label)) counts[label]++;
+            
+            const isRead = cluster.items.some(item => readIds.includes(item.id));
+            if (isRead) readCount++;
+        });
 
         statsContainer.innerHTML = `
             <div class="stat-item ${currentFilter === 'positiva' ? 'stat-active' : ''}" data-filter="positiva">
@@ -217,7 +309,53 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function showDetail(id, fromPopState = false) {
+    const sourcesModal = document.getElementById('sources-modal');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+
+    function openSourcesModal(cluster) {
+        const sourcesList = document.getElementById('modal-sources-list');
+        sourcesList.innerHTML = cluster.items.map(item => {
+            const sentimentClass = item.sentiment_label || 'neutral';
+            return `
+                <button class="source-option-btn" data-id="${item.id}">
+                    <div>
+                        <div class="source-option-name">
+                            <div class="sentiment-dot dot-${sentimentClass}"></div>
+                            ${item.source}
+                        </div>
+                        <div class="source-option-title">${item.title}</div>
+                    </div>
+                    <div class="source-option-meta">
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">${formatDate(item.date)}</span>
+                    </div>
+                </button>
+            `;
+        }).join('');
+
+        // Bind clicks to source buttons
+        sourcesList.querySelectorAll('.source-option-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                closeSourcesModal();
+                showDetail(id);
+            });
+        });
+
+        sourcesModal.classList.remove('view-hidden');
+    }
+
+    function closeSourcesModal() {
+        sourcesModal.classList.add('view-hidden');
+    }
+
+    modalCloseBtn.addEventListener('click', closeSourcesModal);
+    sourcesModal.addEventListener('click', (e) => {
+        if (e.target === sourcesModal) {
+            closeSourcesModal();
+        }
+    });
+
+    function showDetail(id, fromPopState = false, replaceState = false) {
         if (!fromPopState) {
             lastScrollPos = window.scrollY;
         }
@@ -229,6 +367,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!readIds.includes(id)) {
             readIds.push(id);
             localStorage.setItem(READ_ARTICLES_KEY, JSON.stringify(readIds));
+        }
+
+        // Encontrar el cluster para comparar fuentes en la vista detallada
+        const allClusters = groupNewsItems(newsData);
+        const cluster = allClusters.find(c => c.items.some(it => it.id === id));
+        
+        let sourcesSelectorHtml = '';
+        if (cluster && cluster.items.length > 1) {
+            sourcesSelectorHtml = `
+                <div class="detail-sources-selector">
+                    <span class="selector-label">Comparar fuentes:</span>
+                    <div class="selector-pills">
+                        ${cluster.items.map(it => `
+                            <button class="source-pill ${it.id === id ? 'active' : ''}" data-id="${it.id}">
+                                ${it.source}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
         }
 
         const sentimentColorClass = item.sentiment_label === 'positiva' ? 'text-emerald' : (item.sentiment_label === 'negativa' ? 'text-rose' : 'text-muted');
@@ -251,6 +409,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
             
+            ${sourcesSelectorHtml}
+            
             <div class="article-body">
                 <div class="meta-info">
                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -269,6 +429,18 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
+        // Bind clicks to source pills
+        if (cluster && cluster.items.length > 1) {
+            articleContent.querySelectorAll('.source-pill').forEach(pill => {
+                pill.addEventListener('click', () => {
+                    const selectedId = pill.getAttribute('data-id');
+                    if (selectedId !== id) {
+                        showDetail(selectedId, false, true);
+                    }
+                });
+            });
+        }
+
         // Swap views
         mainView.classList.replace('view-active', 'view-hidden');
         detailView.classList.replace('view-hidden', 'view-active');
@@ -276,7 +448,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo({ top: 0, behavior: 'instant' });
 
         if (!fromPopState) {
-            history.pushState({ view: 'detail', id: id }, '');
+            if (replaceState) {
+                history.replaceState({ view: 'detail', id: id }, '');
+            } else {
+                history.pushState({ view: 'detail', id: id }, '');
+            }
         }
     }
 
