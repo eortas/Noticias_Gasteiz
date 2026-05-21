@@ -174,11 +174,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (currentFilter) {
             if (currentFilter === 'leidas') {
-                clusters = clusters.filter(cluster => cluster.items.some(item => readIds.includes(item.id)));
+                clusters = clusters.filter(cluster => cluster.items.every(item => readIds.includes(item.id)));
             } else {
                 clusters = clusters.filter(cluster => cluster.primary.sentiment_label === currentFilter);
             }
         }
+        // Sort clusters: unread first, then by the most recent date in the cluster
+        clusters.sort((a, b) => {
+            const aRead = a.items.every(it => readIds.includes(it.id));
+            const bRead = b.items.every(it => readIds.includes(it.id));
+
+            if (aRead && !bRead) return 1;
+            if (!aRead && bRead) return -1;
+
+            const aMaxDate = Math.max(...a.items.map(it => new Date(it.date).getTime()));
+            const bMaxDate = Math.max(...b.items.map(it => new Date(it.date).getTime()));
+            return bMaxDate - aMaxDate;
+        });
 
         if (clusters.length === 0) {
             let noNewsText = 'No hay noticias que coincidan con estos filtros hoy.';
@@ -189,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         newsGrid.innerHTML = clusters.map((cluster, index) => {
             const item = cluster.primary;
-            const isRead = cluster.items.some(it => readIds.includes(it.id));
+            const isRead = cluster.items.every(it => readIds.includes(it.id));
             const sentimentClass = item.sentiment_label || 'neutral';
             const isMultiSource = cluster.items.length > 1;
 
@@ -248,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const label = cluster.primary.sentiment_label || 'neutral';
             if (counts.hasOwnProperty(label)) counts[label]++;
             
-            const isRead = cluster.items.some(item => readIds.includes(item.id));
+            const isRead = cluster.items.every(item => readIds.includes(item.id));
             if (isRead) readCount++;
         });
 
