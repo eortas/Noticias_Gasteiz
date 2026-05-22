@@ -140,6 +140,9 @@ def main():
         if not news_id or news_id in sent_news_ids:
             continue
 
+        if item.get("telegram_sent"):
+            continue
+
         if not item.get("rewritten"):
             continue
             
@@ -163,11 +166,10 @@ def main():
     # Ordenar cronológicamente (más antiguas primero)
     candidates.sort(key=lambda x: x.get("date", ""))
 
-    # Limitar envíos por ejecución para evitar spam
-    MAX_SENDS_PER_RUN = 5
-    to_send = candidates[:MAX_SENDS_PER_RUN]
+    # Enviar todas las noticias nuevas (sin límite)
+    to_send = candidates
     
-    print(f"Detectadas {len(candidates)} noticias de Álava o Deportes pendientes. Enviando un lote de {len(to_send)}...")
+    print(f"Detectadas {len(candidates)} noticias de Álava o Deportes pendientes. Enviando todas...")
 
     sent_count = 0
     for item in to_send:
