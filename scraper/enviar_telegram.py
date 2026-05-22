@@ -124,22 +124,28 @@ def main():
         print(f"[ERROR] No se pudo leer el archivo de noticias: {e}")
         return
 
-    # Buscar noticias que estén reescritas pero que no hayan sido enviadas a Telegram
-    # Solo deben ser las de Alava:
-    # - El Correo con sección "alava"
-    # - Gasteiz Hoy (todas las noticias, ya que es de Vitoria/Álava)
-    # - Diario de Noticias (todas las noticias, ya que es de Álava)
+    sent_news_ids_file = "data/sent_news_ids.json"
+    sent_news_ids = set()
+    if os.path.exists(sent_news_ids_file):
+        try:
+            with open(sent_news_ids_file, "r", encoding="utf-8") as f:
+                sent_news_ids = set(json.load(f))
+        except Exception as e:
+            print(f"[ERROR] No se pudo leer el archivo de IDs de noticias enviadas: {e}")
+
     candidates = []
-    has_changes = False
     
     for item in news:
+        news_id = item.get("id")
+        if not news_id or news_id in sent_news_ids:
+            continue
+
         if not item.get("rewritten"):
             continue
             
         source = item.get("source", "")
         section = item.get("source_section", "")
         
-        # Filtro de Álava o Deportes
         is_target = (
             (source == "El Correo" and section in ["alava", "deportes"]) or
             (source == "Gasteiz Hoy") or
@@ -147,30 +153,11 @@ def main():
             (section == "deportes")
         )
         
-        # Si estaba marcada como omitida ('skipped') pero califica bajo las nuevas reglas, la restauramos
-        if item.get("telegram_sent") == "skipped" and is_target:
-            item["telegram_sent"] = None
-            has_changes = True
-            
-        if item.get("telegram_sent"):
-            continue
-        
         if is_target:
             candidates.append(item)
-        else:
-            # Omitimos las noticias que no son de Álava o deportes para no volver a evaluarlas
-            item["telegram_sent"] = "skipped"
-            has_changes = True
 
     if not candidates:
         print("No hay noticias nuevas de Álava o Deportes listas para enviar a Telegram.")
-        if has_changes:
-            try:
-                with open(news_file, "w", encoding="utf-8") as f:
-                    json.dump(news, f, indent=2, ensure_ascii=False)
-                print(f"Archivo {news_file} actualizado. Se marcaron las noticias no pertinentes como omitidas.")
-            except Exception as e:
-                print(f"[ERROR] No se pudo escribir en el archivo de noticias al omitir: {e}")
         return
 
     # Ordenar cronológicamente (más antiguas primero)
@@ -202,14 +189,16 @@ def main():
         else:
             print(f"Error procesando el envío de la noticia: {title}. Se reintentará en el próximo ciclo.")
 
-    # Guardar cambios si enviamos alguna noticia o cambiamos estados a omitido
-    if sent_count > 0 or has_changes:
+    # Guardar los IDs de las noticias enviadas en el archivo de seguimiento
+    if sent_count > 0:
+        for item in to_send:
+            sent_news_ids.add(item.get("id"))
         try:
-            with open(news_file, "w", encoding="utf-8") as f:
-                json.dump(news, f, indent=2, ensure_ascii=False)
-            print(f"Archivo {news_file} actualizado. {sent_count} noticias enviadas, noticias no pertinentes omitidas.")
+            with open(sent_news_ids_file, "w", encoding="utf-8") as f:
+                json.dump(list(sent_news_ids), f, indent=2, ensure_ascii=False)
+            print(f"Archivo {sent_news_ids_file} actualizado. {sent_count} nuevas noticias marcadas como enviadas.")
         except Exception as e:
-            print(f"[ERROR] No se pudo escribir en el archivo de noticias: {e}")
+            print(f"[ERROR] No se pudo escribir en el archivo de IDs de noticias enviadas: {e}")
 
 if __name__ == "__main__":
     main()
