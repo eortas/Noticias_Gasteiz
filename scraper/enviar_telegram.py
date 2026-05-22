@@ -49,7 +49,7 @@ def format_message(title, body, url, category, source):
     clean_title = sanitize_markdown(title)
     
     # Encabezado, pie y enlaces (sin hashtags, enlace a la web general de gasteizlive)
-    header = f"*【 {clean_title} 】*\n\n"
+    header = f"*{clean_title}*\n\n"
     footer = f"\n\n🔗 [Leer noticia completa](https://gasteizlive.vercel.app/)"
     
     # Límite corto para incentivar la visita a la web
