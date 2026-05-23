@@ -36,16 +36,20 @@ def generate_daily_summary(news_items):
         print("No hay noticias del día para resumir.")
         return None
 
-    # Prepare a concise list of today's news for the prompt
+    # Prepare a concise list of today's news for the prompt (limit to top 50 items to avoid token limits)
     news_list = []
-    for item in news_items:
+    for item in news_items[:50]:
         title = item.get('title', '')
         source = item.get('source', '')
         section = item.get('category') or item.get('source_section', '')
-        body_preview = item.get('body', '')[:300]  # First 300 chars as preview
+        body_preview = item.get('body', '')[:150]  # Reduce preview to 150 chars
         news_list.append(f"- [{source}] ({section}) {title}\n  {body_preview}")
 
     news_text = "\n\n".join(news_list)
+    
+    # Truncate to ensure it doesn't exceed roughly 8000 tokens (~32000 chars)
+    if len(news_text) > 30000:
+        news_text = news_text[:30000] + "\n...[Truncated]"
     
     print(f"Generando resumen diario con Groq para {len(news_items)} noticias...")
 
