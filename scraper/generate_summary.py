@@ -32,41 +32,54 @@ def get_today_news(news_data):
             continue
     return today_items
 
-def generate_daily_summary(news_items):
-    """Use Groq to generate a comprehensive daily news summary."""
-    if not news_items:
-        print("No hay noticias del día para resumir.")
-        return None
+def format_news_item(item, preview_chars=300):
+    """Format a single news item as a text line for the prompt."""
+    title = item.get('title', '')
+    source = item.get('source', '')
+    section = item.get('category') or item.get('source_section', '')
+    body_preview = item.get('body', '')[:preview_chars]
+    return f"- [{source}] ({section}) {title}\n  {body_preview}"
 
-    # Prepare a concise list of today's news for the prompt (limit to top 50 items to avoid token limits)
-    news_list = []
-    for item in news_items[:50]:
-        title = item.get('title', '')
-        source = item.get('source', '')
-        section = item.get('category') or item.get('source_section', '')
-        body_preview = item.get('body', '')[:150]  # Reduce preview to 150 chars
-        news_list.append(f"- [{source}] ({section}) {title}\n  {body_preview}")
+def summarize_chunk(client, chunk_items, chunk_num, total_chunks):
+    """Ask Groq to extract key bullet points from a chunk of news items."""
+    news_text = "\n\n".join(format_news_item(item) for item in chunk_items)
 
-    news_text = "\n\n".join(news_list)
-    
-    # Truncate to ensure it doesn't exceed roughly 8000 tokens (~32000 chars)
-    if len(news_text) > 30000:
-        news_text = news_text[:30000] + "\n...[Truncated]"
-    
-    print(f"Generando resumen diario con Groq para {len(news_items)} noticias...")
+    system_prompt = (
+        "Eres un redactor de noticias. Tu tarea es extraer los PUNTOS CLAVE "
+        "de una lista de noticias de Álava y deportes. "
+        "Devuelve una lista de 5 a 10 puntos clave en español, uno por línea, "
+        "comenzando cada uno con '- '. Sin títulos, sin JSON, solo los puntos."
+    )
+    user_prompt = (
+        f"Estas son las noticias del bloque {chunk_num}/{total_chunks}. "
+        f"Extrae los hechos más relevantes:\n\n{news_text}"
+    )
 
-    client = get_groq_client()
-    if not client:
-        print("No hay API keys de Groq disponibles.")
-        return None
+    print(f"  Procesando chunk {chunk_num}/{total_chunks} ({len(chunk_items)} noticias)...")
+    completion = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        temperature=0.3,
+        max_tokens=512,
+    )
+    return completion.choices[0].message.content.strip()
+
+def synthesize_summaries(client, bullet_summaries, total_news):
+    """Combine all bullet-point chunks into a single narrative daily summary."""
+    combined = "\n\n".join(
+        f"=== Bloque {i+1} ===\n{s}" for i, s in enumerate(bullet_summaries)
+    )
 
     system_prompt = """Eres un periodista experto y analista de la actualidad de Vitoria-Gasteiz y Álava.
-Tu tarea es generar un RESUMEN DIARIO de las noticias más importantes del día.
+Tu tarea es generar un RESUMEN DIARIO de las noticias más importantes del día a partir de un conjunto de puntos clave.
 
 El resumen debe:
 1. Tener un TÍTULO atractivo y periodístico que refleje el tema principal del día (máximo 10 palabras)
 2. Un BREVE LEAD de apertura (1-2 frases) que contextualice la jornada informativa
-3. Un DESARROLLO organizado por temas, conectando las noticias relacionadas entre sí
+3. Un DESARROLLO organizado por temas (Álava y Deportes), conectando las noticias relacionadas entre sí
 4. Una FRASE DE CIERRE que deje una reflexión o mirada al día siguiente
 5. Estilo narrativo fluido, como un boletín informativo de radio o un editorial breve
 6. Extensión total: entre 300 y 600 palabras
@@ -79,36 +92,88 @@ Formato de respuesta JSON:
 
 No incluyas firmas, ni menciones a Gasteiz Live. Limítate al resumen periodístico."""
 
-    user_prompt = f"Estas son las noticias de hoy en Vitoria-Gasteiz. Genera un resumen diario cohesivo y bien estructurado:\n\n{news_text}"
+    user_prompt = (
+        f"A continuación tienes los puntos clave extraídos de {total_news} noticias de hoy "
+        f"en Vitoria-Gasteiz (Álava y Deportes). Genera un resumen diario cohesivo:\n\n{combined}"
+    )
+
+    print("  Generando resumen final...")
+    completion = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        temperature=0.5,
+        response_format={"type": "json_object"},
+        max_tokens=1024,
+    )
+    result = json.loads(completion.choices[0].message.content)
+    return result.get('title', 'Resumen del día'), result.get('summary', '')
+
+def generate_daily_summary(news_items):
+    """Use Groq with chunking to generate a comprehensive daily news summary."""
+    if not news_items:
+        print("No hay noticias del día para resumir.")
+        return None
+
+    client = get_groq_client()
+    if not client:
+        print("No hay API keys de Groq disponibles.")
+        return None
+
+    CHUNK_SIZE = 20          # ~20 noticias por llamada → ~8k tokens de entrada
+    SLEEP_BETWEEN_CHUNKS = 62  # segundos para resetear la ventana TPM de Groq
+
+    # Dividir en chunks
+    chunks = [news_items[i:i + CHUNK_SIZE] for i in range(0, len(news_items), CHUNK_SIZE)]
+    total_chunks = len(chunks)
+    print(f"Generando resumen diario con Groq: {len(news_items)} noticias en {total_chunks} chunks...")
+
+    bullet_summaries = []
+    for idx, chunk in enumerate(chunks, start=1):
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                bullet = summarize_chunk(client, chunk, idx, total_chunks)
+                bullet_summaries.append(bullet)
+                break
+            except Exception as e:
+                print(f"  Error en chunk {idx} (intento {attempt + 1}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(5)
+        else:
+            print(f"  ⚠️  No se pudo procesar el chunk {idx}, se omite.")
+
+        # Sleep between chunks (except after the last one)
+        if idx < total_chunks:
+            print(f"  Esperando {SLEEP_BETWEEN_CHUNKS}s para respetar el límite de Groq...")
+            time.sleep(SLEEP_BETWEEN_CHUNKS)
+
+    if not bullet_summaries:
+        print("No se pudieron obtener resúmenes de ningún chunk.")
+        return None
+
+    # Final synthesis call (also with retry)
+    # Wait before the synthesis call if we processed more than one chunk
+    if total_chunks > 1:
+        print(f"  Esperando {SLEEP_BETWEEN_CHUNKS}s antes de la síntesis final...")
+        time.sleep(SLEEP_BETWEEN_CHUNKS)
 
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            completion = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                temperature=0.5,
-                response_format={"type": "json_object"}
-            )
-            result = json.loads(completion.choices[0].message.content)
-            title = result.get('title', 'Resumen del día')
-            summary = result.get('summary', '')
-            
+            title, summary = synthesize_summaries(client, bullet_summaries, len(news_items))
             if summary:
                 print(f"Resumen generado: {title}")
-                return {
-                    'title': title,
-                    'body': summary
-                }
+                return {'title': title, 'body': summary}
         except Exception as e:
-            print(f"Error generando resumen (intento {attempt + 1}): {e}")
+            print(f"Error generando síntesis (intento {attempt + 1}): {e}")
             if attempt < max_retries - 1:
-                time.sleep(2)
-    
+                time.sleep(5)
+
     return None
+
 
 def add_summary_to_news(news_data, summary_data):
     """Add the summary as a special entry in the news data."""
