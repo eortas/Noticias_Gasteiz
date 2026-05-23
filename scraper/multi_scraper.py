@@ -601,11 +601,32 @@ class MultiScraper:
                         content_el = item.find('content:encoded')
                         body_html = content_el.text if content_el else (item.description.text if item.description else '')
                         
+                        # Extract image from RSS: media:thumbnail, media:content, enclosure
+                        img_rss = None
+                        media_thumbnail = item.find('media:thumbnail')
+                        if media_thumbnail and media_thumbnail.get('url'):
+                            img_rss = media_thumbnail['url']
+                        if not img_rss:
+                            media_content = item.find('media:content')
+                            if media_content and media_content.get('url'):
+                                img_rss = media_content['url']
+                        if not img_rss:
+                            enclosure = item.find('enclosure')
+                            if enclosure and enclosure.get('url') and enclosure.get('type', '').startswith('image'):
+                                img_rss = enclosure['url']
+                        # Also try media:thumbnail from different namespace
+                        if not img_rss:
+                            for tag in item.find_all('media:thumbnail'):
+                                if tag.get('url'):
+                                    img_rss = tag['url']
+                                    break
+                        
                         links_data[url] = {
                             'url': url,
                             'title': title,
                             'body_html': body_html,
-                            'date_str': date_iso
+                            'date_str': date_iso,
+                            'image_url': self._get_ddg_proxy_url(img_rss) if img_rss else None
                         }
                         rss_count += 1
                 print(f"  RSS OK: {rss_count} enlaces añadidos")
@@ -637,7 +658,24 @@ class MultiScraper:
                             
                             full_url = self._normalize_url(f"https://www.gasteizhoy.com{href}" if not href.startswith("http") else href)
                             if full_url not in links_data:
-                                links_data[full_url] = {'url': full_url}
+                                # Extract thumbnail from homepage for this article
+                                thumbnail = None
+                                block_container = item if item.name in ['h2', 'h3'] else (item.find_parent() or item)
+                                if block_container:
+                                    img_tag = block_container.find_previous('img') or block_container.find('img')
+                                    if not img_tag:
+                                        for container_class in ['nueve-bloque-noticia', 'heronews', 'box-shadow', 'blogpost', 'breakblock', 'linknews', 'sixnewsblock']:
+                                            container = item.find_parent(class_=lambda c: c and container_class in (c if isinstance(c, str) else ' '.join(c)))
+                                            if container:
+                                                img_tag = container.find('img')
+                                                break
+                                    if img_tag and img_tag.get('src'):
+                                        thumbnail = self._get_ddg_proxy_url(img_tag['src'])
+                                
+                                links_data[full_url] = {
+                                    'url': full_url,
+                                    'image_url': thumbnail
+                                }
                                 home_count += 1
                 print(f"  Portada OK: {home_count} enlaces añadidos")
         except Exception as e:
@@ -707,35 +745,92 @@ class MultiScraper:
                         # Extract image from og:image or first content image
                         image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
                         if not image_url:
-                            img_tag = soup.select_one('article img, .entry-content img, main img')
-                            if img_tag and img_tag.get('src'):
-                                image_url = self._get_ddg_proxy_url(img_tag['src'])
+                            # WordPress-specific selectors for featured/content images
+                            wp_selectors = [
+                                'figure.wp-block-image img',
+                                '.wp-block-post-featured-image img',
+                                'img.wp-post-image',
+                                '.entry-content img:first-of-type',
+                                '.post-thumbnail img',
+                                '.featured-image img',
+                                '.articulotexto img:first-of-type',
+                                '.contenido-noticia img:first-of-type',
+                                'article img:first-of-type',
+                                '.entry-content img',
+                                'main img',
+                                'img.size-full',
+                                'img.alignnone',
+                                'img.aligncenter',
+                                '.wp-block-image img',
+                            ]
+                            for selector in wp_selectors:
+                                img_tag = soup.select_one(selector)
+                                if img_tag and img_tag.get('src'):
+                                    src = img_tag['src']
+                                    if 'logo' not in src.lower() and 'icon' not in src.lower() and 'avatar' not in src.lower():
+                                        image_url = self._get_ddg_proxy_url(src)
+                                        break
+                            # Last resort: first img in article with reasonable size
+                            if not image_url:
+                                for img in soup.find_all('img'):
+                                    src = img.get('src') or img.get('data-src') or ''
+                                    if any(ext in src.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']):
+                                        if 'logo' not in src.lower() and 'icon' not in src.lower() and 'avatar' not in src.lower():
+                                            width = img.get('width')
+                                            try:
+                                                if width and int(width) >= 200:
+                                                    image_url = self._get_ddg_proxy_url(src)
+                                                    break
+                                            except:
+                                                image_url = self._get_ddg_proxy_url(src)
+                                                break
                 else: raise Exception(f"Status {res.status_code}")
             except Exception as e:
                 # Print error if we are missing either body or image
                 if not body or not image_url:
                     print(f"  Error detalle Gasteiz Hoy directo {url}: {e}")
                 
-                # FALLBACK 1: Fresh Scraper
+                # FALLBACK 1: Fresh Scraper with multiple User-Agents
                 if not image_url:
-                    try:
-                        fresh_scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True})
-                        res = fresh_scraper.get(url, headers=self.headers, timeout=10)
-                        if res.status_code == 200:
-                            soup = BeautifulSoup(res.text, 'html.parser')
-                            image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
-                            
-                            # Intento extra: JSON-LD
-                            if not image_url:
-                                for script in soup.find_all('script', type='application/ld+json'):
-                                    try:
-                                        data = json.loads(script.string or script.get_text())
-                                        image_url = self._get_ddg_proxy_url(self._find_image_in_jsonld(data))
-                                        if image_url: break
-                                    except: continue
-                            
-                            if image_url: print(f"  Recuperada imagen via fresh scraper: {url}")
-                    except: pass
+                    for ua_name, ua_value in [
+                        ("chrome", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"),
+                        ("googlebot", "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"),
+                        ("safari", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"),
+                    ]:
+                        try:
+                            fresh_headers = {**self.headers, 'User-Agent': ua_value}
+                            fresh_scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True})
+                            res = fresh_scraper.get(url, headers=fresh_headers, timeout=10)
+                            if res.status_code == 200:
+                                soup = BeautifulSoup(res.text, 'html.parser')
+                                image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
+                                
+                                # JSON-LD
+                                if not image_url:
+                                    for script in soup.find_all('script', type='application/ld+json'):
+                                        try:
+                                            data = json.loads(script.string or script.get_text())
+                                            image_url = self._get_ddg_proxy_url(self._find_image_in_jsonld(data))
+                                            if image_url: break
+                                        except: continue
+                                
+                                # WP featured image from HTML data attributes
+                                if not image_url:
+                                    for tag in soup.find_all(['img', 'figure']):
+                                        for attr in ['data-src', 'data-original', 'data-lazy-src', 'data-large-image', 'data-featured-image']:
+                                            val = tag.get(attr)
+                                            if val and any(ext in val.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']):
+                                                if 'logo' not in val.lower():
+                                                    image_url = self._get_ddg_proxy_url(val)
+                                                    break
+                                        if image_url:
+                                            break
+                                
+                                if image_url:
+                                    print(f"  Recuperada imagen via fresh scraper ({ua_name}): {url}")
+                                    break
+                        except:
+                            continue
                 
                 # FALLBACK 2: Jina Reader (Extracción de Markdown)
                 if not image_url:
@@ -756,7 +851,7 @@ class MultiScraper:
 
                 # FALLBACK 3: DuckDuckGo Image Search (URL o Título)
                 if not image_url:
-                    # Intento A: Buscar por la URL exacta (Técnica sugerida por el usuario)
+                    # Intento A: Buscar por la URL exacta
                     image_url = self._search_ddg_image(url)
                     if not image_url and title:
                         # Intento B: Buscar por titular + fuente
@@ -764,6 +859,17 @@ class MultiScraper:
                     
                     if image_url: 
                         print(f"  Imagen recuperada via DDG Search: {url}")
+                    
+                # FALLBACK 4: Bing search with keywords from title
+                if not image_url and title:
+                    try:
+                        keywords = title.split()[:8]
+                        search_query = ' '.join(keywords) + ' Gasteiz Hoy'
+                        image_url = self._search_ddg_image(search_query)
+                        if image_url:
+                            print(f"  Imagen recuperada via Bing (keywords): {url}")
+                    except:
+                        pass
 
         if not body or not title:
             markdown = self._get_via_jina(url)

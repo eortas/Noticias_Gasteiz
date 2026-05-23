@@ -46,6 +46,18 @@ jobs:
           python scraper/update_podcast.py
           python scraper/enviar_telegram.py
 
+      - name: Check and fix missing images
+        run: |
+          python -c "
+import json
+with open('data/news.json', 'r') as f:
+    news = json.load(f)
+missing = [n for n in news if not n.get('image') or n.get('image') == '']
+print(f'Noticias sin imagen: {len(missing)}')
+if missing:
+    print('Ejecutando fix_missing_images_ddg.py...')
+" && python scraper/fix_missing_images_ddg.py
+
       - name: Commit and push changes
         run: |
           git config --global user.name "Vitoria Scraper Bot"
