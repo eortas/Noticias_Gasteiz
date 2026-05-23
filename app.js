@@ -153,13 +153,46 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function getSectionData() {
+        // Separate summary items - they always show
+        const summaryItems = newsData.filter(item => item.is_summary);
+        
+        let regularItems;
         if (currentCategory) {
             const key = SECTION_MAP[currentCategory] || currentCategory.toLowerCase();
-            return newsData.filter(item => item.source_section === key);
+            regularItems = newsData.filter(item => !item.is_summary && item.source_section === key);
+        } else {
+            // Default: mostrar todo EXCEPTO artículos que pertenecen explícitamente a otra sección
+            const sectionKeys = Object.values(SECTION_MAP);
+            regularItems = newsData.filter(item => !item.is_summary && !sectionKeys.includes(item.source_section));
         }
-        // Default: mostrar todo EXCEPTO artículos que pertenecen explícitamente a otra sección
-        const sectionKeys = Object.values(SECTION_MAP);
-        return newsData.filter(item => !sectionKeys.includes(item.source_section));
+        
+        return { summaryItems, regularItems };
+    }
+
+    function renderSummaryCard(item) {
+        if (!item) return '';
+        const bodyPreview = (item.body || '').substring(0, 200) + '...';
+        
+        return `
+            <div class="card card-summary glass" data-id="${item.id}" data-is-summary="true">
+                <div class="card-img-wrap">
+                    <img src="data/resumen.png" alt="Resumen de noticias" class="card-img" loading="lazy">
+                    <div class="img-overlay"></div>
+                    <div class="card-top-badges">
+                        <div class="badge-category badge-summary">Resumen de noticias del día, hecho con IA para ti</div>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="card-date">${formatDate(item.date)}</div>
+                    <h2 class="card-title card-summary-title">${item.title}</h2>
+                    <p class="card-summary-preview">${bodyPreview}</p>
+                    <div class="card-footer">
+                        <span class="read-more">Leer resumen completo</span>
+                        <div class="line"></div>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     function renderNewsFeed() {
@@ -169,8 +202,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
-        const sectionData = getSectionData();
-        let clusters = groupNewsItems(sectionData);
+        const { summaryItems, regularItems } = getSectionData();
+        
+        // Find the summary item (should be the first one if it exists)
+        const summaryItem = summaryItems.length > 0 ? summaryItems[0] : null;
+        
+        let clusters = groupNewsItems(regularItems);
 
         if (currentFilter) {
             if (currentFilter === 'leidas') {
@@ -192,14 +229,22 @@ document.addEventListener('DOMContentLoaded', () => {
             return bMaxDate - aMaxDate;
         });
 
-        if (clusters.length === 0) {
+        if (clusters.length === 0 && !summaryItem) {
             let noNewsText = 'No hay noticias que coincidan con estos filtros hoy.';
             if (currentFilter === 'leidas') noNewsText = 'No hay noticias leídas en esta sección todavía.';
             newsGrid.innerHTML = `<p style="color:var(--text-muted); font-weight:300; padding: 2rem;">${noNewsText}</p>`;
             return;
         }
 
-        newsGrid.innerHTML = clusters.map((cluster, index) => {
+        // Build HTML: summary card first (if it exists and no category filter active), then regular cards
+        let html = '';
+        
+        // Only show summary when no category filter is active (show it on the "All" view)
+        if (summaryItem && !currentCategory) {
+            html += renderSummaryCard(summaryItem);
+        }
+        
+        html += clusters.map((cluster, index) => {
             const item = cluster.primary;
             const isRead = cluster.items.every(it => readIds.includes(it.id));
             const sentimentClass = item.sentiment_label || 'neutral';
@@ -233,14 +278,21 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }).join('');
 
+        newsGrid.innerHTML = html;
+
         document.querySelectorAll('.card').forEach(card => {
             card.addEventListener('click', (e) => {
                 lastScrollPos = window.scrollY;
-                const clusterIdx = e.currentTarget.getAttribute('data-cluster-index');
+                const isSummary = card.getAttribute('data-is-summary') === 'true';
+                if (isSummary) {
+                    showDetail(card.getAttribute('data-id'));
+                    return;
+                }
+                const clusterIdx = card.getAttribute('data-cluster-index');
                 const cluster = clusters[clusterIdx];
-                if (cluster.items.length > 1) {
+                if (cluster && cluster.items.length > 1) {
                     openSourcesModal(cluster);
-                } else {
+                } else if (cluster) {
                     showDetail(cluster.primary.id);
                 }
             });
@@ -249,8 +301,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderStats() {
         // Contar solo la sección activa
-        const sectionData = getSectionData();
-        const clusters = groupNewsItems(sectionData);
+        const { regularItems } = getSectionData();
+        const clusters = groupNewsItems(regularItems);
         
         const counts = { 'positiva': 0, 'neutral': 0, 'negativa': 0 };
         const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
@@ -418,15 +470,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const sentimentColorClass = item.sentiment_label === 'positiva' ? 'text-emerald' : (item.sentiment_label === 'negativa' ? 'text-rose' : 'text-muted');
-        const paragraphs = (item.body || '').split('\n').filter(p => p.trim() !== '');
-        const bodyHtml = paragraphs.length > 0 
-            ? paragraphs.map(p => `<p class="paragraph">${p}</p>`).join('')
-            : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">El contenido completo no está disponible.</p>`;
+        
+        // Build body HTML: for summary items, prepend an intro text
+        let bodyHtml = '';
+        if (item.is_summary) {
+            const intro = '<p class="paragraph" style="font-weight: 400; font-size: 1.4rem; color: var(--indigo-500);">Aquí tienes las noticias del día resumidas para gente con poco tiempo disponible, siempre actualizadas y disponibles para ti.</p>';
+            const paragraphs = (item.body || '').split('\n').filter(p => p.trim() !== '');
+            const summaryHtml = paragraphs.length > 0 
+                ? paragraphs.map(p => `<p class="paragraph">${p}</p>`).join('')
+                : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">El contenido completo no está disponible.</p>`;
+            bodyHtml = intro + summaryHtml;
+        } else {
+            const paragraphs = (item.body || '').split('\n').filter(p => p.trim() !== '');
+            bodyHtml = paragraphs.length > 0 
+                ? paragraphs.map(p => `<p class="paragraph">${p}</p>`).join('')
+                : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">El contenido completo no está disponible.</p>`;
+        }
 
+        // For summary items, use the resumen.png image
+        const heroImage = item.is_summary ? 'data/resumen.png' : (item.image || '');
+        
         // Render Detail
         articleContent.innerHTML = `
             <div class="hero-wrap">
-                <img src="${item.image || ''}" alt="${item.title}" class="hero-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
+                <img src="${heroImage}" alt="${item.title}" class="hero-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
                 <div class="hero-overlay"></div>
                 <div class="hero-content">
                     <div class="hero-badges">
