@@ -17,7 +17,7 @@ def get_groq_client():
     return Groq(api_key=api_key)
 
 def get_today_news(news_data):
-    """Filter news items from today and yesterday."""
+    """Filter news items from today and yesterday, and only from Alava/Deportes."""
     today = date.today()
     today_items = []
     for item in news_data:
@@ -25,7 +25,9 @@ def get_today_news(news_data):
             item_date = datetime.fromisoformat(item.get('date', '')).date()
             # Include today and yesterday's news
             if (today - item_date).days <= 1:
-                today_items.append(item)
+                section = str(item.get('category') or item.get('source_section', '')).strip().lower()
+                if 'alava' in section or 'álava' in section or 'deportes' in section:
+                    today_items.append(item)
         except (ValueError, TypeError):
             continue
     return today_items
