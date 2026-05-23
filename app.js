@@ -468,16 +468,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const sentimentColorClass = item.sentiment_label === 'positiva' ? 'text-emerald' : (item.sentiment_label === 'negativa' ? 'text-rose' : 'text-muted');
         
         // Build body HTML: for summary items, split into one sentence per paragraph
-        let bodyHtml = '';\r\n        if (item.is_summary) {
+        let bodyHtml = '';
+        if (item.is_summary) {
             const intro = '<p class="paragraph" style="font-weight: 400; font-size: 1.4rem; color: var(--indigo-500);">Aquí tienes las noticias del día resumidas para gente con poco tiempo disponible, siempre actualizadas y disponibles para ti.</p>';
-            // Split on sentence boundaries ('. ' followed by uppercase or end of string)
             const rawBody = (item.body || '').trim();
-            const sentences = rawBody
-                .split(/(?<=\.)\s+(?=[A-ZÁÉÍÓÚÑÜ])/u)
-                .map(s => s.trim())
-                .filter(s => s.length > 0);
+            // Simple split: break on '. ' and reconstruct sentences with their period
+            const parts = rawBody.split('. ');
+            const sentences = parts
+                .map((s, i) => i < parts.length - 1 ? s.trim() + '.' : s.trim())
+                .filter(s => s.length > 1);
             const summaryHtml = sentences.length > 0
-                ? sentences.map(s => `<p class="paragraph">${s.endsWith('.') ? s : s + '.'}</p>`).join('')
+                ? sentences.map(s => `<p class="paragraph">${s}</p>`).join('')
                 : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">El contenido completo no está disponible.</p>`;
             bodyHtml = intro + summaryHtml;
         } else {
