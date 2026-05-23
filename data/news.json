@@ -1,5 +1,19 @@
 [
   {
+    "id": "resumen_2026-05-23",
+    "title": "Vitoria-Gasteiz Florece",
+    "body": "Hoy ha sido un día lleno de color y vida en Vitoria-Gasteiz, con la tercera edición del festival de las flores y la feria de las flores, que han atraído a multitud de personas a disfrutar de la belleza de las plantas y flores. En el ámbito cultural, el Museo de Arte Eder de Álava ha presentado la exposición 'Fantasia y razón' con obras de Francisco de Goya, que podrá visitarse hasta febrero de 2027. Además, la ciudad ha celebrado otros eventos como el I Concurso de Balcones del Ensanche y el 20 aniversario del centro cívico El Pilar y el polideportivo San Andrés. En el ámbito educativo, más de 1.400 opositores se han presentado a plazas de funcionario en el Campus de Álava de la EHU. En cuanto a la actualidad local, Álava ha registrado mínimas de 18 grados en una noche tropical, y Amurrio ha acogido el 40 aniversario del sector forestal alavés. Por último, la Policía Local ha presentado la Memoria de Actividad, que muestra una disminución en accidentes viales por quinto año seguido. Mañana, seguiremos informando sobre los eventos y noticias que siguen floreciendo en nuestra ciudad, con la esperanza de que la belleza y la vida sigan siendo las protagonistas de nuestra vida diaria.",
+    "url": "",
+    "source": "Gasteiz Live",
+    "date": "2026-05-23T16:35:53.267394",
+    "sentiment": 0.2,
+    "image": "",
+    "source_section": "resumen",
+    "category": "Resumen del Día",
+    "is_summary": true,
+    "rewritten": false
+  },
+  {
     "id": "bb25ef16cf",
     "title": "Vitoria se viste de color con el florecimiento de sus jardines",
     "url": "https://www.elcorreo.com/alava/araba/flores-brotan-postales-vitoria-20260522211310-nt.html",
