@@ -16,20 +16,57 @@ def get_groq_client():
         return None
     return Groq(api_key=api_key)
 
+def _title_words(title):
+    """Return a set of significant lowercase words from a title (≥4 chars)."""
+    return {w.lower() for w in title.split() if len(w) >= 4}
+
+def _similarity(t1, t2):
+    """Jaccard similarity between two title word sets."""
+    a, b = _title_words(t1), _title_words(t2)
+    if not a or not b:
+        return 0.0
+    return len(a & b) / len(a | b)
+
+def deduplicate_news(items, preferred_source="El Correo", threshold=0.4):
+    """
+    Remove duplicate stories about the same topic.
+    When duplicates exist, keep the one from preferred_source; otherwise keep the first seen.
+    """
+    kept = []
+    for item in items:
+        title = item.get('title', '')
+        duplicate = False
+        for i, kept_item in enumerate(kept):
+            if _similarity(title, kept_item.get('title', '')) >= threshold:
+                # Same story — prefer El Correo
+                if item.get('source', '') == preferred_source and kept_item.get('source', '') != preferred_source:
+                    kept[i] = item  # swap
+                duplicate = True
+                break
+        if not duplicate:
+            kept.append(item)
+    return kept
+
 def get_today_news(news_data):
-    """Filter news items from today and yesterday, and only from Alava/Deportes."""
+    """Filter today-only news from Alava/Deportes, deduplicated preferring El Correo."""
     today = date.today()
     today_items = []
     for item in news_data:
+        if item.get('is_summary'):
+            continue
         try:
             item_date = datetime.fromisoformat(item.get('date', '')).date()
-            # Include today and yesterday's news
-            if (today - item_date).days <= 1:
+            # Only today's news (not yesterday)
+            if item_date == today:
                 section = str(item.get('category') or item.get('source_section', '')).strip().lower()
                 if 'alava' in section or 'álava' in section or 'deportes' in section:
                     today_items.append(item)
         except (ValueError, TypeError):
             continue
+
+    before = len(today_items)
+    today_items = deduplicate_news(today_items)
+    print(f"  Noticias tras deduplicar: {len(today_items)} (de {before} originales)")
     return today_items
 
 def format_news_item(item, preview_chars=300):
