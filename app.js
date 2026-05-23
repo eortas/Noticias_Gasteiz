@@ -467,13 +467,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const sentimentColorClass = item.sentiment_label === 'positiva' ? 'text-emerald' : (item.sentiment_label === 'negativa' ? 'text-rose' : 'text-muted');
         
-        // Build body HTML: for summary items, prepend an intro text
-        let bodyHtml = '';
-        if (item.is_summary) {
+        // Build body HTML: for summary items, split into one sentence per paragraph
+        let bodyHtml = '';\r\n        if (item.is_summary) {
             const intro = '<p class="paragraph" style="font-weight: 400; font-size: 1.4rem; color: var(--indigo-500);">Aquí tienes las noticias del día resumidas para gente con poco tiempo disponible, siempre actualizadas y disponibles para ti.</p>';
-            const paragraphs = (item.body || '').split('\n').filter(p => p.trim() !== '');
-            const summaryHtml = paragraphs.length > 0 
-                ? paragraphs.map(p => `<p class="paragraph">${p}</p>`).join('')
+            // Split on sentence boundaries ('. ' followed by uppercase or end of string)
+            const rawBody = (item.body || '').trim();
+            const sentences = rawBody
+                .split(/(?<=\.)\s+(?=[A-ZÁÉÍÓÚÑÜ])/u)
+                .map(s => s.trim())
+                .filter(s => s.length > 0);
+            const summaryHtml = sentences.length > 0
+                ? sentences.map(s => `<p class="paragraph">${s.endsWith('.') ? s : s + '.'}</p>`).join('')
                 : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">El contenido completo no está disponible.</p>`;
             bodyHtml = intro + summaryHtml;
         } else {
