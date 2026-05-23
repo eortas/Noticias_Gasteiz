@@ -171,21 +171,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderSummaryCard(item) {
         if (!item) return '';
-        const bodyPreview = (item.body || '').substring(0, 200) + '...';
         
         return `
             <div class="card card-summary glass" data-id="${item.id}" data-is-summary="true">
                 <div class="card-img-wrap">
                     <img src="data/resumen.png" alt="Resumen de noticias" class="card-img" loading="lazy">
                     <div class="img-overlay"></div>
-                    <div class="card-top-badges">
-                        <div class="badge-category badge-summary">Resumen de noticias del día, hecho con IA para ti</div>
-                    </div>
                 </div>
                 <div class="card-content">
                     <div class="card-date">${formatDate(item.date)}</div>
-                    <h2 class="card-title card-summary-title">${item.title}</h2>
-                    <p class="card-summary-preview">${bodyPreview}</p>
+                    <h2 class="card-title card-summary-title">Resumen de noticias del día</h2>
+                    <p class="card-summary-preview">Colección de las noticias más relevantes de Álava y deportes, resumidas y organizadas por IA para que estés siempre informado.</p>
                     <div class="card-footer">
                         <span class="read-more">Leer resumen completo</span>
                         <div class="line"></div>
