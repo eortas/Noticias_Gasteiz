@@ -202,5 +202,15 @@ def main():
         except Exception as e:
             print(f"[ERROR] No se pudo escribir en el archivo de IDs de noticias enviadas: {e}")
 
+        # Guardar también news.json con telegram_sent=True para evitar reenvíos
+        # si dos ejecuciones del workflow se solapan y sent_news_ids.json aún
+        # no ha sido commiteado/pusheado
+        try:
+            with open(news_file, "w", encoding="utf-8") as f:
+                json.dump(news, f, indent=2, ensure_ascii=False)
+            print(f"Archivo {news_file} actualizado con telegram_sent=True para {sent_count} noticias.")
+        except Exception as e:
+            print(f"[ERROR] No se pudo escribir en el archivo de noticias: {e}")
+
 if __name__ == "__main__":
     main()
