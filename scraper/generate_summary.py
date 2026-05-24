@@ -69,6 +69,50 @@ def get_today_news(news_data):
     print(f"  Noticias tras deduplicar: {len(today_items)} (de {before} originales)")
     return today_items
 
+def get_existing_summary(news_data):
+    """Find the existing summary entry for today, if any."""
+    today_str = date.today().isoformat()
+    for item in news_data:
+        if item.get('is_summary'):
+            # Check if it's today's summary by ID prefix or date
+            item_id = item.get('id', '')
+            if item_id == f'resumen_{today_str}' or item.get('source_section') == 'resumen':
+                # Also verify it was created today
+                try:
+                    item_date = datetime.fromisoformat(item.get('date', '')).date()
+                    if item_date == date.today():
+                        return item
+                except:
+                    pass
+    return None
+
+def get_unsummarized_news(all_news, summarized_ids):
+    """Get today's news that have NOT been summarized yet."""
+    today = date.today()
+    new_items = []
+    for item in all_news:
+        if item.get('is_summary'):
+            continue
+        try:
+            item_date = datetime.fromisoformat(item.get('date', '')).date()
+            if item_date != today:
+                continue
+        except (ValueError, TypeError):
+            continue
+
+        news_id = item.get('id')
+        if news_id and news_id in summarized_ids:
+            continue
+
+        section = str(item.get('category') or item.get('source_section', '')).strip().lower()
+        if 'alava' in section or 'álava' in section or 'deportes' in section:
+            new_items.append(item)
+
+    before = len(new_items)
+    new_items = deduplicate_news(new_items)
+    print(f"  Noticias nuevas NO resumidas: {len(new_items)} (de {before} originales)")
+    return new_items
+
 def format_news_item(item, preview_chars=300):
     """Format a single news item as a text line for the prompt."""
     title = item.get('title', '')
@@ -211,19 +255,130 @@ def generate_daily_summary(news_items):
 
     return None
 
+def expand_existing_summary(client, existing_summary, new_bullet_points):
+    """Merge existing summary with new bullet points into an expanded narrative."""
+    system_prompt = """Eres un periodista experto y analista de la actualidad de Vitoria-Gasteiz y Álava.
+Tu tarea es AMPLIAR un resumen diario existente añadiendo nuevas noticias que han ocurrido a lo largo del día.
+
+Tienes:
+1. El resumen actual (que cubre noticias anteriores del día)
+2. Nuevos puntos clave de noticias más recientes
+
+Debes generar un resumen diario ACTUALIZADO que integre TODO (lo anterior + lo nuevo) en un único texto fluido.
+
+El resumen debe:
+1. Mantener el TÍTULO actual si sigue siendo representativo, o actualizarlo ligeramente si las nuevas noticias cambian el tema principal
+2. Un LEAD de apertura actualizado que refleje el conjunto completo de la jornada
+3. Un DESARROLLO que integre las noticias nuevas con las ya existentes, organizado por temas
+4. Una FRASE DE CIERRE actualizada
+5. Estilo narrativo fluido, como un boletín informativo de radio
+6. Extensión total: entre 300 y 800 palabras (puede crecer respecto al resumen anterior)
+
+Formato de respuesta JSON:
+{
+  "title": "Título actualizado del resumen",
+  "summary": "Texto completo del resumen ampliado con lead, desarrollo y cierre"
+}
+
+No incluyas firmas, ni menciones a Gasteiz Live. Limítate al resumen periodístico."""
+
+    user_prompt = (
+        f"=== RESUMEN ACTUAL ===\n\n{existing_summary}\n\n"
+        f"=== NUEVAS NOTICIAS (puntos clave) ===\n\n{new_bullet_points}\n\n"
+        f"Amplía el resumen actual integrando estas nuevas noticias de forma natural."
+    )
+
+    print("  Ampliando resumen existente con nuevas noticias...")
+    completion = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        temperature=0.5,
+        response_format={"type": "json_object"},
+        max_tokens=1500,
+    )
+    result = json.loads(completion.choices[0].message.content)
+    return result.get('title', 'Resumen del día'), result.get('summary', '')
+
+def incremental_summary(client, existing_summary, new_news_items):
+    """Process new news items into bullet points, then merge into existing summary."""
+    if not new_news_items:
+        return existing_summary.get('title'), existing_summary.get('body')
+
+    CHUNK_SIZE = 20
+    SLEEP_BETWEEN_CHUNKS = 62
+
+    # Divide new items into chunks and summarize them to bullet points
+    chunks = [new_news_items[i:i + CHUNK_SIZE] for i in range(0, len(new_news_items), CHUNK_SIZE)]
+    total_chunks = len(chunks)
+    print(f"Resumiendo {len(new_news_items)} noticias nuevas en {total_chunks} chunks...")
+
+    bullet_summaries = []
+    for idx, chunk in enumerate(chunks, start=1):
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                bullet = summarize_chunk(client, chunk, idx, total_chunks)
+                bullet_summaries.append(bullet)
+                break
+            except Exception as e:
+                print(f"  Error en chunk {idx} (intento {attempt + 1}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(5)
+        else:
+            print(f"  ⚠️  No se pudo procesar el chunk {idx}, se omite.")
+
+        if idx < total_chunks:
+            print(f"  Esperando {SLEEP_BETWEEN_CHUNKS}s...")
+            time.sleep(SLEEP_BETWEEN_CHUNKS)
+
+    if not bullet_summaries:
+        print("No se pudieron obtener resúmenes de las nuevas noticias.")
+        return existing_summary.get('title'), existing_summary.get('body')
+
+    combined_new = "\n\n".join(
+        f"=== Bloque {i+1} ===\n{s}" for i, s in enumerate(bullet_summaries)
+    )
+
+    if total_chunks > 1:
+        print(f"  Esperando {SLEEP_BETWEEN_CHUNKS}s antes de la expansión...")
+        time.sleep(SLEEP_BETWEEN_CHUNKS)
+
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            new_title, new_body = expand_existing_summary(
+                client,
+                existing_summary.get('body', ''),
+                combined_new
+            )
+            if new_body:
+                print(f"Resumen ampliado: {new_title}")
+                return new_title, new_body
+        except Exception as e:
+            print(f"Error ampliando resumen (intento {attempt + 1}): {e}")
+            if attempt < max_retries - 1:
+                time.sleep(5)
+
+    # Fallback: return existing summary unchanged
+    return existing_summary.get('title'), existing_summary.get('body')
+
 
 def add_summary_to_news(news_data, summary_data):
-    """Add the summary as a special entry in the news data."""
+    """Add or update the summary entry in the news data."""
     if not summary_data:
         return news_data
     
     today_str = datetime.now().isoformat()
+    today_date_str = date.today().isoformat()
     
     # Remove any existing summary for today
     news_data = [item for item in news_data if not item.get('is_summary')]
     
     summary_entry = {
-        'id': f'resumen_{date.today().isoformat()}',
+        'id': f'resumen_{today_date_str}',
         'title': summary_data['title'],
         'body': summary_data['body'],
         'url': '',
@@ -234,13 +389,15 @@ def add_summary_to_news(news_data, summary_data):
         'source_section': 'resumen',
         'category': 'Resumen del Día',
         'is_summary': True,
-        'rewritten': False
+        'rewritten': False,
+        'summarized_news_ids': summary_data.get('summarized_news_ids', [])
     }
     
     # Insert summary at the beginning
     news_data.insert(0, summary_entry)
-    print(f"Resumen diario añadido al inicio de news.json")
+    print(f"Resumen diario {'actualizado' if summary_data.get('is_update') else 'generado'} al inicio de news.json")
     return news_data
+
 
 def main():
     news_file = 'data/news.json'
@@ -251,17 +408,53 @@ def main():
     with open(news_file, 'r', encoding='utf-8') as f:
         news_data = json.load(f)
     
-    today_news = get_today_news(news_data)
-    print(f"Noticias de hoy encontradas: {len(today_news)}")
+    # Check if there's already a summary for today
+    existing_summary = get_existing_summary(news_data)
     
-    if len(today_news) < 2:
-        print("No hay suficientes noticias del día para generar un resumen (mínimo 2).")
-        return
-    
-    summary_data = generate_daily_summary(today_news)
-    if not summary_data:
-        print("No se pudo generar el resumen.")
-        return
+    if existing_summary:
+        # --- Incremental mode: only summarize NEW news ---
+        summarized_ids = set(existing_summary.get('summarized_news_ids', []))
+        new_news = get_unsummarized_news(news_data, summarized_ids)
+        
+        if not new_news:
+            print("No hay noticias nuevas desde el último resumen. No se actualiza.")
+            return
+        
+        # Also include existing body for context in incremental update
+        client = get_groq_client()
+        if not client:
+            print("No hay API keys de Groq disponibles.")
+            return
+        
+        new_title, new_body = incremental_summary(client, existing_summary, new_news)
+        
+        # Collect all summarized IDs (previous + new)
+        all_summarized_ids = summarized_ids | {item.get('id') for item in new_news if item.get('id')}
+        
+        summary_data = {
+            'title': new_title,
+            'body': new_body,
+            'summarized_news_ids': list(all_summarized_ids),
+            'is_update': True
+        }
+    else:
+        # --- First time today: generate full summary ---
+        today_news = get_today_news(news_data)
+        print(f"Noticias de hoy encontradas: {len(today_news)}")
+        
+        if len(today_news) < 2:
+            print("No hay suficientes noticias del día para generar un resumen (mínimo 2).")
+            return
+        
+        summary_data = generate_daily_summary(today_news)
+        if not summary_data:
+            print("No se pudo generar el resumen.")
+            return
+        
+        # Track which news IDs were summarized
+        summarized_ids = [item.get('id') for item in today_news if item.get('id')]
+        summary_data['summarized_news_ids'] = summarized_ids
+        summary_data['is_update'] = False
     
     news_data = add_summary_to_news(news_data, summary_data)
     
@@ -269,6 +462,7 @@ def main():
         json.dump(news_data, f, indent=2, ensure_ascii=False)
     
     print("Resumen diario generado y guardado correctamente.")
+
 
 if __name__ == "__main__":
     main()
