@@ -682,15 +682,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (avalaOrDeportes.length < 2) return null;
         
-        const bodyText = avalaOrDeportes.map((item, i) => {
+        const bodyText = avalaOrDeportes.map((item) => {
             const preview = (item.body || '').substring(0, 300).replace(/\n/g, ' ').trim();
-            return `Hoy destacamos que ${item.title}. ${preview.substring(0, preview.lastIndexOf('.') + 1) || preview + '.'}`;
-        }).join(' ');
+            return `- ${item.title}. ${preview.substring(0, preview.lastIndexOf('.') + 1) || preview + '.'}`;
+        }).join('\n\n');
         
         return {
             id: 'resumen_virtual_' + new Date().toISOString().split('T')[0],
             title: 'Resumen de noticias del día',
-            body: 'Hoy en Vitoria-Gasteiz y Álava los temas más destacados son.' + ' ' + bodyText + ' Este resumen se genera automáticamente desde la web y mostrará el contenido completo del resumen con IA cuando esté disponible desde el servidor.',
+            body: 'Hoy en Vitoria-Gasteiz y Álava los temas más destacados son:\n\n' + bodyText + '\n\nEste resumen se genera automáticamente desde la web y mostrará el contenido completo del resumen con IA cuando esté disponible desde el servidor.',
             url: '',
             source: 'Gasteiz Live',
             date: new Date().toISOString(),
