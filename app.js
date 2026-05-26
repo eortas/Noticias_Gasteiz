@@ -673,6 +673,37 @@ document.addEventListener('DOMContentLoaded', () => {
         */
     }
 
+    function createVirtualSummary() {
+        // Find news items from Alava/Deportes that would be summarizable
+        const avalaOrDeportes = newsData.filter(item => {
+            const section = (item.category || item.source_section || '').toLowerCase();
+            return section.includes('álava') || section.includes('alava') || section.includes('deporte');
+        }).slice(0, 10); // Take top 10
+        
+        if (avalaOrDeportes.length < 2) return null;
+        
+        const bodyText = avalaOrDeportes.map((item, i) => {
+            const preview = (item.body || '').substring(0, 300).replace(/\n/g, ' ').trim();
+            return `Hoy destacamos que ${item.title}. ${preview.substring(0, preview.lastIndexOf('.') + 1) || preview + '.'}`;
+        }).join(' ');
+        
+        return {
+            id: 'resumen_virtual_' + new Date().toISOString().split('T')[0],
+            title: 'Resumen de noticias del día',
+            body: 'Hoy en Vitoria-Gasteiz y Álava los temas más destacados son.' + ' ' + bodyText + ' Este resumen se genera automáticamente desde la web y mostrará el contenido completo del resumen con IA cuando esté disponible desde el servidor.',
+            url: '',
+            source: 'Gasteiz Live',
+            date: new Date().toISOString(),
+            sentiment: 0.2,
+            image: '',
+            source_section: 'resumen',
+            category: 'Resumen del Día',
+            is_summary: true,
+            rewritten: false,
+            sentiment_label: 'neutral'
+        };
+    }
+
     async function fetchData() {
         try {
             const [newsRes, moodRes, podcastRes] = await Promise.all([
@@ -692,6 +723,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 else if (score < -0.05) item.sentiment_label = 'negativa';
                 else item.sentiment_label = 'neutral';
             });
+            
+            // If no AI summary item exists, create a virtual one from the latest Alava/Deportes news
+            const hasAISummary = newsData.some(item => item.is_summary);
+            if (!hasAISummary) {
+                const virtualSummary = createVirtualSummary();
+                if (virtualSummary) {
+                    newsData.unshift(virtualSummary);
+                    console.log('Virtual summary card created (no AI summary available)');
+                }
+            }
             
             sortNewsByReadState();
             renderStats();
