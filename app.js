@@ -472,15 +472,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (item.is_summary) {
             const intro = '<p class="paragraph" style="font-weight: 400; font-size: 1.4rem; color: var(--indigo-500);">Aquí tienes las noticias del día resumidas para gente con poco tiempo disponible, siempre actualizadas y disponibles para ti.</p>';
             const rawBody = (item.body || '').trim();
-            // Simple split: break on '. ' and reconstruct sentences with their period
-            const parts = rawBody.split('. ');
-            const sentences = parts
-                .map((s, i) => i < parts.length - 1 ? s.trim() + '.' : s.trim())
-                .filter(s => s.length > 1);
-            const summaryHtml = sentences.length > 0
-                ? sentences.map(s => `<p class="paragraph">${s}</p>`).join('')
-                : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">El contenido completo no está disponible.</p>`;
-            bodyHtml = intro + summaryHtml;
+            
+            // For virtual summaries (generated in frontend), preserve bullet structure by splitting on newlines
+            if (item.id && item.id.startsWith('resumen_virtual_')) {
+                const lines = rawBody.split('\n').filter(s => s.trim().length > 0);
+                const summaryHtml = lines.map(s => `<p class="paragraph">${s.trim()}</p>`).join('');
+                bodyHtml = intro + summaryHtml;
+            } else {
+                // For AI-generated summaries: split on '. ' to show each sentence as a paragraph
+                const parts = rawBody.split('. ');
+                const sentences = parts
+                    .map((s, i) => i < parts.length - 1 ? s.trim() + '.' : s.trim())
+                    .filter(s => s.length > 1);
+                const summaryHtml = sentences.length > 0
+                    ? sentences.map(s => `<p class="paragraph">${s}</p>`).join('')
+                    : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">El contenido completo no está disponible.</p>`;
+                bodyHtml = intro + summaryHtml;
+            }
         } else {
             const paragraphs = (item.body || '').split('\n').filter(p => p.trim() !== '');
             bodyHtml = paragraphs.length > 0 
