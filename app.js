@@ -755,11 +755,27 @@ document.addEventListener('DOMContentLoaded', () => {
             updatePodcastPlayer();
         } catch (error) {
             console.error("Error loading data:", error);
-            newsGrid.innerHTML = '<p style="color:var(--text-muted); padding: 2rem;">Error cargando datos. Por favor, recarga la página.</p>';
+            const grid = document.getElementById('news-grid');
+            if (grid) {
+                grid.innerHTML = `
+                    <div style="color:var(--text-muted); padding: 2rem; font-family: monospace; text-align: left; background: #fee2e2; border-radius: 8px; border: 1px solid #fca5a5; margin: 2rem;">
+                        <h3 style="color:#b91c1c; margin-top: 0;">Error cargando datos</h3>
+                        <p style="font-weight: bold; color: #7f1d1d;">${error.message}</p>
+                        <pre style="white-space: pre-wrap; font-size: 0.85rem; color: #991b1b; background: #fef2f2; padding: 10px; border-radius: 4px; border: 1px solid #fecaca; margin-bottom: 0; overflow-x: auto;">${error.stack}</pre>
+                    </div>
+                `;
+            } else {
+                alert("Error cargando datos:\n" + error.message + "\n" + error.stack);
+            }
         }
     }
 
-    fetchData();
+    try {
+        fetchData();
+    } catch (globalError) {
+        console.error("Global init error:", globalError);
+        alert("Global init error:\n" + globalError.message + "\n" + globalError.stack);
+    }
 });
 
 // Global function so onclick in HTML can reach it
