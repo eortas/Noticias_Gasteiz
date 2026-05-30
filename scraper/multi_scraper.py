@@ -240,82 +240,47 @@ class MultiScraper:
             return url.split('?')[0]
         return url
 
+    def _get_default_placeholder(self, source, title=""):
+        import urllib.parse
+        source_lower = (source or "").lower()
+        if "correo" in source_lower:
+            bg_start, bg_end = "#4a0e17", "#7f1d1d"
+            logo_text = "El Correo"
+        elif "gasteiz" in source_lower:
+            bg_start, bg_end = "#d9383a", "#f97316"
+            logo_text = "Gasteiz Hoy"
+        elif "noticias" in source_lower or "alava" in source_lower:
+            bg_start, bg_end = "#0f766e", "#0284c7"
+            logo_text = "Diario de Noticias"
+        else:
+            bg_start, bg_end = "#1e293b", "#334155"
+            logo_text = source or "Vitoria Chronicle"
+
+        svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="{bg_start}"/><stop offset="100%" stop-color="{bg_end}"/></linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#g)"/>
+  <rect x="20" y="20" width="760" height="410" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.1" rx="8"/>
+  <text x="50%" y="46%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="44" fill="#ffffff" letter-spacing="2" opacity="0.95">{logo_text}</text>
+  <text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="300" font-size="20" fill="#e2e8f0" opacity="0.7">Vitoria-Gasteiz</text>
+</svg>"""
+        encoded_svg = urllib.parse.quote(svg.strip())
+        return f"data:image/svg+xml;utf8,{encoded_svg}"
+
     def _search_ddg_image(self, query):
-        """Busca una imagen real en DDG o Bing cuando el scraper falla. Técnica de respaldo avanzada."""
-        if not query: return None
-        print(f"  Buscando imagen de respaldo en DDG/Bing para: {query}")
-        try:
-            # 1. Obtener el token vqd
-            search_url = "https://duckduckgo.com/"
-            res = self.scraper.get(search_url, params={"q": query}, timeout=10)
-            vqd = re.search(r'vqd=([\d-]+)&', res.text)
-            if not vqd:
-                vqd = re.search(r'vqd=["\']([\d-]+)["\']', res.text)
-            
-            if vqd:
-                vqd_token = vqd.group(1)
-                # 2. Llamar a la API interna de imágenes de DDG
-                img_api_url = "https://duckduckgo.com/i.js"
-                params = {
-                    "q": query,
-                    "o": "json",
-                    "vqd": vqd_token,
-                    "f": ",,,",
-                    "p": "1"
-                }
-                res = self.scraper.get(img_api_url, params=params, timeout=10)
-                time.sleep(1) # Pequeño delay para no saturar DDG
-                data = res.json()
-                if data.get("results"):
-                    # Priorizar resultados de gasteizhoy.com si están disponibles
-                    for result in data["results"]:
-                        if "gasteizhoy.com" in result.get("url", ""):
-                            return self._get_ddg_proxy_url(result["image"])
-                    # Si no, el primer resultado
-                    return self._get_ddg_proxy_url(data["results"][0]["image"])
-        except Exception as e:
-            print(f"  Error en búsqueda DDG ({query}): {e}. Usando Bing como fallback...")
-
-        # Fallback a Bing image search
-        try:
-            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"}
-            res = requests.get("https://www.bing.com/images/search", params={"q": query}, headers=headers, timeout=10)
-            if res.status_code == 200:
-                soup = BeautifulSoup(res.text, "html.parser")
-                # Intentamos extraer el enlace original del JSON en a.iusc
-                for a in soup.select("a.iusc"):
-                    m_attr = a.get("m")
-                    if m_attr:
-                        try:
-                            m_data = json.loads(m_attr)
-                            img_url = m_data.get("murl")
-                            if img_url:
-                                return self._get_ddg_proxy_url(img_url)
-                        except:
-                            pass
-                # Si no, fallback a mimg thumbnail
-                for img in soup.select("img.mimg"):
-                    src = img.get("src") or img.get("data-src")
-                    if src:
-                        return self._get_ddg_proxy_url(src)
-        except Exception as e:
-            print(f"  Error en búsqueda de imagen de respaldo en Bing: {e}")
-
-        # Fallback a Bing image search via Jina Reader (elude bloqueos de IP en GH Actions)
-        try:
-            print(f"  Intentando búsqueda de imágenes en Bing a través de Jina Reader...")
-            jina_bing_url = f"https://www.bing.com/images/search?q={urllib.parse.quote(query)}"
-            markdown = self._get_via_jina(jina_bing_url)
-            if markdown:
-                img_matches = re.findall(r'(https?://[^\s)]+\.(?:jpg|jpeg|png|webp))', markdown, re.IGNORECASE)
-                for candidate in img_matches:
-                    if "bing.com" not in candidate.lower() and not any(x in candidate.lower() for x in ["logo", "icon", "avatar", "pixel"]):
-                        print(f"  ✓ Imagen encontrada en Bing via Jina: {candidate}")
-                        return self._get_ddg_proxy_url(candidate)
-        except Exception as e:
-            print(f"  Error en búsqueda de imagen de respaldo en Bing via Jina: {e}")
-
-        return None
+        """Devuelve un degradado vectorizado estilizado según el periódico/fuente en vez de buscar en la web."""
+        source = "Noticias"
+        query_lower = (query or "").lower()
+        if "correo" in query_lower:
+            source = "El Correo"
+        elif "gasteiz" in query_lower:
+            source = "Gasteiz Hoy"
+        elif "diario de noticias" in query_lower or "noticias de alava" in query_lower:
+            source = "Diario de Noticias"
+        
+        print(f"  [Placeholder] Generada imagen por defecto en SVG para {source}")
+        return self._get_default_placeholder(source)
 
     def _get_og_image(self, soup):
         # 1. Open Graph

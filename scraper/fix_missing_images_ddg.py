@@ -177,66 +177,46 @@ def search_jina_image(url):
     except: pass
     return None
 
+def get_default_placeholder(source, title=""):
+    source_lower = (source or "").lower()
+    if "correo" in source_lower:
+        bg_start, bg_end = "#4a0e17", "#7f1d1d"
+        logo_text = "El Correo"
+    elif "gasteiz" in source_lower:
+        bg_start, bg_end = "#d9383a", "#f97316"
+        logo_text = "Gasteiz Hoy"
+    elif "noticias" in source_lower or "alava" in source_lower:
+        bg_start, bg_end = "#0f766e", "#0284c7"
+        logo_text = "Diario de Noticias"
+    else:
+        bg_start, bg_end = "#1e293b", "#334155"
+        logo_text = source or "Vitoria Chronicle"
+
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="{bg_start}"/><stop offset="100%" stop-color="{bg_end}"/></linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#g)"/>
+  <rect x="20" y="20" width="760" height="410" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.1" rx="8"/>
+  <text x="50%" y="46%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="44" fill="#ffffff" letter-spacing="2" opacity="0.95">{logo_text}</text>
+  <text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="300" font-size="20" fill="#e2e8f0" opacity="0.7">Vitoria-Gasteiz</text>
+</svg>"""
+    encoded_svg = urllib.parse.quote(svg.strip())
+    return f"data:image/svg+xml;utf8,{encoded_svg}"
+
 def search_ddg_image(query):
-    if not query: return None
-    try:
-        search_url = "https://duckduckgo.com/"
-        res = scraper.get(search_url, params={"q": query}, timeout=10)
-        vqd = re.search(r'vqd=([\d-]+)&', res.text)
-        if not vqd:
-            vqd = re.search(r'vqd=["\']([\d-]+)["\']', res.text)
-        if vqd:
-            vqd_token = vqd.group(1)
-            params = {"q": query, "o": "json", "vqd": vqd_token, "f": ",,,", "p": "1"}
-            res = scraper.get("https://duckduckgo.com/i.js", params=params, timeout=10)
-            time.sleep(1.0)
-            data = res.json()
-            if data.get("results"):
-                for result in data["results"]:
-                    if "gasteizhoy.com" in result.get("url", ""):
-                        return result["image"]
-                return data["results"][0]["image"]
-    except: pass
-
-    # Fallback 1: Bing image search directo
-    try:
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"}
-        res = requests.get("https://www.bing.com/images/search", params={"q": query}, headers=headers, timeout=10)
-        if res.status_code == 200:
-            soup = BeautifulSoup(res.text, "html.parser")
-            for a in soup.select("a.iusc"):
-                m_attr = a.get("m")
-                if m_attr:
-                    try:
-                        m_data = json.loads(m_attr)
-                        img_url = m_data.get("murl")
-                        if img_url:
-                            return img_url
-                    except:
-                        pass
-            for img in soup.select("img.mimg"):
-                src = img.get("src") or img.get("data-src")
-                if src:
-                    return src
-    except Exception as e:
-        print(f"  Error en búsqueda de imagen de respaldo directa en Bing: {e}")
-
-    # Fallback 2: Bing image search via Jina Reader (para eludir bloqueos de IP en GitHub Actions)
-    try:
-        print(f"  Intentando búsqueda de imágenes en Bing a través de Jina Reader...")
-        jina_bing_url = f"https://www.bing.com/images/search?q={urllib.parse.quote(query)}"
-        jina_res = requests.get(f"https://r.jina.ai/{jina_bing_url}", headers={"User-Agent": "Mozilla/5.0"}, timeout=30)
-        if jina_res.status_code == 200:
-            markdown = jina_res.text
-            img_matches = re.findall(r'(https?://[^\s)]+\.(?:jpg|jpeg|png|webp))', markdown, re.IGNORECASE)
-            for candidate in img_matches:
-                if "bing.com" not in candidate.lower() and not any(x in candidate.lower() for x in ["logo", "icon", "avatar", "pixel"]):
-                    print(f"  ✓ Imagen encontrada en Bing via Jina: {candidate}")
-                    return candidate
-    except Exception as e:
-        print(f"  Error en búsqueda de imagen de respaldo en Bing via Jina: {e}")
-
-    return None
+    """Devuelve un degradado vectorizado estilizado según el periódico/fuente en vez de buscar en la web."""
+    source = "Noticias"
+    query_lower = (query or "").lower()
+    if "correo" in query_lower:
+        source = "El Correo"
+    elif "gasteiz" in query_lower:
+        source = "Gasteiz Hoy"
+    elif "diario de noticias" in query_lower or "noticias de alava" in query_lower:
+        source = "Diario de Noticias"
+    
+    print(f"  [Placeholder] Generada imagen por defecto en SVG para {source}")
+    return get_default_placeholder(source)
 
 def fix_images():
     if not os.path.exists(NEWS_FILE): return
