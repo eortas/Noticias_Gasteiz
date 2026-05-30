@@ -178,18 +178,20 @@ def search_jina_image(url):
     return None
 
 def get_default_placeholder(source="", title=""):
-    # Usamos los colores de marca de Gasteiz Live (índigo a esmeralda) para un degradado uniforme
-    bg_start, bg_end = "#4f46e5", "#10b981"
-    logo_text = "Gasteiz Live"
-
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+    svg = """<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="{bg_start}"/><stop offset="100%" stop-color="{bg_end}"/></linearGradient>
+    <linearGradient id="gasteizGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="25%" stop-color="#06b6d4"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="75%" stop-color="#846358"/>
+      <stop offset="100%" stop-color="#f43f5e"/>
+    </linearGradient>
   </defs>
-  <rect width="800" height="450" fill="url(#g)"/>
-  <rect x="20" y="20" width="760" height="410" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.1" rx="8"/>
-  <text x="50%" y="46%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="48" fill="#ffffff" letter-spacing="3" opacity="0.95">{logo_text}</text>
-  <text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="300" font-size="20" fill="#e2e8f0" opacity="0.7">Portal de Noticias de Álava</text>
+  <rect width="800" height="450" fill="#f8fafc"/>
+  <rect x="20" y="20" width="760" height="410" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-opacity="0.5" rx="12"/>
+  <text x="50%" y="180" dominant-baseline="middle" text-anchor="middle" font-family="'Outfit', system-ui, -apple-system, sans-serif" font-weight="900" font-size="100" fill="url(#gasteizGrad)" letter-spacing="-2">Gasteiz</text>
+  <text x="50%" y="290" dominant-baseline="middle" text-anchor="middle" font-family="'Outfit', system-ui, -apple-system, sans-serif" font-weight="900" font-size="100" fill="#0f172a" letter-spacing="-2">Live</text>
 </svg>"""
     encoded_svg = urllib.parse.quote(svg.strip())
     return f"data:image/svg+xml;utf8,{encoded_svg}"
