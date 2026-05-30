@@ -26,7 +26,8 @@ PALABRAS_NEGATIVAS = {
     'denuncia', 'denuncias', 'corte', 'huelga', 'huelgas', 'protesta', 'incendio', 'atropello', 'crimen', 'estafa',
     'pérdida', 'caída', 'baja', 'tensión', 'riesgo', 'peligro', 'inseguro', 'sucio', 'abandono',
     'cierre', 'cierran', 'despido', 'despidos', 'semana santa', 'procesión', 'religión', 'iglesia', 
-    'culto', 'cura', 'obispo', 'religioso', 'religiosa', 'papa', 'vaticano', 'misa', 'católico', 
+    'culto', 'cura', 'obispo', 'religioso', 'religiosa', 'religiosas', 'religiosos', 'convento', 'conventos',
+    'clarisa', 'clarisas', 'papa', 'vaticano', 'misa', 'católico', 
     'cofradía', 'peregrinación','PP', 'VOX', 'peregrinar', 'diócesis', 'paralisis', 'parálisis',
     'rechazo', 'rechazos', 'oposición', 'oposicion', 'enfrentamiento', 'enfrentamientos',
     'guardia civil', 'guardias civiles', 'guardia zibila', 'guardia zibilak'
@@ -39,7 +40,7 @@ def heuristic_fallback(text):
     text_lower = text.lower()
     
     # REGLAS ESPECIALES (usando regex para evitar falsos positivos como "curarse")
-    if re.search(r'\b(guardias?\s+civil(?:es)?|guardia\s+zibila?k?|iglesia|cura|curas|obispo|obispos|religioso|religiosos|peregrinación|peregrinar|diócesis|semana santa|tensión pol[íi]tica)\b', text_lower):
+    if re.search(r'\b(guardias?\s+civil(?:es)?|guardia\s+zibila?k?|iglesia|cura|curas|obispo|obispos|religioso|religiosos|religiosas?|conventos?|clarisas?|peregrinación|peregrinar|diócesis|semana santa|tensión pol[íi]tica)\b', text_lower):
         return 'negativa', -0.8, 'Sociedad'
     
     words = re.findall(r'\w+', text_lower)
@@ -58,7 +59,7 @@ def heuristic_fallback(text):
     if score > 0.05: return 'positiva', score, 'Sociedad'
     elif score < -0.05: return 'negativa', score, 'Sociedad'
     else: return 'neutral', score, 'Sociedad'
-
+ 
 def analyze_sentiment(text):
     """Analiza sentimiento y categoría. Primero pasa por el modelo heurístico y, si es neutral, pasa por la IA."""
     # 1. Pasar primero por el modelo heurístico
@@ -87,7 +88,7 @@ def analyze_sentiment(text):
             client = Groq(api_key=api_key)
             system_prompt = """Eres un clasificador experto de noticias de Vitoria-Gasteiz.
             Responde ÚNICAMENTE en JSON: {"sentiment": "positiva/negativa/neutral", "score": -1.0 a 1.0, "category": "Política/Economía/Sociedad/Deportes/Cultura/Sucesos/Urbanismo"}
-            REGLA ESPECIAL: Cualquier noticia que mencione a la "Guardia Civil", "Iglesia", "Curas", "Obispos", "Diócesis", "Peregrinación" o temas religiosos debe ser clasificada siempre como "negativa" con un score de -0.8."""
+            REGLA ESPECIAL: Cualquier noticia que mencione a la "Guardia Civil", "Iglesia", "Curas", "Obispos", "Diócesis", "Peregrinación", "Convento", "Religiosas", "Clarisas" o temas religiosos debe ser clasificada siempre como "negativa" con un score de -0.8."""
             
             completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",

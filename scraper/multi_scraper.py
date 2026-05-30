@@ -306,8 +306,9 @@ class MultiScraper:
         except:
             return original_url
 
-    def _is_excluded_title(self, title):
+    def _is_excluded_title(self, title, url=None):
         title_lower = (title or "").lower()
+        url_lower = (url or "").lower()
         excluded = [
             'el boulevard',
             'publirreportaje',
@@ -317,9 +318,31 @@ class MultiScraper:
             'tira de cerrajería',
             'tira de cerrajeria',
             'el mirador',
-            'vitoria hoy sabe de'
+            'vitoria hoy sabe de',
+            'horóscopo',
+            'horoscopo',
+            'predicción astrológica',
+            'predicciones astrales',
+            'astrología',
+            'astrologia',
+            'predicción del amor',
+            'consulta tu predicción',
+            'tu predicción'
         ]
-        return any(term in title_lower for term in excluded)
+        if any(term in title_lower for term in excluded):
+            return True
+            
+        excluded_url = [
+            'horoscopo',
+            'horoscopos',
+            'prediccion-amor',
+            'astrologia',
+            'astral'
+        ]
+        if any(term in url_lower for term in excluded_url):
+            return True
+            
+        return False
 
     def _clean_el_correo_paragraph(self, raw_text):
         text = html_utils.unescape(raw_text or "")
@@ -466,7 +489,7 @@ class MultiScraper:
                     if not title: continue
 
                     # Filtros de exclusión
-                    if self._is_excluded_title(title):
+                    if self._is_excluded_title(title, full_url):
                         continue
                     if is_alava and "/alava/" not in full_url and "/vitoria/" not in full_url:
                         continue
@@ -881,8 +904,10 @@ class MultiScraper:
             return None
 
         # Filtro final por seguridad
+        if self._is_excluded_title(title, url):
+            return None
         content_lower = (title + " " + body).lower()
-        if any(x in content_lower for x in ['el boulevard', 'publirreportaje', 'patrocinado']):
+        if any(x in content_lower for x in ['el boulevard', 'publirreportaje', 'patrocinado', 'horóscopo', 'horoscopo', 'predicciones astrales']):
             return None
 
         sentiment = self._analyze_sentiment(title + " " + body)
@@ -1024,7 +1049,7 @@ class MultiScraper:
                     if not title:
                         continue
                     
-                    if self._is_excluded_title(title):
+                    if self._is_excluded_title(title, full_url):
                         continue
                     
                     # 2. Subtítulo
