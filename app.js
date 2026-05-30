@@ -85,11 +85,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const tokenized = items.map(item => {
             const titleText = (item.title || "") + " " + (item.original_title || "");
-            const bodySnippet = (item.body || "").substring(0, 300);
+            const bodyText = (item.body || "") + " " + (item.original_body || "");
             return {
                 item: item,
                 titleTokens: tokenize(titleText),
-                bodyTokens: tokenize(bodySnippet)
+                bodyTokens: tokenize(bodyText)
             };
         });
         
