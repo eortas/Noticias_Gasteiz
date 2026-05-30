@@ -136,9 +136,35 @@ document.addEventListener('DOMContentLoaded', () => {
             componentIndices.sort((x, y) => x - y);
             const componentItems = componentIndices.map(idx => tokenized[idx].item);
             
+            // Seleccionar el artículo principal (primary) para la vista previa
+            // Priorizamos:
+            // 1. Tener imagen real (no SVG placeholder de data:image/)
+            // 2. Fuente preferida (El Correo o Diario de Noticias antes que Gasteiz Hoy)
+            let primaryItem = componentItems[0];
+            if (componentItems.length > 1) {
+                const sortedForPrimary = [...componentItems].sort((a, b) => {
+                    const getRank = (item) => {
+                        const img = item.image || "";
+                        const hasRealImg = img && !img.startsWith("data:image/") && !img.includes("resumen.png");
+                        const src = item.source || "";
+                        const isPref = src === "El Correo" || src === "Diario de Noticias";
+                        const isGasteizHoy = src === "Gasteiz Hoy";
+                        
+                        if (isPref && hasRealImg) return 1;
+                        if (isPref && !hasRealImg) return 2;
+                        if (!isGasteizHoy && hasRealImg) return 3;
+                        if (!isGasteizHoy && !hasRealImg) return 4;
+                        if (isGasteizHoy && hasRealImg) return 5;
+                        return 6;
+                    };
+                    return getRank(a) - getRank(b);
+                });
+                primaryItem = sortedForPrimary[0];
+            }
+            
             clusters.push({
-                id: componentItems[0].id,
-                primary: componentItems[0],
+                id: primaryItem.id,
+                primary: primaryItem,
                 items: componentItems
             });
         }
