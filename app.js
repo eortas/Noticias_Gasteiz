@@ -84,21 +84,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!items || items.length === 0) return [];
         
         const tokenized = items.map(item => {
-            const textToCompare = (item.title || "") + " " + (item.original_title || "");
+            const titleText = (item.title || "") + " " + (item.original_title || "");
+            const bodySnippet = (item.body || "").substring(0, 300);
             return {
                 item: item,
-                tokens: tokenize(textToCompare)
+                titleTokens: tokenize(titleText),
+                bodyTokens: tokenize(bodySnippet)
             };
         });
         
         const n = tokenized.length;
-        const threshold = 0.25;
         
         // Build similarity graph adjacency list
         const adj = Array.from({ length: n }, () => []);
         for (let i = 0; i < n; i++) {
             for (let j = i + 1; j < n; j++) {
-                if (jaccardSimilarity(tokenized[i].tokens, tokenized[j].tokens) >= threshold) {
+                const titleSim = jaccardSimilarity(tokenized[i].titleTokens, tokenized[j].titleTokens);
+                const bodySim = jaccardSimilarity(tokenized[i].bodyTokens, tokenized[j].bodyTokens);
+                
+                // Agrupar si títulos o cuerpos tienen alta coincidencia, o si ambos tienen coincidencia moderada
+                if (titleSim >= 0.25 || bodySim >= 0.35 || (titleSim >= 0.12 && bodySim >= 0.18)) {
                     adj[i].push(j);
                     adj[j].push(i);
                 }

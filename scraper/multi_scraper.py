@@ -151,6 +151,18 @@ class MultiScraper:
         
         print(f"Scraping completado. Guardadas {len(latest_news)} noticias de las últimas 72h.")
 
+        try:
+            from scraper.deduplicate import deduplicate_news
+        except ImportError:
+            from deduplicate import deduplicate_news
+
+        try:
+            print("Ejecutando deduplicación semántica...")
+            deduplicate_news()
+        except Exception as e:
+            print(f"Error al ejecutar deduplicación: {e}")
+
+
     def _get(self, url, timeout=15):
         last_error = None
         for client_name, getter in (
@@ -240,21 +252,11 @@ class MultiScraper:
             return url.split('?')[0]
         return url
 
-    def _get_default_placeholder(self, source, title=""):
+    def _get_default_placeholder(self, source="", title=""):
         import urllib.parse
-        source_lower = (source or "").lower()
-        if "correo" in source_lower:
-            bg_start, bg_end = "#4a0e17", "#7f1d1d"
-            logo_text = "El Correo"
-        elif "gasteiz" in source_lower:
-            bg_start, bg_end = "#d9383a", "#f97316"
-            logo_text = "Gasteiz Hoy"
-        elif "noticias" in source_lower or "alava" in source_lower:
-            bg_start, bg_end = "#0f766e", "#0284c7"
-            logo_text = "Diario de Noticias"
-        else:
-            bg_start, bg_end = "#1e293b", "#334155"
-            logo_text = source or "Vitoria Chronicle"
+        # Usamos los colores de marca de Gasteiz Live (índigo a esmeralda) para un degradado uniforme
+        bg_start, bg_end = "#4f46e5", "#10b981"
+        logo_text = "Gasteiz Live"
 
         svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
   <defs>
@@ -262,25 +264,16 @@ class MultiScraper:
   </defs>
   <rect width="800" height="450" fill="url(#g)"/>
   <rect x="20" y="20" width="760" height="410" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.1" rx="8"/>
-  <text x="50%" y="46%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="44" fill="#ffffff" letter-spacing="2" opacity="0.95">{logo_text}</text>
-  <text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="300" font-size="20" fill="#e2e8f0" opacity="0.7">Vitoria-Gasteiz</text>
+  <text x="50%" y="46%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="48" fill="#ffffff" letter-spacing="3" opacity="0.95">{logo_text}</text>
+  <text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="300" font-size="20" fill="#e2e8f0" opacity="0.7">Portal de Noticias de Álava</text>
 </svg>"""
         encoded_svg = urllib.parse.quote(svg.strip())
         return f"data:image/svg+xml;utf8,{encoded_svg}"
 
     def _search_ddg_image(self, query):
-        """Devuelve un degradado vectorizado estilizado según el periódico/fuente en vez de buscar en la web."""
-        source = "Noticias"
-        query_lower = (query or "").lower()
-        if "correo" in query_lower:
-            source = "El Correo"
-        elif "gasteiz" in query_lower:
-            source = "Gasteiz Hoy"
-        elif "diario de noticias" in query_lower or "noticias de alava" in query_lower:
-            source = "Diario de Noticias"
-        
-        print(f"  [Placeholder] Generada imagen por defecto en SVG para {source}")
-        return self._get_default_placeholder(source)
+        """Devuelve el degradado vectorizado universal de Gasteiz Live en vez de buscar en la web."""
+        print(f"  [Placeholder] Generada imagen por defecto en SVG de Gasteiz Live")
+        return self._get_default_placeholder()
 
     def _get_og_image(self, soup):
         # 1. Open Graph
