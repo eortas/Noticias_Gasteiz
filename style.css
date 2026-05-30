@@ -703,6 +703,10 @@ body {
     margin-bottom: 0;
 }
 
+#detail-view {
+    padding-top: 6.5rem;
+}
+
 .back-link {
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(20px);
@@ -763,7 +767,7 @@ body {
 .hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, var(--bg-dark) 0%, transparent 100%);
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.6) 45%, rgba(15, 23, 42, 0.1) 80%, rgba(15, 23, 42, 0) 100%);
 }
 
 .hero-content {
@@ -804,6 +808,7 @@ body {
     color: white;
     line-height: 1.1;
     letter-spacing: -0.02em;
+    text-shadow: 0 4px 12px rgba(15, 23, 42, 0.5);
 }
 
 .article-body {
@@ -978,6 +983,10 @@ body {
         margin: 1.5rem 1rem 0.5rem 1rem;
         width: fit-content;
         z-index: 10;
+    }
+
+    #detail-view {
+        padding-top: 1.5rem;
     }
 
     .container {
