@@ -102,8 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const titleSim = jaccardSimilarity(tokenized[i].titleTokens, tokenized[j].titleTokens);
                 const bodySim = jaccardSimilarity(tokenized[i].bodyTokens, tokenized[j].bodyTokens);
                 
-                // Agrupar si títulos o cuerpos tienen alta coincidencia, o si ambos tienen coincidencia moderada
-                if (titleSim >= 0.25 || bodySim >= 0.35 || (titleSim >= 0.12 && bodySim >= 0.18)) {
+                // Agrupar si títulos o cuerpos tienen alta coincidencia, o si ambos tienen coincidencia moderada/baja
+                if (titleSim >= 0.22 || bodySim >= 0.28 || (titleSim >= 0.08 && bodySim >= 0.15)) {
                     adj[i].push(j);
                     adj[j].push(i);
                 }
