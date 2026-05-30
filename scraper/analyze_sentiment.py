@@ -14,7 +14,9 @@ PALABRAS_POSITIVAS = {
     'beneficio', 'alegría', 'feliz', 'oportunidad', 'crecimiento', 'esperanza', 'solución',
     'paz', 'seguro', 'impulsa', 'apoyo', 'vanguardia', 'moderno', 'eficiente', 'gratis',
     'estrena', 'inaugura', 'récord', 'lidera', 'brilla', 'talento', 'unión', 'solidario',
-    'relevo', 'continuidad', 'tradición', 'familia', 'futuro', 'crean', 'vuelve', 'abre', 'abren'
+    'relevo', 'continuidad', 'tradición', 'familia', 'futuro', 'crean', 'vuelve', 'abre', 'abren',
+    'fiesta', 'fiestas', 'música', 'celebración', 'celebraciones', 'concierto', 'conciertos', 
+    'diversión', 'danza', 'baile', 'deporte', 'deportes', 'gastronomía', 'popular'
 }
 
 PALABRAS_NEGATIVAS = {
@@ -54,7 +56,8 @@ def heuristic_fallback(text):
             if i > 0 and words[i-1] in NEGACIONES: pos_count += 1
             else: neg_count += 1
     total = pos_count + neg_count
-    if total == 0: return 'neutral', 0.0, 'Sociedad'
+    # Si la densidad de coincidencias es muy baja (1 o menos), preferimos delegar a la IA
+    if total <= 1: return 'neutral', 0.0, 'Sociedad'
     score = (pos_count - neg_count) / total
     if score > 0.05: return 'positiva', score, 'Sociedad'
     elif score < -0.05: return 'negativa', score, 'Sociedad'
