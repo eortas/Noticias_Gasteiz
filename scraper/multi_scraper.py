@@ -196,9 +196,17 @@ class MultiScraper:
         return None
 
     def _get_json_with_reader_fallback(self, url, allow_reader=True):
-        res = self._get(url, timeout=20)
+        res = None
+        try:
+            res = self._get(url, timeout=20)
+        except Exception as e:
+            print(f"  Direct GET failed for JSON fallback: {e}")
+            
         if res:
-            return res.json()
+            try:
+                return res.json()
+            except Exception as e:
+                print(f"  Error parsing response JSON directly: {e}")
 
         if not allow_reader:
             return None
@@ -278,6 +286,21 @@ class MultiScraper:
                         return self._get_ddg_proxy_url(src)
         except Exception as e:
             print(f"  Error en búsqueda de imagen de respaldo en Bing: {e}")
+
+        # Fallback a Bing image search via Jina Reader (elude bloqueos de IP en GH Actions)
+        try:
+            print(f"  Intentando búsqueda de imágenes en Bing a través de Jina Reader...")
+            jina_bing_url = f"https://www.bing.com/images/search?q={urllib.parse.quote(query)}"
+            markdown = self._get_via_jina(jina_bing_url)
+            if markdown:
+                img_matches = re.findall(r'(https?://[^\s)]+\.(?:jpg|jpeg|png|webp))', markdown, re.IGNORECASE)
+                for candidate in img_matches:
+                    if "bing.com" not in candidate.lower() and not any(x in candidate.lower() for x in ["logo", "icon", "avatar", "pixel"]):
+                        print(f"  ✓ Imagen encontrada en Bing via Jina: {candidate}")
+                        return self._get_ddg_proxy_url(candidate)
+        except Exception as e:
+            print(f"  Error en búsqueda de imagen de respaldo en Bing via Jina: {e}")
+
         return None
 
     def _get_og_image(self, soup):
@@ -536,7 +559,7 @@ class MultiScraper:
         ]
         for api_url in api_urls:
             try:
-                posts = self._get_json_with_reader_fallback(api_url, allow_reader="_fields=" in api_url)
+                posts = self._get_json_with_reader_fallback(api_url, allow_reader=True)
                 if not posts:
                     continue
                 print(f"  API WP OK: {len(posts)} posts en {api_url}")
@@ -580,7 +603,11 @@ class MultiScraper:
         # 2. RSS Fallback
         try:
             rss_url = "https://www.gasteizhoy.com/feed/"
-            res = self._get(rss_url, timeout=20)
+            res = None
+            try:
+                res = self._get(rss_url, timeout=20)
+            except Exception as e:
+                print(f"  Direct RSS fetch failed: {e}")
             rss_text = res.text if res else self._get_via_jina(rss_url)
             if rss_text:
                 soup = BeautifulSoup(rss_text, 'xml')

@@ -197,6 +197,45 @@ def search_ddg_image(query):
                         return result["image"]
                 return data["results"][0]["image"]
     except: pass
+
+    # Fallback 1: Bing image search directo
+    try:
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"}
+        res = requests.get("https://www.bing.com/images/search", params={"q": query}, headers=headers, timeout=10)
+        if res.status_code == 200:
+            soup = BeautifulSoup(res.text, "html.parser")
+            for a in soup.select("a.iusc"):
+                m_attr = a.get("m")
+                if m_attr:
+                    try:
+                        m_data = json.loads(m_attr)
+                        img_url = m_data.get("murl")
+                        if img_url:
+                            return img_url
+                    except:
+                        pass
+            for img in soup.select("img.mimg"):
+                src = img.get("src") or img.get("data-src")
+                if src:
+                    return src
+    except Exception as e:
+        print(f"  Error en búsqueda de imagen de respaldo directa en Bing: {e}")
+
+    # Fallback 2: Bing image search via Jina Reader (para eludir bloqueos de IP en GitHub Actions)
+    try:
+        print(f"  Intentando búsqueda de imágenes en Bing a través de Jina Reader...")
+        jina_bing_url = f"https://www.bing.com/images/search?q={urllib.parse.quote(query)}"
+        jina_res = requests.get(f"https://r.jina.ai/{jina_bing_url}", headers={"User-Agent": "Mozilla/5.0"}, timeout=30)
+        if jina_res.status_code == 200:
+            markdown = jina_res.text
+            img_matches = re.findall(r'(https?://[^\s)]+\.(?:jpg|jpeg|png|webp))', markdown, re.IGNORECASE)
+            for candidate in img_matches:
+                if "bing.com" not in candidate.lower() and not any(x in candidate.lower() for x in ["logo", "icon", "avatar", "pixel"]):
+                    print(f"  ✓ Imagen encontrada en Bing via Jina: {candidate}")
+                    return candidate
+    except Exception as e:
+        print(f"  Error en búsqueda de imagen de respaldo en Bing via Jina: {e}")
+
     return None
 
 def fix_images():
