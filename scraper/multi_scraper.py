@@ -204,7 +204,7 @@ class MultiScraper:
             
         if res:
             try:
-                return res.json()
+                return json.loads(res.text, strict=False)
             except Exception as e:
                 print(f"  Error parsing response JSON directly: {e}")
 
@@ -216,8 +216,22 @@ class MultiScraper:
             return None
 
         try:
-            return json.loads(text)
+            # Intentar parsear directamente con strict=False para tolerar caracteres de control
+            return json.loads(text, strict=False)
         except Exception as e:
+            # Si falla, intentar limpiar marcas de markdown por si Jina lo envolvió en bloques de código
+            cleaned = text.strip()
+            if cleaned.startswith("```"):
+                cleaned = re.sub(r'^```(?:json)?\n', '', cleaned)
+                cleaned = re.sub(r'\n```$', '', cleaned)
+                cleaned = cleaned.strip()
+            # Buscar el bloque JSON más externo
+            match = re.search(r'(\[.*\]|\{.*\})', cleaned, re.DOTALL)
+            if match:
+                try:
+                    return json.loads(match.group(1), strict=False)
+                except Exception as e_inner:
+                    print(f"  Error parseando JSON tras limpieza: {e_inner}")
             print(f"  Error parseando JSON desde jina reader: {e}")
             return None
 
