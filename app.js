@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'de', 'la', 'el', 'en', 'y', 'a', 'los', 'un', 'una', 'con', 'para', 'este', 'esta', 'por', 'del', 
             'al', 'se', 'las', 'su', 'sus', 'o', 'u', 'como', 'para', 'que', 'en', 'del', 'lo', 'lo', 'los', 'un', 
             'una', 'uno', 'unas', 'unos', 'al', 'del', 'los', 'las', 'correo', 'gasteiz', 'hoy', 'noticias', 
-            'alava', 'vitoria', 'diario'
+            'alava', 'vitoria', 'diario', 'araba', 'html', 'htm'
         ]);
         const words = text.toLowerCase()
             .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'']/g, "")
@@ -84,7 +84,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!items || items.length === 0) return [];
         
         const tokenized = items.map(item => {
-            const titleText = (item.title || "") + " " + (item.original_title || "");
+            let urlWords = "";
+            if (item.url) {
+                try {
+                    const parsedUrl = new URL(item.url);
+                    urlWords = parsedUrl.pathname;
+                } catch (e) {
+                    urlWords = item.url;
+                }
+                urlWords = urlWords.replace(/[\/\-_.]/g, " ").replace(/\d+/g, "");
+            }
+            
+            const titleText = (item.title || "") + " " + (item.original_title || "") + " " + urlWords;
             const bodyText = (item.body || "") + " " + (item.original_body || "");
             return {
                 item: item,

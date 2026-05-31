@@ -342,6 +342,18 @@ class MultiScraper:
         if any(term in url_lower for term in excluded_url):
             return True
             
+        # Excluir noticias de autobombo sobre audiencias (CIES)
+        if re.search(r'\bcies\b', title_lower) or re.search(r'\bcies\b', url_lower):
+            return True
+            
+        # Excluir por copyright si en el título aparece el nombre del medio
+        newspapers = [
+            "el correo", "gasteiz hoy", "diario de noticias", 
+            "noticias de álava", "noticias de alava"
+        ]
+        if any(name in title_lower for name in newspapers):
+            return True
+            
         return False
 
     def _clean_el_correo_paragraph(self, raw_text):

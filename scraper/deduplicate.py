@@ -2,6 +2,7 @@ import json
 import os
 import re
 from datetime import datetime
+import urllib.parse
 
 def tokenize(text):
     if not text:
@@ -9,10 +10,10 @@ def tokenize(text):
     stopwords = {
         'de', 'la', 'el', 'en', 'y', 'a', 'los', 'un', 'una', 'con', 'para', 'este', 'esta', 'por', 'del', 
         'al', 'se', 'las', 'su', 'sus', 'o', 'u', 'como', 'que', 'lo', 'uno', 'unas', 'unos',
-        'correo', 'gasteiz', 'hoy', 'noticias', 'alava', 'vitoria', 'diario'
+        'correo', 'gasteiz', 'hoy', 'noticias', 'alava', 'vitoria', 'diario', 'araba', 'html', 'htm'
     }
     text = text.lower()
-    text = re.sub(r'[.,\/#!$%\^&\*;:{}=\-_`~()?"\'\n\r]', ' ', text)
+    text = re.sub(r'[.,\/#!$%\^&\*;:{}=\-_`~()?"\'\n\r0-9]', ' ', text)
     words = text.split()
     return {w for w in words if len(w) > 2 and w not in stopwords}
 
@@ -71,8 +72,26 @@ def are_duplicates(item_a, item_b):
     if title_a and title_b and title_a == title_b:
         return True
 
-    title_tokens_a = tokenize((item_a.get('title') or "") + " " + (item_a.get('original_title') or ""))
-    title_tokens_b = tokenize((item_b.get('title') or "") + " " + (item_b.get('original_title') or ""))
+    url_words_a = ""
+    if item_a.get('url'):
+        try:
+            url_words_a = urllib.parse.urlparse(item_a['url']).path
+        except Exception:
+            url_words_a = item_a['url']
+        url_words_a = re.sub(r'[\/\-_.]', ' ', url_words_a)
+        url_words_a = re.sub(r'\d+', '', url_words_a)
+
+    url_words_b = ""
+    if item_b.get('url'):
+        try:
+            url_words_b = urllib.parse.urlparse(item_b['url']).path
+        except Exception:
+            url_words_b = item_b['url']
+        url_words_b = re.sub(r'[\/\-_.]', ' ', url_words_b)
+        url_words_b = re.sub(r'\d+', '', url_words_b)
+
+    title_tokens_a = tokenize((item_a.get('title') or "") + " " + (item_a.get('original_title') or "") + " " + url_words_a)
+    title_tokens_b = tokenize((item_b.get('title') or "") + " " + (item_b.get('original_title') or "") + " " + url_words_b)
     
     body_tokens_a = tokenize((item_a.get('body') or "") + " " + (item_a.get('original_body') or ""))
     body_tokens_b = tokenize((item_b.get('body') or "") + " " + (item_b.get('original_body') or ""))
