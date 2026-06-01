@@ -117,6 +117,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (titleSim >= 0.22 || bodySim >= 0.28 || (titleSim >= 0.08 && bodySim >= 0.15)) {
                     adj[i].push(j);
                     adj[j].push(i);
+                } else {
+                    // Regla semántica específica para incidentes de agresiones/apuñalamientos
+                    const bA = tokenized[i].bodyTokens;
+                    const bB = tokenized[j].bodyTokens;
+                    const shared = new Set([...bA].filter(x => bB.has(x)));
+                    
+                    const hasWeapon = ['blanca', 'cuchilladas', 'navaja', 'cuchillo', 'apuñalan', 'acuchillado', 'apuñalado'].some(w => shared.has(w));
+                    const hasBack = shared.has('espalda');
+                    const hasYoung = shared.has('joven');
+                    
+                    if (hasWeapon && hasBack && hasYoung) {
+                        adj[i].push(j);
+                        adj[j].push(i);
+                    }
                 }
             }
         }
