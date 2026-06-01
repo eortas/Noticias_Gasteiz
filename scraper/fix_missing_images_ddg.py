@@ -32,6 +32,8 @@ def get_ddg_proxy_url(original_url):
     try:
         if "duckduckgo.com/iu/?u=" in original_url:
             return original_url
+        if original_url.startswith("data:"):
+            return original_url
         encoded_url = urllib.parse.quote(original_url)
         return f"https://external-content.duckduckgo.com/iu/?u={encoded_url}"
     except:

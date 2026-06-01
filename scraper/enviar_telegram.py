@@ -62,8 +62,8 @@ def format_message(title, body, url, category, source):
 
 def send_telegram_message(token, chat_id, text, image_url=None):
     """Envía el mensaje a Telegram usando sendPhoto o sendMessage de respaldo."""
-    # Intentar primero enviar foto si hay URL de imagen disponible
-    if image_url:
+    # Intentar primero enviar foto si hay URL de imagen disponible (y no es un data URI)
+    if image_url and not image_url.startswith("data:"):
         try:
             photo_url = f"https://api.telegram.org/bot{token}/sendPhoto"
             payload = {

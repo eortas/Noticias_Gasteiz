@@ -300,6 +300,8 @@ class MultiScraper:
         if not original_url: return None
         if "duckduckgo.com/iu/?u=" in original_url:
             return original_url
+        if original_url.startswith("data:"):
+            return original_url
         try:
             encoded_url = urllib.parse.quote(original_url)
             return f"https://external-content.duckduckgo.com/iu/?u={encoded_url}"
@@ -761,7 +763,7 @@ class MultiScraper:
         if not body or not image_url:
             try:
                 res = self._get(url, timeout=10)
-                if res.status_code == 200:
+                if res and res.status_code == 200:
                     soup = BeautifulSoup(res.text, 'html.parser')
                     if not title:
                         h1 = soup.find('h1')
@@ -820,92 +822,91 @@ class MultiScraper:
                                             except:
                                                 image_url = self._get_ddg_proxy_url(src)
                                                 break
-                else: raise Exception(f"Status {res.status_code}")
             except Exception as e:
                 # Print error if we are missing either body or image
                 if not body or not image_url:
                     print(f"  Error detalle Gasteiz Hoy directo {url}: {e}")
                 
-                # FALLBACK 1: Fresh Scraper with multiple User-Agents
-                if not image_url:
-                    for ua_name, ua_value in [
-                        ("chrome", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"),
-                        ("googlebot", "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"),
-                        ("safari", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"),
-                    ]:
-                        try:
-                            fresh_headers = {**self.headers, 'User-Agent': ua_value}
-                            fresh_scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True})
-                            res = fresh_scraper.get(url, headers=fresh_headers, timeout=10)
-                            if res.status_code == 200:
-                                soup = BeautifulSoup(res.text, 'html.parser')
-                                image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
-                                
-                                # JSON-LD
-                                if not image_url:
-                                    for script in soup.find_all('script', type='application/ld+json'):
-                                        try:
-                                            data = json.loads(script.string or script.get_text())
-                                            image_url = self._get_ddg_proxy_url(self._find_image_in_jsonld(data))
-                                            if image_url: break
-                                        except: continue
-                                
-                                # WP featured image from HTML data attributes
-                                if not image_url:
-                                    for tag in soup.find_all(['img', 'figure']):
-                                        for attr in ['data-src', 'data-original', 'data-lazy-src', 'data-large-image', 'data-featured-image']:
-                                            val = tag.get(attr)
-                                            if val and any(ext in val.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']):
-                                                if 'logo' not in val.lower():
-                                                    image_url = self._get_ddg_proxy_url(val)
-                                                    break
-                                        if image_url:
-                                            break
-                                
-                                if image_url:
-                                    print(f"  Recuperada imagen via fresh scraper ({ua_name}): {url}")
-                                    break
-                        except:
-                            continue
-                
-                # FALLBACK 2: Jina Reader (Extracción de Markdown)
-                if not image_url:
-                    markdown = self._get_via_jina(url)
-                    if markdown:
-                        # Intento A: Regex de imagen Markdown estándar
-                        match = re.search(r'!\[.*?\]\((https?://.*?)\)', markdown)
-                        if not match:
-                            # Intento B: Buscar cualquier URL de imagen en el texto si el primero falla
-                            match = re.search(r'(https?://[^\s)]+\.(?:jpg|jpeg|png|webp|gif))', markdown, re.IGNORECASE)
-                        
-                        if match:
-                            candidate = match.group(1)
-                            # Filtro de ruido
-                            if not any(x in candidate.lower() for x in ["publicidad", "banner", "logo", "avatar", "icon", "pixel"]):
-                                image_url = self._get_ddg_proxy_url(candidate)
-                                print(f"  Imagen recuperada via Jina Reader: {url}")
-
-                # FALLBACK 3: DuckDuckGo Image Search (URL o Título)
-                if not image_url:
-                    # Intento A: Buscar por la URL exacta
-                    image_url = self._search_ddg_image(url)
-                    if not image_url and title:
-                        # Intento B: Buscar por titular + fuente
-                        image_url = self._search_ddg_image(f"{title} Gasteiz Hoy")
-                    
-                    if image_url: 
-                        print(f"  Imagen recuperada via DDG Search: {url}")
-                    
-                # FALLBACK 4: Bing search with keywords from title
-                if not image_url and title:
+            # FALLBACK 1: Fresh Scraper with multiple User-Agents
+            if not image_url:
+                for ua_name, ua_value in [
+                    ("chrome", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"),
+                    ("googlebot", "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"),
+                    ("safari", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"),
+                ]:
                     try:
-                        keywords = title.split()[:8]
-                        search_query = ' '.join(keywords) + ' Gasteiz Hoy'
-                        image_url = self._search_ddg_image(search_query)
-                        if image_url:
-                            print(f"  Imagen recuperada via Bing (keywords): {url}")
+                        fresh_headers = {**self.headers, 'User-Agent': ua_value}
+                        fresh_scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True})
+                        res = fresh_scraper.get(url, headers=fresh_headers, timeout=10)
+                        if res.status_code == 200:
+                            soup = BeautifulSoup(res.text, 'html.parser')
+                            image_url = self._get_ddg_proxy_url(self._get_og_image(soup))
+                            
+                            # JSON-LD
+                            if not image_url:
+                                for script in soup.find_all('script', type='application/ld+json'):
+                                    try:
+                                        data = json.loads(script.string or script.get_text())
+                                        image_url = self._get_ddg_proxy_url(self._find_image_in_jsonld(data))
+                                        if image_url: break
+                                    except: continue
+                            
+                            # WP featured image from HTML data attributes
+                            if not image_url:
+                                for tag in soup.find_all(['img', 'figure']):
+                                    for attr in ['data-src', 'data-original', 'data-lazy-src', 'data-large-image', 'data-featured-image']:
+                                        val = tag.get(attr)
+                                        if val and any(ext in val.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']):
+                                            if 'logo' not in val.lower():
+                                                image_url = self._get_ddg_proxy_url(val)
+                                                break
+                                    if image_url:
+                                        break
+                            
+                            if image_url:
+                                print(f"  Recuperada imagen via fresh scraper ({ua_name}): {url}")
+                                break
                     except:
-                        pass
+                        continue
+            
+            # FALLBACK 2: Jina Reader (Extracción de Markdown)
+            if not image_url:
+                markdown = self._get_via_jina(url)
+                if markdown:
+                    # Intento A: Regex de imagen Markdown estándar
+                    match = re.search(r'!\[.*?\]\((https?://.*?)\)', markdown)
+                    if not match:
+                        # Intento B: Buscar cualquier URL de imagen en el texto si el primero falla
+                        match = re.search(r'(https?://[^\s)]+\.(?:jpg|jpeg|png|webp|gif))', markdown, re.IGNORECASE)
+                    
+                    if match:
+                        candidate = match.group(1)
+                        # Filtro de ruido
+                        if not any(x in candidate.lower() for x in ["publicidad", "banner", "logo", "avatar", "icon", "pixel"]):
+                            image_url = self._get_ddg_proxy_url(candidate)
+                            print(f"  Imagen recuperada via Jina Reader: {url}")
+
+            # FALLBACK 3: DuckDuckGo Image Search (URL o Título)
+            if not image_url:
+                # Intento A: Buscar por la URL exacta
+                image_url = self._search_ddg_image(url)
+                if not image_url and title:
+                    # Intento B: Buscar por titular + fuente
+                    image_url = self._search_ddg_image(f"{title} Gasteiz Hoy")
+                
+                if image_url: 
+                    print(f"  Imagen recuperada via DDG Search: {url}")
+                
+            # FALLBACK 4: Bing search with keywords from title
+            if not image_url and title:
+                try:
+                    keywords = title.split()[:8]
+                    search_query = ' '.join(keywords) + ' Gasteiz Hoy'
+                    image_url = self._search_ddg_image(search_query)
+                    if image_url:
+                        print(f"  Imagen recuperada via Bing (keywords): {url}")
+                except:
+                    pass
 
         if not body or not title:
             markdown = self._get_via_jina(url)
