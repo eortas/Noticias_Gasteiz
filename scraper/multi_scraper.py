@@ -10,7 +10,7 @@ import cloudscraper
 import requests
 from bs4 import BeautifulSoup
 
-# Importar el analizador de sentimiento español basado en Groq/Llama
+# Importar el analizador de sentimiento español basado en Groq/Qwen
 try:
     from scraper.analyze_sentiment import analyze_sentiment as groq_analyze_sentiment, heuristic_fallback
 except ImportError:
