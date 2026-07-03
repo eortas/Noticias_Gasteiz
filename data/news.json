@@ -435,6 +435,21 @@
     "rewritten": true
   },
   {
+    "id": "2d4df39d3f",
+    "title": "En imágenes: Presentación de la exposición de la “Cabeza de Baco” en el Museo de Arqueología de Álava",
+    "url": "https://www.noticiasdealava.eus/alava/2026/07/03/imagenes-presentacion-exposicion-cabeza-baco-11282055.html",
+    "source": "Diario de Noticias",
+    "body": "Se la llevó un alto cargo de la Diputación de Álava y 50 años después, tras un largo proceso judicial y de restauración, ya se exhibe en el Museo de Arqueología de la capital vasca.",
+    "date": "2026-07-03T15:35:14+02:00",
+    "sentiment": 0.7,
+    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//estaticosgn-cdn.deia.eus/clip/21405742-9c53-435e-ac3e-fdc5c1b14995_16-9-aspect-ratio_default_0.jpg",
+    "source_section": "alava",
+    "original_title": "En imágenes: Presentación de la exposición de la “Cabeza de Baco” en el Museo de Arqueología de Álava",
+    "original_body": "Se la llevó un alto cargo de la Diputación de Álava y 50 años después, tras un largo proceso judicial y de restauración, ya se exhibe en el Museo de Arqueología de la capital vasca.",
+    "rewritten": true,
+    "telegram_sent": true
+  },
+  {
     "id": "8381396827",
     "title": "Álava asesora en ciberseguridad a sus empresas",
     "url": "https://www.noticiasdealava.eus/alava/2026/07/03/alava-asesora-ciberseguridad-empresas-11280659.html",
@@ -2955,21 +2970,6 @@
     "image": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22800%22%20height%3D%22450%22%20viewBox%3D%220%200%20800%20450%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22gasteizGrad%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%220%25%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%233b82f6%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2225%25%22%20stop-color%3D%22%2306b6d4%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%2310b981%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2275%25%22%20stop-color%3D%22%23846358%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23f43f5e%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%23f8fafc%22/%3E%0A%20%20%3Crect%20x%3D%2220%22%20y%3D%2220%22%20width%3D%22760%22%20height%3D%22410%22%20fill%3D%22none%22%20stroke%3D%22%23cbd5e1%22%20stroke-width%3D%222%22%20stroke-opacity%3D%220.5%22%20rx%3D%2212%22/%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%22180%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22%27Outfit%27%2C%20system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22900%22%20font-size%3D%22100%22%20fill%3D%22url%28%23gasteizGrad%29%22%20letter-spacing%3D%22-2%22%3EGasteiz%3C/text%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%22290%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22%27Outfit%27%2C%20system-ui%2C%20-apple-system%2C%20sans-serif%22%20font-weight%3D%22900%22%20font-size%3D%22100%22%20fill%3D%22%230f172a%22%20letter-spacing%3D%22-2%22%3ELive%3C/text%3E%0A%3C/svg%3E",
     "original_title": "Amaia Arrazola dará nombre a los jardines de Zulueta",
     "original_body": "Los jardines del Palacio Zulueta recibirán el nombre de la ilustradora fallecida hace unos meses\n\nAdemás, Maider Etxebarria ha anunciado que la nueva sala del Palacio Europa recibirá el nombre de Blanca Estrella Ruiz, presidenta de la asociación Clara Campoamor. Blanca Estrella Ruiz falleció en 2024 y fue un referente feminista.",
-    "rewritten": true,
-    "telegram_sent": true
-  },
-  {
-    "id": "ca4b8f1fd4",
-    "title": "Detenido un septuagenario en Vitoria por coaccionar a su expareja",
-    "url": "https://www.noticiasdealava.eus/gasteiz/2026/07/02/detenido-hombre-73-anos-vitoria-11275804.html",
-    "source": "Diario de Noticias",
-    "body": "En un día marcado por la intensa actividad policial en Vitoria, la atención se centró en dos incidentes destacados que tuvieron lugar en diferentes barrios de la ciudad. El primero de ellos involucró a un hombre de 73 años, quien fue detenido por la Policía Local bajo la sospecha de cometer delitos de coacciones y vejaciones contra su expareja. La situación se desencadenó este miércoles, poco después de las 13:30 horas, cuando una patrulla policial fue requerida para acudir a un domicilio en el barrio de Judimendi. Allí, encontraron a una mujer que, en un intento desesperado por escapar de la coacción, se había encerrado en el baño. Tras evaluar la situación y escuchar las declaraciones de ambos involucrados, los agentes decidieron detener al hombre de 73 años. Esta detención pone de relieve la importancia de la intervención policial en casos de violencia de género y coacciones, donde la prontitud y la eficacia en la respuesta pueden ser cruciales para prevenir situaciones más graves. La Policía Local demostró, una vez más, su compromiso con la seguridad y el bienestar de los ciudadanos, actuando con celeridad y profesionalidad en una situación que requería una atención inmediata. Por otro lado, en un caso completamente diferente, la eficiencia policial se hizo notar en la resolución de un delito de hurto de bicicleta. Aproximadamente a las 16:00 horas, una llamada al número de emergencia 092 alertó a la policía sobre la presencia de una bicicleta sustraída en el portal de Betoño. La bicicleta en cuestión, con un valor estimado de casi 1700 euros, había sido robada esa misma mañana. Gracias al sistema de geolocalización que incorporaba, su dueño logró rastrearla y localizarla. Al percatarse de la presencia de los agentes, el joven de 18 años que portaba la bicicleta la abandonó y se refugió en un establecimiento cercano, donde finalmente fue detenido por la policía. La bicicleta fue recuperada y devuelta a su legítimo propietario, lo que no solo resolvió el delito sino que también demostró la efectividad de la tecnología en la lucha contra el hurto. Estos incidentes destacan la dedicación y la eficacia de la Policía Local de Vitoria en la resolución de delitos y en la protección de los ciudadanos, mostrando una vez más su compromiso con la seguridad y la justicia en la comunidad.",
-    "date": "2026-07-02T10:33:49+02:00",
-    "sentiment": -1.0,
-    "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//estaticosgn-cdn.deia.eus/clip/8dd38497-631f-4918-a747-7a092620f7fd_16-9-aspect-ratio_default_0.jpg",
-    "source_section": "alava",
-    "original_title": "Detenido un hombre de 73 años en Vitoria por coaccionar a su expareja",
-    "original_body": "La Policía Local ha detenido a un hombre de 73 años como presunto autor de un delito de coacciones y vejaciones a su expareja, que se tuvo que encerrar en el baño.\n\nLos hechos han tenido lugar este miércoles, poco después de las 13.30 horas, cuando una patrulla fue requerida para que se dirigiera a un domicilio del barrio de Judimendi, donde una mujer se había encerrado en el baño porque su expareja la estaba coaccionando. Una vez en el lugar y, en vista de las manifestaciones de ambos, detuvieron al hombre.\n\nPor otro lado, se ha detenido a un joven de 18 años como presunto autor de un delito de hurto de bicicleta. En torno a las 16.00 horas, una llamada al 092 demandaba presencia policial en portal de Betoño donde una persona había localizado su bicicleta sustraída. La bicicleta fue robada por la mañana y gracias al sistema de geolocalización que portaba, fue localizado por su propietario. La persona que lo portaba, al detectar la presencia de los policías, la abandonó y se introdujo en un establecimiento de las inmediaciones donde fue localizado y detenido. El vehículo con un valor de casi 1700 euros fue devuelto a su legítimo dueño.",
     "rewritten": true,
     "telegram_sent": true
   }
