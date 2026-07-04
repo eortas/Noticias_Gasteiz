@@ -138,7 +138,7 @@ def summarize_chunk(client, chunk_items, chunk_num, total_chunks):
 
     print(f"  Procesando chunk {chunk_num}/{total_chunks} ({len(chunk_items)} noticias)...")
     completion = client.chat.completions.create(
-        model="qwen/qwen3.6-27b",
+        model="qwen/qwen3-32b",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
@@ -180,7 +180,7 @@ No incluyas firmas, ni menciones a Gasteiz Live. Limítate al resumen periodíst
 
     print("  Generando resumen final...")
     completion = client.chat.completions.create(
-        model="qwen/qwen3.6-27b",
+        model="qwen/qwen3-32b",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
@@ -290,7 +290,7 @@ No incluyas firmas, ni menciones a Gasteiz Live. Limítate al resumen periodíst
 
     print("  Ampliando resumen existente con nuevas noticias...")
     completion = client.chat.completions.create(
-        model="qwen/qwen3.6-27b",
+        model="qwen/qwen3-32b",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
