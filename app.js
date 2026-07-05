@@ -14,6 +14,108 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentFilter = null;
     let currentCategory = null;
     const READ_ARTICLES_KEY = 'vitoria_read_articles';
+    const LANG_KEY = 'gasteiz_live_lang';
+    let currentLang = localStorage.getItem(LANG_KEY) || 'es';
+
+    const UI_TRANSLATIONS = {
+        es: {
+            subtitle: "Noticias de Vitoria-Gasteiz y Álava analizadas por Inteligencia Artificial.",
+            backPortal: "Volver al portal",
+            readSummary: "Leer resumen completo",
+            summaryTitle: "Resumen de noticias del día",
+            summaryPreview: "Colección de las noticias más relevantes de Álava y deportes, resumidas y organizadas por IA para que estés siempre informado.",
+            compareSources: "Comparar fuentes:",
+            verifiedAI: "Documento verificado y analizado por IA",
+            noNews: "No hay noticias disponibles.",
+            noNewsFilter: "No hay noticias que coincidan con estos filtros hoy.",
+            noNewsRead: "No hay noticias leídas en esta sección todavía.",
+            sourcesModalTitle: "Selecciona la fuente de información",
+            sourcesModalSubtitle: "Esta noticia ha sido publicada por varios medios locales. Elige qué versión prefieres leer:",
+            sourcesCount: "Fuentes",
+            sentimentPos: "Positivas",
+            sentimentNeu: "Neutrales",
+            sentimentNeg: "Negativas",
+            sentimentRead: "Leídas",
+            sentimentTag: "Leído",
+            catEconomia: "Economía",
+            catSociedad: "Sociedad",
+            catDeportes: "Deportes",
+            catCultura: "Cultura"
+        },
+        eu: {
+            subtitle: "Vitoria-Gasteizko eta Arabako albisteak Adimen Artifizialak aztertuta.",
+            backPortal: "Atariara itzuli",
+            readSummary: "Laburpen osoa irakurri",
+            summaryTitle: "Eguneko albisteen laburpena",
+            summaryPreview: "Arabako eta kiroletako albiste garrantzitsuenen bilduma, AI-k laburtu eta antolatua beti informatuta egon zaitezen.",
+            compareSources: "Iturriak alderatu:",
+            verifiedAI: "Agiria egiaztatuta eta AI-k aztertuta",
+            noNews: "Ez dago albisterik eskuragarri.",
+            noNewsFilter: "Ez dago iragazki hauekin bat datorren albisterik gaur.",
+            noNewsRead: "Ez dago irakurritako albisterik atal honetan oraindik.",
+            sourcesModalTitle: "Aukeratu informazio iturria",
+            sourcesModalSubtitle: "Albiste hau tokiko hainbat komunikabidek argitaratu dute. Aukeratu zein bertsio irakurri nahi duzun:",
+            sourcesCount: "Iturri",
+            sentimentPos: "Positiboak",
+            sentimentNeu: "Neutroak",
+            sentimentNeg: "Negatiboak",
+            sentimentRead: "Irakurriak",
+            sentimentTag: "Irakurrita",
+            catEconomia: "Ekonomia",
+            catSociedad: "Gizartea",
+            catDeportes: "Kirolak",
+            catCultura: "Kultura"
+        }
+    };
+
+    function initLanguage() {
+        const btnEs = document.getElementById('btn-lang-es');
+        const btnEu = document.getElementById('btn-lang-eu');
+        const subtitleText = document.getElementById('subtitle-text');
+        
+        // Sincronizar UI de botones al inicio
+        if (currentLang === 'eu') {
+            if (btnEs) btnEs.classList.remove('active');
+            if (btnEu) btnEu.classList.add('active');
+        } else {
+            if (btnEs) btnEs.classList.add('active');
+            if (btnEu) btnEu.classList.remove('active');
+        }
+        
+        // Actualizar subtítulo inicial
+        if (subtitleText) {
+            subtitleText.textContent = UI_TRANSLATIONS[currentLang].subtitle;
+        }
+
+        const handleLangChange = (lang) => {
+            if (currentLang === lang) return;
+            currentLang = lang;
+            localStorage.setItem(LANG_KEY, lang);
+            
+            if (currentLang === 'eu') {
+                if (btnEs) btnEs.classList.remove('active');
+                if (btnEu) btnEu.classList.add('active');
+            } else {
+                if (btnEs) btnEs.classList.add('active');
+                if (btnEu) btnEu.classList.remove('active');
+            }
+            
+            if (subtitleText) {
+                subtitleText.textContent = UI_TRANSLATIONS[currentLang].subtitle;
+            }
+            
+            // Volver a renderizar todas las vistas
+            renderStats();
+            renderCategories();
+            renderNewsFeed();
+        };
+
+        if (btnEs) btnEs.addEventListener('click', () => handleLangChange('es'));
+        if (btnEu) btnEu.addEventListener('click', () => handleLangChange('eu'));
+    }
+
+    // Inicializar idioma
+    initLanguage();
 
     function formatDate(dateStr) {
         try {
@@ -231,15 +333,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
             <div class="card card-summary glass" data-id="${item.id}" data-is-summary="true">
                 <div class="card-img-wrap">
-                    <img src="data/resumen.png" alt="Resumen de noticias" class="card-img" loading="lazy">
+                    <img src="data/resumen.png" alt="${UI_TRANSLATIONS[currentLang].summaryTitle}" class="card-img" loading="lazy">
                     <div class="img-overlay"></div>
                 </div>
                 <div class="card-content">
                     <div class="card-date">${formatDate(item.date)}</div>
-                    <h2 class="card-title card-summary-title">Resumen de noticias del día</h2>
-                    <p class="card-summary-preview">Colección de las noticias más relevantes de Álava y deportes, resumidas y organizadas por IA para que estés siempre informado.</p>
+                    <h2 class="card-title card-summary-title">${UI_TRANSLATIONS[currentLang].summaryTitle}</h2>
+                    <p class="card-summary-preview">${UI_TRANSLATIONS[currentLang].summaryPreview}</p>
                     <div class="card-footer">
-                        <span class="read-more">Leer resumen completo</span>
+                        <span class="read-more">${UI_TRANSLATIONS[currentLang].readSummary}</span>
                         <div class="line"></div>
                     </div>
                 </div>
@@ -249,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderNewsFeed() {
         if (!newsData || newsData.length === 0) {
-            newsGrid.innerHTML = '<p style="color:var(--text-muted); font-weight:300;">No hay noticias disponibles.</p>';
+            newsGrid.innerHTML = `<p style="color:var(--text-muted); font-weight:300;">${UI_TRANSLATIONS[currentLang].noNews}</p>`;
             return;
         }
 
@@ -282,8 +384,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (clusters.length === 0 && !summaryItem) {
-            let noNewsText = 'No hay noticias que coincidan con estos filtros hoy.';
-            if (currentFilter === 'leidas') noNewsText = 'No hay noticias leídas en esta sección todavía.';
+            let noNewsText = UI_TRANSLATIONS[currentLang].noNewsFilter;
+            if (currentFilter === 'leidas') noNewsText = UI_TRANSLATIONS[currentLang].noNewsRead;
             newsGrid.innerHTML = `<p style="color:var(--text-muted); font-weight:300; padding: 2rem;">${noNewsText}</p>`;
             return;
         }
@@ -302,30 +404,36 @@ document.addEventListener('DOMContentLoaded', () => {
             const sentimentClass = item.sentiment_label || 'neutral';
             const isMultiSource = cluster.items.length > 1;
 
+            // Obtener título traducido si estamos en euskera y existe traducción
+            const titleDisplay = (currentLang === 'eu' && item.title_eu) ? item.title_eu : item.title;
+            const readTag = currentLang === 'eu' ? 'Irakurrita' : 'Leído';
+            const sourcesText = currentLang === 'eu' ? 'Iturri' : 'Fuentes';
+            const readMoreText = currentLang === 'eu' ? 'Istorioa ikusi' : 'Ver narrativa';
+
             return `
                 <div class="card glass ${isRead ? 'card-read' : ''} ${isMultiSource ? 'card-multi-source' : ''}" 
                      data-cluster-index="${index}" 
                      ${isMultiSource ? '' : `data-source="${item.source}"`} 
                      data-id="${item.id}">
-                    <div class="card-img-wrap">
-                        <img src="${item.image || ''}" alt="${item.title}" class="card-img" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
-                        <div class="img-overlay"></div>
-                        <div class="card-top-badges">
-                            <div class="card-source-badge">
-                                <div class="sentiment-dot dot-${sentimentClass}" title="Sentimiento: ${sentimentClass}"></div>
-                            </div>
-                            ${isMultiSource ? `<div class="badge-multi-source">${cluster.items.length} Fuentes</div>` : ''}
-                            ${item.category && item.category !== 'Otros' ? `<div class="badge-category cat-${item.category.toLowerCase().replace('í', 'i')}">${item.category}</div>` : ''}
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <div class="card-date">${formatDate(item.date)} ${isRead ? `<span class="read-tag">• Leído</span>` : ''}</div>
-                        <h2 class="card-title">${item.title}</h2>
-                        <div class="card-footer">
-                            <span class="read-more">Ver narrativa</span>
-                            <div class="line"></div>
-                        </div>
-                    </div>
+                     <div class="card-img-wrap">
+                         <img src="${item.image || ''}" alt="${titleDisplay}" class="card-img" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
+                         <div class="img-overlay"></div>
+                         <div class="card-top-badges">
+                             <div class="card-source-badge">
+                                 <div class="sentiment-dot dot-${sentimentClass}" title="Sentimiento: ${sentimentClass}"></div>
+                             </div>
+                             ${isMultiSource ? `<div class="badge-multi-source">${cluster.items.length} ${sourcesText}</div>` : ''}
+                             ${item.category && item.category !== 'Otros' ? `<div class="badge-category cat-${item.category.toLowerCase().replace('í', 'i')}">${currentLang === 'eu' ? (UI_TRANSLATIONS.eu['cat' + item.category.replace('í', 'i')] || item.category) : item.category}</div>` : ''}
+                         </div>
+                     </div>
+                     <div class="card-content">
+                         <div class="card-date">${formatDate(item.date)} ${isRead ? `<span class="read-tag">• ${readTag}</span>` : ''}</div>
+                         <h2 class="card-title">${titleDisplay}</h2>
+                         <div class="card-footer">
+                             <span class="read-more">${readMoreText}</span>
+                             <div class="line"></div>
+                         </div>
+                     </div>
                 </div>
             `;
         }).join('');
@@ -370,28 +478,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         statsContainer.innerHTML = `
             <div class="stat-item ${currentFilter === 'positiva' ? 'stat-active' : ''}" data-filter="positiva">
-                <div class="stat-label">Positivas</div>
+                <div class="stat-label">${UI_TRANSLATIONS[currentLang].sentimentPos}</div>
                 <div class="stat-value text-emerald">
                     ${counts.positiva}
                     ${currentFilter === 'positiva' ? '<div class="filter-dot"></div>' : ''}
                 </div>
             </div>
             <div class="stat-item ${currentFilter === 'neutral' ? 'stat-active' : ''}" data-filter="neutral">
-                <div class="stat-label">Neutrales</div>
+                <div class="stat-label">${UI_TRANSLATIONS[currentLang].sentimentNeu}</div>
                 <div class="stat-value">
                     ${counts.neutral}
                     ${currentFilter === 'neutral' ? '<div class="filter-dot"></div>' : ''}
                 </div>
             </div>
             <div class="stat-item ${currentFilter === 'negativa' ? 'stat-active' : ''}" data-filter="negativa">
-                <div class="stat-label">Negativas</div>
+                <div class="stat-label">${UI_TRANSLATIONS[currentLang].sentimentNeg}</div>
                 <div class="stat-value text-rose">
                     ${counts.negativa}
                     ${currentFilter === 'negativa' ? '<div class="filter-dot"></div>' : ''}
                 </div>
             </div>
             <div class="stat-item ${currentFilter === 'leidas' ? 'stat-active' : ''}" data-filter="leidas">
-                <div class="stat-label">Leídas</div>
+                <div class="stat-label">${UI_TRANSLATIONS[currentLang].sentimentRead}</div>
                 <div class="stat-value text-indigo">
                     ${readCount}
                     ${currentFilter === 'leidas' ? '<div class="filter-dot"></div>' : ''}
@@ -415,20 +523,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Siempre mostrar los 4 botones fijos; se habilitan/deshabilitan visualmente según datos
         const allCategories = [
-            { label: 'Economía', key: 'economia' },
-            { label: 'Sociedad',  key: 'sociedad' },
-            { label: 'Deportes', key: 'deportes' },
-            { label: 'Cultura',  key: 'cultura' }
+            { label: 'Economía', key: 'economia', translationKey: 'catEconomia' },
+            { label: 'Sociedad',  key: 'sociedad', translationKey: 'catSociedad' },
+            { label: 'Deportes', key: 'deportes', translationKey: 'catDeportes' },
+            { label: 'Cultura',  key: 'cultura', translationKey: 'catCultura' }
         ];
 
         const availableSections = new Set(newsData.map(item => item.source_section).filter(Boolean));
 
         categoriesContainer.innerHTML = allCategories.map(cat => {
             const hasData = availableSections.has(cat.key);
+            const labelDisplay = UI_TRANSLATIONS[currentLang][cat.translationKey] || cat.label;
+            const tooltipText = !hasData 
+                ? (currentLang === 'eu' ? 'Ez dago albisterik gaur atal honetan' : 'Sin noticias hoy en esta sección') 
+                : labelDisplay;
             return `
             <div class="category-btn ${currentCategory === cat.label ? 'active' : ''} ${!hasData ? 'cat-empty' : ''}" 
-                 data-category="${cat.label}" title="${!hasData ? 'Sin noticias hoy en esta sección' : cat.label}">
-                ${cat.label}
+                 data-category="${cat.label}" title="${tooltipText}">
+                ${labelDisplay}
             </div>`;
         }).join('');
 
@@ -449,15 +561,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openSourcesModal(cluster) {
         const sourcesList = document.getElementById('modal-sources-list');
+        const modalTitle = document.querySelector('.modal-title');
+        const modalSubtitle = document.querySelector('.modal-subtitle');
+        
+        if (modalTitle) modalTitle.textContent = UI_TRANSLATIONS[currentLang].sourcesModalTitle;
+        if (modalSubtitle) modalSubtitle.textContent = UI_TRANSLATIONS[currentLang].sourcesModalSubtitle;
+
         sourcesList.innerHTML = cluster.items.map(item => {
             const sentimentClass = item.sentiment_label || 'neutral';
+            const optTitle = (currentLang === 'eu' && item.title_eu) ? item.title_eu : item.title;
             return `
                 <button class="source-option-btn" data-id="${item.id}" data-source="${item.source}">
                     <div>
                         <div class="source-option-name">
                             <div class="sentiment-dot dot-${sentimentClass}"></div>
                         </div>
-                        <div class="source-option-title">${item.title}</div>
+                        <div class="source-option-title">${optTitle}</div>
                     </div>
                     <div class="source-option-meta">
                         <span style="font-size: 0.75rem; color: var(--text-muted);">${formatDate(item.date)}</span>
@@ -496,6 +615,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const item = newsData.find(n => n.id === id);
         if (!item) return;
 
+        // Sincronizar el texto del botón volver
+        const backBtnText = document.getElementById('back-btn-text');
+        if (backBtnText) {
+            backBtnText.textContent = UI_TRANSLATIONS[currentLang].backPortal;
+        }
+
         // Marcar como leído
         const readIds = JSON.parse(localStorage.getItem(READ_ARTICLES_KEY) || '[]');
         if (!readIds.includes(id)) {
@@ -511,7 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cluster && cluster.items.length > 1) {
             sourcesSelectorHtml = `
                 <div class="detail-sources-selector">
-                    <span class="selector-label">Comparar fuentes:</span>
+                    <span class="selector-label">${UI_TRANSLATIONS[currentLang].compareSources}</span>
                     <div class="selector-pills">
                         ${cluster.items.map(it => `
                             <button class="source-pill ${it.id === id ? 'active' : ''}" data-id="${it.id}" data-source="${it.source}"></button>
@@ -522,12 +647,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const sentimentColorClass = item.sentiment_label === 'positiva' ? 'text-emerald' : (item.sentiment_label === 'negativa' ? 'text-rose' : 'text-muted');
+        const detailTitle = (currentLang === 'eu' && item.title_eu) ? item.title_eu : item.title;
         
         // Build body HTML: for summary items, split into one sentence per paragraph
         let bodyHtml = '';
+        const bodyContent = (currentLang === 'eu' && item.body_eu) ? item.body_eu : (item.body || '');
+
         if (item.is_summary) {
-            const intro = '<p class="paragraph" style="font-weight: 400; font-size: 1.4rem; color: var(--indigo-500);">Aquí tienes las noticias del día resumidas para gente con poco tiempo disponible, siempre actualizadas y disponibles para ti.</p>';
-            const rawBody = (item.body || '').trim();
+            const introText = currentLang === 'eu' 
+                ? 'Hemen dituzu eguneko albisteak denbora gutxi dutenentzako laburtuta, beti eguneratuta eta zuretzat eskuragarri.'
+                : 'Aquí tienes las noticias del día resumidas para gente con poco tiempo disponible, siempre actualizadas y disponibles para ti.';
+            const intro = `<p class="paragraph" style="font-weight: 400; font-size: 1.4rem; color: var(--indigo-500);">${introText}</p>`;
+            const rawBody = bodyContent.trim();
+            const fallbackText = currentLang === 'eu' ? 'Eduki osoa ez dago eskuragarri.' : 'El contenido completo no está disponible.';
             
             // For virtual summaries (generated in frontend), preserve bullet structure by splitting on newlines
             if (item.id && item.id.startsWith('resumen_virtual_')) {
@@ -542,14 +674,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     .filter(s => s.length > 1);
                 const summaryHtml = sentences.length > 0
                     ? sentences.map(s => `<p class="paragraph">${s}</p>`).join('')
-                    : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">El contenido completo no está disponible.</p>`;
+                    : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">${fallbackText}</p>`;
                 bodyHtml = intro + summaryHtml;
             }
         } else {
-            const paragraphs = (item.body || '').split('\n').filter(p => p.trim() !== '');
+            const paragraphs = bodyContent.split('\n').filter(p => p.trim() !== '');
+            const fallbackText = currentLang === 'eu' ? 'Eduki osoa ez dago eskuragarri.' : 'El contenido completo no está disponible.';
             bodyHtml = paragraphs.length > 0 
                 ? paragraphs.map(p => `<p class="paragraph">${p}</p>`).join('')
-                : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">El contenido completo no está disponible.</p>`;
+                : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">${fallbackText}</p>`;
         }
 
         // For summary items, use the resumen.png image
@@ -558,14 +691,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Render Detail
         articleContent.innerHTML = `
             <div class="hero-wrap">
-                <img src="${heroImage}" alt="${item.title}" class="hero-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
+                <img src="${heroImage}" alt="${detailTitle}" class="hero-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMxZTI5M2IiLz48L3N2Zz4='">
                 <div class="hero-overlay"></div>
                 <div class="hero-content">
                     <div class="hero-badges">
-                        <span class="badge-sentiment ${sentimentColorClass}"># ${item.sentiment_label}</span>
-                        ${item.category ? `<span class="badge-source">${item.category}</span>` : ''}
+                        <span class="badge-sentiment ${sentimentColorClass}"># ${currentLang === 'eu' ? (UI_TRANSLATIONS.eu[item.sentiment_label] || item.sentiment_label) : item.sentiment_label}</span>
+                        ${item.category ? `<span class="badge-source">${currentLang === 'eu' ? (UI_TRANSLATIONS.eu['cat' + item.category.replace('í', 'i')] || item.category) : item.category}</span>` : ''}
                     </div>
-                    <h1 class="hero-title">${item.title}</h1>
+                    <h1 class="hero-title">${detailTitle}</h1>
                 </div>
             </div>
             
@@ -584,7 +717,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 
                 <div class="article-footer">
-                    <div class="footer-note">Documento verificado y analizado por IA</div>
+                    <div class="footer-note">${UI_TRANSLATIONS[currentLang].verifiedAI}</div>
                 </div>
             </div>
         `;

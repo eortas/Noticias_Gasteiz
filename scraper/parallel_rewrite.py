@@ -2,7 +2,7 @@ import json
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from analyze_sentiment import rewrite_article
+from analyze_sentiment import rewrite_article, translate_article
 
 def parallel_rewrite_news(max_workers=6):
     news_file = 'data/news.json'
@@ -13,16 +13,15 @@ def parallel_rewrite_news(max_workers=6):
     with open(news_file, 'r', encoding='utf-8') as f:
         news = json.load(f)
 
-    # Filtrar solo las que no han sido reescritas aún
-    # Consideramos "reescrita" si ya tiene el campo 'rewritten': true
-    to_process = [item for item in news if not item.get('rewritten')]
+    # Filtrar las noticias que no han sido reescritas aún O no han sido traducidas al euskera aún
+    to_process = [item for item in news if not item.get('rewritten') or not item.get('translated_eu')]
     
     if not to_process:
-        print("Todas las noticias ya están reescritas.")
+        print("Todas las noticias ya están reescritas y traducidas.")
         return
 
     total = len(to_process)
-    print(f"Iniciando reescritura paralela de {total} noticias con {max_workers} hilos...", flush=True)
+    print(f"Iniciando reescritura/traducción paralela de {total} noticias con {max_workers} hilos...", flush=True)
 
     def process_item(item):
         # Priorizar siempre los originales si ya existen para evitar reescribir sobre reescrito
@@ -33,23 +32,40 @@ def parallel_rewrite_news(max_workers=6):
         if not title_orig or not body_orig:
             return None
 
+        success = False
         try:
-            # Reescritura usando el pool de Groq (rotación aleatoria interna)
-            new_title, new_body = rewrite_article(title_orig, body_orig)
-            
-            if new_title and new_body:
-                # Guardar originales por si acaso
-                if 'original_title' not in item:
-                    item['original_title'] = title_orig
-                if 'original_body' not in item:
-                    item['original_body'] = body_orig
-                
-                item['title'] = new_title
-                item['body'] = new_body
-                item['rewritten'] = True
-                return True
+            # 1. Reescribir si no se ha hecho
+            if not item.get('rewritten'):
+                new_title, new_body = rewrite_article(title_orig, body_orig)
+                if new_title and new_body:
+                    # Guardar originales por si acaso
+                    if 'original_title' not in item:
+                        item['original_title'] = title_orig
+                    if 'original_body' not in item:
+                        item['original_body'] = body_orig
+                    
+                    item['title'] = new_title
+                    item['body'] = new_body
+                    item['rewritten'] = True
+                    success = True
+                else:
+                    return False
             else:
-                return False
+                success = True # Ya estaba reescrita, procedemos con traducción
+
+            # 2. Traducir al euskera si no se ha hecho
+            if success and not item.get('translated_eu'):
+                current_title = item.get('title', '')
+                current_body = item.get('body', '')
+                title_eu, body_eu = translate_article(current_title, current_body)
+                if title_eu and body_eu:
+                    item['title_eu'] = title_eu
+                    item['body_eu'] = body_eu
+                    item['translated_eu'] = True
+                else:
+                    success = False
+
+            return success
         except Exception as e:
             print(f"Error procesando {url}: {e}", flush=True)
             return False

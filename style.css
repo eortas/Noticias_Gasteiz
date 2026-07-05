@@ -165,9 +165,14 @@ body {
 }
 
 .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     margin-bottom: 3rem;
     position: relative;
     z-index: 10;
+    flex-wrap: wrap;
+    gap: 1.5rem;
 }
 
 .title {
