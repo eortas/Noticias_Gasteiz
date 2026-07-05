@@ -65,22 +65,47 @@ document.addEventListener('DOMContentLoaded', () => {
             catSociedad: "Gizartea",
             catDeportes: "Kirolak",
             catCultura: "Kultura"
+        },
+        pl: {
+            subtitle: "Wiadomości z Vitoria-Gasteiz i Alavy analizowane przez Sztuczną Inteligencję.",
+            backPortal: "Wróć do portalu",
+            readSummary: "Przeczytaj całe podsumowanie",
+            summaryTitle: "Podsumowanie wiadomości dnia",
+            summaryPreview: "Zbiór najważniejszych wiadomości z Alavy i sportu, podsumowany i zorganizowany przez AI, abyś zawsze był poinformowany.",
+            compareSources: "Porównaj źródła:",
+            verifiedAI: "Dokument zweryfikowany i przeanalizowany przez AI",
+            noNews: "Brak dostępnych wiadomości.",
+            noNewsFilter: "Brak wiadomości spełniających te filtry dzisiaj.",
+            noNewsRead: "Brak przeczytanych wiadomości w tej sekcji.",
+            sourcesModalTitle: "Wybierz źródło informacji",
+            sourcesModalSubtitle: "Ta wiadomość została opublikowana przez kilka lokalnych mediów. Wybierz wersję, którą wolisz przeczytać:",
+            sourcesCount: "Źródła",
+            sentimentPos: "Pozytywne",
+            sentimentNeu: "Neutralne",
+            sentimentNeg: "Negatywne",
+            sentimentRead: "Przeczytane",
+            sentimentTag: "Przeczytane",
+            catEconomia: "Ekonomia",
+            catSociedad: "Społeczeństwo",
+            catDeportes: "Sport",
+            catCultura: "Kultura"
         }
     };
 
     function initLanguage() {
         const btnEs = document.getElementById('btn-lang-es');
         const btnEu = document.getElementById('btn-lang-eu');
+        const btnPl = document.getElementById('btn-lang-pl');
         const subtitleText = document.getElementById('subtitle-text');
         
         // Sincronizar UI de botones al inicio
-        if (currentLang === 'eu') {
-            if (btnEs) btnEs.classList.remove('active');
-            if (btnEu) btnEu.classList.add('active');
-        } else {
-            if (btnEs) btnEs.classList.add('active');
-            if (btnEu) btnEu.classList.remove('active');
-        }
+        const updateButtonActiveState = () => {
+            if (btnEs) btnEs.classList.toggle('active', currentLang === 'es');
+            if (btnEu) btnEu.classList.toggle('active', currentLang === 'eu');
+            if (btnPl) btnPl.classList.toggle('active', currentLang === 'pl');
+        };
+        
+        updateButtonActiveState();
         
         // Actualizar subtítulo inicial
         if (subtitleText) {
@@ -92,13 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentLang = lang;
             localStorage.setItem(LANG_KEY, lang);
             
-            if (currentLang === 'eu') {
-                if (btnEs) btnEs.classList.remove('active');
-                if (btnEu) btnEu.classList.add('active');
-            } else {
-                if (btnEs) btnEs.classList.add('active');
-                if (btnEu) btnEu.classList.remove('active');
-            }
+            updateButtonActiveState();
             
             if (subtitleText) {
                 subtitleText.textContent = UI_TRANSLATIONS[currentLang].subtitle;
@@ -112,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (btnEs) btnEs.addEventListener('click', () => handleLangChange('es'));
         if (btnEu) btnEu.addEventListener('click', () => handleLangChange('eu'));
+        if (btnPl) btnPl.addEventListener('click', () => handleLangChange('pl'));
     }
 
     // Inicializar idioma
@@ -404,11 +424,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const sentimentClass = item.sentiment_label || 'neutral';
             const isMultiSource = cluster.items.length > 1;
 
-            // Obtener título traducido si estamos en euskera y existe traducción
-            const titleDisplay = (currentLang === 'eu' && item.title_eu) ? item.title_eu : item.title;
-            const readTag = currentLang === 'eu' ? 'Irakurrita' : 'Leído';
-            const sourcesText = currentLang === 'eu' ? 'Iturri' : 'Fuentes';
-            const readMoreText = currentLang === 'eu' ? 'Istorioa ikusi' : 'Ver narrativa';
+            // Obtener título traducido si está disponible
+            let titleDisplay = item.title;
+            if (currentLang === 'eu' && item.title_eu) {
+                titleDisplay = item.title_eu;
+            } else if (currentLang === 'pl' && item.title_pl) {
+                titleDisplay = item.title_pl;
+            }
+            
+            const readTag = UI_TRANSLATIONS[currentLang].sentimentTag || 'Leído';
+            const sourcesText = UI_TRANSLATIONS[currentLang].sourcesCount || 'Fuentes';
+            const readMoreText = currentLang === 'eu' ? 'Istorioa ikusi' : (currentLang === 'pl' ? 'Zobacz historię' : 'Ver narrativa');
 
             return `
                 <div class="card glass ${isRead ? 'card-read' : ''} ${isMultiSource ? 'card-multi-source' : ''}" 
@@ -423,7 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                  <div class="sentiment-dot dot-${sentimentClass}" title="Sentimiento: ${sentimentClass}"></div>
                              </div>
                              ${isMultiSource ? `<div class="badge-multi-source">${cluster.items.length} ${sourcesText}</div>` : ''}
-                             ${item.category && item.category !== 'Otros' ? `<div class="badge-category cat-${item.category.toLowerCase().replace('í', 'i')}">${currentLang === 'eu' ? (UI_TRANSLATIONS.eu['cat' + item.category.replace('í', 'i')] || item.category) : item.category}</div>` : ''}
+                             ${item.category && item.category !== 'Otros' ? `<div class="badge-category cat-${item.category.toLowerCase().replace('í', 'i')}">${UI_TRANSLATIONS[currentLang]['cat' + item.category.replace('í', 'i')] || item.category}</div>` : ''}
                          </div>
                      </div>
                      <div class="card-content">
@@ -647,19 +673,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const sentimentColorClass = item.sentiment_label === 'positiva' ? 'text-emerald' : (item.sentiment_label === 'negativa' ? 'text-rose' : 'text-muted');
-        const detailTitle = (currentLang === 'eu' && item.title_eu) ? item.title_eu : item.title;
         
-        // Build body HTML: for summary items, split into one sentence per paragraph
+        let detailTitle = item.title;
+        if (currentLang === 'eu' && item.title_eu) {
+            detailTitle = item.title_eu;
+        } else if (currentLang === 'pl' && item.title_pl) {
+            detailTitle = item.title_pl;
+        }
+        
+        let bodyContent = item.body || '';
+        if (currentLang === 'eu' && item.body_eu) {
+            bodyContent = item.body_eu;
+        } else if (currentLang === 'pl' && item.body_pl) {
+            bodyContent = item.body_pl;
+        }
+        
         let bodyHtml = '';
-        const bodyContent = (currentLang === 'eu' && item.body_eu) ? item.body_eu : (item.body || '');
 
         if (item.is_summary) {
             const introText = currentLang === 'eu' 
                 ? 'Hemen dituzu eguneko albisteak denbora gutxi dutenentzako laburtuta, beti eguneratuta eta zuretzat eskuragarri.'
-                : 'Aquí tienes las noticias del día resumidas para gente con poco tiempo disponible, siempre actualizadas y disponibles para ti.';
+                : (currentLang === 'pl' 
+                    ? 'Oto dzisiejsze wiadomości podsumowane dla osób z ograniczonym czasem, zawsze aktualne i dostępne dla Ciebie.'
+                    : 'Aquí tienes las noticias del día resumidas para gente con poco tiempo disponible, siempre actualizadas y disponibles para ti.');
             const intro = `<p class="paragraph" style="font-weight: 400; font-size: 1.4rem; color: var(--indigo-500);">${introText}</p>`;
             const rawBody = bodyContent.trim();
-            const fallbackText = currentLang === 'eu' ? 'Eduki osoa ez dago eskuragarri.' : 'El contenido completo no está disponible.';
+            const fallbackText = currentLang === 'eu' 
+                ? 'Eduki osoa ez dago eskuragarri.' 
+                : (currentLang === 'pl' 
+                    ? 'Pełna treść jest niedostępna.' 
+                    : 'El contenido completo no está disponible.');
             
             // For virtual summaries (generated in frontend), preserve bullet structure by splitting on newlines
             if (item.id && item.id.startsWith('resumen_virtual_')) {
@@ -679,7 +722,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             const paragraphs = bodyContent.split('\n').filter(p => p.trim() !== '');
-            const fallbackText = currentLang === 'eu' ? 'Eduki osoa ez dago eskuragarri.' : 'El contenido completo no está disponible.';
+            const fallbackText = currentLang === 'eu' 
+                ? 'Eduki osoa ez dago eskuragarri.' 
+                : (currentLang === 'pl' 
+                    ? 'Pełna treść jest niedostępna.' 
+                    : 'El contenido completo no está disponible.');
             bodyHtml = paragraphs.length > 0 
                 ? paragraphs.map(p => `<p class="paragraph">${p}</p>`).join('')
                 : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">${fallbackText}</p>`;

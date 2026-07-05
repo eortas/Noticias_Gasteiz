@@ -219,20 +219,34 @@ def _split_text(text, max_chars):
     return chunks
 
 
-def translate_to_euskera(text, type_label, context_title=None):
-    """Traduce un fragmento de texto al euskera usando únicamente las API keys especificadas."""
+def translate_text(text, target_lang, type_label, context_title=None):
+    """Traduce un fragmento de texto al euskera ('eu') o polaco ('pl') usando las llaves dedicadas."""
     max_retries = 3
     model_name = "qwen/qwen3.6-27b"
     
-    # Obtener llaves de traducción exclusivamente
-    keys = [
-        os.environ.get("TRADUCCION_EUSKARA1"),
-        os.environ.get("TRADUCCION_EUSKARA2")
-    ]
+    if target_lang == "eu":
+        keys = [
+            os.environ.get("TRADUCCION_EUSKARA1"),
+            os.environ.get("TRADUCCION_EUSKARA2")
+        ]
+        lang_name = "euskera (euskara batua)"
+        pair_desc = "castellano-euskera"
+        title_context_label = "TÍTULO DE LA NOTICIA EN EUSKERA"
+    elif target_lang == "pl":
+        keys = [
+            os.environ.get("TRADUCCION_POLACO1"),
+            os.environ.get("TRADUCCION_POLACO2")
+        ]
+        lang_name = "polaco (język polski)"
+        pair_desc = "castellano-polaco"
+        title_context_label = "TÍTULO DE LA NOTICIA EN POLACO"
+    else:
+        print(f"Error: Idioma destino '{target_lang}' no soportado.", flush=True)
+        return None
+        
     valid_keys = [k for k in keys if k]
-    
     if not valid_keys:
-        print("Error: No se han configurado las llaves TRADUCCION_EUSKARA1 o TRADUCCION_EUSKARA2 en el .env", flush=True)
+        print(f"Error: No se han configurado las llaves para '{target_lang}' en el .env", flush=True)
         return None
 
     for attempt in range(max_retries):
@@ -240,17 +254,17 @@ def translate_to_euskera(text, type_label, context_title=None):
             api_key = random.choice(valid_keys)
             client = Groq(api_key=api_key)
             
-            system_prompt = f"""Eres un traductor profesional experto bilingüe castellano-euskera. Tu tarea es traducir con absoluta precisión y naturalidad del castellano al euskera (euskara batua) el {type_label} de una noticia.
+            system_prompt = f"""Eres un traductor profesional experto bilingüe {pair_desc}. Tu tarea es traducir con absoluta precisión y naturalidad del castellano al {lang_name} el {type_label} de una noticia.
 
 INSTRUCCIONES CRÍTICAS:
-1. Responde ÚNICAMENTE con el texto traducido al euskera.
+1. Responde ÚNICAMENTE con el texto traducido al {target_lang}.
 2. PROHIBIDO añadir cualquier tipo de introducción, explicación, comentarios o notas personales (ej: no digas "Aquí tienes la traducción", ni añadas firmas).
 3. Mantén intactos nombres propios, cifras exactas, lugares, calles y fechas.
-4. Asegúrate de que el resultado sea natural y fluido en euskera batua."""
+4. Asegúrate de que el resultado sea natural y fluido."""
 
             user_content = text
             if context_title and type_label == "CUERPO":
-                user_content = f"TÍTULO DE LA NOTICIA EN EUSKERA: {context_title}\n\nTEXTO EN CASTELLANO A TRADUCIR:\n{text}"
+                user_content = f"{title_context_label}: {context_title}\n\nTEXTO EN CASTELLANO A TRADUCIR:\n{text}"
 
             completion = client.chat.completions.create(
                 model=model_name,
@@ -263,12 +277,11 @@ INSTRUCCIONES CRÍTICAS:
             if translated:
                 # Eliminar bloques de razonamiento <think>...</think>
                 translated = re.sub(r'<think>.*?</think>', '', translated, flags=re.DOTALL).strip()
-                # Quitar comillas innecesarias que pueda poner el modelo
+                # Quitar comillas innecesarias
                 if translated.startswith('"') and translated.endswith('"'):
                     translated = translated[1:-1].strip()
                 return translated
         except Exception as e:
-            # Si hay un error de rate limit (429), esperamos un poco más antes del reintento para liberar TPM
             if "429" in str(e) or "limit" in str(e).lower():
                 sleep_time = 15 if attempt == 0 else 30
                 print(f"      [Rate Limit Groq] Esperando {sleep_time}s para liberar TPM...", flush=True)
@@ -276,18 +289,27 @@ INSTRUCCIONES CRÍTICAS:
             elif attempt < max_retries - 1:
                 time.sleep(2)
             else:
-                print(f"Error al traducir {type_label} con Groq ({model_name}): {e}", flush=True)
+                print(f"Error al traducir a {target_lang} ({type_label}) con Groq ({model_name}): {e}", flush=True)
                 
     return None
 
 
-def translate_article(title, body):
-    """Traduce el artículo completo (título y cuerpo por fragmentos) al euskera."""
-    print("    - Iniciando traducción al euskera...", flush=True)
-    title_eu = translate_to_euskera(title, "TÍTULO")
+def translate_to_euskera(text, type_label, context_title=None):
+    return translate_text(text, "eu", type_label, context_title)
+
+
+def translate_to_polish(text, type_label, context_title=None):
+    return translate_text(text, "pl", type_label, context_title)
+
+
+def translate_article(title, body, target_lang="eu"):
+    """Traduce el artículo completo (título y cuerpo por fragmentos) al idioma destino."""
+    lang_label = "euskera" if target_lang == "eu" else "polaco"
+    print(f"    - Iniciando traducción al {lang_label}...", flush=True)
+    title_tr = translate_text(title, target_lang, "TÍTULO")
     
-    if not title_eu:
-        title_eu = title
+    if not title_tr:
+        title_tr = title
         
     paragraphs = body.split('\n\n')
     chunks = []
@@ -310,11 +332,11 @@ def translate_article(title, body):
     translated_chunks = []
     for i, chunk in enumerate(chunks):
         print(f"      - Traduciendo fragmento {i+1}/{len(chunks)}...", flush=True)
-        eu_chunk = translate_to_euskera(chunk, "CUERPO", context_title=title_eu)
-        translated_chunks.append(eu_chunk or chunk)
+        tr_chunk = translate_text(chunk, target_lang, "CUERPO", context_title=title_tr)
+        translated_chunks.append(tr_chunk or chunk)
         # Delay preventivo entre fragmentos para proteger la cuota TPM de 8000
         time.sleep(1.5)
             
-    return title_eu, "\n\n".join(translated_chunks)
+    return title_tr, "\n\n".join(translated_chunks)
 
 

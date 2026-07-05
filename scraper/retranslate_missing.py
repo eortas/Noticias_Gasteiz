@@ -16,67 +16,88 @@ def retranslate_missing_news():
     with open(news_file, 'r', encoding='utf-8') as f:
         news = json.load(f)
 
-    # Identificar noticias que:
-    # 1. No tienen 'translated_eu'
-    # 2. Tienen 'translated_eu' pero no tienen title_eu o body_eu
-    # 3. Tienen 'translated_eu' pero body_eu es idéntico a body (lo que significa que se aplicó el fallback en castellano)
+    # Identificar noticias que necesitan traducción
     to_retranslate = []
     for item in news:
-        if item.get('is_summary'): 
-            continue  # Omitir resumenes del día si aplica, o podemos incluirlos si lo deseas. Por ahora, omitimos.
-            
         title = item.get('title', '')
         body = item.get('body', '')
         title_eu = item.get('title_eu', '')
         body_eu = item.get('body_eu', '')
+        title_pl = item.get('title_pl', '')
+        body_pl = item.get('body_pl', '')
         
-        # Detectar si no está traducida o si la traducción es un fallback del texto original en castellano
-        needs_translation = False
+        # Evaluar necesidades por idioma
+        needs_eu = False
         if not item.get('translated_eu'):
-            needs_translation = True
+            needs_eu = True
         elif not title_eu or not body_eu:
-            needs_translation = True
-        elif body_eu == body and len(body) > 100:  # Si el cuerpo traducido es idéntico al original en castellano
-            needs_translation = True
+            needs_eu = True
+        elif body_eu == body and len(body) > 100:
+            needs_eu = True
             
-        if needs_translation:
-            to_retranslate.append(item)
+        needs_pl = False
+        if not item.get('translated_pl'):
+            needs_pl = True
+        elif not title_pl or not body_pl:
+            needs_pl = True
+        elif body_pl == body and len(body) > 100:
+            needs_pl = True
+            
+        if needs_eu or needs_pl:
+            to_retranslate.append((item, needs_eu, needs_pl))
 
     total = len(to_retranslate)
     if total == 0:
-        print("Todas las noticias ya están correctamente traducidas al euskera.")
+        print("Todas las noticias ya están correctamente traducidas al euskera y al polaco.")
         return
 
-    print(f"Detectadas {total} noticias con traducción pendiente o incompleta en euskera.")
+    # Priorizar resúmenes para que se traduzcan en primer lugar
+    to_retranslate.sort(key=lambda x: 0 if x[0].get('is_summary') else 1)
+
+    print(f"Detectadas {total} noticias con traducción pendiente o incompleta.")
     print("Iniciando traducción secuencial controlada para respetar el TPM de 8000 en Groq...")
 
     processed_count = 0
-    for item in to_retranslate:
-        url = item.get('url', 'URL desconocida')
+    for item, needs_eu, needs_pl in to_retranslate:
+        url = item.get('url', 'URL de Resumen Diario/Especial')
         title_cast = item.get('title', '')
         body_cast = item.get('body', '')
         
         processed_count += 1
-        print(f"\n[{processed_count}/{total}] Traduciendo: {url}")
+        langs_str = []
+        if needs_eu: langs_str.append("Euskera")
+        if needs_pl: langs_str.append("Polaco")
+        print(f"\n[{processed_count}/{total}] Traduciendo a {', '.join(langs_str)}: {url}")
         
         try:
-            # Traducir título y cuerpo
-            title_eu, body_eu = translate_article(title_cast, body_cast)
-            
-            if title_eu and body_eu and body_eu != body_cast:
-                item['title_eu'] = title_eu
-                item['body_eu'] = body_eu
-                item['translated_eu'] = True
-                print(f"  [OK] Traducido con éxito.")
-            else:
-                print(f"  [FALLÓ] La traducción devolvió un resultado no válido o vacío (posible fallback).")
+            # 1. Traducir al euskera si es necesario
+            if needs_eu:
+                title_eu, body_eu = translate_article(title_cast, body_cast, target_lang="eu")
+                if title_eu and body_eu and body_eu != body_cast:
+                    item['title_eu'] = title_eu
+                    item['body_eu'] = body_eu
+                    item['translated_eu'] = True
+                    print(f"  [Euskera - OK] Traducido con éxito.")
+                else:
+                    print(f"  [Euskera - FALLÓ] Resultado vacío o fallback en castellano.")
+                time.sleep(3.0) # Separación preventiva
                 
+            # 2. Traducir al polaco si es necesario
+            if needs_pl:
+                title_pl, body_pl = translate_article(title_cast, body_cast, target_lang="pl")
+                if title_pl and body_pl and body_pl != body_cast:
+                    item['title_pl'] = title_pl
+                    item['body_pl'] = body_pl
+                    item['translated_pl'] = True
+                    print(f"  [Polaco - OK] Traducido con éxito.")
+                else:
+                    print(f"  [Polaco - FALLÓ] Resultado vacío o fallback en castellano.")
+                    
             # Guardar progresivamente después de cada noticia para no perder avance
             with open(news_file, 'w', encoding='utf-8') as f:
                 json.dump(news, f, indent=2, ensure_ascii=False)
                 
-            # Sleep obligatorio de 4 segundos entre noticias para mantenerse por debajo del límite de 8,000 TPM de Groq
-            # (Un cuerpo de 600 palabras tarda unos 1.5s entre fragmentos, este delay extra asegura que el TPM se disipe).
+            # Sleep obligatorio entre noticias para mantenerse por debajo del límite de 8,000 TPM de Groq
             time.sleep(4.0)
             
         except Exception as e:
