@@ -130,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderStats();
             renderCategories();
             renderNewsFeed();
+            renderMoodWidget(moodHistoryData);
         };
 
         if (btnEs) btnEs.addEventListener('click', () => handleLangChange('es'));
