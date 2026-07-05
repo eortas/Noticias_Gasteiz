@@ -40,7 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
             catEconomia: "Economía",
             catSociedad: "Sociedad",
             catDeportes: "Deportes",
-            catCultura: "Cultura"
+            catCultura: "Cultura",
+            moodTitle: "El \"Mood\""
         },
         eu: {
             subtitle: "Vitoria-Gasteizko eta Arabako albisteak Adimen Artifizialak aztertuta.",
@@ -64,14 +65,15 @@ document.addEventListener('DOMContentLoaded', () => {
             catEconomia: "Ekonomia",
             catSociedad: "Gizartea",
             catDeportes: "Kirolak",
-            catCultura: "Kultura"
+            catCultura: "Kultura",
+            moodTitle: "Gasteizko \"Mood\"-a"
         },
         pl: {
             subtitle: "Wiadomości z Vitoria-Gasteiz i Alavy analizowane przez Sztuczną Inteligencję.",
             backPortal: "Wróć do portalu",
             readSummary: "Przeczytaj całe podsumowanie",
             summaryTitle: "Podsumowanie wiadomości dnia",
-            summaryPreview: "Zbiór najważniejszych wiadomości z Alavy i sportu, podsumowany i zorganizowany przez AI, abyś zawsze był poinformowany.",
+            summaryPreview: "Zbiór najważniejszych wiadomości z Alavy i sportu, podsumowany i zorganizedowany przez AI, abyś zawsze był poinformowany.",
             compareSources: "Porównaj źródła:",
             verifiedAI: "Dokument zweryfikowany i przeanalizowany przez AI",
             noNews: "Brak dostępnych wiadomości.",
@@ -88,7 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
             catEconomia: "Ekonomia",
             catSociedad: "Społeczeństwo",
             catDeportes: "Sport",
-            catCultura: "Kultura"
+            catCultura: "Kultura",
+            moodTitle: "Nastroje miasta"
         }
     };
 
@@ -837,24 +840,55 @@ document.addEventListener('DOMContentLoaded', () => {
         const todayMood = history[history.length - 1];
         const score = todayMood.score;
 
+        const moodTitleEl = document.getElementById('mood-title');
         const moodTextEl = document.getElementById('mood-text');
         const moodMarkerEl = document.getElementById('mood-marker');
 
+        if (moodTitleEl) {
+            moodTitleEl.textContent = UI_TRANSLATIONS[currentLang].moodTitle || 'El "Mood"';
+        }
+
+        const moodTexts = {
+            es: {
+                neutral: 'Vitoria está neutral',
+                excellent: 'Vitoria está de excelente humor',
+                good: 'Vitoria tiene un buen día',
+                difficult: 'Vitoria tiene un día difícil',
+                sad: 'Vitoria está algo decaída'
+            },
+            eu: {
+                neutral: 'Gasteiz neutral dago',
+                excellent: 'Gasteiz umore bikainean dago',
+                good: 'Gasteizek egun ona du',
+                difficult: 'Gasteizek egun zaila du',
+                sad: 'Gasteiz apur bat goibel dago'
+            },
+            pl: {
+                neutral: 'Vitoria jest neutralna',
+                excellent: 'Vitoria ma doskonały nastrój',
+                good: 'Vitoria ma dobry dzień',
+                difficult: 'Vitoria ma trudny dzień',
+                sad: 'Vitoria jest nieco przygnębiona'
+            }
+        };
+
+        const currentMoodTexts = moodTexts[currentLang] || moodTexts.es;
+
         let emoji = '😐';
-        let text = 'Vitoria está neutral';
+        let text = currentMoodTexts.neutral;
 
         if (score > 0.3) {
             emoji = '😄';
-            text = 'Vitoria está de excelente humor';
+            text = currentMoodTexts.excellent;
         } else if (score > 0.05) {
             emoji = '🙂';
-            text = 'Vitoria tiene un buen día';
+            text = currentMoodTexts.good;
         } else if (score < -0.3) {
             emoji = '😞';
-            text = 'Vitoria tiene un día difícil';
+            text = currentMoodTexts.difficult;
         } else if (score < -0.05) {
             emoji = '😕';
-            text = 'Vitoria está algo decaída';
+            text = currentMoodTexts.sad;
         }
 
         moodTextEl.textContent = `${text} (Score: ${score > 0 ? '+' : ''}${score})`;
@@ -882,7 +916,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const heightPct = Math.max(10, absScore * 100);
 
             const date = new Date(day.date);
-            const dStr = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).replace('.', '');
+            const localeStr = currentLang === 'eu' ? 'eu-ES' : (currentLang === 'pl' ? 'pl-PL' : 'es-ES');
+            const dStr = date.toLocaleDateString(localeStr, { day: 'numeric', month: 'short' }).replace('.', '');
 
             return `
                 <div class="history-bar-col" title="${day.date}: ${dayScore}">
