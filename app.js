@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             noNewsRead: "Ez dago irakurritako albisterik atal honetan oraindik.",
             sourcesModalTitle: "Aukeratu informazio iturria",
             sourcesModalSubtitle: "Albiste hau tokiko hainbat komunikabidek argitaratu dute. Aukeratu zein bertsio irakurri nahi duzun:",
-            sourcesCount: "Iturri",
+            sourcesCount: "Iturriak",
             sentimentPos: "Positiboak",
             sentimentNeu: "Neutroak",
             sentimentNeg: "Negatiboak",
