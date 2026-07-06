@@ -161,7 +161,7 @@ def _rewrite_chunk(text, type_label, context_title=None):
                 2. SÍNTESIS: Capta la esencia de la noticia en una sola frase potente. No des rodeos."""
             else:
                 style_instructions = """1. REESTRUCTURA TOTAL: No te limites a cambiar palabras. Cambia el orden de las ideas y la construcción de las frases. Estilo narrativo propio.
-                2. FIDELIDAD TOTAL A LOS DATOS: NO ELIMINES NINGÚN DATO RELEVANTE. Si el texto original menciona proyectos específicos, nombres de calles, cifras, listas de medidas o promesas pendientes, DEBEN aparecer íntegramente en la reescritura.
+                2. FIDELIDAD ESTRICTA A LOS DATOS: NO ELIMINES NINGÚN DATO RELEVANTE Y NO INVENTES NADA. Si el texto original menciona proyectos específicos, nombres de calles, cifras, listas de medidas o promesas pendientes, DEBEN aparecer íntegramente en la reescritura. Está totalmente prohibido añadir datos, servicios o detalles ficticios.
                 3. EXTENSIÓN: El texto reescrito debe tener una longitud similar o superior al original. Está prohibido resumir eliminando detalles técnicos o enumeraciones.
                 4. RIQUEZA LÉXICA: Evita muletillas y usa un lenguaje profesional y evocador."""
 
@@ -171,11 +171,12 @@ def _rewrite_chunk(text, type_label, context_title=None):
             INSTRUCCIONES DE ESTILO PARA {type_label}:
             {style_instructions}
             
-            REGLAS INNEGOCIABLES:
-            - INTEGRIDAD DE DATOS: Todos los nombres, cifras, fechas, lugares y cargos deben ser 100% EXACTOS.
+            REGLAS INNEGOCIABLES Y ESTRICTAS:
+            - INTEGRIDAD Y COMPROBACIÓN DE DATOS: Todos los nombres, cifras, fechas, lugares y cargos deben ser 100% EXACTOS y provenir únicamente del texto original.
+            - PROHIBIDO INVENTAR O ALUCINAR INFORMACIÓN: No inventes ningún dato, servicio público, aplicación web, mapa interactivo, enlace de descarga o detalle de conveniencia que no se mencione explícitamente en el texto original. Limítate estrictamente a los hechos narrados.
             - PROHIBIDO RESUMIR: No omitas listas, enumeraciones de proyectos ni detalles técnicos. Si el original es largo, la reescritura debe ser larga.
             - PROHIBIDO utilizar la expresión "en el corazón de Vitoria-Gasteiz" o similares muletillas geográficas repetitivas. Busca alternativas originales.
-            - PROHIBIDO INVENTAR: No añadas conclusiones propias, ni menciones a medios de comunicación (como "Gasteiz Hoy", "El Correo", "Diario de Noticias", "Diario de Noticias de Álava", "Noticias de Álava"), ni incluyas frases de autobombo o firmas periodísticas al final del texto. Limítate a reescribir los hechos.
+            - PROHIBIDO mencionar medios de comunicación de origen (como "Gasteiz Hoy", "El Correo", "Diario de Noticias", "Diario de Noticias de Álava", "Noticias de Álava"), ni incluyas frases de autobombo o firmas periodísticas al final del texto.
             - CITAS: Si hay declaraciones entre comillas, mantén su esencia o integridad.
             
             Responde exclusivamente en formato JSON: {{"{json_key}": "..."}}"""
