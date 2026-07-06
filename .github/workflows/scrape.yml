@@ -36,6 +36,10 @@ jobs:
           GROQ_TRANSLATION_KEY: ${{ secrets.GROQ_TRANSLATION_KEY }}
           groq_KEY: ${{ secrets.groq_KEY }}
           GROQ_RESUMEN: ${{ secrets.GROQ_RESUMEN }}
+          TRADUCCION_EUSKARA1: ${{ secrets.TRADUCCION_EUSKARA1 }}
+          TRADUCCION_EUSKARA2: ${{ secrets.TRADUCCION_EUSKARA2 }}
+          TRADUCCION_POLACO1: ${{ secrets.TRADUCCION_POLACO1 }}
+          TRADUCCION_POLACO2: ${{ secrets.TRADUCCION_POLACO2 }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
