@@ -42,9 +42,13 @@ jobs:
           TRADUCCION_POLACO2: ${{ secrets.TRADUCCION_POLACO2 }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DEDUPLICITY1: ${{ secrets.DEDUPLICITY1 }}
+          DEDUPLICITY2: ${{ secrets.DEDUPLICITY2 }}
         run: |
           python scraper/multi_scraper.py
+          python scraper/filter_sponsored.py
           python scraper/parallel_rewrite.py
+          python scraper/group_news.py
           python scraper/update_mood.py
           python scraper/generate_summary.py
           python scraper/update_podcast.py

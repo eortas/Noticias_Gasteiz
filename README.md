@@ -26,7 +26,7 @@ graph TD
 - **Scraper ([multi_scraper.py](file:///c:/Users/ortas/OneDrive/Documentos/Noticias_Gasteiz/scraper/multi_scraper.py))**: Extrae noticias de diversas fuentes locales vitorianas. Evita duplicados idénticos cruzando con el historial de URLs procesadas en `scraper/history.json`. Se conservan noticias de las últimas **72 horas** y un máximo de **200 artículos** en `data/news.json`.
 
 ### 2. Filtro de Publirreportajes con IA ([filter_sponsored.py](file:///c:/Users/ortas/OneDrive/Documentos/Noticias_Gasteiz/scraper/filter_sponsored.py))
-- Analiza las noticias de Gasteiz Hoy antes de enviarlas al paso de reescritura.
+- Analiza las noticias locales antes de enviarlas al paso de reescritura.
 - Utiliza la clave dedicada **`DEDUPLICITY2`** (con fallbacks) y el modelo **Qwen** para detectar posts patrocinados y publirreportajes comerciales camuflados de noticias (servicios privados de ADN, clínicas estéticas, aplicaciones de cuidado de perros, etc.).
 - Si se detecta un patrocinio, se elimina inmediatamente del listado de noticias, ahorrando llamadas de reescritura posteriores y tokens de la API. Las noticias legítimas se marcan con un flag de cacheado (`sponsored_checked: true`).
 
@@ -77,41 +77,12 @@ Gasteiz Live integra un pipeline que automatiza por completo la creación y publ
 La interfaz de usuario principal se compone de archivos estáticos puros optimizados ([index.html](file:///c:/Users/ortas/OneDrive/Documentos/Noticias_Gasteiz/index.html), [app.js](file:///c:/Users/ortas/OneDrive/Documentos/Noticias_Gasteiz/app.js) y [style.css](file:///c:/Users/ortas/OneDrive/Documentos/Noticias_Gasteiz/style.css)):
 
 - **Agrupación Híbrida Inteligente**: Agrupa visualmente artículos basándose en el `group_id` validado por la IA en el backend. Si una noticia fue clasificada como historia individual, se renderiza directamente separada. Utiliza un fallback de Jaccard en local solo para compatibilidad con elementos antiguos sin campo de grupo.
-- **Selector de Fuentes**: Si una noticia cuenta con múltiples medios, el feed muestra un badge descriptivo. Al abrir la noticia, se puede alternar el cuerpo del texto entre las fuentes originales (El Correo, Diario de Noticias, Gasteiz Hoy) de forma dinámica.
+- **Selector de Fuentes**: Si una noticia cuenta con múltiples medios, el feed muestra un badge descriptivo. Al abrir la noticia, se puede alternar el cuerpo del texto entre las diferentes fuentes locales de forma dinámica.
 - **Filtros Dinámicos**: Permite alternar la visualización por sentimiento (Positivo/Neutral/Negativo) y por estado de lectura (Leídas/No leídas). Las leídas se atenúan y mueven al final automáticamente.
 - **Secciones Temáticas**: Pestañas de rápido acceso para Deportes, Cultura, Economía y Sociedad.
 - **Widget de Mood**: Visualización animada en tiempo real de la temperatura emocional de la ciudad con un gráfico de los últimos 7 días.
 - **Reproductor de Podcast**: Incrustación del reproductor oficial de Spotify directamente en el portal web con el último episodio generado.
 - **Detalle Dinámico y SEO**: Rutas virtuales amigables con el historial del navegador para facilitar compartir enlaces específicos.
-
----
-
-## 🚀 Automatización en Windows
-
-Para asegurar que el portal permanezca actualizado sin intervención manual constante, se incluye soporte de ejecución en segundo plano para Windows:
-
-- **[update_news.bat](file:///c:/Users/ortas/OneDrive/Documentos/Noticias_Gasteiz/update_news.bat)**: Script interactivo de 8 pasos que ejecuta el pipeline localmente y sube automáticamente todos los cambios y datos a GitHub para disparar el despliegue en Vercel.
-- **[update_news_silent.bat](file:///c:/Users/ortas/OneDrive/Documentos/Noticias_Gasteiz/update_news_silent.bat)**: Versión silenciosa para ejecuciones automatizadas de fondo en el Programador de Tareas.
-- **[INSTRUCCIONES_WINDOWS.md](file:///c:/Users/ortas/OneDrive/Documentos/Noticias_Gasteiz/INSTRUCCIONES_WINDOWS.md)**: Guía paso a paso para programar una tarea repetitiva cada 15 minutos en el **Programador de Tareas de Windows** mediante comandos de administrador.
-
----
-
-## 🔧 Requisitos e Instalación
-
-1. Clona el repositorio e instala las dependencias de Python:
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. Si deseas ejecutar la automatización del podcast, asegúrate de instalar Playwright y sus navegadores:
-   ```bash
-   pip install playwright
-   playwright install chrome
-   ```
-3. Configura el archivo de variables de entorno `.env` en la raíz (usa `env.example` como plantilla) con tus credenciales de la API de Groq (incluyendo las claves `DEDUPLICITY1` y `DEDUPLICITY2`), Telegram Bot Token y Chat ID.
-4. Para realizar una actualización manual completa del portal, simplemente corre el script unificado:
-   ```bash
-   python run_pipeline.py
-   ```
 
 ---
 
