@@ -44,6 +44,7 @@ if __name__ == "__main__":
 
     scripts = [
         "scraper/multi_scraper.py",
+        "scraper/filter_sponsored.py",
         "scraper/parallel_rewrite.py",
         "scraper/group_news.py",
         "scraper/update_mood.py",
