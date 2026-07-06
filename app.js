@@ -206,9 +206,87 @@ document.addEventListener('DOMContentLoaded', () => {
         return intersection / union;
     }
 
+    function selectPrimaryItem(componentItems) {
+        let primaryItem = componentItems[0];
+        if (componentItems.length > 1) {
+            const sortedForPrimary = [...componentItems].sort((a, b) => {
+                const getRank = (item) => {
+                    const img = item.image || "";
+                    const hasRealImg = img && !img.startsWith("data:image/") && !img.includes("resumen.png");
+                    const src = item.source || "";
+                    const isPref = src === "El Correo" || src === "Diario de Noticias";
+                    const isGasteizHoy = src === "Gasteiz Hoy";
+                    
+                    if (isPref && hasRealImg) return 1;
+                    if (isPref && !hasRealImg) return 2;
+                    if (!isGasteizHoy && hasRealImg) return 3;
+                    if (!isGasteizHoy && !hasRealImg) return 4;
+                    if (isGasteizHoy && hasRealImg) return 5;
+                    return 6;
+                };
+                return getRank(a) - getRank(b);
+            });
+            primaryItem = sortedForPrimary[0];
+        }
+        return primaryItem;
+    }
+
     function groupNewsItems(items) {
         if (!items || items.length === 0) return [];
         
+        const itemsWithGroup = [];
+        const itemsWithoutGroup = [];
+        const clusters = [];
+        
+        items.forEach(item => {
+            if (item.is_summary) return; // Saltar resúmenes
+            
+            if (item.group_id) {
+                itemsWithGroup.push(item);
+            } else if (item.grouped_verified === true) {
+                // Noticia verificada como individual por la IA (no debe agruparse)
+                clusters.push({
+                    id: item.id,
+                    primary: item,
+                    items: [item]
+                });
+            } else {
+                // Noticia antigua/sin verificar -> fallback a Jaccard
+                itemsWithoutGroup.push(item);
+            }
+        });
+        
+        // 1. Agrupar elementos que tienen group_id precalculado por la IA
+        const groupMap = {};
+        itemsWithGroup.forEach(item => {
+            if (!groupMap[item.group_id]) {
+                groupMap[item.group_id] = [];
+            }
+            groupMap[item.group_id].push(item);
+        });
+        
+        for (const gId in groupMap) {
+            const compItems = groupMap[gId];
+            // Conservar el orden original del listado de noticias
+            compItems.sort((x, y) => items.indexOf(x) - items.indexOf(y));
+            const primaryItem = selectPrimaryItem(compItems);
+            clusters.push({
+                id: primaryItem.id,
+                primary: primaryItem,
+                items: compItems
+            });
+        }
+        
+        // 2. Agrupar el resto mediante el algoritmo de similitud Jaccard (fallback)
+        if (itemsWithoutGroup.length > 0) {
+            const jaccardClusters = groupNewsItemsJaccard(itemsWithoutGroup);
+            clusters.push(...jaccardClusters);
+        }
+        
+        return clusters;
+    }
+
+    function groupNewsItemsJaccard(items) {
         const tokenized = items.map(item => {
             let urlWords = "";
             if (item.url) {
@@ -232,19 +310,17 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const n = tokenized.length;
         
-        // Build similarity graph adjacency list
+        // Construir lista de adyacencia
         const adj = Array.from({ length: n }, () => []);
         for (let i = 0; i < n; i++) {
             for (let j = i + 1; j < n; j++) {
                 const titleSim = jaccardSimilarity(tokenized[i].titleTokens, tokenized[j].titleTokens);
                 const bodySim = jaccardSimilarity(tokenized[i].bodyTokens, tokenized[j].bodyTokens);
                 
-                // Agrupar si títulos o cuerpos tienen alta coincidencia, o si ambos tienen coincidencia moderada/baja
                 if (titleSim >= 0.22 || bodySim >= 0.28 || (titleSim >= 0.08 && bodySim >= 0.15)) {
                     adj[i].push(j);
                     adj[j].push(i);
                 } else {
-                    // Regla semántica específica para incidentes de agresiones/apuñalamientos
                     const bA = tokenized[i].bodyTokens;
                     const bB = tokenized[j].bodyTokens;
                     const shared = new Set([...bA].filter(x => bB.has(x)));
@@ -283,35 +359,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // Sort component indices to preserve the original sorted order of items
             componentIndices.sort((x, y) => x - y);
             const componentItems = componentIndices.map(idx => tokenized[idx].item);
-            
-            // Seleccionar el artículo principal (primary) para la vista previa
-            // Priorizamos:
-            // 1. Tener imagen real (no SVG placeholder de data:image/)
-            // 2. Fuente preferida (El Correo o Diario de Noticias antes que Gasteiz Hoy)
-            let primaryItem = componentItems[0];
-            if (componentItems.length > 1) {
-                const sortedForPrimary = [...componentItems].sort((a, b) => {
-                    const getRank = (item) => {
-                        const img = item.image || "";
-                        const hasRealImg = img && !img.startsWith("data:image/") && !img.includes("resumen.png");
-                        const src = item.source || "";
-                        const isPref = src === "El Correo" || src === "Diario de Noticias";
-                        const isGasteizHoy = src === "Gasteiz Hoy";
-                        
-                        if (isPref && hasRealImg) return 1;
-                        if (isPref && !hasRealImg) return 2;
-                        if (!isGasteizHoy && hasRealImg) return 3;
-                        if (!isGasteizHoy && !hasRealImg) return 4;
-                        if (isGasteizHoy && hasRealImg) return 5;
-                        return 6;
-                    };
-                    return getRank(a) - getRank(b);
-                });
-                primaryItem = sortedForPrimary[0];
-            }
+            const primaryItem = selectPrimaryItem(componentItems);
             
             clusters.push({
                 id: primaryItem.id,
