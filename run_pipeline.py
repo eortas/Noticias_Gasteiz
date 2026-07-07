@@ -46,6 +46,7 @@ if __name__ == "__main__":
         "scraper/multi_scraper.py",
         "scraper/filter_sponsored.py",
         "scraper/parallel_rewrite.py",
+        "scraper/retranslate_missing.py",
         "scraper/group_news.py",
         "scraper/update_mood.py",
         "scraper/generate_summary.py",

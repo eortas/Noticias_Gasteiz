@@ -230,17 +230,17 @@ def translate_text(text, target_lang, type_label, context_title=None):
             os.environ.get("TRADUCCION_EUSKARA1"),
             os.environ.get("TRADUCCION_EUSKARA2")
         ]
-        lang_name = "euskera (euskara batua)"
-        pair_desc = "castellano-euskera"
-        title_context_label = "TÍTULO DE LA NOTICIA EN EUSKERA"
+        lang_name = "Basque (euskara batua)"
+        pair_desc = "Spanish-Basque"
+        title_context_label = "BASQUE TITLE CONTEXT"
     elif target_lang == "pl":
         keys = [
             os.environ.get("TRADUCCION_POLACO1"),
             os.environ.get("TRADUCCION_POLACO2")
         ]
-        lang_name = "polaco (język polski)"
-        pair_desc = "castellano-polaco"
-        title_context_label = "TÍTULO DE LA NOTICIA EN POLACO"
+        lang_name = "Polish (język polski)"
+        pair_desc = "Spanish-Polish"
+        title_context_label = "POLISH TITLE CONTEXT"
     else:
         print(f"Error: Idioma destino '{target_lang}' no soportado.", flush=True)
         return None
@@ -250,22 +250,24 @@ def translate_text(text, target_lang, type_label, context_title=None):
         print(f"Error: No se han configurado las llaves para '{target_lang}' en el .env", flush=True)
         return None
 
+    type_desc_en = "title" if type_label == "TÍTULO" else "body"
+
     for attempt in range(max_retries):
         try:
             api_key = random.choice(valid_keys)
             client = Groq(api_key=api_key)
             
-            system_prompt = f"""Eres un traductor profesional experto bilingüe {pair_desc}. Tu tarea es traducir con absoluta precisión y naturalidad del castellano al {lang_name} el {type_label} de una noticia.
+            system_prompt = f"""You are a professional bilingual translator specializing in {pair_desc} translation. Your task is to translate the {type_desc_en} of a news article from Spanish to {lang_name} with absolute precision and naturalness.
 
-INSTRUCCIONES CRÍTICAS:
-1. Responde ÚNICAMENTE con el texto traducido al {target_lang}.
-2. PROHIBIDO añadir cualquier tipo de introducción, explicación, comentarios o notas personales (ej: no digas "Aquí tienes la traducción", ni añadas firmas).
-3. Mantén intactos nombres propios, cifras exactas, lugares, calles y fechas.
-4. Asegúrate de que el resultado sea natural y fluido."""
+CRITICAL INSTRUCTIONS:
+1. Respond ONLY with the translated text in {lang_name}.
+2. DO NOT add any introductions, explanations, comments, or personal notes.
+3. Keep proper names, exact numbers, places, streets, and dates intact.
+4. Ensure the output is natural and fluent."""
 
             user_content = text
             if context_title and type_label == "CUERPO":
-                user_content = f"{title_context_label}: {context_title}\n\nTEXTO EN CASTELLANO A TRADUCIR:\n{text}"
+                user_content = f"{title_context_label}: {context_title}\n\nSPANISH TEXT TO TRANSLATE:\n{text}"
 
             completion = client.chat.completions.create(
                 model=model_name,
