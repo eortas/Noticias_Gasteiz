@@ -42,7 +42,8 @@
     "body_pl": "Wypadek z udziałem autobusu Lurraldebus i ciężarówki powoduje poważne korki na drodze N-622\n\nWypadek z udziałem autobusu Lurraldebus i ciężarówki powoduje poważne korki na drodze N-622 w okolicach Arangiz. Do zdarzenia doszło około 17:30 w piątek. Choć nie odnotowano poważnych obrażeń, konieczne było wezwanie służb ratunkowych.\n\nZderzenie spowodowało widoczne uszkodzenia autobusu Lurraldebus. Pękło okno prawych przednich drzwi, a uszkodzeniu uległ również prawy lusterko boczne pojazdu.\n\nCiężarówka z kolei ma uszkodzenia po lewej stronie kabiny, na wysokości podwozia, w wyniku kolizji. Oba pojazdy pozostają na miejscu, podczas gdy trwają prace nad pełnym przywróceniem ruchu drogowego.\n\nZespoły medyczne już opuściły miejsce zdarzenia. W trakcie interwencji udzieliły pomocy czterem osobom, z których jedna została przewieziona do szpitala Txagorritxu. Według dostępnych informacji obrażenia są lekkie.\n\nW tej chwili prawy pas drogi N-622 pozostaje zamknięty dla ruchu, co utrudnia podróż w kierunku Vitoria-Gasteiz.\n\nW wyniku wypadku korki sięgają już prawie trzech kilometrów. Ruch odbywa się powoli, podczas gdy trwają prace na miejscu w celu usunięcia pojazdów i przywrócenia normalnej sytuacji na drodze.\n\nWłaśnie opublikowaliśmy tę informację i pracujemy nad uzyskaniem więcej szczegółów. Odwiedź tę stronę za kilka minut, aby poznać wszystkie szczegóły wydarzenia.",
     "translated_pl": true,
     "group_id": "group_9cb9f9716f",
-    "telegram_sent": true
+    "telegram_sent": true,
+    "grouped_verified": true
   },
   {
     "id": "53636b5663",
@@ -64,7 +65,8 @@
     "body_pl": "Wypadek, do którego doszło w piątek między ciężarówką a autobusem, powoduje korki na drodze N-622 w kierunku Madrytu. Na razie nie wiadomo, czy są ofiary.\n\nRano doszło również do kolejnego wypadku na tej samej drodze, na odcinku 8 km trasy N-622 w Aranguiz. W tym incydencie zderzyły się trzy pojazdy, co również spowodowało korki.\n\n🟠#Autopilaketak 🚌💥🚛#Istripua-gatik #N622 6 Km #Gasteiz-en Madrilgo norantzan.🟠Korki spowodowane 🚌💥🚛wypadkiem na #N622 Pk 6 #VitoriaGasteiz w kierunku Madrytu.☎️011#Trafikoa pic.twitter.com/ev8lo7rJu4",
     "translated_pl": true,
     "group_id": "group_9cb9f9716f",
-    "telegram_sent": true
+    "telegram_sent": true,
+    "grouped_verified": true
   },
   {
     "id": "fa2cadde0c",
@@ -1720,7 +1722,7 @@
     "title_pl": "Wielokrotny wypadek na drodze N-622, który zablokował ruch w okolicy Aranguiz",
     "body_pl": "Wypadek drogowy na drodze N-622 powoduje w piątek poważne korki na dojeździe do Vitorii-Gasteiz.\n\nNa razie wiadomo, że trzy pojazdy zderzyły się na odcinku 8. kilometra drogi N-622, w miejscowości Aranguiz.",
     "translated_pl": true,
-    "group_id": "group_9cb9f9716f",
+    "group_id": null,
     "grouped_verified": true,
     "telegram_sent": true
   },
