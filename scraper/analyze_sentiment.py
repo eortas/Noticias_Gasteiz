@@ -108,6 +108,33 @@ def analyze_sentiment(text):
             time.sleep(2)
 
 
+def sanitize_media_references(text):
+    """
+    Reemplaza menciones explícitas a medios de comunicación por expresiones neutras como 'este medio'.
+    """
+    if not text:
+        return text
+    
+    # Lista de tuplas con (patrón_regex, reemplazo)
+    # Buscamos variaciones comunes de los nombres de los medios con límites de palabra (\b)
+    replacements = [
+        (r'\bDiario de Noticias de [Áá]lava\b', 'este medio'),
+        (r'\bDiario de Noticias\b', 'este medio'),
+        (r'\bNoticias de [Áá]lava\b', 'este medio'),
+        (r'\bEl Correo de [Áá]lava\b', 'este medio'),
+        (r'\bEl Correo\b', 'este medio'),
+        (r'\bGasteiz\s*Hoy\b', 'este medio'),
+        (r'\bGasteizHoy\b', 'este medio'),
+        (r'\bDiario de [Áá]lava\b', 'este medio')
+    ]
+    
+    sanitized = text
+    for pattern, repl in replacements:
+        sanitized = re.sub(pattern, repl, sanitized, flags=re.IGNORECASE)
+        
+    return sanitized
+
+
 def rewrite_article(title, body):
     """Reescribe un artículo completo, manejando el título y el cuerpo por fragmentos de párrafos."""
     title_rw = _rewrite_chunk(title, "TÍTULO")
@@ -176,7 +203,7 @@ def _rewrite_chunk(text, type_label, context_title=None):
             - PROHIBIDO INVENTAR O ALUCINAR INFORMACIÓN: No inventes ningún dato, servicio público, aplicación web, mapa interactivo, enlace de descarga o detalle de conveniencia que no se mencione explícitamente en el texto original. Limítate estrictamente a los hechos narrados.
             - PROHIBIDO RESUMIR: No omitas listas, enumeraciones de proyectos ni detalles técnicos. Si el original es largo, la reescritura debe ser larga.
             - PROHIBIDO utilizar la expresión "en el corazón de Vitoria-Gasteiz" o similares muletillas geográficas repetitivas. Busca alternativas originales.
-            - PROHIBIDO mencionar medios de comunicación de origen (como "Gasteiz Hoy", "El Correo", "Diario de Noticias", "Diario de Noticias de Álava", "Noticias de Álava"), ni incluyas frases de autobombo o firmas periodísticas al final del texto.
+            - PROHIBIDO mencionar de forma literal los nombres de medios de comunicación de origen (como "Gasteiz Hoy", "El Correo", "Diario de Noticias", "Diario de Noticias de Álava", "Noticias de Álava", "Diario de Álava", etc.). Si el texto original hace referencia a ellos o a sus periodistas, debes sustituir dicha mención por una expresión neutra como "este medio", "el citado diario", "este periódico" o "este canal". Tampoco incluyas frases de autobombo o firmas periodísticas al final del texto.
             - CITAS: Si hay declaraciones entre comillas, mantén su esencia o integridad.
             
             Responde exclusivamente en formato JSON: {{"{json_key}": "..."}}"""
@@ -196,6 +223,9 @@ def _rewrite_chunk(text, type_label, context_title=None):
             
             if rewritten and type_label == "CUERPO" and len(rewritten) < len(text) * 0.7:
                 if attempt < max_retries - 1: continue
+
+            if rewritten:
+                rewritten = sanitize_media_references(rewritten)
 
             return rewritten
         except Exception:
