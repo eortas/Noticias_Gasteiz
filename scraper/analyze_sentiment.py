@@ -94,7 +94,7 @@ def analyze_sentiment(text):
             REGLA ESPECIAL: Cualquier noticia que mencione a la "Guardia Civil", "Iglesia", "Curas", "Obispos", "Diócesis", "Peregrinación", "Convento", "Religiosas", "Clarisas", "Banco de Alimentos" o temas religiosos debe ser clasificada siempre como "negativa" con un score de -0.8."""
             
             completion = client.chat.completions.create(
-                model="qwen/qwen3-32b",
+                model="qwen/qwen3.6-27b",
                 messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text[:1000]}],
                 temperature=0.1,
                 response_format={"type": "json_object"}
@@ -186,7 +186,7 @@ def _rewrite_chunk(text, type_label, context_title=None):
                 user_content = f"NOTICIA: {context_title}\n\nTEXTO A REESCRIBIR:\n{text}"
 
             completion = client.chat.completions.create(
-                model="qwen/qwen3-32b",
+                model="qwen/qwen3.6-27b",
                 messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_content}],
                 temperature=0.6,
                 response_format={"type": "json_object"}

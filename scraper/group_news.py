@@ -90,7 +90,7 @@ No devuelvas ninguna otra explicación, ni bloques de código markdown, solo el 
     for attempt in range(max_retries):
         try:
             completion = client.chat.completions.create(
-                model="qwen/qwen3-32b",
+                model="qwen/qwen3.6-27b",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": content}
