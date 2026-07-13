@@ -165,7 +165,14 @@ def rewrite_article(title, body):
         rewritten_chunks.append(rw_chunk or chunk)
         if len(chunks) > 1: time.sleep(0.5)
         
-    return title_rw or title, "\n\n".join(rewritten_chunks)
+    final_title = title_rw or title
+    final_body = "\n\n".join(rewritten_chunks)
+    
+    # Capa de seguridad final: sanitizar siempre, incluso si hubo fallback a partes originales
+    final_title = sanitize_media_references(final_title)
+    final_body = sanitize_media_references(final_body)
+    
+    return final_title, final_body
 
 def _rewrite_chunk(text, type_label, context_title=None):
     max_retries = 3
@@ -206,7 +213,11 @@ def _rewrite_chunk(text, type_label, context_title=None):
             - PROHIBIDO mencionar de forma literal los nombres de medios de comunicación de origen (como "Gasteiz Hoy", "El Correo", "Diario de Noticias", "Diario de Noticias de Álava", "Noticias de Álava", "Diario de Álava", etc.). Si el texto original hace referencia a ellos o a sus periodistas, debes sustituir dicha mención por una expresión neutra como "este medio", "el citado diario", "este periódico" o "este canal". Tampoco incluyas frases de autobombo o firmas periodísticas al final del texto.
             - CITAS: Si hay declaraciones entre comillas, mantén su esencia o integridad.
             
-            Responde exclusivamente en formato JSON: {{"{json_key}": "..."}}"""
+            FORMATO DE RESPUESTA EXCLUSIVO Y OBLIGATORIO:
+            Responde ÚNICAMENTE con un objeto JSON válido que empiece con '{{' y termine con '}}'.
+            No incluyas explicaciones adicionales, ni introducciones, ni bloques de código markdown.
+            La estructura debe ser exactamente:
+            {{"{json_key}": "Tu texto transformado aquí"}}"""
 
             user_content = text
             if context_title and type_label == "CUERPO":
@@ -228,7 +239,8 @@ def _rewrite_chunk(text, type_label, context_title=None):
                 rewritten = sanitize_media_references(rewritten)
 
             return rewritten
-        except Exception:
+        except Exception as e:
+            print(f"      [ERROR _rewrite_chunk] Intento {attempt+1} falló: {e}", flush=True)
             if attempt < max_retries - 1: time.sleep(1)
             
     return None
