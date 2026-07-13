@@ -138,6 +138,8 @@ def sanitize_media_references(text):
 def rewrite_article(title, body):
     """Reescribe un artículo completo, manejando el título y el cuerpo por fragmentos de párrafos."""
     title_rw = _rewrite_chunk(title, "TÍTULO")
+    if title_rw:
+        title_rw = title_rw.split('\n')[0].strip()
     
     # Dividir el cuerpo en fragmentos que respeten los párrafos
     paragraphs = body.split('\n\n')
@@ -187,9 +189,8 @@ def _rewrite_chunk(text, type_label, context_title=None):
             ]
             valid_keys = [k for k in keys if k]
             api_key = random.choice(valid_keys)
-            
             client = Groq(api_key=api_key)
-            json_key = "title_rewritten" if type_label == "TÍTULO" else "body_rewritten"
+              
             if type_label == "TÍTULO":
                 style_instructions = """1. BREVEDAD CRÍTICA: El titular debe ser directo, impactante y de longitud similar al original (máximo 12-15 palabras).
                 2. SÍNTESIS: Capta la esencia de la noticia en una sola frase potente. No des rodeos."""
@@ -213,11 +214,10 @@ def _rewrite_chunk(text, type_label, context_title=None):
             - PROHIBIDO mencionar de forma literal los nombres de medios de comunicación de origen (como "Gasteiz Hoy", "El Correo", "Diario de Noticias", "Diario de Noticias de Álava", "Noticias de Álava", "Diario de Álava", etc.). Si el texto original hace referencia a ellos o a sus periodistas, debes sustituir dicha mención por una expresión neutra como "este medio", "el citado diario", "este periódico" o "este canal". Tampoco incluyas frases de autobombo o firmas periodísticas al final del texto.
             - CITAS: Si hay declaraciones entre comillas, mantén su esencia o integridad.
             
-            FORMATO DE RESPUESTA EXCLUSIVO Y OBLIGATORIO:
-            Responde ÚNICAMENTE con un objeto JSON válido que empiece con '{{' y termine con '}}'.
-            No incluyas explicaciones adicionales, ni introducciones, ni bloques de código markdown.
-            La estructura debe ser exactamente:
-            {{"{json_key}": "Tu texto transformado aquí"}}"""
+            REGLA DE FORMATO ABSOLUTA:
+            Responde ÚNICAMENTE con el texto transformado.
+            NO incluyas introducciones, explicaciones, comentarios, notas al pie, ni etiquetas markdown (como ``` o similares).
+            Tu respuesta debe ser de forma directa el texto reescrito."""
 
             user_content = text
             if context_title and type_label == "CUERPO":
@@ -227,12 +227,20 @@ def _rewrite_chunk(text, type_label, context_title=None):
                 model="qwen/qwen3.6-27b",
                 messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_content}],
                 temperature=0.6,
-                response_format={"type": "json_object"}
+                max_tokens=4000
             )
             
-            rewritten = json.loads(completion.choices[0].message.content).get(json_key)
+            rewritten = completion.choices[0].message.content.strip()
             
-            if rewritten and type_label == "CUERPO" and len(rewritten) < len(text) * 0.7:
+            # Limpiar posibles bloques de razonamiento si los hubiera
+            rewritten = re.sub(r'<think>.*?(?:</think>|$)', '', rewritten, flags=re.DOTALL).strip()
+            
+            # Si el modelo por error devolvió el texto envuelto en comillas, las quitamos
+            if rewritten.startswith('"') and rewritten.endswith('"'):
+                rewritten = rewritten[1:-1].strip()
+            
+            if rewritten and type_label == "CUERPO" and len(rewritten) < len(text) * 0.5:
+                print(f"      [RECHAZO LONGITUD] Fragmento reescrito demasiado corto ({len(rewritten)} < {int(len(text)*0.5)}) en intento {attempt+1}", flush=True)
                 if attempt < max_retries - 1: continue
 
             if rewritten:

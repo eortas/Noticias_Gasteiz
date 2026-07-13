@@ -46,7 +46,12 @@ def parallel_rewrite_news(max_workers=6):
                     
                     item['title'] = new_title
                     item['body'] = new_body
-                    item['rewritten'] = True
+                    
+                    # Marcamos como reescrita solo si realmente cambió respecto al original
+                    if new_title != title_orig or new_body != body_orig:
+                        item['rewritten'] = True
+                    else:
+                        item['rewritten'] = False
                     success = True
                 else:
                     return False
