@@ -11,6 +11,12 @@ from dotenv import load_dotenv
 # Cargar variables de entorno
 load_dotenv()
 
+def clean_thinking_tags(text):
+    """Elimina bloques <think>...</think> que genera Qwen en modo thinking."""
+    if not text:
+        return text
+    return re.sub(r'<think>[\s\S]*?(?:</think>|$)', '', text).strip()
+
 def tokenize(text):
     """Tokeniza un texto eliminando palabras vacías y caracteres especiales (igual que en app.js)."""
     if not text:
@@ -96,13 +102,15 @@ No devuelvas ninguna otra explicación, ni bloques de código markdown, solo el 
                     {"role": "user", "content": content}
                 ],
                 temperature=0.1,
-                response_format={"type": "json_object"}
+                response_format={"type": "json_object"},
+                extra_body={"reasoning_effort": "none"}
             )
             
             response_text = completion.choices[0].message.content
             
+            # Limpiar bloques de razonamiento <think>...</think> de Qwen
+            clean_text = clean_thinking_tags(response_text)
             # Limpiar posibles bloques de código markdown de la respuesta
-            clean_text = response_text.strip()
             if clean_text.startswith("```"):
                 clean_text = re.sub(r"^```[a-zA-Z]*\n", "", clean_text)
                 clean_text = re.sub(r"\n```$", "", clean_text)

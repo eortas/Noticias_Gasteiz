@@ -37,6 +37,13 @@ PALABRAS_NEGATIVAS = {
 
 NEGACIONES = {'no', 'ni', 'nunca', 'tampoco', 'sin'}
 
+def clean_thinking_tags(text):
+    """Elimina bloques <think>...</think> que genera Qwen en modo thinking.
+    Maneja tanto el caso normal (<think>...</think>) como el truncado (<think>... sin cierre)."""
+    if not text:
+        return text
+    return re.sub(r'<think>[\s\S]*?(?:</think>|$)', '', text).strip()
+
 def heuristic_fallback(text):
     if not text: return 'neutral', 0.0, 'Sociedad'
     text_lower = text.lower()
@@ -97,9 +104,11 @@ def analyze_sentiment(text):
                 model="qwen/qwen3.6-27b",
                 messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text[:1000]}],
                 temperature=0.1,
-                response_format={"type": "json_object"}
+                response_format={"type": "json_object"},
+                extra_body={"reasoning_effort": "none"}
             )
-            data = json.loads(completion.choices[0].message.content)
+            raw_response = clean_thinking_tags(completion.choices[0].message.content)
+            data = json.loads(raw_response)
             return data.get('sentiment', 'neutral'), data.get('score', 0.0), data.get('category', 'Sociedad')
         except Exception as e:
             if attempt == max_retries - 1:
@@ -227,13 +236,14 @@ def _rewrite_chunk(text, type_label, context_title=None):
                 model="qwen/qwen3.6-27b",
                 messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_content}],
                 temperature=0.6,
-                max_tokens=4000
+                max_tokens=4000,
+                extra_body={"reasoning_effort": "none"}
             )
             
             rewritten = completion.choices[0].message.content.strip()
             
             # Limpiar posibles bloques de razonamiento si los hubiera
-            rewritten = re.sub(r'<think>.*?(?:</think>|$)', '', rewritten, flags=re.DOTALL).strip()
+            rewritten = clean_thinking_tags(rewritten)
             
             # Si el modelo por error devolvió el texto envuelto en comillas, las quitamos
             if rewritten.startswith('"') and rewritten.endswith('"'):
@@ -328,8 +338,8 @@ CRITICAL INSTRUCTIONS:
             
             translated = completion.choices[0].message.content.strip()
             if translated:
-                # Eliminar bloques de razonamiento <think>...</think>
-                translated = re.sub(r'<think>.*?</think>', '', translated, flags=re.DOTALL).strip()
+                # Limpiar bloques de razonamiento <think>...</think> (defensa extra)
+                translated = clean_thinking_tags(translated)
                 # Quitar comillas innecesarias
                 if translated.startswith('"') and translated.endswith('"'):
                     translated = translated[1:-1].strip()

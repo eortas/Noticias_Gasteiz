@@ -3,10 +3,17 @@ import os
 import random
 import time
 from datetime import datetime, date
+import re
 from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
+
+def clean_thinking_tags(text):
+    """Elimina bloques <think>...</think> que genera Qwen en modo thinking."""
+    if not text:
+        return text
+    return re.sub(r'<think>[\s\S]*?(?:</think>|$)', '', text).strip()
 
 def get_groq_client():
     """Get a Groq client using the dedicated GROQ_RESUMEN API key."""
@@ -145,8 +152,9 @@ def summarize_chunk(client, chunk_items, chunk_num, total_chunks):
         ],
         temperature=0.3,
         max_tokens=512,
+        extra_body={"reasoning_effort": "none"}
     )
-    return completion.choices[0].message.content.strip()
+    return clean_thinking_tags(completion.choices[0].message.content)
 
 def synthesize_summaries(client, bullet_summaries, total_news):
     """Combine all bullet-point chunks into a single narrative daily summary."""
@@ -188,8 +196,10 @@ No incluyas firmas, ni menciones a Gasteiz Live. Limítate al resumen periodíst
         temperature=0.5,
         response_format={"type": "json_object"},
         max_tokens=1024,
+        extra_body={"reasoning_effort": "none"}
     )
-    result = json.loads(completion.choices[0].message.content)
+    raw_response = clean_thinking_tags(completion.choices[0].message.content)
+    result = json.loads(raw_response)
     return result.get('title', 'Resumen del día'), result.get('summary', '')
 
 def generate_daily_summary(news_items):
@@ -298,8 +308,10 @@ No incluyas firmas, ni menciones a Gasteiz Live. Limítate al resumen periodíst
         temperature=0.5,
         response_format={"type": "json_object"},
         max_tokens=1500,
+        extra_body={"reasoning_effort": "none"}
     )
-    result = json.loads(completion.choices[0].message.content)
+    raw_response = clean_thinking_tags(completion.choices[0].message.content)
+    result = json.loads(raw_response)
     return result.get('title', 'Resumen del día'), result.get('summary', '')
 
 def incremental_summary(client, existing_summary, new_news_items):
