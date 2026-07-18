@@ -346,7 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const sortedForPrimary = [...componentItems].sort((a, b) => {
                 const getRank = (item) => {
                     const img = item.image || "";
-                    const hasRealImg = img && !img.startsWith("data:image/") && !img.includes("resumen.png");
+                    const hasRealImg = img && !img.startsWith("data:image/") && !img.includes("resumen.png") && !img.includes("resumen_");
                     const src = item.source || "";
                     const isPref = src === "El Correo" || src === "Diario de Noticias";
                     const isGasteizHoy = src === "Gasteiz Hoy";
@@ -559,7 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
             <div class="card card-summary glass" data-id="${item.id}" data-is-summary="true">
                 <div class="card-img-wrap">
-                    <img src="data/resumen.png" alt="${UI_TRANSLATIONS[currentLang].summaryTitle}" class="card-img" loading="lazy">
+                    <img src="data/resumen_${currentLang}.png" alt="${UI_TRANSLATIONS[currentLang].summaryTitle}" class="card-img" loading="lazy">
                     <div class="img-overlay"></div>
                 </div>
                 <div class="card-content">
@@ -978,8 +978,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">${fallbackText}</p>`;
         }
 
-        // For summary items, use the resumen.png image
-        const heroImage = item.is_summary ? 'data/resumen.png' : (item.image || '');
+        // For summary items, use the localized resumen image
+        const heroImage = item.is_summary ? `data/resumen_${currentLang}.png` : (item.image || '');
         
         // Render Detail
         articleContent.innerHTML = `
