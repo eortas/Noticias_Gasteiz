@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import time
+from datetime import datetime, timedelta, timezone
 
 # Agregar la carpeta actual al path para importar
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -16,9 +17,22 @@ def retranslate_missing_news():
     with open(news_file, 'r', encoding='utf-8') as f:
         news = json.load(f)
 
-    # Identificar noticias que necesitan traducción
+    # Solo traducir noticias de las últimas 24h (no gastar API en artículos viejos)
+    now = datetime.now(timezone.utc)
+    cutoff = now - timedelta(hours=24)
+
+    # Identificar noticias recientes que necesitan traducción
     to_retranslate = []
     for item in news:
+        # Filtrar por fecha: ignorar noticias antiguas
+        try:
+            item_date = datetime.fromisoformat(item.get('date', '').replace('Z', '+00:00'))
+            if item_date.tzinfo is None:
+                item_date = item_date.replace(tzinfo=timezone.utc)
+            if item_date < cutoff and not item.get('is_summary'):
+                continue
+        except (ValueError, TypeError):
+            continue
         title = item.get('title', '')
         body = item.get('body', '')
         title_eu = item.get('title_eu', '')
