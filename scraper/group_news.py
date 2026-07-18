@@ -17,19 +17,72 @@ def clean_thinking_tags(text):
         return text
     return re.sub(r'<think>[\s\S]*?(?:</think>|$)', '', text).strip()
 
+# Lista ampliada de stopwords en español para evitar falsos positivos
+SPANISH_STOPWORDS = {
+    # Pronombres y artículos
+    'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas', 'este', 'esta', 'estos', 'estas', 'ese', 'esa', 'esos', 'esas',
+    'aquel', 'aquella', 'aquellos', 'aquellas', 'mi', 'mis', 'tu', 'tus', 'su', 'sus', 'nuestro', 'nuestra', 'nuestros', 'nuestras',
+    'vuestro', 'vuestra', 'vuestros', 'vuestras', 'yo', 'tú', 'él', 'ella', 'nosotros', 'nosotras', 'vosotros', 'vosotras', 'ellos', 'ellas',
+    'me', 'te', 'se', 'nos', 'os', 'le', 'les', 'lo', 'la', 'los', 'las', 'mí', 'ti', 'sí', 'conmigo', 'contigo', 'consigo',
+    # Preposiciones
+    'a', 'ante', 'bajo', 'cabe', 'con', 'contra', 'de', 'desde', 'durante', 'en', 'entre', 'hacia', 'hasta', 'mediante', 'para',
+    'por', 'según', 'sin', 'so', 'sobre', 'tras', 'versus', 'vía', 'al', 'del',
+    # Conjunciones
+    'y', 'e', 'ni', 'o', 'u', 'pero', 'mas', 'sino', 'aunque', 'porque', 'pues', 'como', 'siquiera',
+    # Verbos comunes y auxiliares
+    'ser', 'soy', 'eres', 'es', 'somos', 'sois', 'son', 'fui', 'fuiste', 'fue', 'fuimos', 'fuisteis', 'fueron',
+    'era', 'eras', 'éramos', 'erais', 'eran', 'seré', 'serás', 'será', 'seremos', 'seréis', 'serán',
+    'sea', 'seas', 'seamos', 'seáis', 'sean', 'sido', 'siendo',
+    'estar', 'estoy', 'estás', 'está', 'estamos', 'estáis', 'están', 'estuve', 'estuviste', 'estuvo', 'estuvimos', 'estuvisteis', 'estuvieron',
+    'estaba', 'estabas', 'estábamos', 'estabais', 'estaban', 'estaré', 'estarás', 'estará', 'estaremos', 'estaréis', 'estarán',
+    'esté', 'estés', 'estemos', 'estéis', 'estén', 'estado', 'estando',
+    'haber', 'he', 'has', 'ha', 'hemos', 'habéis', 'han', 'había', 'habías', 'habíamos', 'habíais', 'habían',
+    'haya', 'hayas', 'hayamos', 'hayáis', 'hayan', 'hubo', 'hubieron', 'hubiera', 'hubieras', 'hubiéramos', 'hubierais', 'hubieran',
+    'tener', 'tengo', 'tienes', 'tiene', 'tenemos', 'tenéis', 'tienen', 'tenía', 'tenías', 'teníamos', 'teníais', 'tenían',
+    'tenga', 'tengas', 'tengamos', 'tengáis', 'tengan', 'tuvo', 'tuvieron', 'tuviera', 'tuvieras', 'tuviéramos', 'tuvierais', 'tuvieran',
+    'hacer', 'hago', 'haces', 'hace', 'hacemos', 'hacéis', 'hacen', 'hacía', 'hacías', 'hacíamos', 'hacíais', 'hacían',
+    'haga', 'hagas', 'hagamos', 'hagáis', 'hagan', 'hizo', 'hicieron', 'hiciera', 'hicieras', 'hiciéramos', 'hicierais', 'hicieran',
+    'hecho', 'haciendo',
+    'poder', 'puedo', 'puedes', 'puede', 'podemos', 'podéis', 'pueden', 'podía', 'podías', 'podíamos', 'podíais', 'podían',
+    'pueda', 'puedas', 'puedamos', 'puedáis', 'puedan', 'pudo', 'pudieron', 'pudiera', 'pudieras', 'pudiéramos', 'pudierais', 'pudieran',
+    'decir', 'digo', 'dices', 'dice', 'decimos', 'decís', 'dicen', 'dije', 'dijiste', 'dijo', 'dijimos', 'dijisteis', 'dijeron',
+    'diga', 'digas', 'digamos', 'digáis', 'digan', 'dicho', 'diciendo',
+    'ir', 'voy', 'vas', 'va', 'vamos', 'vais', 'van', 'iba', 'ibas', 'íbamos', 'ibais', 'iban',
+    'vaya', 'vayas', 'vayamos', 'vayáis', 'vayan',
+    # Adverbios y otros cuantificadores
+    'muy', 'más', 'menos', 'tan', 'tanto', 'así', 'cómo', 'cuándo', 'cuando', 'dónde', 'donde', 'quién', 'quien',
+    'qué', 'que', 'ya', 'todavía', 'aún', 'ahora', 'después', 'antes', 'bien', 'mal', 'tal', 'tales',
+    'mismo', 'misma', 'mismos', 'mismas', 'otro', 'otra', 'otros', 'otras', 'ambos', 'ambas', 'cada', 'alguno', 'alguna',
+    'algunos', 'algunas', 'ninguno', 'ninguna', 'ningunos', 'ningunas', 'todo', 'toda', 'todos', 'todas', 'mucho', 'mucha',
+    'muchos', 'muchas', 'poco', 'poca', 'pocos', 'pocas', 'varios', 'varias', 'solo', 'sólo',
+    # Términos específicos de sitios/noticias locales
+    'correo', 'gasteiz', 'hoy', 'noticias', 'alava', 'vitoria', 'diario', 'araba', 'html', 'htm'
+}
+
+def clean_accents(s):
+    """Elimina tildes y diéresis para asegurar coincidencia robusta de caracteres."""
+    if not s:
+        return ""
+    replacements = (
+        ("á", "a"), ("é", "e"), ("í", "i"), ("ó", "o"), ("ú", "u"),
+        ("ü", "u"), ("ñ", "n"), ("Á", "A"), ("É", "E"), ("Í", "I"),
+        ("Ó", "O"), ("Ú", "U"), ("Ü", "U"), ("Ñ", "N")
+    )
+    for a, b in replacements:
+        s = s.replace(a, b)
+    return s
+
+# Pre-calcular stopwords normalizadas para eficiencia
+CLEANED_STOPWORDS = {clean_accents(w.lower()) for w in SPANISH_STOPWORDS}
+
 def tokenize(text):
     """Tokeniza un texto eliminando palabras vacías y caracteres especiales (igual que en app.js)."""
     if not text:
         return set()
-    stopwords = {
-        'de', 'la', 'el', 'en', 'y', 'a', 'los', 'un', 'una', 'con', 'para', 'este', 'esta', 'por', 'del', 
-        'al', 'se', 'las', 'su', 'sus', 'o', 'u', 'como', 'que', 'lo', 'uno', 'unas', 'unos',
-        'correo', 'gasteiz', 'hoy', 'noticias', 'alava', 'vitoria', 'diario', 'araba', 'html', 'htm'
-    }
-    text = text.lower()
+    text = clean_accents(text.lower())
     text = re.sub(r'[.,\/#!$%\^&\*;:{}=\-_`~()?"\'\n\r0-9]', ' ', text)
     words = text.split()
-    return {w for w in words if len(w) > 2 and w not in stopwords}
+    return {w for w in words if len(w) > 2 and w not in CLEANED_STOPWORDS}
 
 def jaccard_similarity(set_a, set_b):
     """Calcula el índice de similitud de Jaccard entre dos conjuntos."""
@@ -41,31 +94,18 @@ def extract_key_entities(text):
     """Extrae entidades clave (nombres propios, siglas) del texto original (antes de lowercase)."""
     if not text:
         return set()
-    # Stopwords ampliadas: palabras comunes que aparecen capitalizadas por estar al inicio de frase
-    entity_stopwords = {
-        'el', 'la', 'los', 'las', 'un', 'una', 'de', 'del', 'en', 'con', 'por', 'para',
-        'que', 'se', 'al', 'su', 'sus', 'es', 'son', 'ha', 'han', 'ser', 'fue', 'como',
-        'este', 'esta', 'estos', 'estas', 'ese', 'esa', 'esos', 'esas', 'hay', 'más',
-        'no', 'si', 'ya', 'pero', 'sin', 'sobre', 'entre', 'tras', 'ante', 'bajo',
-        'también', 'según', 'además', 'nuevo', 'nueva', 'nuevos', 'nuevas',
-        'gran', 'todo', 'toda', 'todos', 'todas', 'otro', 'otra', 'otros', 'otras',
-        'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez',
-        'vitoria', 'gasteiz', 'álava', 'araba', 'alava', 'euskadi',
-        'correo', 'diario', 'noticias', 'hoy',
-    }
     # Limpiar caracteres especiales pero mantener mayúsculas
     clean = re.sub(r'[.,\/#!$%\^&\*;:{}=\-_`~()?"\'\n\r0-9]', ' ', text)
     words = clean.split()
     entities = set()
     for w in words:
-        # Capturar palabras que empiezan en mayúscula (nombres propios)
-        # o son siglas (todo mayúsculas, al menos 2 letras)
         if len(w) < 2:
             continue
-        if w.lower() in entity_stopwords:
+        w_norm = clean_accents(w.lower())
+        if w_norm in CLEANED_STOPWORDS:
             continue
         if w[0].isupper() or w.isupper():
-            entities.add(w.lower())
+            entities.add(w_norm)
     return entities
 
 def overlap_score(set_a, set_b):
@@ -184,30 +224,45 @@ def group_news():
         print("No hay noticias normales para agrupar.")
         return
 
-    # 1. Agrupar con Jaccard (mismo algoritmo del frontend)
+    # MIGRACIÓN / RESET DE CACHÉ DE AGRUPACIÓN
+    # Si detecta que la versión del algoritmo ha cambiado, resetea la verificación
+    # para forzar la re-agrupación de las noticias actuales con las nuevas reglas.
+    version_file = os.path.join(root_dir, 'data', '.group_news_version')
+    current_version = "2.0"
+    force_reset = False
+    
+    if not os.path.exists(version_file):
+        force_reset = True
+    else:
+        try:
+            with open(version_file, 'r', encoding='utf-8') as vf:
+                if vf.read().strip() != current_version:
+                    force_reset = True
+        except:
+            force_reset = True
+
+    if force_reset:
+        print("    [MIGRACIÓN] Reseteando caché de verificación para aplicar el nuevo algoritmo de agrupación (v2.0)...")
+        for item in regular_items:
+            item['grouped_verified'] = False
+            item['group_id'] = None
+        try:
+            with open(version_file, 'w', encoding='utf-8') as vf:
+                vf.write(current_version)
+        except Exception as e:
+            print(f"    [AVISO] No se pudo escribir la versión del agrupador: {e}")
+
+    # 1. Agrupar con Jaccard y entidades (mismo algoritmo del frontend)
     tokenized = []
     for item in regular_items:
-        url_words = ""
-        if item.get('url'):
-            try:
-                parsed_url = urllib.parse.urlparse(item['url'])
-                url_words = parsed_url.path
-            except Exception:
-                url_words = item['url']
-            url_words = re.sub(r'[\/\-_.]', ' ', url_words)
-            url_words = re.sub(r'\d+', '', url_words)
-            
-        title_text = f"{item.get('title', '')} {item.get('original_title', '')} {url_words}"
+        title_text = f"{item.get('title', '')} {item.get('original_title', '')}"
         body_text = f"{item.get('body', '')} {item.get('original_body', '')}"
-        
-        # Texto original sin lowercase para extraer entidades (nombres propios)
-        title_raw = f"{item.get('title', '')} {item.get('original_title', '')}"
         
         tokenized.append({
             'item': item,
             'title_tokens': tokenize(title_text),
             'body_tokens': tokenize(body_text),
-            'title_entities': extract_key_entities(title_raw)
+            'title_entities': extract_key_entities(title_text)
         })
         
     n = len(tokenized)
@@ -217,43 +272,41 @@ def group_news():
             title_sim = jaccard_similarity(tokenized[i]['title_tokens'], tokenized[j]['title_tokens'])
             body_sim = jaccard_similarity(tokenized[i]['body_tokens'], tokenized[j]['body_tokens'])
             
-            # Regla 1-3: Similitud Jaccard (umbrales ligeramente relajados para generar más candidatos que el LLM verificará)
-            if title_sim >= 0.22 or body_sim >= 0.28 or (title_sim >= 0.06 and body_sim >= 0.13):
+            ent_i = tokenized[i]['title_entities']
+            ent_j = tokenized[j]['title_entities']
+            shared_entities = ent_i & ent_j
+            
+            matched = False
+            
+            # Regla 1: Similitud Jaccard de título directa (direct matching)
+            if title_sim >= 0.20:
+                matched = True
+            # Regla 2: Similitud Jaccard de body directa
+            elif body_sim >= 0.25:
+                matched = True
+            # Regla 3: Combinación de título + body
+            elif title_sim >= 0.05 and body_sim >= 0.11:
+                matched = True
+            # Regla 4: Entidades clave y overlap
+            elif len(shared_entities) >= 2 and body_sim >= 0.08:
+                matched = True
+            elif ent_i and ent_j and overlap_score(ent_i, ent_j) >= 0.40 and body_sim >= 0.10:
+                matched = True
+            else:
+                # Regla semántica de agresiones (existente, adaptada a la normalización)
+                bA = tokenized[i]['body_tokens']
+                bB = tokenized[j]['body_tokens']
+                shared = bA & bB
+                has_weapon = any(w in shared for w in ['blanca', 'cuchilladas', 'navaja', 'cuchillo', 'apunalan', 'acuchillado', 'apunalado'])
+                has_back = 'espalda' in shared
+                has_young = 'joven' in shared
+                
+                if has_weapon and has_back and has_young:
+                    matched = True
+            
+            if matched:
                 adj[i].append(j)
                 adj[j].append(i)
-            else:
-                # Regla 4: Entidades clave compartidas + overlap del body
-                # Captura noticias con nombres propios comunes aunque usen vocabulario distinto
-                ent_i = tokenized[i]['title_entities']
-                ent_j = tokenized[j]['title_entities']
-                shared_entities = ent_i & ent_j
-                body_overlap = overlap_score(tokenized[i]['body_tokens'], tokenized[j]['body_tokens'])
-                
-                # Si comparten al menos 2 entidades clave en el título y algo de overlap en body
-                if len(shared_entities) >= 2 and body_overlap >= 0.12:
-                    adj[i].append(j)
-                    adj[j].append(i)
-                # Si hay alta similitud de entidades (proporción) con algo de overlap en body
-                elif ent_i and ent_j and overlap_score(ent_i, ent_j) >= 0.35 and body_overlap >= 0.18:
-                    adj[i].append(j)
-                    adj[j].append(i)
-                # Regla 5: Body overlap muy alto indica mismo tema aunque títulos difieran
-                # (el LLM validará después para evitar falsos positivos)
-                elif body_overlap >= 0.25 and title_sim >= 0.03:
-                    adj[i].append(j)
-                    adj[j].append(i)
-                else:
-                    # Regla semántica de agresiones (existente)
-                    bA = tokenized[i]['body_tokens']
-                    bB = tokenized[j]['body_tokens']
-                    shared = bA & bB
-                    has_weapon = any(w in shared for w in ['blanca', 'cuchilladas', 'navaja', 'cuchillo', 'apuñalan', 'acuchillado', 'apuñalado'])
-                    has_back = 'espalda' in shared
-                    has_young = 'joven' in shared
-                    
-                    if has_weapon and has_back and has_young:
-                        adj[i].append(j)
-                        adj[j].append(i)
                     
     visited = set()
     candidate_groups = []

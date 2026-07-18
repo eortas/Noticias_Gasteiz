@@ -174,20 +174,57 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Lista ampliada de stopwords en español (coherente con el backend)
+    const SPANISH_STOPWORDS = new Set([
+        'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas', 'este', 'esta', 'estos', 'estas', 'ese', 'esa', 'esos', 'esas',
+        'aquel', 'aquella', 'aquellos', 'aquellas', 'mi', 'mis', 'tu', 'tus', 'su', 'sus', 'nuestro', 'nuestra', 'nuestros', 'nuestras',
+        'vuestro', 'vuestra', 'vuestros', 'vue-stras', 'yo', 'tú', 'él', 'ella', 'nosotros', 'nosotras', 'vosotros', 'vosotras', 'ellos', 'ellas',
+        'me', 'te', 'se', 'nos', 'os', 'le', 'les', 'lo', 'la', 'los', 'las', 'mí', 'ti', 'sí', 'conmigo', 'contigo', 'consigo',
+        'a', 'ante', 'bajo', 'cabe', 'con', 'contra', 'de', 'desde', 'durante', 'en', 'entre', 'hacia', 'hasta', 'mediante', 'para',
+        'por', 'según', 'sin', 'so', 'sobre', 'tras', 'versus', 'vía', 'al', 'del',
+        'y', 'e', 'ni', 'o', 'u', 'pero', 'mas', 'sino', 'aunque', 'porque', 'pues', 'como', 'siquiera',
+        'ser', 'soy', 'eres', 'es', 'somos', 'sois', 'son', 'fui', 'fuiste', 'fue', 'fuimos', 'fuisteis', 'fueron',
+        'era', 'eras', 'éramos', 'erais', 'eran', 'seré', 'serás', 'será', 'seremos', 'seréis', 'serán',
+        'sea', 'seas', 'seamos', 'seáis', 'sean', 'sido', 'siendo',
+        'estar', 'estoy', 'estás', 'está', 'estamos', 'estáis', 'están', 'estuve', 'estuviste', 'estuvo', 'estuvimos', 'estuvisteis', 'estuvieron',
+        'estaba', 'estabas', 'estábamos', 'estabais', 'estaban', 'estaré', 'estarás', 'estará', 'estaremos', 'estaréis', 'estarán',
+        'esté', 'estés', 'estemos', 'estéis', 'estén', 'estado', 'estando',
+        'haber', 'he', 'has', 'ha', 'hemos', 'habéis', 'han', 'había', 'habías', 'habíamos', 'habíais', 'habían',
+        'haya', 'hayas', 'hayamos', 'hayáis', 'hayan', 'hubo', 'hubieron', 'hubiera', 'hubieras', 'hubiéramos', 'hubierais', 'hubieran',
+        'tener', 'tengo', 'tienes', 'tiene', 'tenemos', 'tenéis', 'tienen', 'tenía', 'tenías', 'teníamos', 'teníais', 'tenían',
+        'tenga', 'tengas', 'tengamos', 'tengáis', 'tengan', 'tuvo', 'tuvieron', 'tuviera', 'tuvieras', 'tuviéramos', 'tuvierais', 'tuvieran',
+        'hacer', 'hago', 'haces', 'hace', 'hacemos', 'hacéis', 'hacen', 'hacía', 'hacías', 'hacíamos', 'hacíais', 'hacían',
+        'haga', 'hagas', 'hagamos', 'hagáis', 'hagan', 'hizo', 'hicieron', 'hiciera', 'hicieras', 'hiciéramos', 'hicierais', 'hicieran',
+        'hecho', 'haciendo',
+        'poder', 'puedo', 'puedes', 'puede', 'podemos', 'podéis', 'pueden', 'podía', 'podías', 'podíamos', 'podíais', 'podían',
+        'pueda', 'puedas', 'puedamos', 'puedáis', 'puedan', 'pudo', 'pudieron', 'pudiera', 'pudieras', 'pudiéramos', 'pudierais', 'pudieran',
+        'decir', 'digo', 'dices', 'dice', 'decimos', 'decís', 'dicen', 'dije', 'dijiste', 'dijo', 'dijimos', 'dijisteis', 'dijeron',
+        'diga', 'digas', 'digamos', 'digáis', 'digan', 'dicho', 'diciendo',
+        'ir', 'voy', 'vas', 'va', 'vamos', 'vais', 'van', 'iba', 'ibas', 'íbamos', 'ibais', 'iban',
+        'vaya', 'vayas', 'vayamos', 'vayáis', 'vayan',
+        'muy', 'más', 'menos', 'tan', 'tanto', 'así', 'cómo', 'cuándo', 'cuando', 'dónde', 'donde', 'quién', 'quien',
+        'qué', 'que', 'ya', 'todavía', 'aún', 'ahora', 'después', 'antes', 'bien', 'mal', 'tal', 'tales',
+        'mismo', 'misma', 'mismos', 'mismas', 'otro', 'otra', 'otros', 'otras', 'ambos', 'ambas', 'cada', 'alguno', 'alguna',
+        'algunos', 'algunas', 'ninguno', 'ninguna', 'ningunos', 'ningunas', 'todo', 'toda', 'todos', 'todas', 'mucho', 'mucha',
+        'muchos', 'muchas', 'poco', 'poca', 'pocos', 'pocas', 'varios', 'varias', 'solo', 'sólo',
+        'correo', 'gasteiz', 'hoy', 'noticias', 'alava', 'vitoria', 'diario', 'araba', 'html', 'htm'
+    ]);
+
+    function cleanAccents(s) {
+        if (!s) return "";
+        return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ñ/g, "n").replace(/Ñ/g, "N");
+    }
+
+    const CLEANED_STOPWORDS = new Set(Array.from(SPANISH_STOPWORDS).map(w => cleanAccents(w.toLowerCase())));
+
     function tokenize(text) {
         if (!text) return new Set();
-        const stopwords = new Set([
-            'de', 'la', 'el', 'en', 'y', 'a', 'los', 'un', 'una', 'con', 'para', 'este', 'esta', 'por', 'del', 
-            'al', 'se', 'las', 'su', 'sus', 'o', 'u', 'como', 'para', 'que', 'en', 'del', 'lo', 'lo', 'los', 'un', 
-            'una', 'uno', 'unas', 'unos', 'al', 'del', 'los', 'las', 'correo', 'gasteiz', 'hoy', 'noticias', 
-            'alava', 'vitoria', 'diario', 'araba', 'html', 'htm'
-        ]);
-        const words = text.toLowerCase()
-            .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'']/g, "")
+        const words = cleanAccents(text.toLowerCase())
+            .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'']/g, " ")
             .split(/\s+/);
         const tokens = new Set();
         for (const w of words) {
-            if (w.length > 2 && !stopwords.has(w)) {
+            if (w.length > 2 && !CLEANED_STOPWORDS.has(w)) {
                 tokens.add(w);
             }
         }
@@ -208,25 +245,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function extractKeyEntities(text) {
         if (!text) return new Set();
-        const entityStopwords = new Set([
-            'el', 'la', 'los', 'las', 'un', 'una', 'de', 'del', 'en', 'con', 'por', 'para',
-            'que', 'se', 'al', 'su', 'sus', 'es', 'son', 'ha', 'han', 'ser', 'fue', 'como',
-            'este', 'esta', 'estos', 'estas', 'ese', 'esa', 'esos', 'esas', 'hay', 'más',
-            'no', 'si', 'ya', 'pero', 'sin', 'sobre', 'entre', 'tras', 'ante', 'bajo',
-            'también', 'según', 'además', 'nuevo', 'nueva', 'nuevos', 'nuevas',
-            'gran', 'todo', 'toda', 'todos', 'todas', 'otro', 'otra', 'otros', 'otras',
-            'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez',
-            'vitoria', 'gasteiz', 'álava', 'araba', 'alava', 'euskadi',
-            'correo', 'diario', 'noticias', 'hoy'
-        ]);
         const clean = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'\n\r0-9]/g, ' ');
         const words = clean.split(/\s+/);
         const entities = new Set();
         for (const w of words) {
             if (w.length < 2) continue;
-            if (entityStopwords.has(w.toLowerCase())) continue;
+            const wNorm = cleanAccents(w.toLowerCase());
+            if (CLEANED_STOPWORDS.has(wNorm)) continue;
             if (w[0] === w[0].toUpperCase() && w[0] !== w[0].toLowerCase()) {
-                entities.add(w.toLowerCase());
+                entities.add(wNorm);
             }
         }
         return entities;
@@ -324,25 +351,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function groupNewsItemsJaccard(items) {
         const tokenized = items.map(item => {
-            let urlWords = "";
-            if (item.url) {
-                try {
-                    const parsedUrl = new URL(item.url);
-                    urlWords = parsedUrl.pathname;
-                } catch (e) {
-                    urlWords = item.url;
-                }
-                urlWords = urlWords.replace(/[\/\-_.]/g, " ").replace(/\d+/g, "");
-            }
-            
-            const titleText = (item.title || "") + " " + (item.original_title || "") + " " + urlWords;
+            const titleText = (item.title || "") + " " + (item.original_title || "");
             const bodyText = (item.body || "") + " " + (item.original_body || "");
-            const titleRaw = (item.title || "") + " " + (item.original_title || "");
             return {
                 item: item,
                 titleTokens: tokenize(titleText),
                 bodyTokens: tokenize(bodyText),
-                titleEntities: extractKeyEntities(titleRaw)
+                titleEntities: extractKeyEntities(titleText)
             };
         });
         
@@ -355,42 +370,50 @@ document.addEventListener('DOMContentLoaded', () => {
                 const titleSim = jaccardSimilarity(tokenized[i].titleTokens, tokenized[j].titleTokens);
                 const bodySim = jaccardSimilarity(tokenized[i].bodyTokens, tokenized[j].bodyTokens);
                 
-                if (titleSim >= 0.22 || bodySim >= 0.28 || (titleSim >= 0.06 && bodySim >= 0.13)) {
+                const entI = tokenized[i].titleEntities;
+                const entJ = tokenized[j].titleEntities;
+                let sharedEntities = 0;
+                for (const e of entI) { if (entJ.has(e)) sharedEntities++; }
+                
+                let matched = false;
+                
+                // Regla 1: Similitud Jaccard de título directa (direct matching)
+                if (titleSim >= 0.20) {
+                    matched = true;
+                }
+                // Regla 2: Similitud Jaccard de body directa
+                else if (bodySim >= 0.25) {
+                    matched = true;
+                }
+                // Regla 3: Combinación de título + body
+                else if (titleSim >= 0.05 && bodySim >= 0.11) {
+                    matched = true;
+                }
+                // Regla 4: Entidades clave y overlap
+                else if (sharedEntities >= 2 && bodySim >= 0.08) {
+                    matched = true;
+                }
+                else if (entI.size > 0 && entJ.size > 0 && overlapScore(entI, entJ) >= 0.40 && bodySim >= 0.10) {
+                    matched = true;
+                }
+                else {
+                    // Regla semántica de agresiones (normalizada)
+                    const bA = tokenized[i].bodyTokens;
+                    const bB = tokenized[j].bodyTokens;
+                    const shared = new Set([...bA].filter(x => bB.has(x)));
+                    
+                    const hasWeapon = ['blanca', 'cuchilladas', 'navaja', 'cuchillo', 'apunalan', 'acuchillado', 'apunalado'].some(w => shared.has(w));
+                    const hasBack = shared.has('espalda');
+                    const hasYoung = shared.has('joven');
+                    
+                    if (hasWeapon && hasBack && hasYoung) {
+                        matched = true;
+                    }
+                }
+                
+                if (matched) {
                     adj[i].push(j);
                     adj[j].push(i);
-                } else {
-                    // Regla de entidades clave compartidas + overlap del body
-                    const entI = tokenized[i].titleEntities;
-                    const entJ = tokenized[j].titleEntities;
-                    let sharedEntities = 0;
-                    for (const e of entI) { if (entJ.has(e)) sharedEntities++; }
-                    const bodyOvl = overlapScore(tokenized[i].bodyTokens, tokenized[j].bodyTokens);
-                    
-                    if (sharedEntities >= 2 && bodyOvl >= 0.12) {
-                        adj[i].push(j);
-                        adj[j].push(i);
-                    } else if (entI.size > 0 && entJ.size > 0 && overlapScore(entI, entJ) >= 0.35 && bodyOvl >= 0.18) {
-                        adj[i].push(j);
-                        adj[j].push(i);
-                    // Body overlap muy alto indica mismo tema aunque títulos difieran
-                    } else if (bodyOvl >= 0.25 && titleSim >= 0.03) {
-                        adj[i].push(j);
-                        adj[j].push(i);
-                    } else {
-                        // Regla semántica de agresiones
-                        const bA = tokenized[i].bodyTokens;
-                        const bB = tokenized[j].bodyTokens;
-                        const shared = new Set([...bA].filter(x => bB.has(x)));
-                        
-                        const hasWeapon = ['blanca', 'cuchilladas', 'navaja', 'cuchillo', 'apuñalan', 'acuchillado', 'apuñalado'].some(w => shared.has(w));
-                        const hasBack = shared.has('espalda');
-                        const hasYoung = shared.has('joven');
-                        
-                        if (hasWeapon && hasBack && hasYoung) {
-                            adj[i].push(j);
-                            adj[j].push(i);
-                        }
-                    }
                 }
             }
         }
