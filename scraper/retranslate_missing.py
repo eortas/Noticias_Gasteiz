@@ -112,7 +112,7 @@ def retranslate_missing_news():
                     print(f"  [Euskera - OK] Traducido con éxito.")
                 else:
                     print(f"  [Euskera - FALLÓ] Resultado vacío o fallback en castellano.")
-                time.sleep(3.0) # Separación preventiva
+                time.sleep(1.0) # Separación preventiva
                 
             # 2. Traducir al polaco si es necesario
             if needs_pl:
@@ -124,7 +124,7 @@ def retranslate_missing_news():
                     print(f"  [Polaco - OK] Traducido con éxito.")
                 else:
                     print(f"  [Polaco - FALLÓ] Resultado vacío o fallback en castellano.")
-                time.sleep(3.0)
+                time.sleep(1.0)
                 
             # 3. Traducir al francés si es necesario
             if needs_fr:
@@ -136,7 +136,7 @@ def retranslate_missing_news():
                     print(f"  [Francés - OK] Traducido con éxito.")
                 else:
                     print(f"  [Francés - FALLÓ] Resultado vacío o fallback en castellano.")
-                time.sleep(3.0)
+                time.sleep(1.0)
                 
             # 4. Traducir al inglés si es necesario
             if needs_en:
@@ -153,12 +153,12 @@ def retranslate_missing_news():
             with open(news_file, 'w', encoding='utf-8') as f:
                 json.dump(news, f, indent=2, ensure_ascii=False)
                 
-            # Sleep obligatorio entre noticias para mantenerse por debajo del límite de 8,000 TPM de Groq
-            time.sleep(4.0)
+            # Sleep de cortesía entre noticias; el retry gestiona rate limits reales
+            time.sleep(1.5)
             
         except Exception as e:
             print(f"  Error al procesar la noticia: {e}")
-            time.sleep(5.0)
+            time.sleep(2.0)
 
     print("\nProceso de traducción corrector finalizado con éxito.")
 

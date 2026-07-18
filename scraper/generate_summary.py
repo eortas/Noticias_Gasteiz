@@ -214,7 +214,7 @@ def generate_daily_summary(news_items):
         return None
 
     CHUNK_SIZE = 20          # ~20 noticias por llamada → ~8k tokens de entrada
-    SLEEP_BETWEEN_CHUNKS = 62  # segundos para resetear la ventana TPM de Groq
+    SLEEP_BETWEEN_CHUNKS = 12  # segundos de cortesía; si hay rate limit, el retry lo gestiona
 
     # Dividir en chunks
     chunks = [news_items[i:i + CHUNK_SIZE] for i in range(0, len(news_items), CHUNK_SIZE)]
@@ -320,7 +320,7 @@ def incremental_summary(client, existing_summary, new_news_items):
         return existing_summary.get('title'), existing_summary.get('body')
 
     CHUNK_SIZE = 20
-    SLEEP_BETWEEN_CHUNKS = 62
+    SLEEP_BETWEEN_CHUNKS = 12
 
     # Divide new items into chunks and summarize them to bullet points
     chunks = [new_news_items[i:i + CHUNK_SIZE] for i in range(0, len(new_news_items), CHUNK_SIZE)]

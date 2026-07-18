@@ -420,8 +420,8 @@ def translate_article(title, body, target_lang="eu"):
         print(f"      - Traduciendo fragmento {i+1}/{len(chunks)}...", flush=True)
         tr_chunk = translate_text(chunk, target_lang, "CUERPO", context_title=title_tr)
         translated_chunks.append(tr_chunk or chunk)
-        # Delay preventivo entre fragmentos para proteger la cuota TPM de 8000
-        time.sleep(1.5)
+        # Delay de cortesía entre fragmentos; el retry gestiona rate limits reales
+        time.sleep(0.5)
             
     return title_tr, "\n\n".join(translated_chunks)
 
