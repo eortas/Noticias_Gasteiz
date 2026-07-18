@@ -435,6 +435,36 @@ def add_summary_to_news(news_data, summary_data):
     except Exception as e:
         print(f"Error al traducir el resumen diario al polaco: {e}", flush=True)
 
+    # Traducir el resumen al francés de forma inmediata
+    try:
+        from analyze_sentiment import translate_article
+        print("Traduciendo resumen diario al francés...", flush=True)
+        title_fr, body_fr = translate_article(summary_data['title'], summary_data['body'], target_lang="fr")
+        if title_fr and body_fr:
+            summary_entry['title_fr'] = title_fr
+            summary_entry['body_fr'] = body_fr
+            summary_entry['translated_fr'] = True
+            print("Resumen diario traducido al francés con éxito.", flush=True)
+        else:
+            print("No se pudo obtener traducción del resumen al francés.", flush=True)
+    except Exception as e:
+        print(f"Error al traducir el resumen diario al francés: {e}", flush=True)
+
+    # Traducir el resumen al inglés de forma inmediata
+    try:
+        from analyze_sentiment import translate_article
+        print("Traduciendo resumen diario al inglés...", flush=True)
+        title_en, body_en = translate_article(summary_data['title'], summary_data['body'], target_lang="en")
+        if title_en and body_en:
+            summary_entry['title_en'] = title_en
+            summary_entry['body_en'] = body_en
+            summary_entry['translated_en'] = True
+            print("Resumen diario traducido al inglés con éxito.", flush=True)
+        else:
+            print("No se pudo obtener traducción del resumen al inglés.", flush=True)
+    except Exception as e:
+        print(f"Error al traducir el resumen diario al inglés: {e}", flush=True)
+
     # Insert summary at the beginning
     news_data.insert(0, summary_entry)
     print(f"Resumen diario {'actualizado' if summary_data.get('is_update') else 'generado'} al inicio de news.json")

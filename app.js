@@ -1305,15 +1305,77 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (avalaOrDeportes.length < 2) return null;
         
-        const bodyText = avalaOrDeportes.map((item) => {
-            const preview = (item.body || '').substring(0, 300).replace(/\n/g, ' ').trim();
-            return `- ${item.title}. ${preview.substring(0, preview.lastIndexOf('.') + 1) || preview + '.'}`;
-        }).join('\n\n');
+        // Generar textos para cada uno de los idiomas soportados
+        const langs = ['es', 'eu', 'fr', 'en', 'pl'];
+        const summaryData = {};
+        
+        langs.forEach(lang => {
+            let bodyText = avalaOrDeportes.map((item) => {
+                let title = item.title;
+                let body = item.body || '';
+                
+                if (lang === 'eu') {
+                    if (item.title_eu) title = item.title_eu;
+                    if (item.body_eu) body = item.body_eu;
+                } else if (lang === 'pl') {
+                    if (item.title_pl) title = item.title_pl;
+                    if (item.body_pl) body = item.body_pl;
+                } else if (lang === 'fr') {
+                    if (item.title_fr) title = item.title_fr;
+                    if (item.body_fr) body = item.body_fr;
+                } else if (lang === 'en') {
+                    if (item.title_en) title = item.title_en;
+                    if (item.body_en) body = item.body_en;
+                }
+                
+                const preview = body.substring(0, 300).replace(/\n/g, ' ').trim();
+                return `- ${title}. ${preview.substring(0, preview.lastIndexOf('.') + 1) || preview + '.'}`;
+            }).join('\n\n');
+            
+            let intro = '';
+            let outro = '';
+            let title = '';
+            
+            if (lang === 'eu') {
+                title = 'Eguneko albisteen laburpena';
+                intro = 'Gaur Vitoria-Gasteizen eta Araban gai garrantzitsuenak hauek dira:\n\n';
+                outro = '\n\nLaburpen hau webgunetik automatikoki sortzen da eta zerbitzaritik erabilgarri dagoenean adimen artifizialaren laburpen osoa erakutsiko du.';
+            } else if (lang === 'pl') {
+                title = 'Podsumowanie wiadomości dnia';
+                intro = 'Dzisiaj w Vitoria-Gasteiz i Alavie najważniejsze tematy to:\n\n';
+                outro = '\n\nTo podsumowanie jest generowane automatycznie ze strony i pokaże pełną treść podsumowania z AI, gdy będzie dostępne na serwerze.';
+            } else if (lang === 'fr') {
+                title = "Résumé de l'actualité du jour";
+                intro = "Aujourd'hui à Vitoria-Gasteiz et en Álava, les sujets les plus marquants sont :\n\n";
+                outro = "\n\nCe résumé est généré automatiquement depuis le web et affichera le contenu complet du résumé avec IA lorsqu'il sera disponible sur le serveur.";
+            } else if (lang === 'en') {
+                title = 'Daily news summary';
+                intro = 'Today in Vitoria-Gasteiz and Álava, the most prominent topics are:\n\n';
+                outro = '\n\nThis summary is generated automatically from the web and will show the full AI-generated summary content when available from the server.';
+            } else {
+                title = 'Resumen de noticias del día';
+                intro = 'Hoy en Vitoria-Gasteiz y Álava los temas más destacados son:\n\n';
+                outro = '\n\nEste resumen se genera automáticamente desde la web y mostrará el contenido completo del resumen con IA cuando esté disponible desde el servidor.';
+            }
+            
+            summaryData[lang] = {
+                title: title,
+                body: intro + bodyText + outro
+            };
+        });
         
         return {
             id: 'resumen_virtual_' + new Date().toISOString().split('T')[0],
-            title: 'Resumen de noticias del día',
-            body: 'Hoy en Vitoria-Gasteiz y Álava los temas más destacados son:\n\n' + bodyText + '\n\nEste resumen se genera automáticamente desde la web y mostrará el contenido completo del resumen con IA cuando esté disponible desde el servidor.',
+            title: summaryData.es.title,
+            body: summaryData.es.body,
+            title_eu: summaryData.eu.title,
+            body_eu: summaryData.eu.body,
+            title_pl: summaryData.pl.title,
+            body_pl: summaryData.pl.body,
+            title_fr: summaryData.fr.title,
+            body_fr: summaryData.fr.body,
+            title_en: summaryData.en.title,
+            body_en: summaryData.en.body,
             url: '',
             source: 'Gasteiz Live',
             date: new Date().toISOString(),
