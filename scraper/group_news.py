@@ -37,6 +37,46 @@ def jaccard_similarity(set_a, set_b):
         return 0.0
     return len(set_a & set_b) / len(set_a | set_b)
 
+def extract_key_entities(text):
+    """Extrae entidades clave (nombres propios, siglas) del texto original (antes de lowercase)."""
+    if not text:
+        return set()
+    # Stopwords ampliadas: palabras comunes que aparecen capitalizadas por estar al inicio de frase
+    entity_stopwords = {
+        'el', 'la', 'los', 'las', 'un', 'una', 'de', 'del', 'en', 'con', 'por', 'para',
+        'que', 'se', 'al', 'su', 'sus', 'es', 'son', 'ha', 'han', 'ser', 'fue', 'como',
+        'este', 'esta', 'estos', 'estas', 'ese', 'esa', 'esos', 'esas', 'hay', 'más',
+        'no', 'si', 'ya', 'pero', 'sin', 'sobre', 'entre', 'tras', 'ante', 'bajo',
+        'también', 'según', 'además', 'nuevo', 'nueva', 'nuevos', 'nuevas',
+        'gran', 'todo', 'toda', 'todos', 'todas', 'otro', 'otra', 'otros', 'otras',
+        'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez',
+        'vitoria', 'gasteiz', 'álava', 'araba', 'alava', 'euskadi',
+        'correo', 'diario', 'noticias', 'hoy',
+    }
+    # Limpiar caracteres especiales pero mantener mayúsculas
+    clean = re.sub(r'[.,\/#!$%\^&\*;:{}=\-_`~()?"\'\n\r0-9]', ' ', text)
+    words = clean.split()
+    entities = set()
+    for w in words:
+        # Capturar palabras que empiezan en mayúscula (nombres propios)
+        # o son siglas (todo mayúsculas, al menos 2 letras)
+        if len(w) < 2:
+            continue
+        if w.lower() in entity_stopwords:
+            continue
+        if w[0].isupper() or w.isupper():
+            entities.add(w.lower())
+    return entities
+
+def overlap_score(set_a, set_b):
+    """Calcula la proporción de tokens compartidos sobre el menor de los dos conjuntos.
+    Más generoso que Jaccard cuando un artículo es mucho más largo que otro."""
+    if not set_a or not set_b:
+        return 0.0
+    shared = len(set_a & set_b)
+    min_size = min(len(set_a), len(set_b))
+    return shared / min_size if min_size > 0 else 0.0
+
 def get_groq_client():
     """Selecciona una clave de Groq disponible y devuelve un cliente inicializado."""
     keys = [
@@ -160,10 +200,14 @@ def group_news():
         title_text = f"{item.get('title', '')} {item.get('original_title', '')} {url_words}"
         body_text = f"{item.get('body', '')} {item.get('original_body', '')}"
         
+        # Texto original sin lowercase para extraer entidades (nombres propios)
+        title_raw = f"{item.get('title', '')} {item.get('original_title', '')}"
+        
         tokenized.append({
             'item': item,
             'title_tokens': tokenize(title_text),
-            'body_tokens': tokenize(body_text)
+            'body_tokens': tokenize(body_text),
+            'title_entities': extract_key_entities(title_raw)
         })
         
     n = len(tokenized)
@@ -173,22 +217,43 @@ def group_news():
             title_sim = jaccard_similarity(tokenized[i]['title_tokens'], tokenized[j]['title_tokens'])
             body_sim = jaccard_similarity(tokenized[i]['body_tokens'], tokenized[j]['body_tokens'])
             
-            # Reglas idénticas al frontend
-            if title_sim >= 0.22 or body_sim >= 0.28 or (title_sim >= 0.08 and body_sim >= 0.15):
+            # Regla 1-3: Similitud Jaccard (umbrales ligeramente relajados para generar más candidatos que el LLM verificará)
+            if title_sim >= 0.22 or body_sim >= 0.28 or (title_sim >= 0.06 and body_sim >= 0.13):
                 adj[i].append(j)
                 adj[j].append(i)
             else:
-                # Regla semántica de agresiones
-                bA = tokenized[i]['body_tokens']
-                bB = tokenized[j]['body_tokens']
-                shared = bA & bB
-                has_weapon = any(w in shared for w in ['blanca', 'cuchilladas', 'navaja', 'cuchillo', 'apuñalan', 'acuchillado', 'apuñalado'])
-                has_back = 'espalda' in shared
-                has_young = 'joven' in shared
+                # Regla 4: Entidades clave compartidas + overlap del body
+                # Captura noticias con nombres propios comunes aunque usen vocabulario distinto
+                ent_i = tokenized[i]['title_entities']
+                ent_j = tokenized[j]['title_entities']
+                shared_entities = ent_i & ent_j
+                body_overlap = overlap_score(tokenized[i]['body_tokens'], tokenized[j]['body_tokens'])
                 
-                if has_weapon and has_back and has_young:
+                # Si comparten al menos 2 entidades clave en el título y algo de overlap en body
+                if len(shared_entities) >= 2 and body_overlap >= 0.12:
                     adj[i].append(j)
                     adj[j].append(i)
+                # Si hay alta similitud de entidades (proporción) con algo de overlap en body
+                elif ent_i and ent_j and overlap_score(ent_i, ent_j) >= 0.35 and body_overlap >= 0.18:
+                    adj[i].append(j)
+                    adj[j].append(i)
+                # Regla 5: Body overlap muy alto indica mismo tema aunque títulos difieran
+                # (el LLM validará después para evitar falsos positivos)
+                elif body_overlap >= 0.25 and title_sim >= 0.03:
+                    adj[i].append(j)
+                    adj[j].append(i)
+                else:
+                    # Regla semántica de agresiones (existente)
+                    bA = tokenized[i]['body_tokens']
+                    bB = tokenized[j]['body_tokens']
+                    shared = bA & bB
+                    has_weapon = any(w in shared for w in ['blanca', 'cuchilladas', 'navaja', 'cuchillo', 'apuñalan', 'acuchillado', 'apuñalado'])
+                    has_back = 'espalda' in shared
+                    has_young = 'joven' in shared
+                    
+                    if has_weapon and has_back and has_young:
+                        adj[i].append(j)
+                        adj[j].append(i)
                     
     visited = set()
     candidate_groups = []

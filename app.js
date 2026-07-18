@@ -206,6 +206,42 @@ document.addEventListener('DOMContentLoaded', () => {
         return intersection / union;
     }
 
+    function extractKeyEntities(text) {
+        if (!text) return new Set();
+        const entityStopwords = new Set([
+            'el', 'la', 'los', 'las', 'un', 'una', 'de', 'del', 'en', 'con', 'por', 'para',
+            'que', 'se', 'al', 'su', 'sus', 'es', 'son', 'ha', 'han', 'ser', 'fue', 'como',
+            'este', 'esta', 'estos', 'estas', 'ese', 'esa', 'esos', 'esas', 'hay', 'más',
+            'no', 'si', 'ya', 'pero', 'sin', 'sobre', 'entre', 'tras', 'ante', 'bajo',
+            'también', 'según', 'además', 'nuevo', 'nueva', 'nuevos', 'nuevas',
+            'gran', 'todo', 'toda', 'todos', 'todas', 'otro', 'otra', 'otros', 'otras',
+            'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez',
+            'vitoria', 'gasteiz', 'álava', 'araba', 'alava', 'euskadi',
+            'correo', 'diario', 'noticias', 'hoy'
+        ]);
+        const clean = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'\n\r0-9]/g, ' ');
+        const words = clean.split(/\s+/);
+        const entities = new Set();
+        for (const w of words) {
+            if (w.length < 2) continue;
+            if (entityStopwords.has(w.toLowerCase())) continue;
+            if (w[0] === w[0].toUpperCase() && w[0] !== w[0].toLowerCase()) {
+                entities.add(w.toLowerCase());
+            }
+        }
+        return entities;
+    }
+
+    function overlapScore(setA, setB) {
+        if (setA.size === 0 || setB.size === 0) return 0;
+        let shared = 0;
+        for (const elem of setA) {
+            if (setB.has(elem)) shared++;
+        }
+        const minSize = Math.min(setA.size, setB.size);
+        return minSize > 0 ? shared / minSize : 0;
+    }
+
     function selectPrimaryItem(componentItems) {
         let primaryItem = componentItems[0];
         if (componentItems.length > 1) {
@@ -301,10 +337,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const titleText = (item.title || "") + " " + (item.original_title || "") + " " + urlWords;
             const bodyText = (item.body || "") + " " + (item.original_body || "");
+            const titleRaw = (item.title || "") + " " + (item.original_title || "");
             return {
                 item: item,
                 titleTokens: tokenize(titleText),
-                bodyTokens: tokenize(bodyText)
+                bodyTokens: tokenize(bodyText),
+                titleEntities: extractKeyEntities(titleRaw)
             };
         });
         
@@ -317,21 +355,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 const titleSim = jaccardSimilarity(tokenized[i].titleTokens, tokenized[j].titleTokens);
                 const bodySim = jaccardSimilarity(tokenized[i].bodyTokens, tokenized[j].bodyTokens);
                 
-                if (titleSim >= 0.22 || bodySim >= 0.28 || (titleSim >= 0.08 && bodySim >= 0.15)) {
+                if (titleSim >= 0.22 || bodySim >= 0.28 || (titleSim >= 0.06 && bodySim >= 0.13)) {
                     adj[i].push(j);
                     adj[j].push(i);
                 } else {
-                    const bA = tokenized[i].bodyTokens;
-                    const bB = tokenized[j].bodyTokens;
-                    const shared = new Set([...bA].filter(x => bB.has(x)));
+                    // Regla de entidades clave compartidas + overlap del body
+                    const entI = tokenized[i].titleEntities;
+                    const entJ = tokenized[j].titleEntities;
+                    let sharedEntities = 0;
+                    for (const e of entI) { if (entJ.has(e)) sharedEntities++; }
+                    const bodyOvl = overlapScore(tokenized[i].bodyTokens, tokenized[j].bodyTokens);
                     
-                    const hasWeapon = ['blanca', 'cuchilladas', 'navaja', 'cuchillo', 'apuñalan', 'acuchillado', 'apuñalado'].some(w => shared.has(w));
-                    const hasBack = shared.has('espalda');
-                    const hasYoung = shared.has('joven');
-                    
-                    if (hasWeapon && hasBack && hasYoung) {
+                    if (sharedEntities >= 2 && bodyOvl >= 0.12) {
                         adj[i].push(j);
                         adj[j].push(i);
+                    } else if (entI.size > 0 && entJ.size > 0 && overlapScore(entI, entJ) >= 0.35 && bodyOvl >= 0.18) {
+                        adj[i].push(j);
+                        adj[j].push(i);
+                    // Body overlap muy alto indica mismo tema aunque títulos difieran
+                    } else if (bodyOvl >= 0.25 && titleSim >= 0.03) {
+                        adj[i].push(j);
+                        adj[j].push(i);
+                    } else {
+                        // Regla semántica de agresiones
+                        const bA = tokenized[i].bodyTokens;
+                        const bB = tokenized[j].bodyTokens;
+                        const shared = new Set([...bA].filter(x => bB.has(x)));
+                        
+                        const hasWeapon = ['blanca', 'cuchilladas', 'navaja', 'cuchillo', 'apuñalan', 'acuchillado', 'apuñalado'].some(w => shared.has(w));
+                        const hasBack = shared.has('espalda');
+                        const hasYoung = shared.has('joven');
+                        
+                        if (hasWeapon && hasBack && hasYoung) {
+                            adj[i].push(j);
+                            adj[j].push(i);
+                        }
                     }
                 }
             }
