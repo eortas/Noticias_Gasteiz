@@ -4,7 +4,7 @@
   "description": "Noticias de Vitoria-Gasteiz y Álava analizadas por Inteligencia Artificial",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
+  "background_color": "#ffffff",
   "theme_color": "#6366f1",
   "orientation": "portrait-primary",
   "icons": [
