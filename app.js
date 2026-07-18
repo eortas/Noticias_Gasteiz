@@ -713,6 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderStats();
                 renderCategories();
                 renderNewsFeed();
+                renderMoodWidget(moodHistoryData);
             });
         });
     }
@@ -963,44 +964,109 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle language changes from the toggle buttons
     
-    function renderMoodWidget(history) {
+    function renderMoodWidget(historyArg) {
         const widget = document.getElementById('mood-widget-container');
         if (!widget) return;
 
+        const sectionKey = currentCategory ? (SECTION_MAP[currentCategory] || currentCategory.toLowerCase()) : 'alava';
+        
+        let sectionHistory = [];
+        if (historyArg && !Array.isArray(historyArg)) {
+            sectionHistory = historyArg[sectionKey] || [];
+        } else if (moodHistoryData && !Array.isArray(moodHistoryData)) {
+            sectionHistory = moodHistoryData[sectionKey] || [];
+        } else if (Array.isArray(historyArg)) {
+            sectionHistory = historyArg;
+        } else if (Array.isArray(moodHistoryData)) {
+            sectionHistory = moodHistoryData;
+        }
+
+        if (sectionHistory.length === 0) {
+            widget.style.display = 'none';
+            return;
+        }
+
         widget.style.display = 'block';
 
-        const todayMood = history[history.length - 1];
+        const todayMood = sectionHistory[sectionHistory.length - 1];
         const score = todayMood.score;
 
         const moodTitleEl = document.getElementById('mood-title');
         const moodTextEl = document.getElementById('mood-text');
         const moodMarkerEl = document.getElementById('mood-marker');
 
+        // Nombres de sección dinámicos y genitivos para Euskera
+        const basqueSectionNames = {
+            'economia': 'Ekonomia',
+            'sociedad': 'Gizartea',
+            'deportes': 'Kirolak',
+            'cultura': 'Kultura',
+            'alava': 'Gasteiz'
+        };
+        const basqueGenitives = {
+            'economia': 'Ekonomiako',
+            'sociedad': 'Gizarteko',
+            'deportes': 'Kiroletako',
+            'cultura': 'Kulturako',
+            'alava': 'Gasteizko'
+        };
+        const spanishSectionNames = {
+            'economia': 'Economía',
+            'sociedad': 'Sociedad',
+            'deportes': 'Deportes',
+            'cultura': 'Cultura',
+            'alava': 'Vitoria-Gasteiz'
+        };
+        const polishSectionNames = {
+            'economia': 'Ekonomia',
+            'sociedad': 'Społeczeństwo',
+            'deportes': 'Sport',
+            'cultura': 'Kultura',
+            'alava': 'Vitoria-Gasteiz'
+        };
+
+        const sectionName = currentCategory || 'Vitoria-Gasteiz';
+
         if (moodTitleEl) {
-            moodTitleEl.textContent = UI_TRANSLATIONS[currentLang].moodTitle || 'El "Mood"';
+            if (currentLang === 'eu') {
+                const genitive = basqueGenitives[sectionKey] || (sectionName + 'ko');
+                moodTitleEl.textContent = `Gaurko ${genitive} "Mood"-a`;
+            } else if (currentLang === 'pl') {
+                const polName = polishSectionNames[sectionKey] || sectionName;
+                moodTitleEl.textContent = `Nastrój w: ${polName}`;
+            } else {
+                const espName = spanishSectionNames[sectionKey] || sectionName;
+                moodTitleEl.textContent = `El "Mood" de ${espName} hoy es`;
+            }
         }
+
+        const currentLangName = {
+            es: spanishSectionNames[sectionKey] || sectionName,
+            eu: basqueSectionNames[sectionKey] || sectionName,
+            pl: polishSectionNames[sectionKey] || sectionName
+        }[currentLang];
 
         const moodTexts = {
             es: {
-                neutral: 'Vitoria está neutral',
-                excellent: 'Vitoria está de excelente humor',
-                good: 'Vitoria tiene un buen día',
-                difficult: 'Vitoria tiene un día difícil',
-                sad: 'Vitoria está algo decaída'
+                neutral: `${currentLangName} está neutral`,
+                excellent: `${currentLangName} está de excelente humor`,
+                good: `${currentLangName} tiene un buen día`,
+                difficult: `${currentLangName} tiene un día difícil`,
+                sad: `${currentLangName} está algo decaído`
             },
             eu: {
-                neutral: 'Gasteiz neutral dago',
-                excellent: 'Gasteiz umore bikainean dago',
-                good: 'Gasteizek egun ona du',
-                difficult: 'Gasteizek egun zaila du',
-                sad: 'Gasteiz apur bat goibel dago'
+                neutral: `${currentLangName} neutral dago`,
+                excellent: `${currentLangName} umore bikainean dago`,
+                good: `${currentLangName}ek egun ona du`,
+                difficult: `${currentLangName}ek egun zaila du`,
+                sad: `${currentLangName} apur bat goibel dago`
             },
             pl: {
-                neutral: 'Vitoria jest neutralna',
-                excellent: 'Vitoria ma doskonały nastrój',
-                good: 'Vitoria ma dobry dzień',
-                difficult: 'Vitoria ma trudny dzień',
-                sad: 'Vitoria jest nieco przygnębiona'
+                neutral: `${currentLangName} jest neutralny`,
+                excellent: `${currentLangName} ma doskonały nastrój`,
+                good: `${currentLangName} ma dobry dzień`,
+                difficult: `${currentLangName} ma trudny dzień`,
+                sad: `${currentLangName} jest nieco przygnębiony`
             }
         };
 
@@ -1036,7 +1102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const chartEl = document.getElementById('mood-history-chart');
         const isMobile = window.innerWidth <= 480;
         const daysToShow = isMobile ? 5 : 7;
-        const lastDays = history.slice(-daysToShow);
+        const lastDays = sectionHistory.slice(-daysToShow);
 
         chartEl.innerHTML = lastDays.map(day => {
             const dayScore = day.score;
