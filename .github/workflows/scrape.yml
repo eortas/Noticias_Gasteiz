@@ -9,7 +9,7 @@ permissions:
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 24
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,6 +25,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Scraper and Rewriter
+        id: scraper_step
+        timeout-minutes: 20
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
@@ -63,10 +65,12 @@ jobs:
            python scraper/enviar_telegram.py
 
       - name: Check and fix missing images
+        if: always() && steps.scraper_step.outcome != 'skipped'
         run: |
           python scraper/fix_missing_images_ddg.py
 
       - name: Commit and push changes
+        if: always() && steps.scraper_step.outcome != 'skipped'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

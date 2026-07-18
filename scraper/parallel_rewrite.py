@@ -58,15 +58,46 @@ def parallel_rewrite_news(max_workers=6):
             else:
                 success = True # Ya estaba reescrita, procedemos con traducción
 
+            current_title = item.get('title', '')
+            current_body = item.get('body', '')
+
             # 2. Traducir al euskera si no se ha hecho
             if success and not item.get('translated_eu'):
-                current_title = item.get('title', '')
-                current_body = item.get('body', '')
-                title_eu, body_eu = translate_article(current_title, current_body)
+                title_eu, body_eu = translate_article(current_title, current_body, target_lang="eu")
                 if title_eu and body_eu:
                     item['title_eu'] = title_eu
                     item['body_eu'] = body_eu
                     item['translated_eu'] = True
+                else:
+                    success = False
+
+            # 3. Traducir al polaco si no se ha hecho
+            if success and not item.get('translated_pl'):
+                title_pl, body_pl = translate_article(current_title, current_body, target_lang="pl")
+                if title_pl and body_pl:
+                    item['title_pl'] = title_pl
+                    item['body_pl'] = body_pl
+                    item['translated_pl'] = True
+                else:
+                    success = False
+
+            # 4. Traducir al francés si no se ha hecho
+            if success and not item.get('translated_fr'):
+                title_fr, body_fr = translate_article(current_title, current_body, target_lang="fr")
+                if title_fr and body_fr:
+                    item['title_fr'] = title_fr
+                    item['body_fr'] = body_fr
+                    item['translated_fr'] = True
+                else:
+                    success = False
+
+            # 5. Traducir al inglés si no se ha hecho
+            if success and not item.get('translated_en'):
+                title_en, body_en = translate_article(current_title, current_body, target_lang="en")
+                if title_en and body_en:
+                    item['title_en'] = title_en
+                    item['body_en'] = body_en
+                    item['translated_en'] = True
                 else:
                     success = False
 
