@@ -280,40 +280,54 @@ def _split_text(text, max_chars):
     return chunks
 
 
+def get_translation_keys(target_lang):
+    """Obtiene todas las claves de API de Groq configuradas para un idioma específico."""
+    prefixes = {
+        "eu": "TRADUCCION_EUSKARA",
+        "pl": "TRADUCCION_POLACO",
+        "fr": "TRADUCCION_FRANCAIS",
+        "en": "TRADUCCION_ENGLISH"
+    }
+    
+    prefix = prefixes.get(target_lang)
+    if not prefix:
+        return []
+        
+    keys = []
+    
+    # 1. Intentar obtener clave base (sin número al final, ej. TRADUCCION_FRANCAIS)
+    base_key = os.environ.get(prefix)
+    if base_key:
+        keys.append(base_key)
+        
+    # 2. Intentar obtener claves numeradas (ej. TRADUCCION_FRANCAIS1, TRADUCCION_FRANCAIS2, etc. hasta el 10)
+    for i in range(1, 11):
+        key_name = f"{prefix}{i}"
+        key_val = os.environ.get(key_name)
+        if key_val and key_val not in keys:
+            keys.append(key_val)
+            
+    return keys
+
+
 def translate_text(text, target_lang, type_label, context_title=None):
     """Traduce un fragmento de texto al euskera ('eu'), polaco ('pl'), francés ('fr') o inglés ('en') usando las llaves dedicadas."""
     max_retries = 3
     model_name = "qwen/qwen3.6-27b"
     
     if target_lang == "eu":
-        keys = [
-            os.environ.get("TRADUCCION_EUSKARA1"),
-            os.environ.get("TRADUCCION_EUSKARA2")
-        ]
         lang_name = "Basque (euskara batua)"
         pair_desc = "Spanish-Basque"
         title_context_label = "BASQUE TITLE CONTEXT"
     elif target_lang == "pl":
-        keys = [
-            os.environ.get("TRADUCCION_POLACO1"),
-            os.environ.get("TRADUCCION_POLACO2")
-        ]
         lang_name = "Polish (język polski)"
         pair_desc = "Spanish-Polish"
         title_context_label = "POLISH TITLE CONTEXT"
     elif target_lang == "fr":
-        keys = [
-            os.environ.get("TRADUCCION_FRANCAIS"),
-            os.environ.get("TRADUCCION_FRANCAIS2")
-        ]
         lang_name = "French (français)"
         pair_desc = "Spanish-French"
         title_context_label = "FRENCH TITLE CONTEXT"
     elif target_lang == "en":
-        keys = [
-            os.environ.get("TRADUCCION_ENGLISH1"),
-            os.environ.get("TRADUCCION_ENGLISH2")
-        ]
         lang_name = "English (English)"
         pair_desc = "Spanish-English"
         title_context_label = "ENGLISH TITLE CONTEXT"
@@ -321,10 +335,11 @@ def translate_text(text, target_lang, type_label, context_title=None):
         print(f"Error: Idioma destino '{target_lang}' no soportado.", flush=True)
         return None
         
-    valid_keys = [k for k in keys if k]
+    valid_keys = get_translation_keys(target_lang)
     if not valid_keys:
         print(f"Error: No se han configurado las llaves para '{target_lang}' en el .env", flush=True)
         return None
+
 
     type_desc_en = "title" if type_label == "TÍTULO" else "body"
 
