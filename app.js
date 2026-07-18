@@ -978,8 +978,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">${fallbackText}</p>`;
         }
 
-        // For summary items, use the localized resumen image
-        const heroImage = item.is_summary ? `data/resumen_${currentLang}.png` : (item.image || '');
+        // For summary items, use the clean background resumen image (no text)
+        const heroImage = item.is_summary ? 'data/resumen_bg.png' : (item.image || '');
         
         // Render Detail
         articleContent.innerHTML = `

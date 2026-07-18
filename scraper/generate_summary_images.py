@@ -37,48 +37,48 @@ def create_summary_image(text, output_path):
     glow_layer = glow_layer.filter(ImageFilter.GaussianBlur(80))
     img = Image.alpha_composite(img, glow_layer)
     
-    # 4. Cargar tipografía de Windows (Segoe UI Bold para diseño moderno)
-    font_paths = [
-        "C:\\Windows\\Fonts\\segoeuib.ttf",  # Segoe UI Bold (Ideal en Windows)
-        "C:\\Windows\\Fonts\\arialbd.ttf",   # Arial Bold
-        "C:\\Windows\\Fonts\\calibrib.ttf",   # Calibri Bold
-    ]
-    
-    font = None
-    for fp in font_paths:
-        if os.path.exists(fp):
-            try:
-                # Tamaño de fuente premium grande y legible
-                font = ImageFont.truetype(fp, 52)
-                break
-            except:
-                continue
-                
-    if font is None:
-        font = ImageFont.load_default()
-        print("Aviso: Usando fuente por defecto porque no se encontró ninguna TTF compatible.")
-
-    # 5. Dibujar texto en el centro (solo el texto principal, sin subtexto)
-    draw = ImageDraw.Draw(img)
-    
-    # Obtener el cuadro delimitador del texto para centrado absoluto
-    # Soporta tanto pillow nuevo (getbbox) como anterior
-    try:
-        bbox = draw.textbbox((0, 0), text, font=font)
-        text_w = bbox[2] - bbox[0]
-        text_h = bbox[3] - bbox[1]
-    except AttributeError:
-        # Fallback para versiones antiguas de PIL
-        text_w, text_h = draw.textsize(text, font=font)
+    if text:
+        # 4. Cargar tipografía de Windows (Segoe UI Bold para diseño moderno)
+        font_paths = [
+            "C:\\Windows\\Fonts\\segoeuib.ttf",  # Segoe UI Bold (Ideal en Windows)
+            "C:\\Windows\\Fonts\\arialbd.ttf",   # Arial Bold
+            "C:\\Windows\\Fonts\\calibrib.ttf",   # Calibri Bold
+        ]
         
-    x = (width - text_w) // 2
-    y = (height - text_h) // 2 - 15  # Ajuste estético leve hacia arriba
-    
-    # Dibujar sombra sutil para contraste premium
-    draw.text((x + 3, y + 3), text, fill=(0, 0, 0, 90), font=font)
-    
-    # Dibujar texto principal en blanco
-    draw.text((x, y), text, fill=(255, 255, 255, 255), font=font)
+        font = None
+        for fp in font_paths:
+            if os.path.exists(fp):
+                try:
+                    # Tamaño de fuente premium grande y legible
+                    font = ImageFont.truetype(fp, 52)
+                    break
+                except:
+                    continue
+                    
+        if font is None:
+            font = ImageFont.load_default()
+            print("Aviso: Usando fuente por defecto porque no se encontró ninguna TTF compatible.")
+
+        # 5. Dibujar texto en el centro (solo el texto principal, sin subtexto)
+        draw = ImageDraw.Draw(img)
+        
+        # Obtener el cuadro delimitador del texto para centrado absoluto
+        try:
+            bbox = draw.textbbox((0, 0), text, font=font)
+            text_w = bbox[2] - bbox[0]
+            text_h = bbox[3] - bbox[1]
+        except AttributeError:
+            # Fallback para versiones antiguas de PIL
+            text_w, text_h = draw.textsize(text, font=font)
+            
+        x = (width - text_w) // 2
+        y = (height - text_h) // 2 - 15  # Ajuste estético leve hacia arriba
+        
+        # Dibujar sombra sutil para contraste premium
+        draw.text((x + 3, y + 3), text, fill=(0, 0, 0, 90), font=font)
+        
+        # Dibujar texto principal en blanco
+        draw.text((x, y), text, fill=(255, 255, 255, 255), font=font)
     
     # Asegurar el directorio de destino
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -97,9 +97,13 @@ def generate_all_summaries():
         "pl": "Podsumowanie wiadomości dnia"
     }
     
+    # Generar imágenes con texto para las tarjetas
     for lang, text in languages.items():
         output_file = f"data/resumen_{lang}.png"
         create_summary_image(text, output_file)
+        
+    # Generar la imagen de fondo limpia (sin texto) para la cabecera del detalle del resumen
+    create_summary_image("", "data/resumen_bg.png")
 
 if __name__ == "__main__":
     generate_all_summaries()
