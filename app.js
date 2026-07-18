@@ -41,7 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
             catSociedad: "Sociedad",
             catDeportes: "Deportes",
             catCultura: "Cultura",
-            moodTitle: "El \"Mood\""
+            moodTitle: "El \"Mood\"",
+            positiva: "Positiva",
+            negativa: "Negativa",
+            neutral: "Neutral"
         },
         eu: {
             subtitle: "Vitoria-Gasteizko eta Arabako albisteak Adimen Artifizialak aztertuta.",
@@ -66,7 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
             catSociedad: "Gizartea",
             catDeportes: "Kirolak",
             catCultura: "Kultura",
-            moodTitle: "Gasteizko \"Mood\"-a"
+            moodTitle: "Gasteizko \"Mood\"-a",
+            positiva: "Positiboa",
+            negativa: "Negatiboa",
+            neutral: "Neutroa"
         },
         pl: {
             subtitle: "Wiadomości z Vitoria-Gasteiz i Alavy analizowane przez Sztuczną Inteligencję.",
@@ -91,13 +97,74 @@ document.addEventListener('DOMContentLoaded', () => {
             catSociedad: "Społeczeństwo",
             catDeportes: "Sport",
             catCultura: "Kultura",
-            moodTitle: "Nastroje miasta"
+            moodTitle: "Nastroje miasta",
+            positiva: "Pozytywna",
+            negativa: "Negatywna",
+            neutral: "Neutralna"
+        },
+        fr: {
+            subtitle: "Actualités de Vitoria-Gasteiz et de l'Álava analysées par l'Intelligence Artificielle.",
+            backPortal: "Retour au portail",
+            readSummary: "Lire le résumé complet",
+            summaryTitle: "Résumé de l'actualité du jour",
+            summaryPreview: "Collection des nouvelles les plus pertinentes d'Álava et des sports, résumées et organisées par l'IA pour vous tenir informé.",
+            compareSources: "Comparer les sources :",
+            verifiedAI: "Document vérifié et analysé par l'IA",
+            noNews: "Aucune actualité disponible.",
+            noNewsFilter: "Aucune actualité ne correspond à ces filtres aujourd'hui.",
+            noNewsRead: "Aucune actualité lue dans cette section pour l'instant.",
+            sourcesModalTitle: "Sélectionnez la source d'information",
+            sourcesModalSubtitle: "Cette actualité a été publiée par plusieurs médias locaux. Choisissez la version que vous préférez lire :",
+            sourcesCount: "Sources",
+            sentimentPos: "Positives",
+            sentimentNeu: "Neutres",
+            sentimentNeg: "Négatives",
+            sentimentRead: "Lues",
+            sentimentTag: "Lu",
+            catEconomia: "Économie",
+            catSociedad: "Société",
+            catDeportes: "Sports",
+            catCultura: "Culture",
+            moodTitle: "L'humeur",
+            positiva: "Positive",
+            negativa: "Négative",
+            neutral: "Neutre"
+        },
+        en: {
+            subtitle: "News of Vitoria-Gasteiz and Álava analyzed by Artificial Intelligence.",
+            backPortal: "Back to portal",
+            readSummary: "Read full summary",
+            summaryTitle: "Daily news summary",
+            summaryPreview: "Collection of the most relevant news of Álava and sports, summarized and organized by AI to keep you always informed.",
+            compareSources: "Compare sources:",
+            verifiedAI: "Document verified and analyzed by AI",
+            noNews: "No news available.",
+            noNewsFilter: "No news matching these filters today.",
+            noNewsRead: "No read news in this section yet.",
+            sourcesModalTitle: "Select the information source",
+            sourcesModalSubtitle: "This news has been published by several local media outlets. Choose which version you prefer to read:",
+            sourcesCount: "Sources",
+            sentimentPos: "Positive",
+            sentimentNeu: "Neutral",
+            sentimentNeg: "Negative",
+            sentimentRead: "Read",
+            sentimentTag: "Read",
+            catEconomia: "Economy",
+            catSociedad: "Society",
+            catDeportes: "Sports",
+            catCultura: "Culture",
+            moodTitle: "The \"Mood\"",
+            positiva: "Positive",
+            negativa: "Negative",
+            neutral: "Neutral"
         }
     };
 
     function initLanguage() {
         const btnEs = document.getElementById('btn-lang-es');
         const btnEu = document.getElementById('btn-lang-eu');
+        const btnFr = document.getElementById('btn-lang-fr');
+        const btnEn = document.getElementById('btn-lang-en');
         const btnPl = document.getElementById('btn-lang-pl');
         const subtitleText = document.getElementById('subtitle-text');
         
@@ -105,6 +172,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const updateButtonActiveState = () => {
             if (btnEs) btnEs.classList.toggle('active', currentLang === 'es');
             if (btnEu) btnEu.classList.toggle('active', currentLang === 'eu');
+            if (btnFr) btnFr.classList.toggle('active', currentLang === 'fr');
+            if (btnEn) btnEn.classList.toggle('active', currentLang === 'en');
             if (btnPl) btnPl.classList.toggle('active', currentLang === 'pl');
         };
         
@@ -135,6 +204,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (btnEs) btnEs.addEventListener('click', () => handleLangChange('es'));
         if (btnEu) btnEu.addEventListener('click', () => handleLangChange('eu'));
+        if (btnFr) btnFr.addEventListener('click', () => handleLangChange('fr'));
+        if (btnEn) btnEn.addEventListener('click', () => handleLangChange('en'));
         if (btnPl) btnPl.addEventListener('click', () => handleLangChange('pl'));
     }
 
@@ -565,11 +636,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 titleDisplay = item.title_eu;
             } else if (currentLang === 'pl' && item.title_pl) {
                 titleDisplay = item.title_pl;
+            } else if (currentLang === 'fr' && item.title_fr) {
+                titleDisplay = item.title_fr;
+            } else if (currentLang === 'en' && item.title_en) {
+                titleDisplay = item.title_en;
             }
             
             const readTag = UI_TRANSLATIONS[currentLang].sentimentTag || 'Leído';
             const sourcesText = UI_TRANSLATIONS[currentLang].sourcesCount || 'Fuentes';
-            const readMoreText = currentLang === 'eu' ? 'Istorioa ikusi' : (currentLang === 'pl' ? 'Zobacz historię' : 'Ver narrativa');
+            
+            const readMoreTexts = {
+                es: "Ver narrativa",
+                eu: "Istorioa ikusi",
+                pl: "Zobacz historię",
+                fr: "Voir l'histoire",
+                en: "See story"
+            };
+            const readMoreText = readMoreTexts[currentLang] || readMoreTexts.es;
 
             return `
                 <div class="card glass ${isRead ? 'card-read' : ''} ${isMultiSource ? 'card-multi-source' : ''}" 
@@ -731,7 +814,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         sourcesList.innerHTML = cluster.items.map(item => {
             const sentimentClass = item.sentiment_label || 'neutral';
-            const optTitle = (currentLang === 'eu' && item.title_eu) ? item.title_eu : item.title;
+            let optTitle = item.title;
+            if (currentLang === 'eu' && item.title_eu) {
+                optTitle = item.title_eu;
+            } else if (currentLang === 'pl' && item.title_pl) {
+                optTitle = item.title_pl;
+            } else if (currentLang === 'fr' && item.title_fr) {
+                optTitle = item.title_fr;
+            } else if (currentLang === 'en' && item.title_en) {
+                optTitle = item.title_en;
+            }
             return `
                 <button class="source-option-btn" data-id="${item.id}" data-source="${item.source}">
                     <div>
@@ -815,6 +907,10 @@ document.addEventListener('DOMContentLoaded', () => {
             detailTitle = item.title_eu;
         } else if (currentLang === 'pl' && item.title_pl) {
             detailTitle = item.title_pl;
+        } else if (currentLang === 'fr' && item.title_fr) {
+            detailTitle = item.title_fr;
+        } else if (currentLang === 'en' && item.title_en) {
+            detailTitle = item.title_en;
         }
         
         let bodyContent = item.body || '';
@@ -822,23 +918,34 @@ document.addEventListener('DOMContentLoaded', () => {
             bodyContent = item.body_eu;
         } else if (currentLang === 'pl' && item.body_pl) {
             bodyContent = item.body_pl;
+        } else if (currentLang === 'fr' && item.body_fr) {
+            bodyContent = item.body_fr;
+        } else if (currentLang === 'en' && item.body_en) {
+            bodyContent = item.body_en;
         }
         
         let bodyHtml = '';
 
         if (item.is_summary) {
-            const introText = currentLang === 'eu' 
-                ? 'Hemen dituzu eguneko albisteak denbora gutxi dutenentzako laburtuta, beti eguneratuta eta zuretzat eskuragarri.'
-                : (currentLang === 'pl' 
-                    ? 'Oto dzisiejsze wiadomości podsumowane dla osób z ograniczonym czasem, zawsze aktualne i dostępne dla Ciebie.'
-                    : 'Aquí tienes las noticias del día resumidas para gente con poco tiempo disponible, siempre actualizadas y disponibles para ti.');
+            const introTexts = {
+                es: 'Aquí tienes las noticias del día resumidas para gente con poco tiempo disponible, siempre actualizadas y disponibles para ti.',
+                eu: 'Hemen dituzu eguneko albisteak denbora gutxi dutenentzako laburtuta, beti eguneratuta eta zuretzat eskuragarri.',
+                pl: 'Oto dzisiejsze wiadomości podsumowane dla osób z ograniczonym czasem, zawsze aktualne i dostępne dla Ciebie.',
+                fr: 'Voici le résumé de l\'actualité du jour pour les personnes pressées, toujours à jour et disponible pour vous.',
+                en: 'Here is the summary of the day\'s news for people with limited time, always updated and available for you.'
+            };
+            const introText = introTexts[currentLang] || introTexts.es;
             const intro = `<p class="paragraph" style="font-weight: 400; font-size: 1.4rem; color: var(--indigo-500);">${introText}</p>`;
             const rawBody = bodyContent.trim();
-            const fallbackText = currentLang === 'eu' 
-                ? 'Eduki osoa ez dago eskuragarri.' 
-                : (currentLang === 'pl' 
-                    ? 'Pełna treść jest niedostępna.' 
-                    : 'El contenido completo no está disponible.');
+            
+            const fallbackTexts = {
+                es: 'El contenido completo no está disponible.',
+                eu: 'Eduki osoa ez dago eskuragarri.',
+                pl: 'Pełna treść jest niedostępna.',
+                fr: 'Le contenu complet n\'est pas disponible.',
+                en: 'Full content is not available.'
+            };
+            const fallbackText = fallbackTexts[currentLang] || fallbackTexts.es;
             
             // For virtual summaries (generated in frontend), preserve bullet structure by splitting on newlines
             if (item.id && item.id.startsWith('resumen_virtual_')) {
@@ -858,11 +965,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             const paragraphs = bodyContent.split('\n').filter(p => p.trim() !== '');
-            const fallbackText = currentLang === 'eu' 
-                ? 'Eduki osoa ez dago eskuragarri.' 
-                : (currentLang === 'pl' 
-                    ? 'Pełna treść jest niedostępna.' 
-                    : 'El contenido completo no está disponible.');
+            const fallbackTexts = {
+                es: 'El contenido completo no está disponible.',
+                eu: 'Eduki osoa ez dago eskuragarri.',
+                pl: 'Pełna treść jest niedostępna.',
+                fr: 'Le contenu complet n\'est pas disponible.',
+                en: 'Full content is not available.'
+            };
+            const fallbackText = fallbackTexts[currentLang] || fallbackTexts.es;
             bodyHtml = paragraphs.length > 0 
                 ? paragraphs.map(p => `<p class="paragraph">${p}</p>`).join('')
                 : `<p class="paragraph" style="color:var(--text-muted); font-style:italic;">${fallbackText}</p>`;
@@ -878,8 +988,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="hero-overlay"></div>
                 <div class="hero-content">
                     <div class="hero-badges">
-                        <span class="badge-sentiment ${sentimentColorClass}"># ${currentLang === 'eu' ? (UI_TRANSLATIONS.eu[item.sentiment_label] || item.sentiment_label) : item.sentiment_label}</span>
-                        ${item.category ? `<span class="badge-source">${currentLang === 'eu' ? (UI_TRANSLATIONS.eu['cat' + item.category.replace('í', 'i')] || item.category) : item.category}</span>` : ''}
+                        <span class="badge-sentiment ${sentimentColorClass}"># ${UI_TRANSLATIONS[currentLang][item.sentiment_label] || item.sentiment_label}</span>
+                        ${item.category ? `<span class="badge-source">${UI_TRANSLATIONS[currentLang]['cat' + item.category.replace('í', 'i')] || item.category}</span>` : ''}
                     </div>
                     <h1 class="hero-title">${detailTitle}</h1>
                 </div>
@@ -1024,6 +1134,20 @@ document.addEventListener('DOMContentLoaded', () => {
             'cultura': 'Kultura',
             'alava': 'Vitoria-Gasteiz'
         };
+        const frenchSectionNames = {
+            'economia': 'Économie',
+            'sociedad': 'Société',
+            'deportes': 'Sports',
+            'cultura': 'Culture',
+            'alava': 'Vitoria-Gasteiz'
+        };
+        const englishSectionNames = {
+            'economia': 'Economy',
+            'sociedad': 'Society',
+            'deportes': 'Sports',
+            'cultura': 'Culture',
+            'alava': 'Vitoria-Gasteiz'
+        };
 
         const sectionName = currentCategory || 'Vitoria-Gasteiz';
 
@@ -1034,6 +1158,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentLang === 'pl') {
                 const polName = polishSectionNames[sectionKey] || sectionName;
                 moodTitleEl.textContent = `Nastrój w: ${polName}`;
+            } else if (currentLang === 'fr') {
+                const frName = frenchSectionNames[sectionKey] || sectionName;
+                moodTitleEl.textContent = `L'humeur de ${frName} aujourd'hui est`;
+            } else if (currentLang === 'en') {
+                const enName = englishSectionNames[sectionKey] || sectionName;
+                moodTitleEl.textContent = `The "Mood" of ${enName} today is`;
             } else {
                 const espName = spanishSectionNames[sectionKey] || sectionName;
                 moodTitleEl.textContent = `El "Mood" de ${espName} hoy es`;
@@ -1043,7 +1173,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentLangName = {
             es: spanishSectionNames[sectionKey] || sectionName,
             eu: basqueSectionNames[sectionKey] || sectionName,
-            pl: polishSectionNames[sectionKey] || sectionName
+            pl: polishSectionNames[sectionKey] || sectionName,
+            fr: frenchSectionNames[sectionKey] || sectionName,
+            en: englishSectionNames[sectionKey] || sectionName
         }[currentLang];
 
         const moodTexts = {
@@ -1067,6 +1199,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 good: `${currentLangName} ma dobry dzień`,
                 difficult: `${currentLangName} ma trudny dzień`,
                 sad: `${currentLangName} jest nieco przygnębiony`
+            },
+            fr: {
+                neutral: `${currentLangName} est neutre`,
+                excellent: `${currentLangName} est d'excellente humeur`,
+                good: `${currentLangName} passe une bonne journée`,
+                difficult: `${currentLangName} passe une journée difficile`,
+                sad: `${currentLangName} est un peu morose`
+            },
+            en: {
+                neutral: `${currentLangName} is neutral`,
+                excellent: `${currentLangName} is in an excellent mood`,
+                good: `${currentLangName} has a good day`,
+                difficult: `${currentLangName} has a difficult day`,
+                sad: `${currentLangName} is a bit down`
             }
         };
 

@@ -281,7 +281,7 @@ def _split_text(text, max_chars):
 
 
 def translate_text(text, target_lang, type_label, context_title=None):
-    """Traduce un fragmento de texto al euskera ('eu') o polaco ('pl') usando las llaves dedicadas."""
+    """Traduce un fragmento de texto al euskera ('eu'), polaco ('pl'), francés ('fr') o inglés ('en') usando las llaves dedicadas."""
     max_retries = 3
     model_name = "qwen/qwen3.6-27b"
     
@@ -301,6 +301,20 @@ def translate_text(text, target_lang, type_label, context_title=None):
         lang_name = "Polish (język polski)"
         pair_desc = "Spanish-Polish"
         title_context_label = "POLISH TITLE CONTEXT"
+    elif target_lang == "fr":
+        keys = [
+            os.environ.get("TRADUCCION_FRANCAIS")
+        ]
+        lang_name = "French (français)"
+        pair_desc = "Spanish-French"
+        title_context_label = "FRENCH TITLE CONTEXT"
+    elif target_lang == "en":
+        keys = [
+            os.environ.get("TRADUCCION_POLACO2")
+        ]
+        lang_name = "English (English)"
+        pair_desc = "Spanish-English"
+        title_context_label = "ENGLISH TITLE CONTEXT"
     else:
         print(f"Error: Idioma destino '{target_lang}' no soportado.", flush=True)
         return None
@@ -365,9 +379,18 @@ def translate_to_polish(text, type_label, context_title=None):
     return translate_text(text, "pl", type_label, context_title)
 
 
+def translate_to_french(text, type_label, context_title=None):
+    return translate_text(text, "fr", type_label, context_title)
+
+
+def translate_to_english(text, type_label, context_title=None):
+    return translate_text(text, "en", type_label, context_title)
+
+
 def translate_article(title, body, target_lang="eu"):
     """Traduce el artículo completo (título y cuerpo por fragmentos) al idioma destino."""
-    lang_label = "euskera" if target_lang == "eu" else "polaco"
+    lang_labels = {"eu": "euskera", "pl": "polaco", "fr": "francés", "en": "inglés"}
+    lang_label = lang_labels.get(target_lang, target_lang)
     print(f"    - Iniciando traducción al {lang_label}...", flush=True)
     title_tr = translate_text(title, target_lang, "TÍTULO")
     
