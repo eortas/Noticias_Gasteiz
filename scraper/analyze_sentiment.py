@@ -303,14 +303,16 @@ def translate_text(text, target_lang, type_label, context_title=None):
         title_context_label = "POLISH TITLE CONTEXT"
     elif target_lang == "fr":
         keys = [
-            os.environ.get("TRADUCCION_FRANCAIS")
+            os.environ.get("TRADUCCION_FRANCAIS"),
+            os.environ.get("TRADUCCION_FRANCAIS2")
         ]
         lang_name = "French (français)"
         pair_desc = "Spanish-French"
         title_context_label = "FRENCH TITLE CONTEXT"
     elif target_lang == "en":
         keys = [
-            os.environ.get("TRADUCCION_POLACO2")
+            os.environ.get("TRADUCCION_ENGLISH1"),
+            os.environ.get("TRADUCCION_ENGLISH2")
         ]
         lang_name = "English (English)"
         pair_desc = "Spanish-English"
