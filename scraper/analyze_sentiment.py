@@ -89,6 +89,7 @@ def analyze_sentiment(text):
                 os.environ.get("GROQ_EUSKERA2"), os.environ.get("GROQ_POLISH2"),
                 os.environ.get("GROQ_API_KEY")
             ]
+            keys.extend(get_extra_keys())
             valid_keys = [k for k in keys if k]
             if not valid_keys:
                 return heur_sentiment, heur_score, heur_category
@@ -196,6 +197,7 @@ def _rewrite_chunk(text, type_label, context_title=None):
                 os.environ.get("GROQ_EUSKERA2"), os.environ.get("GROQ_POLISH2"),
                 os.environ.get("GROQ_API_KEY")
             ]
+            keys.extend(get_extra_keys())
             valid_keys = [k for k in keys if k]
             api_key = random.choice(valid_keys)
             client = Groq(api_key=api_key)
@@ -280,6 +282,16 @@ def _split_text(text, max_chars):
     return chunks
 
 
+def get_extra_keys():
+    """Obtiene todas las claves genéricas extras (GROQ_EXTRA1 a GROQ_EXTRA10)."""
+    extra_keys = []
+    for i in range(1, 11):
+        val = os.environ.get(f"GROQ_EXTRA{i}")
+        if val:
+            extra_keys.append(val)
+    return extra_keys
+
+
 def get_translation_keys(target_lang):
     """Obtiene todas las claves de API de Groq configuradas para un idioma específico."""
     prefixes = {
@@ -306,6 +318,11 @@ def get_translation_keys(target_lang):
         key_val = os.environ.get(key_name)
         if key_val and key_val not in keys:
             keys.append(key_val)
+            
+    # 3. Mezclar las claves genéricas extras como fallback
+    for extra_key in get_extra_keys():
+        if extra_key not in keys:
+            keys.append(extra_key)
             
     return keys
 

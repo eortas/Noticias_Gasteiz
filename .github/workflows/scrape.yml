@@ -53,6 +53,16 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           DEDUPLICITY1: ${{ secrets.DEDUPLICITY1 }}
           DEDUPLICITY2: ${{ secrets.DEDUPLICITY2 }}
+          GROQ_EXTRA1: ${{ secrets.GROQ_EXTRA1 }}
+          GROQ_EXTRA2: ${{ secrets.GROQ_EXTRA2 }}
+          GROQ_EXTRA3: ${{ secrets.GROQ_EXTRA3 }}
+          GROQ_EXTRA4: ${{ secrets.GROQ_EXTRA4 }}
+          GROQ_EXTRA5: ${{ secrets.GROQ_EXTRA5 }}
+          GROQ_EXTRA6: ${{ secrets.GROQ_EXTRA6 }}
+          GROQ_EXTRA7: ${{ secrets.GROQ_EXTRA7 }}
+          GROQ_EXTRA8: ${{ secrets.GROQ_EXTRA8 }}
+          GROQ_EXTRA9: ${{ secrets.GROQ_EXTRA9 }}
+          GROQ_EXTRA10: ${{ secrets.GROQ_EXTRA10 }}
         run: |
            python scraper/multi_scraper.py
            python scraper/filter_sponsored.py

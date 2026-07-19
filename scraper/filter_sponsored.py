@@ -21,6 +21,12 @@ def get_groq_client():
         os.environ.get("DEDUPLICITY2"),
         os.environ.get("DEDUPLICITY1"),
     ]
+    # Añadir llaves genéricas extras
+    for i in range(1, 11):
+        extra_key = os.environ.get(f"GROQ_EXTRA{i}")
+        if extra_key:
+            keys.append(extra_key)
+            
     valid_keys = [k for k in keys if k]
     if not valid_keys:
         return None

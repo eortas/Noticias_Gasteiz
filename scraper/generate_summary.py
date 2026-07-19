@@ -16,11 +16,21 @@ def clean_thinking_tags(text):
     return re.sub(r'<think>[\s\S]*?(?:</think>|$)', '', text).strip()
 
 def get_groq_client():
-    """Get a Groq client using the dedicated GROQ_RESUMEN API key."""
-    api_key = os.environ.get("GROQ_RESUMEN")
-    if not api_key:
-        print("ERROR: No se encontró la variable de entorno GROQ_RESUMEN")
+    """Get a Groq client using the dedicated GROQ_RESUMEN API key, with generic backups."""
+    keys = [os.environ.get("GROQ_RESUMEN")]
+    # Añadir llaves genéricas extras como backup
+    for i in range(1, 11):
+        extra_key = os.environ.get(f"GROQ_EXTRA{i}")
+        if extra_key:
+            keys.append(extra_key)
+            
+    valid_keys = [k for k in keys if k]
+    if not valid_keys:
+        print("ERROR: No se encontraron variables de entorno de Groq válidas")
         return None
+        
+    # Priorizar la clave oficial
+    api_key = os.environ.get("GROQ_RESUMEN") or random.choice(valid_keys)
     return Groq(api_key=api_key)
 
 def _title_words(title):

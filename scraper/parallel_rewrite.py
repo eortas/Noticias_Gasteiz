@@ -70,6 +70,7 @@ def parallel_rewrite_news(max_workers=6):
                     item['translated_eu'] = True
                 else:
                     success = False
+                time.sleep(1.0) # Cortesía para no saturar TPM de Groq
 
             # 3. Traducir al polaco si no se ha hecho
             if success and not item.get('translated_pl'):
@@ -80,6 +81,7 @@ def parallel_rewrite_news(max_workers=6):
                     item['translated_pl'] = True
                 else:
                     success = False
+                time.sleep(1.0)
 
             # 4. Traducir al francés si no se ha hecho
             if success and not item.get('translated_fr'):
@@ -90,6 +92,7 @@ def parallel_rewrite_news(max_workers=6):
                     item['translated_fr'] = True
                 else:
                     success = False
+                time.sleep(1.0)
 
             # 5. Traducir al inglés si no se ha hecho
             if success and not item.get('translated_en'):
@@ -131,5 +134,5 @@ def parallel_rewrite_news(max_workers=6):
     print(f"\nProceso completado. {processed_count} noticias procesadas.", flush=True)
 
 if __name__ == "__main__":
-    # Usamos 6 workers como pidió el usuario (basado en sus 6 keys)
-    parallel_rewrite_news(max_workers=6)
+    # Usamos 3 workers en lugar de 6 para evitar rate limit de Groq al traducir múltiples idiomas a la vez
+    parallel_rewrite_news(max_workers=3)
