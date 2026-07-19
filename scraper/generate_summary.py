@@ -64,9 +64,20 @@ def deduplicate_news(items, preferred_source="El Correo", threshold=0.4):
             kept.append(item)
     return kept
 
+def get_target_date():
+    """Retorna la fecha objetivo para el resumen.
+    Si se ejecuta antes de las 6:00 AM, la fecha objetivo es ayer (para resumir el día que acaba de terminar).
+    De lo contrario, es la fecha de hoy."""
+    from datetime import timedelta
+    now = datetime.now()
+    if now.hour < 6:
+        return (now - timedelta(days=1)).date()
+    return now.date()
+
+
 def get_today_news(news_data):
     """Filter today-only news from Alava/Deportes, deduplicated preferring El Correo."""
-    today = date.today()
+    today = get_target_date()
     today_items = []
     for item in news_data:
         if item.get('is_summary'):
@@ -86,9 +97,11 @@ def get_today_news(news_data):
     print(f"  Noticias tras deduplicar: {len(today_items)} (de {before} originales)")
     return today_items
 
+
 def get_existing_summary(news_data):
     """Find the existing summary entry for today, if any."""
-    today_str = date.today().isoformat()
+    today = get_target_date()
+    today_str = today.isoformat()
     for item in news_data:
         if item.get('is_summary'):
             # Check if it's today's summary by ID prefix or date
@@ -97,15 +110,16 @@ def get_existing_summary(news_data):
                 # Also verify it was created today
                 try:
                     item_date = datetime.fromisoformat(item.get('date', '')).date()
-                    if item_date == date.today():
+                    if item_date == today:
                         return item
                 except:
                     pass
     return None
 
+
 def get_unsummarized_news(all_news, summarized_ids):
     """Get today's news that have NOT been summarized yet."""
-    today = date.today()
+    today = get_target_date()
     new_items = []
     for item in all_news:
         if item.get('is_summary'):
@@ -393,8 +407,13 @@ def add_summary_to_news(news_data, summary_data):
     if not summary_data:
         return news_data
     
-    today_str = datetime.now().isoformat()
-    today_date_str = date.today().isoformat()
+    target_date = get_target_date()
+    today_date_str = target_date.isoformat()
+    if target_date != date.today():
+        # Si la fecha objetivo es ayer (ej. ejecutado a las 2 AM), usamos la hora de fin de ese día para la ordenación correcta
+        today_str = datetime.combine(target_date, datetime.max.time()).isoformat()
+    else:
+        today_str = datetime.now().isoformat()
     
     # Remove any existing summary for today
     news_data = [item for item in news_data if not item.get('is_summary')]
