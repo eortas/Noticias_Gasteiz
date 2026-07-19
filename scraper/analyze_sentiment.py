@@ -364,14 +364,17 @@ def translate_text(text, target_lang, type_label, context_title=None):
         try:
             api_key = random.choice(valid_keys)
             client = Groq(api_key=api_key)
-            
+            extra_instructions = ""
+            if target_lang == "eu":
+                extra_instructions = "\n5. CRITICAL: In Basque, the city name 'Vitoria' MUST ALWAYS be translated as 'Gasteiz'. If the text says 'Vitoria-Gasteiz', keep it as 'Vitoria-Gasteiz'. But if it says only 'Vitoria', translate it to 'Gasteiz'."
+
             system_prompt = f"""You are a professional bilingual translator specializing in {pair_desc} translation. Your task is to translate the {type_desc_en} of a news article from Spanish to {lang_name} with absolute precision and naturalness.
 
 CRITICAL INSTRUCTIONS:
 1. Respond ONLY with the translated text in {lang_name}.
 2. DO NOT add any introductions, explanations, comments, or personal notes.
 3. Keep proper names, exact numbers, places, streets, and dates intact.
-4. Ensure the output is natural and fluent."""
+4. Ensure the output is natural and fluent.{extra_instructions}"""
 
             user_content = text
             if context_title and type_label == "CUERPO":
@@ -391,6 +394,10 @@ CRITICAL INSTRUCTIONS:
                 # Quitar comillas innecesarias
                 if translated.startswith('"') and translated.endswith('"'):
                     translated = translated[1:-1].strip()
+                # Regla de euskera para Vitoria -> Gasteiz
+                if target_lang == "eu":
+                    # Reemplaza 'Vitoria' por 'Gasteiz' excepto si forma parte de 'Vitoria-Gasteiz'
+                    translated = re.sub(r'\bVitoria\b(?!\s*-\s*Gasteiz)', 'Gasteiz', translated)
                 return translated
         except Exception as e:
             if "429" in str(e) or "limit" in str(e).lower():
