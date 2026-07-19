@@ -327,6 +327,48 @@ def get_translation_keys(target_lang):
     return keys
 
 
+def replace_vitoria_basque(text):
+    """Reemplaza Vitoria y sus declinaciones en euskera por Gasteiz y sus declinaciones correctas,
+    protegiendo 'Vitoria-Gasteiz' de ser alterado."""
+    if not text:
+        return text
+        
+    # Proteger temporalmente Vitoria-Gasteiz (incluidas declinaciones)
+    def protect(m):
+        return m.group(0).replace("Vitoria-Gasteiz", "___VG___").replace("Vitoria - Gasteiz", "___VG_SPACE___")
+        
+    text_temp = re.sub(r'\bVitoria\s*-\s*Gasteiz[a-zA-Z]*\b', protect, text, flags=re.IGNORECASE)
+    
+    declensions = [
+        (r'\bVitoriakoak\b', 'Gasteizkoak'),
+        (r'\bVitoriakoari\b', 'Gasteizkoari'),
+        (r'\bVitoriakoei\b', 'Gasteizkoei'),
+        (r'\bVitoriakoa\b', 'Gasteizkoa'),
+        (r'\bVitoriako\b', 'Gasteizko'),
+        (r'\bVitoriak\b', 'Gasteizek'),
+        (r'\bVitorian\b', 'Gasteizen'),
+        (r'\bVitoriara\b', 'Gasteizera'),
+        (r'\bVitoriatik\b', 'Gasteiztik'),
+        (r'\bVitoriari\b', 'Gasteizi'),
+        (r'\bVitoriarrak\b', 'Gasteiztarrak'),
+        (r'\bVitoriarra\b', 'Gasteiztarra'),
+        (r'\bVitoriar\b', 'Gasteiztar'),
+        (r'\bVitoria\b', 'Gasteiz')
+    ]
+    
+    for pattern, repl in declensions:
+        def case_repl(match):
+            m = match.group(0)
+            if m[0].isupper():
+                return repl
+            return repl.lower()
+        text_temp = re.sub(pattern, case_repl, text_temp, flags=re.IGNORECASE)
+        
+    # Restaurar
+    text_temp = text_temp.replace("___VG___", "Vitoria-Gasteiz").replace("___VG_SPACE___", "Vitoria - Gasteiz")
+    return text_temp
+
+
 def translate_text(text, target_lang, type_label, context_title=None):
     """Traduce un fragmento de texto al euskera ('eu'), polaco ('pl'), francés ('fr') o inglés ('en') usando las llaves dedicadas."""
     max_retries = 3
@@ -396,8 +438,7 @@ CRITICAL INSTRUCTIONS:
                     translated = translated[1:-1].strip()
                 # Regla de euskera para Vitoria -> Gasteiz
                 if target_lang == "eu":
-                    # Reemplaza 'Vitoria' por 'Gasteiz' excepto si forma parte de 'Vitoria-Gasteiz'
-                    translated = re.sub(r'\bVitoria\b(?!\s*-\s*Gasteiz)', 'Gasteiz', translated)
+                    translated = replace_vitoria_basque(translated)
                 return translated
         except Exception as e:
             if "429" in str(e) or "limit" in str(e).lower():
