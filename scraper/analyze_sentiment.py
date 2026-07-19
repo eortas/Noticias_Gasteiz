@@ -4,6 +4,7 @@ import json
 import random
 import time
 from groq import Groq
+from mistralai.client.sdk import Mistral
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -292,6 +293,94 @@ def get_extra_keys():
     return extra_keys
 
 
+def get_mistral_keys():
+    """Obtiene todas las claves de Mistral (MISTRAL1 a MISTRAL10) para rotación."""
+    keys = []
+    for i in range(1, 11):
+        val = os.environ.get(f"MISTRAL{i}")
+        if val:
+            keys.append(val)
+    return keys
+
+
+def verify_translation_with_mistral(original_text, translated_text, target_lang, type_label):
+    """Verifica y corrige una traducción usando Mistral como segundo modelo.
+    
+    Recibe el texto original (ES) y la traducción de Groq, y devuelve
+    la traducción corregida o la misma si era correcta.
+    """
+    mistral_keys = get_mistral_keys()
+    if not mistral_keys:
+        print("      [Mistral] No hay keys configuradas, se omite verificación.", flush=True)
+        return translated_text
+    
+    # Nombres de idioma para el prompt
+    lang_names = {
+        "eu": "Basque (euskara batua)",
+        "pl": "Polish (język polski)",
+        "fr": "French (français)",
+        "en": "English"
+    }
+    lang_name = lang_names.get(target_lang, target_lang)
+    type_desc = "title" if type_label == "TÍTULO" else "body"
+    
+    # Instrucciones especiales para euskera
+    extra_rules = ""
+    if target_lang == "eu":
+        extra_rules = "\n- In Basque, 'Vitoria' alone MUST be 'Gasteiz'. Keep 'Vitoria-Gasteiz' unchanged."
+    
+    system_prompt = f"""You are a professional translation reviewer and copyeditor. Your job is to verify, polish, and correct a Spanish-to-{lang_name} translation of a news article {type_desc}.
+
+Rules:
+- Compare the ORIGINAL Spanish text with the TRANSLATION provided.
+- Check for and correct any grammatical errors, spelling mistakes, punctuation issues, or mistranslations.
+- Check for and correct robotic or overly literal phrasing. Ensure the text flows naturally and sounds like it was written directly by a native speaker of {lang_name} while keeping the original meaning.
+- Enhance the style to match that of a professional news report.
+- If the translation is already fully accurate, natural, and stylistically correct, return it EXACTLY as-is.
+- Respond ONLY with the final verified/corrected {lang_name} text. No explanations, no comments, no markup.
+- Keep proper names, numbers, places, streets, and dates intact.{extra_rules}"""
+
+    user_content = f"ORIGINAL (Spanish):\n{original_text}\n\nTRANSLATION ({lang_name}):\n{translated_text}"
+    
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            api_key = random.choice(mistral_keys)
+            client = Mistral(api_key=api_key)
+            
+            response = client.chat.complete(
+                model="mistral-small-latest",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_content}
+                ],
+                temperature=0.1
+            )
+            
+            verified = response.choices[0].message.content.strip()
+            if verified:
+                # Limpiar comillas innecesarias
+                if verified.startswith('"') and verified.endswith('"'):
+                    verified = verified[1:-1].strip()
+                print(f"      [Mistral OK] Verificacion completada.", flush=True)
+                return verified
+                
+        except Exception as e:
+            error_str = str(e)
+            if "429" in error_str or "rate" in error_str.lower() or "limit" in error_str.lower():
+                sleep_time = 10 if attempt == 0 else 20
+                print(f"      [Mistral] Rate limit, esperando {sleep_time}s...", flush=True)
+                time.sleep(sleep_time)
+            elif attempt < max_retries - 1:
+                time.sleep(2)
+            else:
+                print(f"      [Mistral FAIL] Error verificando ({type_label}): {e}", flush=True)
+    
+    # Si falla Mistral, devolvemos la traducción de Groq sin modificar
+    print(f"      [Mistral FAIL] No se pudo verificar, se usa traduccion de Groq.", flush=True)
+    return translated_text
+
+
 def get_translation_keys(target_lang):
     """Obtiene todas las claves de API de Groq configuradas para un idioma específico."""
     prefixes = {
@@ -437,6 +526,13 @@ CRITICAL INSTRUCTIONS:
                 if translated.startswith('"') and translated.endswith('"'):
                     translated = translated[1:-1].strip()
                 # Regla de euskera para Vitoria -> Gasteiz
+                if target_lang == "eu":
+                    translated = replace_vitoria_basque(translated)
+                # Verificar la traducción con Mistral
+                translated = verify_translation_with_mistral(
+                    text, translated, target_lang, type_label
+                )
+                # Re-aplicar regla euskera tras verificación de Mistral
                 if target_lang == "eu":
                     translated = replace_vitoria_basque(translated)
                 return translated

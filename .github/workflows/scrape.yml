@@ -63,6 +63,11 @@ jobs:
           GROQ_EXTRA8: ${{ secrets.GROQ_EXTRA8 }}
           GROQ_EXTRA9: ${{ secrets.GROQ_EXTRA9 }}
           GROQ_EXTRA10: ${{ secrets.GROQ_EXTRA10 }}
+          MISTRAL1: ${{ secrets.MISTRAL1 }}
+          MISTRAL2: ${{ secrets.MISTRAL2 }}
+          MISTRAL3: ${{ secrets.MISTRAL3 }}
+          MISTRAL4: ${{ secrets.MISTRAL4 }}
+          MISTRAL5: ${{ secrets.MISTRAL5 }}
         run: |
            python scraper/multi_scraper.py
            python scraper/filter_sponsored.py
