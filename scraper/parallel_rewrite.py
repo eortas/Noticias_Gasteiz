@@ -4,7 +4,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from analyze_sentiment import rewrite_article, translate_article
 
-def parallel_rewrite_news(max_workers=6):
+def parallel_rewrite_news(max_workers=3):
     news_file = 'data/news.json'
     if not os.path.exists(news_file):
         print(f"No se encontró {news_file}")

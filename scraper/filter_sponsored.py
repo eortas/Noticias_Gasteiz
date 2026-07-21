@@ -5,6 +5,7 @@ import random
 import re
 from groq import Groq
 from dotenv import load_dotenv
+from key_rotator import get_next_key
 
 # Cargar variables de entorno
 load_dotenv()
@@ -30,10 +31,7 @@ def get_groq_client():
     valid_keys = [k for k in keys if k]
     if not valid_keys:
         return None
-    # Priorizar DEDUPLICITY2 como solicitó el usuario
-    api_key = os.environ.get("DEDUPLICITY2")
-    if not api_key:
-        api_key = random.choice(valid_keys)
+    api_key = get_next_key(valid_keys, "sponsored")
     return Groq(api_key=api_key)
 
 def check_sponsored_llm(title, body):

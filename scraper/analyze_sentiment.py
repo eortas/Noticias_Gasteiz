@@ -6,6 +6,7 @@ import time
 from groq import Groq
 from mistralai.client.sdk import Mistral
 from dotenv import load_dotenv
+from key_rotator import get_next_key
 
 load_dotenv()
 
@@ -95,7 +96,7 @@ def analyze_sentiment(text):
             if not valid_keys:
                 return heur_sentiment, heur_score, heur_category
                 
-            api_key = random.choice(valid_keys)
+            api_key = get_next_key(valid_keys, "sentiment")
             
             client = Groq(api_key=api_key)
             system_prompt = """Eres un clasificador experto de noticias de Vitoria-Gasteiz.
@@ -188,19 +189,22 @@ def rewrite_article(title, body):
     return final_title, final_body
 
 def _rewrite_chunk(text, type_label, context_title=None):
-    max_retries = 3
-    for attempt in range(max_retries):
+    keys = [
+        os.environ.get("GROQ_REWRITE_2"), os.environ.get("GROQ_REWRITE_3"),
+        os.environ.get("GROQ_REWRITE_KEY"), os.environ.get("groq_KEY"), 
+        os.environ.get("GROQ_TRANSLATION_KEY"), os.environ.get("GROQ_POLISH_KEY"),
+        os.environ.get("GROQ_EUSKERA2"), os.environ.get("GROQ_POLISH2"),
+        os.environ.get("GROQ_API_KEY")
+    ]
+    keys.extend(get_extra_keys())
+    valid_keys = [k for k in keys if k]
+    if not valid_keys:
+        return None
+
+    max_attempts = max(3, len(valid_keys))
+    for attempt in range(max_attempts):
         try:
-            keys = [
-                os.environ.get("GROQ_REWRITE_2"), os.environ.get("GROQ_REWRITE_3"),
-                os.environ.get("GROQ_REWRITE_KEY"), os.environ.get("groq_KEY"), 
-                os.environ.get("GROQ_TRANSLATION_KEY"), os.environ.get("GROQ_POLISH_KEY"),
-                os.environ.get("GROQ_EUSKERA2"), os.environ.get("GROQ_POLISH2"),
-                os.environ.get("GROQ_API_KEY")
-            ]
-            keys.extend(get_extra_keys())
-            valid_keys = [k for k in keys if k]
-            api_key = random.choice(valid_keys)
+            api_key = get_next_key(valid_keys, "rewrite")
             client = Groq(api_key=api_key)
               
             if type_label == "TÍTULO":
@@ -220,7 +224,7 @@ def _rewrite_chunk(text, type_label, context_title=None):
             
             REGLAS INNEGOCIABLES Y ESTRICTAS:
             - INTEGRIDAD Y COMPROBACIÓN DE DATOS: Todos los nombres, cifras, fechas, lugares y cargos deben ser 100% EXACTOS y provenir únicamente del texto original.
-            - PROHIBIDO INVENTAR O ALUCINAR INFORMACIÓN: No inventes ningún dato, servicio público, aplicación web, mapa interactivo, enlace de descarga o detalle de conveniencia que no se mencione explícitamente en el texto original. Limítate estrictamente a los hechos narrados.
+            - PROHIBIDO INVENTAR O ALUCINAR INFORMACIÓN: No inventes ningún dato, servicio público, aplicación web, mapa interactivo, enlace de descarga o detalle de conveniencia que no se mencione explícitamente en el texto original. Limítate strictly a los hechos narrados.
             - PROHIBIDO RESUMIR: No omitas listas, enumeraciones de proyectos ni detalles técnicos. Si el original es largo, la reescritura debe ser larga.
             - PROHIBIDO utilizar la expresión "en el corazón de Vitoria-Gasteiz" o similares muletillas geográficas repetitivas. Busca alternativas originales.
             - PROHIBIDO mencionar de forma literal los nombres de medios de comunicación de origen (como "Gasteiz Hoy", "El Correo", "Diario de Noticias", "Diario de Noticias de Álava", "Noticias de Álava", "Diario de Álava", etc.). Si el texto original hace referencia a ellos o a sus periodistas, debes sustituir dicha mención por una expresión neutra como "este medio", "el citado diario", "este periódico" o "este canal". Tampoco incluyas frases de autobombo o firmas periodísticas al final del texto.
@@ -254,15 +258,23 @@ def _rewrite_chunk(text, type_label, context_title=None):
             
             if rewritten and type_label == "CUERPO" and len(rewritten) < len(text) * 0.5:
                 print(f"      [RECHAZO LONGITUD] Fragmento reescrito demasiado corto ({len(rewritten)} < {int(len(text)*0.5)}) en intento {attempt+1}", flush=True)
-                if attempt < max_retries - 1: continue
+                if attempt < max_attempts - 1: continue
 
             if rewritten:
                 rewritten = sanitize_media_references(rewritten)
 
             return rewritten
         except Exception as e:
-            print(f"      [ERROR _rewrite_chunk] Intento {attempt+1} falló: {e}", flush=True)
-            if attempt < max_retries - 1: time.sleep(1)
+            if "429" in str(e) or "limit" in str(e).lower():
+                if attempt < max_attempts - 1:
+                    print(f"      [Rate Limit Groq] Probando siguiente clave de reescritura en rotación...", flush=True)
+                    continue
+                else:
+                    time.sleep(5)
+            elif attempt < max_attempts - 1:
+                time.sleep(1)
+            else:
+                print(f"      [ERROR _rewrite_chunk] Todos los intentos fallaron: {e}", flush=True)
             
     return None
 
@@ -342,10 +354,10 @@ Rules:
 
     user_content = f"ORIGINAL (Spanish):\n{original_text}\n\nTRANSLATION ({lang_name}):\n{translated_text}"
     
-    max_retries = 3
-    for attempt in range(max_retries):
+    max_attempts = max(3, len(mistral_keys))
+    for attempt in range(max_attempts):
         try:
-            api_key = random.choice(mistral_keys)
+            api_key = get_next_key(mistral_keys, "mistral")
             client = Mistral(api_key=api_key)
             
             response = client.chat.complete(
@@ -368,11 +380,13 @@ Rules:
         except Exception as e:
             error_str = str(e)
             if "429" in error_str or "rate" in error_str.lower() or "limit" in error_str.lower():
-                sleep_time = 10 if attempt == 0 else 20
-                print(f"      [Mistral] Rate limit, esperando {sleep_time}s...", flush=True)
-                time.sleep(sleep_time)
-            elif attempt < max_retries - 1:
-                time.sleep(2)
+                if attempt < max_attempts - 1:
+                    print(f"      [Mistral Rate Limit] Probando siguiente clave Mistral en rotación...", flush=True)
+                    continue
+                else:
+                    time.sleep(5)
+            elif attempt < max_attempts - 1:
+                time.sleep(1)
             else:
                 print(f"      [Mistral FAIL] Error verificando ({type_label}): {e}", flush=True)
     
@@ -491,9 +505,10 @@ def translate_text(text, target_lang, type_label, context_title=None):
 
     type_desc_en = "title" if type_label == "TÍTULO" else "body"
 
-    for attempt in range(max_retries):
+    max_attempts = max(3, len(valid_keys))
+    for attempt in range(max_attempts):
         try:
-            api_key = random.choice(valid_keys)
+            api_key = get_next_key(valid_keys, f"trans_{target_lang}")
             client = Groq(api_key=api_key)
             extra_instructions = ""
             if target_lang == "eu":
@@ -538,11 +553,15 @@ CRITICAL INSTRUCTIONS:
                 return translated
         except Exception as e:
             if "429" in str(e) or "limit" in str(e).lower():
-                sleep_time = 15 if attempt == 0 else 30
-                print(f"      [Rate Limit Groq] Esperando {sleep_time}s para liberar TPM...", flush=True)
-                time.sleep(sleep_time)
-            elif attempt < max_retries - 1:
-                time.sleep(2)
+                if attempt < max_attempts - 1:
+                    print(f"      [Rate Limit Groq] Probando siguiente clave de traducción ({target_lang}) en rotación...", flush=True)
+                    continue
+                else:
+                    sleep_time = 10
+                    print(f"      [Rate Limit Groq] Todas las claves agotadas, esperando {sleep_time}s...", flush=True)
+                    time.sleep(sleep_time)
+            elif attempt < max_attempts - 1:
+                time.sleep(1)
             else:
                 print(f"Error al traducir a {target_lang} ({type_label}) con Groq ({model_name}): {e}", flush=True)
                 

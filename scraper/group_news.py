@@ -7,6 +7,7 @@ import urllib.parse
 from collections import defaultdict
 from groq import Groq
 from dotenv import load_dotenv
+from key_rotator import get_next_key
 
 # Cargar variables de entorno
 load_dotenv()
@@ -142,8 +143,7 @@ def get_groq_client():
     if not valid_keys:
         return None
     
-    # Selecciona una clave aleatoriamente del pool
-    api_key = random.choice(valid_keys)
+    api_key = get_next_key(valid_keys, "group")
     return Groq(api_key=api_key)
 
 def verify_group_with_llm(group):

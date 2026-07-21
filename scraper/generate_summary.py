@@ -6,6 +6,7 @@ from datetime import datetime, date
 import re
 from groq import Groq
 from dotenv import load_dotenv
+from key_rotator import get_next_key
 
 load_dotenv()
 
@@ -29,8 +30,7 @@ def get_groq_client():
         print("ERROR: No se encontraron variables de entorno de Groq válidas")
         return None
         
-    # Priorizar la clave oficial
-    api_key = os.environ.get("GROQ_RESUMEN") or random.choice(valid_keys)
+    api_key = get_next_key(valid_keys, "summary")
     return Groq(api_key=api_key)
 
 def _title_words(title):
