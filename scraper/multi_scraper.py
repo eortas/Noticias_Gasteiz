@@ -30,9 +30,9 @@ class MultiScraper:
             }
         )
         self.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-            'Accept-Language': 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3',
+            'Accept-Language': 'es-ES,es;q=0.9,en-US;q=0.8,en;q=0.7',
             'Referer': 'https://www.google.com/'
         }
         self.data_output = "data/news.json"
@@ -164,13 +164,23 @@ class MultiScraper:
 
 
     def _get(self, url, timeout=15):
+        import urllib.request
+
+        gb_headers = {
+            'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        }
+
+        attempts = [
+            ("cloudscraper", lambda u: self.scraper.get(u, headers=self.headers, timeout=timeout)),
+            ("requests", lambda u: self.requests_session.get(u, headers=self.headers, timeout=timeout)),
+            ("requests (Googlebot)", lambda u: requests.get(u, headers=gb_headers, timeout=timeout)),
+        ]
+
         last_error = None
-        for client_name, getter in (
-            ("cloudscraper", self.scraper.get),
-            ("requests", self.requests_session.get),
-        ):
+        for client_name, getter in attempts:
             try:
-                res = getter(url, headers=self.headers, timeout=timeout)
+                res = getter(url)
                 if res.status_code == 200:
                     if client_name != "cloudscraper":
                         print(f"  OK via {client_name}: {url}")
@@ -179,6 +189,22 @@ class MultiScraper:
             except Exception as e:
                 last_error = e
                 print(f"  {client_name} error {type(e).__name__}: {url} - {e}")
+
+        # Intento con urllib + Googlebot UA (estándar en Python, excelente para bypass de Cloudflare 403)
+        try:
+            req = urllib.request.Request(url, headers=gb_headers)
+            with urllib.request.urlopen(req, timeout=timeout) as response:
+                content = response.read().decode('utf-8', errors='ignore')
+                print(f"  OK via urllib (Googlebot): {url}")
+                class MockResponse:
+                    def __init__(self, text):
+                        self.text = text
+                        self.status_code = 200
+                return MockResponse(content)
+        except Exception as e:
+            last_error = e
+            print(f"  urllib error {type(e).__name__}: {url} - {e}")
+
         if last_error:
             raise last_error
         return None
@@ -228,16 +254,15 @@ class MultiScraper:
             return None
 
         try:
-            # Intentar parsear directamente con strict=False para tolerar caracteres de control
             return json.loads(text, strict=False)
         except Exception as e:
-            # Si falla, intentar limpiar marcas de markdown por si Jina lo envolvió en bloques de código
             cleaned = text.strip()
             if cleaned.startswith("```"):
                 cleaned = re.sub(r'^```(?:json)?\n', '', cleaned)
                 cleaned = re.sub(r'\n```$', '', cleaned)
                 cleaned = cleaned.strip()
-            # Buscar el bloque JSON más externo
+            # Arreglar caracteres de escape inválidos (\ sin escapar)
+            cleaned = re.sub(r'\\(?![/"bfnrtu])', r'\\\\', cleaned)
             match = re.search(r'(\[.*\]|\{.*\})', cleaned, re.DOTALL)
             if match:
                 try:
@@ -623,50 +648,67 @@ class MultiScraper:
             if rss_text:
                 soup = BeautifulSoup(rss_text, 'xml')
                 rss_count = 0
-                for item in soup.find_all('item'):
-                    url = item.link.text if item.link else ''
-                    if url and url not in links_data:
-                        if "/comercios/" in url.lower() or "el-boulevard" in url.lower():
-                            continue
-                            
-                        title = item.title.text if item.title else ''
-                        if any(x in title.lower() for x in ['el boulevard', 'publirreportaje', 'patrocinado']):
-                            continue
+                items = soup.find_all('item')
+                if items:
+                    for item in items:
+                        url = item.link.text if item.link else ''
+                        if url and url not in links_data:
+                            if "/comercios/" in url.lower() or "el-boulevard" in url.lower():
+                                continue
+                                
+                            title = item.title.text if item.title else ''
+                            if any(x in title.lower() for x in ['el boulevard', 'publirreportaje', 'patrocinado']):
+                                continue
 
-                        date_el = item.pubDate or item.find('dc:date')
-                        date_iso = self._parse_date(date_el.text).isoformat() if date_el else None
-                        
-                        content_el = item.find('content:encoded')
-                        body_html = content_el.text if content_el else (item.description.text if item.description else '')
-                        
-                        # Extract image from RSS: media:thumbnail, media:content, enclosure
-                        img_rss = None
-                        media_thumbnail = item.find('media:thumbnail')
-                        if media_thumbnail and media_thumbnail.get('url'):
-                            img_rss = media_thumbnail['url']
-                        if not img_rss:
-                            media_content = item.find('media:content')
-                            if media_content and media_content.get('url'):
-                                img_rss = media_content['url']
-                        if not img_rss:
-                            enclosure = item.find('enclosure')
-                            if enclosure and enclosure.get('url') and enclosure.get('type', '').startswith('image'):
-                                img_rss = enclosure['url']
-                        # Also try media:thumbnail from different namespace
-                        if not img_rss:
-                            for tag in item.find_all('media:thumbnail'):
-                                if tag.get('url'):
-                                    img_rss = tag['url']
-                                    break
-                        
-                        links_data[url] = {
-                            'url': url,
-                            'title': title,
-                            'body_html': body_html,
-                            'date_str': date_iso,
-                            'image_url': self._get_ddg_proxy_url(img_rss) if img_rss else None
-                        }
-                        rss_count += 1
+                            date_el = item.pubDate or item.find('dc:date')
+                            date_iso = self._parse_date(date_el.text).isoformat() if date_el else None
+                            
+                            content_el = item.find('content:encoded')
+                            body_html = content_el.text if content_el else (item.description.text if item.description else '')
+                            
+                            # Extract image from RSS: media:thumbnail, media:content, enclosure
+                            img_rss = None
+                            media_thumbnail = item.find('media:thumbnail')
+                            if media_thumbnail and media_thumbnail.get('url'):
+                                img_rss = media_thumbnail['url']
+                            if not img_rss:
+                                media_content = item.find('media:content')
+                                if media_content and media_content.get('url'):
+                                    img_rss = media_content['url']
+                            if not img_rss:
+                                enclosure = item.find('enclosure')
+                                if enclosure and enclosure.get('url') and enclosure.get('type', '').startswith('image'):
+                                    img_rss = enclosure['url']
+                            # Also try media:thumbnail from different namespace
+                            if not img_rss:
+                                for tag in item.find_all('media:thumbnail'):
+                                    if tag.get('url'):
+                                        img_rss = tag['url']
+                                        break
+                            
+                            links_data[url] = {
+                                'url': url,
+                                'title': title,
+                                'body_html': body_html,
+                                'date_str': date_iso,
+                                'image_url': self._get_ddg_proxy_url(img_rss) if img_rss else None
+                            }
+                            rss_count += 1
+                else:
+                    # Fallback si Jina devolvió Markdown en vez de XML
+                    md_matches = re.findall(r'\[([^\]\n]+)\]\((https?://www\.gasteizhoy\.com/[^\)\s]+)\)', rss_text)
+                    for title_md, url_md in md_matches:
+                        clean_url = self._normalize_url(url_md)
+                        if clean_url not in links_data:
+                            if "/comercios/" in clean_url.lower() or "el-boulevard" in clean_url.lower():
+                                continue
+                            if any(x in title_md.lower() for x in ['el boulevard', 'publirreportaje', 'patrocinado']):
+                                continue
+                            links_data[clean_url] = {
+                                'url': clean_url,
+                                'title': title_md.strip()
+                            }
+                            rss_count += 1
                 print(f"  RSS OK: {rss_count} enlaces añadidos")
         except Exception as e:
             print(f"  Error RSS fallback: {e}")
@@ -680,41 +722,57 @@ class MultiScraper:
                 soup = BeautifulSoup(home_text, 'html.parser')
                 home_count = 0
                 combined_selectors = soup.find_all(['h2', 'h3']) + soup.select('a.nueve-bloque-noticia, a.heronews, a.box-shadow, a.blogpost, a.breakblock.breakingtext, a.linknews, a.sixnewsblock')
-                for item in combined_selectors:
-                    a_tag = item.find('a') or item.find_parent('a') if item.name in ['h2', 'h3'] else item
-                    if a_tag:
-                        val = a_tag.get('href', '')
-                        if val:
-                            href = re.sub(r'\s+', '', val)
-                            if "/comercios/" in href.lower() or "el-boulevard" in href.lower():
-                                continue
-                            
-                            parent = a_tag.find_parent()
-                            block_text = (a_tag.get_text() + ' ' + (parent.get_text() if parent else '')).lower()
-                            if any(keyword in block_text or keyword in href.lower() for keyword in ['patrocinado', 'concurso', 'publirreportaje', 'el boulevard']):
-                                continue
-                            
-                            full_url = self._normalize_url(f"https://www.gasteizhoy.com{href}" if not href.startswith("http") else href)
-                            if full_url not in links_data:
-                                # Extract thumbnail from homepage for this article
-                                thumbnail = None
-                                block_container = item if item.name in ['h2', 'h3'] else (item.find_parent() or item)
-                                if block_container:
-                                    img_tag = block_container.find_previous('img') or block_container.find('img')
-                                    if not img_tag:
-                                        for container_class in ['nueve-bloque-noticia', 'heronews', 'box-shadow', 'blogpost', 'breakblock', 'linknews', 'sixnewsblock']:
-                                            container = item.find_parent(class_=lambda c: c and container_class in (c if isinstance(c, str) else ' '.join(c)))
-                                            if container:
-                                                img_tag = container.find('img')
-                                                break
-                                    if img_tag and img_tag.get('src'):
-                                        thumbnail = self._get_ddg_proxy_url(img_tag['src'])
+                if combined_selectors:
+                    for item in combined_selectors:
+                        a_tag = item.find('a') or item.find_parent('a') if item.name in ['h2', 'h3'] else item
+                        if a_tag:
+                            val = a_tag.get('href', '')
+                            if val:
+                                href = re.sub(r'\s+', '', val)
+                                if "/comercios/" in href.lower() or "el-boulevard" in href.lower():
+                                    continue
                                 
-                                links_data[full_url] = {
-                                    'url': full_url,
-                                    'image_url': thumbnail
-                                }
-                                home_count += 1
+                                parent = a_tag.find_parent()
+                                block_text = (a_tag.get_text() + ' ' + (parent.get_text() if parent else '')).lower()
+                                if any(keyword in block_text or keyword in href.lower() for keyword in ['patrocinado', 'concurso', 'publirreportaje', 'el boulevard']):
+                                    continue
+                                
+                                full_url = self._normalize_url(f"https://www.gasteizhoy.com{href}" if not href.startswith("http") else href)
+                                if full_url not in links_data:
+                                    # Extract thumbnail from homepage for this article
+                                    thumbnail = None
+                                    block_container = item if item.name in ['h2', 'h3'] else (item.find_parent() or item)
+                                    if block_container:
+                                        img_tag = block_container.find_previous('img') or block_container.find('img')
+                                        if not img_tag:
+                                            for container_class in ['nueve-bloque-noticia', 'heronews', 'box-shadow', 'blogpost', 'breakblock', 'linknews', 'sixnewsblock']:
+                                                container = item.find_parent(class_=lambda c: c and container_class in (c if isinstance(c, str) else ' '.join(c)))
+                                                if container:
+                                                    img_tag = container.find('img')
+                                                    break
+                                        if img_tag and img_tag.get('src'):
+                                            thumbnail = self._get_ddg_proxy_url(img_tag['src'])
+                                    
+                                    links_data[full_url] = {
+                                        'url': full_url,
+                                        'image_url': thumbnail
+                                    }
+                                    home_count += 1
+                else:
+                    # Fallback si Jina devolvió Markdown en vez de HTML
+                    md_matches = re.findall(r'\[([^\]\n]+)\]\((https?://www\.gasteizhoy\.com/[^\)\s]+)\)', home_text)
+                    for title_md, url_md in md_matches:
+                        clean_url = self._normalize_url(url_md)
+                        if clean_url not in links_data:
+                            if "/comercios/" in clean_url.lower() or "el-boulevard" in clean_url.lower():
+                                continue
+                            if any(x in title_md.lower() for x in ['el boulevard', 'publirreportaje', 'patrocinado']):
+                                continue
+                            links_data[clean_url] = {
+                                'url': clean_url,
+                                'title': title_md.strip()
+                            }
+                            home_count += 1
                 print(f"  Portada OK: {home_count} enlaces añadidos")
         except Exception as e:
             print(f"Error portada Gasteiz Hoy: {e}")
@@ -870,21 +928,26 @@ class MultiScraper:
                         continue
             
             # FALLBACK 2: Jina Reader (Extracción de Markdown)
-            if not image_url:
+            if not image_url or not body:
                 markdown = self._get_via_jina(url)
                 if markdown:
-                    # Intento A: Regex de imagen Markdown estándar
-                    match = re.search(r'!\[.*?\]\((https?://.*?)\)', markdown)
-                    if not match:
-                        # Intento B: Buscar cualquier URL de imagen en el texto si el primero falla
-                        match = re.search(r'(https?://[^\s)]+\.(?:jpg|jpeg|png|webp|gif))', markdown, re.IGNORECASE)
-                    
-                    if match:
-                        candidate = match.group(1)
-                        # Filtro de ruido
-                        if not any(x in candidate.lower() for x in ["publicidad", "banner", "logo", "avatar", "icon", "pixel"]):
-                            image_url = self._get_ddg_proxy_url(candidate)
-                            print(f"  Imagen recuperada via Jina Reader: {url}")
+                    if not body:
+                        paragraphs = [line.strip() for line in markdown.split('\n') if line.strip() and not line.strip().startswith('#') and not line.strip().startswith('!') and not line.strip().startswith('[')]
+                        if paragraphs:
+                            body = "\n\n".join(paragraphs[:10])
+                    if not image_url:
+                        # Intento A: Regex de imagen Markdown estándar
+                        match = re.search(r'!\[.*?\]\((https?://.*?)\)', markdown)
+                        if not match:
+                            # Intento B: Buscar cualquier URL de imagen en el texto si el primero falla
+                            match = re.search(r'(https?://[^\s)]+\.(?:jpg|jpeg|png|webp|gif))', markdown, re.IGNORECASE)
+                        
+                        if match:
+                            candidate = match.group(1)
+                            # Filtro de ruido
+                            if not any(x in candidate.lower() for x in ["publicidad", "banner", "logo", "avatar", "icon", "pixel"]):
+                                image_url = self._get_ddg_proxy_url(candidate)
+                                print(f"  Imagen recuperada via Jina Reader: {url}")
 
             # FALLBACK 3: DuckDuckGo Image Search (URL o Título)
             if not image_url:
