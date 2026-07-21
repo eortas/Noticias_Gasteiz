@@ -296,11 +296,16 @@ def _split_text(text, max_chars):
 
 
 def get_extra_keys():
-    """Obtiene todas las claves genéricas extras (GROQ_EXTRA1 a GROQ_EXTRA10)."""
+    """Obtiene todas las claves genéricas extras (GROQ_EXTRA1 a GROQ_EXTRA10), soportando varios formatos."""
     extra_keys = []
     for i in range(1, 11):
-        val = os.environ.get(f"GROQ_EXTRA{i}")
-        if val:
+        val = (
+            os.environ.get(f"GROQ_EXTRA{i}") or 
+            os.environ.get(f"groq_extra{i}") or 
+            os.environ.get(f"GROQ_EXTRA_{i}") or 
+            os.environ.get(f"groq_extra_{i}")
+        )
+        if val and val not in extra_keys:
             extra_keys.append(val)
     return extra_keys
 

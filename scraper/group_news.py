@@ -135,8 +135,13 @@ def get_groq_client():
     ]
     # Añadir llaves genéricas extras
     for i in range(1, 11):
-        extra_key = os.environ.get(f"GROQ_EXTRA{i}")
-        if extra_key:
+        extra_key = (
+            os.environ.get(f"GROQ_EXTRA{i}") or 
+            os.environ.get(f"groq_extra{i}") or 
+            os.environ.get(f"GROQ_EXTRA_{i}") or 
+            os.environ.get(f"groq_extra_{i}")
+        )
+        if extra_key and extra_key not in keys:
             keys.append(extra_key)
             
     valid_keys = [k for k in keys if k]
