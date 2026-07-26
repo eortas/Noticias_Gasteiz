@@ -58,12 +58,21 @@ def update_mood_history():
         except Exception as e:
             print(f"    [AVISO] No se pudo cargar el historial anterior de Mood: {e}")
 
-    # 3. Fusionar con las puntuaciones calculadas hoy
+    # 3. Fusionar las puntuaciones respetando la inmutabilidad de días pasados
+    today_str = datetime.now().strftime('%Y-%m-%d')
+
     for sec in history_dict.keys():
         for day, scores in daily_scores[sec].items():
-            if scores:
-                avg_score = sum(scores) / len(scores)
-                history_dict[sec][day] = round(avg_score, 2)
+            if not scores:
+                continue
+
+            # Si el día es pasado y ya se guardó en el historial, mantenemos su valor persistido
+            if day < today_str and day in history_dict[sec]:
+                continue
+
+            # Calculamos o actualizamos la nota media solo para el día de hoy (o días no registrados)
+            avg_score = sum(scores) / len(scores)
+            history_dict[sec][day] = round(avg_score, 2)
 
     # 4. Convertir a listas ordenadas cronológicamente
     final_history = {}
