@@ -13,8 +13,8 @@ def update_mood_history():
     with open(news_file, 'r', encoding='utf-8') as f:
         news = json.load(f)
 
-    # 1. Agrupar sentimientos por sección y fecha (YYYY-MM-DD)
-    # Secciones válidas: economia, sociedad, deportes, cultura. El resto va a 'alava' (All)
+    # 1. Agrupar sentimientos por fecha (YYYY-MM-DD) y sección
+    # Secciones válidas: economia, sociedad, deportes, cultura. 'alava' es el global del día.
     valid_sections = ['economia', 'sociedad', 'deportes', 'cultura']
     daily_scores = {sec: {} for sec in ['alava'] + valid_sections}
     
@@ -22,20 +22,28 @@ def update_mood_history():
         if item.get('is_summary'):
             continue
             
-        section = item.get('source_section')
-        if section not in valid_sections:
-            section = 'alava'
-            
         date_str = item.get('date', '')
-        try:
-            day = date_str[:10]
-            score = float(item.get('sentiment', 0))
+        if not date_str or len(date_str) < 10:
+            continue
             
+        day = date_str[:10]
+        
+        try:
+            score = float(item.get('sentiment', 0))
+        except (ValueError, TypeError):
+            continue
+
+        # 'alava' representa el estado de ánimo global (todas las noticias del día)
+        if day not in daily_scores['alava']:
+            daily_scores['alava'][day] = []
+        daily_scores['alava'][day].append(score)
+
+        # Agrupamos también en su sección correspondiente si es válida
+        section = item.get('source_section')
+        if section in valid_sections:
             if day not in daily_scores[section]:
                 daily_scores[section][day] = []
             daily_scores[section][day].append(score)
-        except (ValueError, TypeError):
-            continue
 
     # 2. Cargar historial existente y migrar si es necesario
     history_dict = {sec: {} for sec in ['alava'] + valid_sections}
