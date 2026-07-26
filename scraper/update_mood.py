@@ -33,17 +33,14 @@ def update_mood_history():
         except (ValueError, TypeError):
             continue
 
-        # 'alava' representa el estado de ánimo global (todas las noticias del día)
-        if day not in daily_scores['alava']:
-            daily_scores['alava'][day] = []
-        daily_scores['alava'][day].append(score)
-
-        # Agrupamos también en su sección correspondiente si es válida
+        # Determinamos la sección: si no es una sección específica, pertenece exclusivamente a 'alava'
         section = item.get('source_section')
-        if section in valid_sections:
-            if day not in daily_scores[section]:
-                daily_scores[section][day] = []
-            daily_scores[section][day].append(score)
+        if section not in valid_sections:
+            section = 'alava'
+
+        if day not in daily_scores[section]:
+            daily_scores[section][day] = []
+        daily_scores[section][day].append(score)
 
     # 2. Cargar historial existente y migrar si es necesario
     history_dict = {sec: {} for sec in ['alava'] + valid_sections}
