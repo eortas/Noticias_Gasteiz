@@ -7,6 +7,7 @@ from groq import Groq
 from mistralai.client.sdk import Mistral
 from dotenv import load_dotenv
 from key_rotator import get_next_key
+from grammar_cleaner import fix_grammar_errors
 
 load_dotenv()
 
@@ -152,6 +153,11 @@ def rewrite_article(title, body):
     title_rw = _rewrite_chunk(title, "TÍTULO")
     if title_rw:
         title_rw = title_rw.split('\n')[0].strip()
+
+    # Auditar y verificar el titular con Mistral frente al titular original (sin enviar el cuerpo para ahorrar tokens)
+    if title_rw:
+        print(f"      - Auditando titular con Mistral frente al original...", flush=True)
+        title_rw = verify_headline_with_mistral(original_title=title, rewritten_title=title_rw)
     
     # Dividir el cuerpo en fragmentos que respeten los párrafos
     paragraphs = body.split('\n\n')
@@ -183,8 +189,8 @@ def rewrite_article(title, body):
     final_body = "\n\n".join(rewritten_chunks)
     
     # Capa de seguridad final: sanitizar siempre, incluso si hubo fallback a partes originales
-    final_title = sanitize_media_references(final_title)
-    final_body = sanitize_media_references(final_body)
+    final_title = fix_grammar_errors(sanitize_media_references(final_title))
+    final_body = fix_grammar_errors(sanitize_media_references(final_body))
     
     return final_title, final_body
 
@@ -209,12 +215,13 @@ def _rewrite_chunk(text, type_label, context_title=None):
               
             if type_label == "TÍTULO":
                 style_instructions = """1. BREVEDAD CRÍTICA: El titular debe ser directo, impactante y de longitud similar al original (máximo 12-15 palabras).
-                2. SÍNTESIS: Capta la esencia de la noticia en una sola frase potente. No des rodeos."""
+                2. SÍNTESIS: Capta la esencia de la noticia en una sola frase potente. No des rodeos.
+                3. CONJUGACIÓN CORRECTA: Usa siempre verbos conjugados correctamente en castellano de España (por ejemplo: 'se vuelca' y NUNCA 'se volca', 'vuelco' y NUNCA 'volcamiento')."""
             else:
                 style_instructions = """1. REESTRUCTURA TOTAL: No te limites a cambiar palabras. Cambia el orden de las ideas y la construcción de las frases. Estilo narrativo propio.
                 2. FIDELIDAD ESTRICTA A LOS DATOS: NO ELIMINES NINGÚN DATO RELEVANTE Y NO INVENTES NADA. Si el texto original menciona proyectos específicos, nombres de calles, cifras, listas de medidas o promesas pendientes, DEBEN aparecer íntegramente en la reescritura. Está totalmente prohibido añadir datos, servicios o detalles ficticios.
                 3. EXTENSIÓN: El texto reescrito debe tener una longitud similar o superior al original. Está prohibido resumir eliminando detalles técnicos o enumeraciones.
-                4. RIQUEZA LÉXICA: Evita muletillas y usa un lenguaje profesional y evocador."""
+                4. RIQUEZA LÉXICA Y CONJUGACIÓN IMPECABLE: Evita muletillas y usa un lenguaje profesional con conjugaciones correctas en español (por ejemplo: 'se vuelca' en lugar de 'se volca', 'vuelco' en lugar de 'volcamiento', 'se fuerza' en lugar de 'se forza')."""
 
             system_prompt = f"""Eres un Periodista de Investigación y Redactor Senior experto en la actualidad de Vitoria-Gasteiz.
             Tu tarea es TRANSFORMAR el siguiente {type_label} en una pieza periodística original, evitando el estilo de agencia de noticias.
@@ -228,6 +235,7 @@ def _rewrite_chunk(text, type_label, context_title=None):
             - PROHIBIDO RESUMIR: No omitas listas, enumeraciones de proyectos ni detalles técnicos. Si el original es largo, la reescritura debe ser larga.
             - PROHIBIDO utilizar la expresión "en el corazón de Vitoria-Gasteiz" o similares muletillas geográficas repetitivas. Busca alternativas originales.
             - PROHIBIDO mencionar de forma literal los nombres de medios de comunicación de origen (como "Gasteiz Hoy", "El Correo", "Diario de Noticias", "Diario de Noticias de Álava", "Noticias de Álava", "Diario de Álava", etc.). Si el texto original hace referencia a ellos o a sus periodistas, debes sustituir dicha mención por una expresión neutra como "este medio", "el citado diario", "este periódico" o "este canal". Tampoco incluyas frases de autobombo o firmas periodísticas al final del texto.
+            - CORRECCIÓN GRAMATICAL: Usa español impecable. Está prohibido usar invenciones o malas conjugaciones como 'se volca', 'se forza', 'se colga', 'se apreta' o 'volcamiento'.
             - CITAS: Si hay declaraciones entre comillas, mantén su esencia o integridad.
             
             REGLA DE FORMATO ABSOLUTA:
@@ -262,6 +270,7 @@ def _rewrite_chunk(text, type_label, context_title=None):
 
             if rewritten:
                 rewritten = sanitize_media_references(rewritten)
+                rewritten = fix_grammar_errors(rewritten)
 
             return rewritten
         except Exception as e:
@@ -311,13 +320,92 @@ def get_extra_keys():
 
 
 def get_mistral_keys():
-    """Obtiene todas las claves de Mistral (MISTRAL1 a MISTRAL10) para rotación."""
+    """Obtiene todas las claves de Mistral (MISTRAL_API_KEY, MISTRAL_KEY, MISTRAL1 a MISTRAL10) para rotación."""
     keys = []
+    for var in ["MISTRAL_API_KEY", "MISTRAL_KEY", "MISTRAL_TITULARES", "MISTRAL_SECRET"]:
+        val = os.environ.get(var)
+        if val and val not in keys:
+            keys.append(val)
     for i in range(1, 11):
-        val = os.environ.get(f"MISTRAL{i}")
-        if val:
+        val = os.environ.get(f"MISTRAL{i}") or os.environ.get(f"mistral{i}")
+        if val and val not in keys:
             keys.append(val)
     return keys
+
+
+def verify_headline_with_mistral(original_title, rewritten_title):
+    """
+    Verifica con Mistral que el titular reescrito guarde estricta fidelidad con el titular original
+    y que sea totalmente correcto a nivel gramatical en castellano.
+    Compara ÚNICAMENTE el titular original y el reescrito para minimizar consumo de tokens.
+    """
+    mistral_keys = get_mistral_keys()
+    if not mistral_keys:
+        return fix_grammar_errors(sanitize_media_references(rewritten_title))
+
+    system_prompt = """Eres un Editor Jefe Periodístico especializado en veracidad e integridad informativa.
+Tu tarea es auditar y verificar un TITULAR REESCRITO comparándolo con el TITULAR ORIGINAL de la fuente.
+
+REGLAS DE AUDITORÍA:
+1. FIDELIDAD TEMÁTICA STRICTA: El titular reescrito debe tratar EXACTAMENTE del mismo suceso, noticia o hecho que el titular original. Si el titular reescrito inventa datos, habla de un tema diferente o cambia el significado de la noticia, ES UN RECHAZO por alucinación. En ese caso, debes proponer una adaptación fiel del titular original.
+2. CORRECCIÓN GRAMATICAL: El titular debe ser gramaticalmente perfecto en castellano de España (ej: 'se vuelca' y NUNCA 'se volca', 'vuelco' y NUNCA 'volcamiento', 'se fuerza' y NUNCA 'se forza').
+3. SÍNTESIS: Mantén un tono directo y profesional (máximo 12-15 palabras).
+
+Formato de respuesta JSON obligatorio:
+{
+  "is_faithful": true/false,
+  "final_title": "El titular verificado, fiel y correcto"
+}"""
+
+    user_content = f"TITULAR ORIGINAL (Fuente):\n{original_title}\n\nTITULAR REESCRITO A AUDITAR:\n{rewritten_title}"
+
+    max_attempts = max(3, len(mistral_keys))
+    for attempt in range(max_attempts):
+        try:
+            api_key = get_next_key(mistral_keys, "mistral_headline")
+            client = Mistral(api_key=api_key)
+
+            response = client.chat.complete(
+                model="mistral-small-latest",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_content}
+                ],
+                temperature=0.1,
+                response_format={"type": "json_object"}
+            )
+
+            raw_text = clean_thinking_tags(response.choices[0].message.content)
+            data = json.loads(raw_text)
+
+            final_title = data.get("final_title") or (rewritten_title if data.get("is_faithful") else original_title)
+            final_title = final_title.strip()
+            if final_title.startswith('"') and final_title.endswith('"'):
+                final_title = final_title[1:-1].strip()
+
+            final_title = fix_grammar_errors(sanitize_media_references(final_title))
+
+            if not data.get("is_faithful", True):
+                print(f"      [Mistral ALERTA] Alucinación detectada en titular. Corregido a: '{final_title}'", flush=True)
+            else:
+                print(f"      [Mistral OK] Titular auditado y verificado correctamente.", flush=True)
+
+            return final_title
+
+        except Exception as e:
+            error_str = str(e)
+            if "429" in error_str or "rate" in error_str.lower() or "limit" in error_str.lower():
+                if attempt < max_attempts - 1:
+                    print(f"      [Mistral Rate Limit] Probando siguiente clave en rotación...", flush=True)
+                    continue
+                else:
+                    time.sleep(5)
+            elif attempt < max_attempts - 1:
+                time.sleep(1)
+            else:
+                print(f"      [Mistral FAIL Auditoría Titular]: {e}", flush=True)
+
+    return fix_grammar_errors(sanitize_media_references(rewritten_title))
 
 
 def verify_translation_with_mistral(original_text, translated_text, target_lang, type_label):

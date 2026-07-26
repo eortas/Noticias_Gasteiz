@@ -7,6 +7,7 @@ import re
 from groq import Groq
 from dotenv import load_dotenv
 from key_rotator import get_next_key
+from grammar_cleaner import fix_grammar_errors
 
 load_dotenv()
 
@@ -201,6 +202,7 @@ El resumen debe:
 4. Una FRASE DE CIERRE que deje una reflexión o mirada al día siguiente
 5. Estilo narrativo fluido, como un boletín informativo de radio o un editorial breve
 6. Extensión total: entre 300 y 600 palabras
+7. Gramática impecable: Usa castellano de España perfecto (por ejemplo: 'se vuelca' en vez de 'se volca', 'vuelco' en vez de 'volcamiento').
 
 Formato de respuesta JSON:
 {
@@ -229,7 +231,14 @@ No incluyas firmas, ni menciones a Gasteiz Live. Limítate al resumen periodíst
     )
     raw_response = clean_thinking_tags(completion.choices[0].message.content)
     result = json.loads(raw_response)
-    return result.get('title', 'Resumen del día'), result.get('summary', '')
+
+    raw_title = result.get('title', 'Resumen del día')
+    raw_summary = result.get('summary', '')
+
+    clean_title = fix_grammar_errors(raw_title)
+    clean_summary = fix_grammar_errors(raw_summary)
+
+    return clean_title, clean_summary
 
 def generate_daily_summary(news_items):
     """Use Groq with chunking to generate a comprehensive daily news summary."""
