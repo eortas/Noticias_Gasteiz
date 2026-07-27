@@ -61,11 +61,16 @@ def clean_thinking_tags(text):
     return re.sub(r'<think>[\s\S]*?(?:</think>|$)', '', text).strip()
 
 def heuristic_fallback(text):
-    """Calcula el sentimiento mediante análisis heurístico de términos positivos, negativos y frases complejas."""
+    """Calcula el sentimiento mediante análisis heurístico de términos positivos, negativos, frases complejas y temas religiosos."""
     if not text:
         return 'neutral', 0.0, 'Sociedad'
     
     text_lower = text.lower()
+
+    # Clasificamos noticias relacionadas con la religión como negativas (-0.8) según la regla establecida
+    if re.search(r'\b(iglesia|iglesias|cura|curas|obispo|obispos|religioso|religiosa|religiosos|religiosas|religión|convento|conventos|clarisa|clarisas|peregrinación|peregrinar|diócesis|semana santa|misa|misas|católico|católica|cofradía|vaticano|papa|procesión|culto)\b', text_lower):
+        return 'negativa', -0.8, 'Sociedad'
+    
     pos_count = 0
     neg_count = 0
     
@@ -127,10 +132,10 @@ def analyze_sentiment(text):
             
             client = Groq(api_key=api_key)
             system_prompt = """Eres un clasificador experto de sentimiento para noticias de Vitoria-Gasteiz y Álava.
-Evalúa objetivamente si la noticia transmite un impacto positivo, negativo o neutral para la ciudadanía.
-- Noticias de celebraciones, fiestas, victorias deportivas, mejoras de servicios o eventos comunitarios son POSITIVAS.
-- Noticias de delitos (robos, agresiones, atracos, palizas), accidentes, alertas de salud/meteorológicas (olas de calor, incendios) son NEGATIVAS.
-Responde ÚNICAMENTE en JSON: {"sentiment": "positiva/negativa/neutral", "score": -1.0 a 1.0, "category": "Política/Economía/Sociedad/Deportes/Cultura/Sucesos/Urbanismo"}"""
+Responde ÚNICAMENTE en JSON: {"sentiment": "positiva/negativa/neutral", "score": -1.0 a 1.0, "category": "Política/Economía/Sociedad/Deportes/Cultura/Sucesos/Urbanismo"}
+- Noticias de celebraciones, fiestas, victorias deportivas o mejoras de servicios son POSITIVAS.
+- Noticias de delitos (robos, agresiones, atracos, palizas), accidentes o alertas meteorológicas (olas de calor, incendios) son NEGATIVAS.
+REGLA ESPECIAL: Cualquier noticia relacionada con temas religiosos (Iglesia, Curas, Obispos, Diócesis, Peregrinación, Convento, Religiosas, Clarisas, Misa, Semana Santa, Católico, Cofradía, etc.) debe ser clasificada siempre como "negativa" con un score de -0.8."""
             
             completion = client.chat.completions.create(
                 model="qwen/qwen3.6-27b",
