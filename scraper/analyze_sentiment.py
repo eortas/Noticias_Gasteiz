@@ -11,80 +11,106 @@ from grammar_cleaner import fix_grammar_errors
 
 load_dotenv()
 
-# Fallback basic dictionaries
+# Diccionarios para análisis heurístico de sentimientos
 PALABRAS_POSITIVAS = {
-    'bueno', 'buena', 'mejor', 'excelente', 'positivo', 'éxito', 'logro', 'avanza', 'mejora', 
-    'beneficio', 'alegría', 'feliz', 'oportunidad', 'crecimiento', 'esperanza', 'solución',
-    'paz', 'seguro', 'impulsa', 'apoyo', 'vanguardia', 'moderno', 'eficiente', 'gratis',
-    'estrena', 'inaugura', 'récord', 'lidera', 'brilla', 'talento', 'unión', 'solidario',
-    'relevo', 'continuidad', 'tradición', 'familia', 'futuro', 'crean', 'vuelve', 'abre', 'abren',
+    'bueno', 'buena', 'buenos', 'buenas', 'mejor', 'mejores', 'excelente', 'excelentes', 'positivo', 'positiva', 
+    'éxito', 'éxitos', 'logro', 'logros', 'avanza', 'avanzan', 'mejora', 'mejoras', 
+    'beneficio', 'beneficios', 'alegría', 'feliz', 'felices', 'oportunidad', 'oportunidades', 'crecimiento', 
+    'esperanza', 'solución', 'soluciones', 'paz', 'seguro', 'segura', 'impulsa', 'impulsan', 'apoyo', 
+    'vanguardia', 'moderno', 'moderna', 'eficiente', 'gratis', 'estrena', 'estrenan', 'inaugura', 'inauguran', 
+    'lidera', 'brilla', 'talento', 'unión', 'solidario', 'solidaria', 'relevo', 'continuidad', 
+    'tradición', 'familia', 'futuro', 'crean', 'vuelve', 'vuelven', 'abre', 'abren',
     'fiesta', 'fiestas', 'música', 'celebración', 'celebraciones', 'concierto', 'conciertos', 
-    'diversión', 'danza', 'baile', 'deporte', 'deportes', 'gastronomía', 'popular'
+    'diversión', 'danza', 'baile', 'deporte', 'deportes', 'gastronomía', 'popular', 'populares',
+    'homenaje', 'premio', 'premios', 'galardón', 'galardones', 'triunfo', 'triunfos', 'victoria', 'victorias'
 }
 
 PALABRAS_NEGATIVAS = {
-    'malo', 'mala', 'peor', 'negativo', 'fracaso', 'error', 'problema', 'crisis', 'daño', 
-    'muerte', 'fallece', 'accidente', 'robo', 'robos', 'robar', 'robado', 'robada', 'robados', 'robadas',
-    'detenido', 'detenidos', 'detenida', 'detenidas', 'agresión', 'agresiones', 'pelea', 'peleas',
-    'herido', 'herida', 'heridos', 'heridas', 'lesionado', 'lesionada', 'lesionados', 'lesionadas',
-    'asesinato', 'asesinado', 'asesinada', 'asesinados', 'asesinadas', 'matar', 'apuñalado', 'apuñalada', 'apuñalar',
-    'denuncia', 'denuncias', 'corte', 'huelga', 'huelgas', 'protesta', 'incendio', 'atropello', 'crimen', 'estafa',
-    'pérdida', 'caída', 'baja', 'tensión', 'riesgo', 'peligro', 'inseguro', 'sucio', 'abandono',
-    'cierre', 'cierran', 'despido', 'despidos', 'semana santa', 'procesión', 'religión', 'iglesia', 
-    'culto', 'cura', 'obispo', 'religioso', 'religiosa', 'religiosas', 'religiosos', 'convento', 'conventos',
-    'clarisa', 'clarisas', 'papa', 'vaticano', 'misa', 'católico', 
-    'cofradía', 'peregrinación','PP', 'VOX', 'peregrinar', 'diócesis', 'paralisis', 'parálisis',
-    'rechazo', 'rechazos', 'oposición', 'oposicion', 'enfrentamiento', 'enfrentamientos',
-    'guardia civil', 'guardias civiles', 'guardia zibila', 'guardia zibilak'
+    'malo', 'mala', 'malos', 'malas', 'peor', 'peores', 'negativo', 'negativa', 'fracaso', 'error', 'problema', 
+    'problemas', 'crisis', 'daño', 'daños', 'muerte', 'muertes', 'fallece', 'fallecen', 'fallecido', 'fallecida',
+    'accidente', 'accidentes', 'robo', 'robos', 'robar', 'robado', 'robada', 'robados', 'robadas', 'robarle', 'robarles',
+    'atraco', 'atracos', 'atracar', 'atracador', 'atracadores', 'hurto', 'hurtos', 'hurtar', 'sustraer', 'sustracción',
+    'detenido', 'detenidos', 'detenida', 'detenidas', 'agresión', 'agresiones', 'agredir', 'agresor', 'agresores',
+    'pelea', 'peleas', 'herido', 'herida', 'heridos', 'heridas', 'lesionado', 'lesionada', 'lesionados', 'lesionadas',
+    'lesión', 'lesiones', 'fractura', 'fracturas', 'paliza', 'palizas', 'golpe', 'golpes', 'golpear', 'golpeado', 'golpeada',
+    'asesinato', 'asesinados', 'matar', 'apuñalado', 'apuñalada', 'apuñalar', 'apuñalamiento', 'navajazo',
+    'denuncia', 'denuncias', 'corte', 'huelga', 'huelgas', 'protesta', 'protestas', 'incendio', 'incendios', 
+    'atropello', 'atropellos', 'crimen', 'crímenes', 'estafa', 'estafas', 'pérdida', 'pérdidas', 'caída', 'baja', 
+    'tensión', 'riesgo', 'riesgos', 'peligro', 'peligros', 'inseguro', 'inseguridad', 'sucio', 'abandono',
+    'cierre', 'cierran', 'despido', 'despidos', 'rechazo', 'rechazos', 'oposición', 'enfrentamiento', 'enfrentamientos',
+    'delito', 'delitos', 'delincuente', 'delincuencia', 'víctima', 'victima', 'víctimas', 'victimas', 'violencia', 'violento',
+    'bochorno', 'canícula', 'sequía', 'sequia', 'asfixiante', 'saturación', 'saturado', 'saturada', 'saturados', 'saturadas'
 }
+
+FRASES_NEGATIVAS = [
+    'ola de calor', 'olas de calor', 'calor extremo', 'golpe de calor', 'golpes de calor',
+    'alerta por calor', 'temperaturas extremas', 'calor asfixiante', 'calor sofocante',
+    'elevadas temperaturas', 'altas temperaturas', 'temperaturas elevadas', 'exceso de calor',
+    'calor intenso', 'intenso calor', 'el calor dispara', 'bochorno',
+    'alerta amarilla por calor', 'alerta naranja por calor', 'alerta roja por calor',
+    'intento de robo', 'intentan robarle', 'intento de hurto', 'robarle el móvil', 'robar el móvil',
+    'agresión física', 'brutal agresión', 'violencia callejera', 'rompen la nariz'
+]
 
 NEGACIONES = {'no', 'ni', 'nunca', 'tampoco', 'sin'}
 
 def clean_thinking_tags(text):
-    """Elimina bloques <think>...</think> que genera Qwen en modo thinking.
-    Maneja tanto el caso normal (<think>...</think>) como el truncado (<think>... sin cierre)."""
+    """Elimina bloques <think>...</think> que genera Qwen en modo thinking."""
     if not text:
         return text
     return re.sub(r'<think>[\s\S]*?(?:</think>|$)', '', text).strip()
 
 def heuristic_fallback(text):
-    if not text: return 'neutral', 0.0, 'Sociedad'
+    """Calcula el sentimiento mediante análisis heurístico de términos positivos, negativos y frases complejas."""
+    if not text:
+        return 'neutral', 0.0, 'Sociedad'
+    
     text_lower = text.lower()
+    pos_count = 0
+    neg_count = 0
     
-    # REGLAS ESPECIALES (usando regex para evitar falsos positivos como "curarse")
-    if 'banco de alimentos' in text_lower or re.search(r'\b(guardias?\s+civil(?:es)?|guardia\s+zibila?k?|iglesia|cura|curas|obispo|obispos|religioso|religiosos|religiosas?|conventos?|clarisas?|peregrinación|peregrinar|diócesis|semana santa|tensión pol[íi]tica)\b', text_lower):
-        return 'negativa', -0.8, 'Sociedad'
-    
-    words = re.findall(r'\w+', text_lower)
+    # Verificamos coincidencias en frases compuestas de fuerte impacto negativo (como robos o eventos climáticos)
+    for frase in FRASES_NEGATIVAS:
+        if frase in text_lower:
+            neg_count += 2
 
-    pos_count = 0; neg_count = 0
+    words = re.findall(r'\w+', text_lower)
     for i, word in enumerate(words):
         if word in PALABRAS_POSITIVAS:
-            if i > 0 and words[i-1] in NEGACIONES: neg_count += 1
-            else: pos_count += 1
+            if i > 0 and words[i-1] in NEGACIONES:
+                neg_count += 1
+            else:
+                pos_count += 1
         elif word in PALABRAS_NEGATIVAS:
-            if i > 0 and words[i-1] in NEGACIONES: pos_count += 1
-            else: neg_count += 1
+            if i > 0 and words[i-1] in NEGACIONES:
+                pos_count += 1
+            else:
+                neg_count += 1
+
     total = pos_count + neg_count
-    # Si la densidad de coincidencias es muy baja (1 o menos), preferimos delegar a la IA
-    if total <= 1: return 'neutral', 0.0, 'Sociedad'
+    # Si la presencia de términos es muy escasa, dejamos que la IA tome la decisión
+    if total <= 1:
+        return 'neutral', 0.0, 'Sociedad'
+    
     score = (pos_count - neg_count) / total
-    if score > 0.05: return 'positiva', score, 'Sociedad'
-    elif score < -0.05: return 'negativa', score, 'Sociedad'
-    else: return 'neutral', score, 'Sociedad'
- 
+    if score > 0.05:
+        return 'positiva', round(score, 4), 'Sociedad'
+    elif score < -0.05:
+        return 'negativa', round(score, 4), 'Sociedad'
+    else:
+        return 'neutral', round(score, 4), 'Sociedad'
+
 def analyze_sentiment(text):
     """Analiza sentimiento y categoría. Primero pasa por el modelo heurístico y, si es neutral, pasa por la IA."""
-    # 1. Pasar primero por el modelo heurístico
+    # 1. Analizamos con la heurística primero
     heur_sentiment, heur_score, heur_category = heuristic_fallback(text)
     if heur_sentiment in ('positiva', 'negativa'):
         return heur_sentiment, heur_score, heur_category
         
-    # 2. Si es neutral, recurrir a la IA (Groq)
+    # 2. Si el resultado es neutral, pasamos a consultar el modelo de IA
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            # Pool de llaves actualizado
             keys = [
                 os.environ.get("GROQ_REWRITE_2"), os.environ.get("GROQ_REWRITE_3"),
                 os.environ.get("GROQ_REWRITE_KEY"), os.environ.get("groq_KEY"), 
@@ -100,9 +126,11 @@ def analyze_sentiment(text):
             api_key = get_next_key(valid_keys, "sentiment")
             
             client = Groq(api_key=api_key)
-            system_prompt = """Eres un clasificador experto de noticias de Vitoria-Gasteiz.
-            Responde ÚNICAMENTE en JSON: {"sentiment": "positiva/negativa/neutral", "score": -1.0 a 1.0, "category": "Política/Economía/Sociedad/Deportes/Cultura/Sucesos/Urbanismo"}
-            REGLA ESPECIAL: Cualquier noticia que mencione a la "Guardia Civil", "Iglesia", "Curas", "Obispos", "Diócesis", "Peregrinación", "Convento", "Religiosas", "Clarisas", "Banco de Alimentos" o temas religiosos debe ser clasificada siempre como "negativa" con un score de -0.8."""
+            system_prompt = """Eres un clasificador experto de sentimiento para noticias de Vitoria-Gasteiz y Álava.
+Evalúa objetivamente si la noticia transmite un impacto positivo, negativo o neutral para la ciudadanía.
+- Noticias de celebraciones, fiestas, victorias deportivas, mejoras de servicios o eventos comunitarios son POSITIVAS.
+- Noticias de delitos (robos, agresiones, atracos, palizas), accidentes, alertas de salud/meteorológicas (olas de calor, incendios) son NEGATIVAS.
+Responde ÚNICAMENTE en JSON: {"sentiment": "positiva/negativa/neutral", "score": -1.0 a 1.0, "category": "Política/Economía/Sociedad/Deportes/Cultura/Sucesos/Urbanismo"}"""
             
             completion = client.chat.completions.create(
                 model="qwen/qwen3.6-27b",
@@ -116,7 +144,7 @@ def analyze_sentiment(text):
             return data.get('sentiment', 'neutral'), data.get('score', 0.0), data.get('category', 'Sociedad')
         except Exception as e:
             if attempt == max_retries - 1:
-                print(f"Error clasificando con Groq: {e}. Usando el resultado heurístico original.")
+                print(f"Error clasificando con Groq: {e}. Usamos el resultado heurístico original.")
                 return heur_sentiment, heur_score, heur_category
             time.sleep(2)
 

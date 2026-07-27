@@ -2,7 +2,7 @@ import json
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from analyze_sentiment import rewrite_article, translate_article
+from analyze_sentiment import rewrite_article, translate_article, analyze_sentiment
 
 def parallel_rewrite_news(max_workers=3):
     news_file = 'data/news.json'
@@ -46,6 +46,10 @@ def parallel_rewrite_news(max_workers=3):
                     
                     item['title'] = new_title
                     item['body'] = new_body
+                    
+                    # Recalculamos el sentimiento sobre el texto limpio y reescrito
+                    _label, new_score, _cat = analyze_sentiment(new_title + " " + new_body)
+                    item['sentiment'] = round(new_score, 4)
                     
                     # Marcamos como reescrita solo si realmente cambió respecto al original
                     if new_title != title_orig or new_body != body_orig:
