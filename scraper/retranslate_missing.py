@@ -26,7 +26,8 @@ def retranslate_missing_news():
     for item in news:
         # Filtrar por fecha: ignorar noticias antiguas
         try:
-            item_date = datetime.fromisoformat(item.get('date', '').replace('Z', '+00:00'))
+            date_value = item.get('date') or ''
+            item_date = datetime.fromisoformat(date_value.replace('Z', '+00:00'))
             if item_date.tzinfo is None:
                 item_date = item_date.replace(tzinfo=timezone.utc)
             if item_date < cutoff and not item.get('is_summary'):
