@@ -181,16 +181,34 @@ def sanitize_media_references(text):
     return sanitized
 
 
-def rewrite_article(title, body):
-    """Reescribe un artículo completo, manejando el título y el cuerpo por fragmentos de párrafos."""
+def is_headline_rewritten(original_title, candidate_title):
+    """Comprueba que el titular cambie más allá de mayúsculas o puntuación."""
+    def normalize(title):
+        clean_title = re.sub(r'[^\w\s]', ' ', (title or '').casefold())
+        return re.sub(r'\s+', ' ', clean_title).strip()
+
+    original_normalized = normalize(original_title)
+    candidate_normalized = normalize(candidate_title)
+    return bool(candidate_normalized and candidate_normalized != original_normalized)
+
+
+def rewrite_headline(title):
+    """Reescribe y audita un titular frente a su versión original."""
     title_rw = _rewrite_chunk(title, "TÍTULO")
     if title_rw:
         title_rw = title_rw.split('\n')[0].strip()
+        print("      - Auditando titular con Mistral frente al original...", flush=True)
+        title_rw = verify_headline_with_mistral(
+            original_title=title,
+            rewritten_title=title_rw,
+        )
 
-    # Auditar y verificar el titular con Mistral frente al titular original (sin enviar el cuerpo para ahorrar tokens)
-    if title_rw:
-        print(f"      - Auditando titular con Mistral frente al original...", flush=True)
-        title_rw = verify_headline_with_mistral(original_title=title, rewritten_title=title_rw)
+    return title_rw or title
+
+
+def rewrite_article(title, body):
+    """Reescribe un artículo completo, manejando el título y el cuerpo por fragmentos de párrafos."""
+    title_rw = rewrite_headline(title)
     
     # Dividir el cuerpo en fragmentos que respeten los párrafos
     paragraphs = body.split('\n\n')
@@ -249,7 +267,9 @@ def _rewrite_chunk(text, type_label, context_title=None):
             if type_label == "TÍTULO":
                 style_instructions = """1. BREVEDAD CRÍTICA: El titular debe ser directo, impactante y de longitud similar al original (máximo 12-15 palabras).
                 2. SÍNTESIS: Capta la esencia de la noticia en una sola frase potente. No des rodeos.
-                3. CONJUGACIÓN CORRECTA: Usa siempre verbos conjugados correctamente en castellano de España (por ejemplo: 'se vuelca' y NUNCA 'se volca', 'vuelco' y NUNCA 'volcamiento')."""
+                3. REESCRITURA OBLIGATORIA: El resultado no puede ser igual al original ni limitarse a cambiar mayúsculas o puntuación. Cambia la construcción de la oración, el orden de sus elementos o utiliza sinónimos fieles al significado.
+                4. FIDELIDAD: Conserva exactamente los nombres, cifras, fechas, lugares y hechos. No añadas calificativos, causas, consecuencias ni datos que no estén en el original.
+                5. CONJUGACIÓN CORRECTA: Usa siempre verbos conjugados correctamente en castellano de España (por ejemplo: 'se vuelca' y NUNCA 'se volca', 'vuelco' y NUNCA 'volcamiento')."""
             else:
                 style_instructions = """1. REESTRUCTURA TOTAL: No te limites a cambiar palabras. Cambia el orden de las ideas y la construcción de las frases. Estilo narrativo propio.
                 2. FIDELIDAD ESTRICTA A LOS DATOS: NO ELIMINES NINGÚN DATO RELEVANTE Y NO INVENTES NADA. Si el texto original menciona proyectos específicos, nombres de calles, cifras, listas de medidas o promesas pendientes, DEBEN aparecer íntegramente en la reescritura. Está totalmente prohibido añadir datos, servicios o detalles ficticios.
@@ -304,6 +324,14 @@ def _rewrite_chunk(text, type_label, context_title=None):
             if rewritten:
                 rewritten = sanitize_media_references(rewritten)
                 rewritten = fix_grammar_errors(rewritten)
+
+            if type_label == "TÍTULO" and not is_headline_rewritten(text, rewritten):
+                print(
+                    f"      [RECHAZO TITULAR] El modelo devolvió el titular original en el intento {attempt + 1}",
+                    flush=True,
+                )
+                if attempt < min(max_attempts, 3) - 1:
+                    continue
 
             return rewritten
         except Exception as e:
@@ -383,10 +411,13 @@ REGLAS DE AUDITORÍA:
 1. FIDELIDAD TEMÁTICA STRICTA: El titular reescrito debe tratar EXACTAMENTE del mismo suceso, noticia o hecho que el titular original. Si el titular reescrito inventa datos, habla de un tema diferente o cambia el significado de la noticia, ES UN RECHAZO por alucinación. En ese caso, debes proponer una adaptación fiel del titular original.
 2. CORRECCIÓN GRAMATICAL: El titular debe ser gramaticalmente perfecto en castellano de España (ej: 'se vuelca' y NUNCA 'se volca', 'vuelco' y NUNCA 'volcamiento', 'se fuerza' y NUNCA 'se forza').
 3. SÍNTESIS: Mantén un tono directo y profesional (máximo 12-15 palabras).
+4. REESCRITURA REAL: El titular final no puede copiar literalmente el original ni cambiar únicamente mayúsculas o puntuación. Debe usar otra construcción, alterar el orden de sus elementos o emplear sinónimos fieles.
+5. CERO INVENCIONES: No añadas datos, nombres, cifras, fechas, lugares, causas, consecuencias, valoraciones ni calificativos ausentes en el titular original.
 
 Formato de respuesta JSON obligatorio:
 {
   "is_faithful": true/false,
+  "is_rewritten": true/false,
   "final_title": "El titular verificado, fiel y correcto"
 }"""
 
@@ -417,6 +448,14 @@ Formato de respuesta JSON obligatorio:
                 final_title = final_title[1:-1].strip()
 
             final_title = fix_grammar_errors(sanitize_media_references(final_title))
+
+            if not is_headline_rewritten(original_title, final_title):
+                print(
+                    "      [Mistral REINTENTO] El titular sigue siendo igual al original.",
+                    flush=True,
+                )
+                if attempt < max_attempts - 1:
+                    continue
 
             if not data.get("is_faithful", True):
                 print(f"      [Mistral ALERTA] Alucinación detectada en titular. Corregido a: '{final_title}'", flush=True)

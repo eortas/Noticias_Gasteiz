@@ -2,7 +2,13 @@ import json
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from analyze_sentiment import rewrite_article, translate_article, analyze_sentiment
+from analyze_sentiment import (
+    analyze_sentiment,
+    is_headline_rewritten,
+    rewrite_article,
+    rewrite_headline,
+    translate_article,
+)
 
 def parallel_rewrite_news(max_workers=3):
     news_file = 'data/news.json'
@@ -13,8 +19,18 @@ def parallel_rewrite_news(max_workers=3):
     with open(news_file, 'r', encoding='utf-8') as f:
         news = json.load(f)
 
-    # Filtrar las noticias que no han sido reescritas aún O no han sido traducidas al euskera aún
-    to_process = [item for item in news if not item.get('rewritten') or not item.get('translated_eu')]
+    # Incluimos también titulares que siguen siendo iguales al original.
+    to_process = []
+    for item in news:
+        original_title = item.get('original_title')
+        current_title = item.get('title', '')
+        title_needs_rewrite = bool(
+            original_title
+            and not is_headline_rewritten(original_title, current_title)
+        )
+
+        if not item.get('rewritten') or not item.get('translated_eu') or title_needs_rewrite:
+            to_process.append(item)
     
     if not to_process:
         print("Todas las noticias ya están reescritas y traducidas.")
@@ -60,6 +76,22 @@ def parallel_rewrite_news(max_workers=3):
                 else:
                     return False
             else:
+                # Si el cuerpo ya estaba reescrito, corregimos solo el titular idéntico.
+                if item.get('original_title') and not is_headline_rewritten(
+                    title_orig,
+                    item.get('title', ''),
+                ):
+                    new_title = rewrite_headline(title_orig)
+                    if not is_headline_rewritten(title_orig, new_title):
+                        print(f"El titular sigue sin reescribirse: {url}", flush=True)
+                        return False
+
+                    item['title'] = new_title
+                    _label, new_score, _cat = analyze_sentiment(
+                        new_title + " " + item.get('body', '')
+                    )
+                    item['sentiment'] = round(new_score, 4)
+
                 success = True # Ya estaba reescrita, procedemos con traducción
 
             current_title = item.get('title', '')
