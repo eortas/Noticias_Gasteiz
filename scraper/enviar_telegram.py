@@ -43,6 +43,13 @@ def truncate_body(body, max_allowed_len):
         truncated = truncated[:last_space]
     return truncated + "..."
 
+def get_news_sort_key(item):
+    """Devuelve una clave segura para ordenar noticias por fecha."""
+    date_value = item.get("date")
+    if not isinstance(date_value, str) or not date_value:
+        return (1, "")
+    return (0, date_value)
+
 def format_message(title, body, url, category, source):
     """Formatea la noticia en Markdown con un resumen muy corto para incentivar la visita a la web."""
     # Sanitizar campos individuales
@@ -164,7 +171,7 @@ def main():
         return
 
     # Ordenar cronológicamente (más antiguas primero)
-    candidates.sort(key=lambda x: x.get("date", ""))
+    candidates.sort(key=get_news_sort_key)
 
     # Enviar todas las noticias nuevas (sin límite)
     to_send = candidates
