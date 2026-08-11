@@ -31,3 +31,8 @@ __pycache__/
 
 browser_session/
 scratch/
+
+# Configuración local de Codex
+.agents/
+AGENTS.md
+RTK.md
