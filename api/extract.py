@@ -13,6 +13,19 @@ IMAGE_ATTRIBUTES = [
     'data-actualsrc', 'data-lazy-src', 'src'
 ]
 
+AUTHOR_PATTERNS = [
+    r'(^|[\W_])authors?([\W_]|$)',
+    r'(^|[\W_])autor(?:a|es|as)?([\W_]|$)',
+    r'(^|[\W_])byline([\W_]|$)',
+    r'(^|[\W_])firma([\W_]|$)',
+    r'(^|[\W_])perfil([\W_]|$)',
+    r'(^|[\W_])profile([\W_]|$)',
+    r'(^|[\W_])avatar([\W_]|$)',
+    r'(^|[\W_])journalists?([\W_]|$)',
+    r'(^|[\W_])redactor(?:a|es|as)?([\W_]|$)',
+    r'(^|[\W_])writer([\W_]|$)',
+]
+
 
 def get_image_url(tag):
     """Obtenemos la URL real aunque la web use carga diferida."""
@@ -29,6 +42,19 @@ def get_image_url(tag):
                 return candidates[-1]
 
     return None
+
+
+def is_author_image(img, image_url):
+    """Detectamos retratos incluidos en bloques de autor o firma."""
+    values = [image_url, img.get('alt', ''), img.get('title', '')]
+
+    for element in [img, *list(img.parents)[:4]]:
+        values.extend(element.get('class', []))
+        values.append(element.get('id', ''))
+        values.append(element.get('itemprop', ''))
+
+    image_data = ' '.join(str(value) for value in values if value).lower()
+    return any(re.search(pattern, image_data) for pattern in AUTHOR_PATTERNS)
 
 
 def extract_images(html, target_url):
@@ -68,9 +94,10 @@ def extract_images(html, target_url):
         width = str(img.get('width', '')).replace('px', '')
         height = str(img.get('height', '')).replace('px', '')
         small_image = width.isdigit() and height.isdigit() and int(width) < 100 and int(height) < 100
-        unwanted = any(word in absolute_url.lower() for word in ['logo', 'icon', 'avatar', 'pixel', 'tracking'])
+        unwanted = any(word in absolute_url.lower() for word in ['logo', 'icon', 'pixel', 'tracking'])
+        author_image = is_author_image(img, absolute_url)
 
-        if parsed_url.scheme not in ['http', 'https'] or small_image or unwanted or absolute_url in seen:
+        if parsed_url.scheme not in ['http', 'https'] or small_image or unwanted or author_image or absolute_url in seen:
             continue
 
         seen.add(absolute_url)

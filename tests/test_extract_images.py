@@ -26,3 +26,22 @@ def test_extract_images_uses_open_graph_as_fallback():
     images = extract_images(html, "https://example.com/article")
 
     assert images == [{"url": "https://example.com/cover.jpg", "alt": ""}]
+
+
+def test_extract_images_removes_journalist_portraits():
+    html = """
+    <html><body><article>
+        <div class="article-author-profile">
+            <img src="/journalists/ana.jpg" alt="Ana Pérez">
+        </div>
+        <figure class="article-media">
+            <img src="/news/report.jpg" alt="Imagen de la noticia">
+        </figure>
+    </article></body></html>
+    """
+
+    images = extract_images(html, "https://example.com/article")
+
+    assert images == [
+        {"url": "https://example.com/news/report.jpg", "alt": "Imagen de la noticia"}
+    ]
