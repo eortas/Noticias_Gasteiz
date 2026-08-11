@@ -3,6 +3,90 @@ import urllib.request
 import urllib.parse
 import json
 import re
+import html as html_module
+
+from bs4 import BeautifulSoup
+
+
+IMAGE_ATTRIBUTES = [
+    'data-src', 'data-original', 'data-full-url', 'data-url',
+    'data-actualsrc', 'data-lazy-src', 'src'
+]
+
+
+def get_image_url(tag):
+    """Obtenemos la URL real aunque la web use carga diferida."""
+    for attribute in IMAGE_ATTRIBUTES:
+        value = tag.get(attribute)
+        if value and not value.startswith('data:image'):
+            return value.strip()
+
+    for attribute in ['data-srcset', 'srcset']:
+        value = tag.get(attribute)
+        if value:
+            candidates = [item.strip().split()[0] for item in value.split(',') if item.strip()]
+            if candidates:
+                return candidates[-1]
+
+    return None
+
+
+def extract_images(html, target_url):
+    """Extraemos las imágenes del artículo y convertimos sus rutas en absolutas."""
+    soup = BeautifulSoup(html, 'html.parser')
+    article_node = (
+        soup.find('article')
+        or soup.find('main')
+        or soup.find('div', class_=lambda value: value and any(
+            word in ' '.join(value if isinstance(value, list) else [value]).lower()
+            for word in ['article', 'content', 'post', 'cuerpo', 'detail']
+        ))
+        or soup.body
+        or soup
+    )
+
+    images = []
+    seen = set()
+
+    for picture in article_node.find_all('picture'):
+        img = picture.find('img')
+        image_url = None
+        for source in picture.find_all('source'):
+            image_url = get_image_url(source)
+            if image_url:
+                break
+        if image_url and img:
+            img['data-reader-src'] = image_url
+
+    for img in article_node.find_all('img'):
+        image_url = img.get('data-reader-src') or get_image_url(img)
+        if not image_url:
+            continue
+
+        absolute_url = urllib.parse.urljoin(target_url, image_url)
+        parsed_url = urllib.parse.urlparse(absolute_url)
+        width = str(img.get('width', '')).replace('px', '')
+        height = str(img.get('height', '')).replace('px', '')
+        small_image = width.isdigit() and height.isdigit() and int(width) < 100 and int(height) < 100
+        unwanted = any(word in absolute_url.lower() for word in ['logo', 'icon', 'avatar', 'pixel', 'tracking'])
+
+        if parsed_url.scheme not in ['http', 'https'] or small_image or unwanted or absolute_url in seen:
+            continue
+
+        seen.add(absolute_url)
+        images.append({
+            'url': absolute_url,
+            'alt': img.get('alt', '').strip()
+        })
+
+    if not images:
+        meta_image = soup.find('meta', property='og:image')
+        if meta_image and meta_image.get('content'):
+            absolute_url = urllib.parse.urljoin(target_url, meta_image['content'])
+            if urllib.parse.urlparse(absolute_url).scheme in ['http', 'https']:
+                images.append({'url': absolute_url, 'alt': ''})
+
+    return images[:12]
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -53,6 +137,10 @@ class handler(BaseHTTPRequestHandler):
             title_match = re.search(r'<h1.*?>(.*?)</h1>', html, re.DOTALL)
             title = title_match.group(1) if title_match else "Noticia"
             title = re.sub('<.*?>', '', title).strip()
+            title = html_module.unescape(title)
+
+            # Extraemos imágenes del artículo, incluidas las de carga diferida.
+            images = extract_images(html, target_url)
 
             # Extraer Párrafos y Limpiar (Soporte Vocento: El Correo, Diario Vasco)
             paragraphs = []
@@ -120,7 +208,8 @@ class handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({
                 "title": title,
-                "paragraphs": final_paragraphs
+                "paragraphs": final_paragraphs,
+                "images": images
             }).encode('utf-8'))
 
         except Exception as e:
