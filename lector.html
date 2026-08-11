@@ -140,6 +140,24 @@
             margin-bottom: 35px;
         }
 
+        .article-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 650px;
+            object-fit: contain;
+            margin: 25px auto 35px;
+            border-radius: 14px;
+            background: #f1f5f9;
+        }
+
+        .image-caption {
+            margin: -25px 0 35px;
+            color: #64748b;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
         .loading {
             text-align: center;
             display: none;
@@ -277,9 +295,33 @@
                 if (data.error) throw new Error(data.error);
 
                 document.getElementById('title').innerText = data.title;
-                document.getElementById('body').innerHTML = data.paragraphs
-                    .map(text => `<div class="paragraph">${text}</div>`)
-                    .join('');
+                const body = document.getElementById('body');
+                body.replaceChildren();
+
+                (data.images || []).forEach(image => {
+                    const img = document.createElement('img');
+                    img.className = 'article-image';
+                    img.src = image.url;
+                    img.alt = image.alt || data.title;
+                    img.referrerPolicy = 'no-referrer';
+                    img.loading = 'lazy';
+                    img.onerror = () => img.remove();
+                    body.appendChild(img);
+
+                    if (image.alt) {
+                        const caption = document.createElement('div');
+                        caption.className = 'image-caption';
+                        caption.innerText = image.alt;
+                        body.appendChild(caption);
+                    }
+                });
+
+                data.paragraphs.forEach(text => {
+                    const paragraph = document.createElement('div');
+                    paragraph.className = 'paragraph';
+                    paragraph.innerText = text;
+                    body.appendChild(paragraph);
+                });
 
                 contentDiv.style.display = 'block';
                 window.scrollTo({ top: contentDiv.offsetTop - 50, behavior: 'smooth' });
