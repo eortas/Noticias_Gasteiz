@@ -11,146 +11,87 @@ from grammar_cleaner import fix_grammar_errors
 
 load_dotenv()
 
-# Diccionarios para análisis heurístico de sentimientos
-PALABRAS_POSITIVAS = {
-    'bueno', 'buena', 'buenos', 'buenas', 'mejor', 'mejores', 'excelente', 'excelentes', 'positivo', 'positiva', 
-    'éxito', 'éxitos', 'logro', 'logros', 'avanza', 'avanzan', 'mejora', 'mejoras', 
-    'beneficio', 'beneficios', 'alegría', 'feliz', 'felices', 'oportunidad', 'oportunidades', 'crecimiento', 
-    'esperanza', 'solución', 'soluciones', 'paz', 'seguro', 'segura', 'impulsa', 'impulsan', 'apoyo', 
-    'vanguardia', 'moderno', 'moderna', 'eficiente', 'gratis', 'estrena', 'estrenan', 'inaugura', 'inauguran', 
-    'lidera', 'brilla', 'talento', 'unión', 'solidario', 'solidaria', 'relevo', 'continuidad', 
-    'tradición', 'familia', 'futuro', 'crean', 'vuelve', 'vuelven', 'abre', 'abren',
-    'fiesta', 'fiestas', 'música', 'celebración', 'celebraciones', 'concierto', 'conciertos', 
-    'diversión', 'danza', 'baile', 'deporte', 'deportes', 'gastronomía', 'popular', 'populares',
-    'homenaje', 'premio', 'premios', 'galardón', 'galardones', 'triunfo', 'triunfos', 'victoria', 'victorias'
-}
-
-PALABRAS_NEGATIVAS = {
-    'malo', 'mala', 'malos', 'malas', 'peor', 'peores', 'negativo', 'negativa', 'fracaso', 'error', 'problema', 
-    'problemas', 'crisis', 'daño', 'daños', 'muerte', 'muertes', 'fallece', 'fallecen', 'fallecido', 'fallecida',
-    'accidente', 'accidentes', 'robo', 'robos', 'robar', 'robado', 'robada', 'robados', 'robadas', 'robarle', 'robarles',
-    'atraco', 'atracos', 'atracar', 'atracador', 'atracadores', 'hurto', 'hurtos', 'hurtar', 'sustraer', 'sustracción',
-    'detenido', 'detenidos', 'detenida', 'detenidas', 'agresión', 'agresiones', 'agredir', 'agresor', 'agresores',
-    'pelea', 'peleas', 'herido', 'herida', 'heridos', 'heridas', 'lesionado', 'lesionada', 'lesionados', 'lesionadas',
-    'lesión', 'lesiones', 'fractura', 'fracturas', 'paliza', 'palizas', 'golpe', 'golpes', 'golpear', 'golpeado', 'golpeada',
-    'asesinato', 'asesinados', 'matar', 'apuñalado', 'apuñalada', 'apuñalar', 'apuñalamiento', 'navajazo',
-    'denuncia', 'denuncias', 'corte', 'huelga', 'huelgas', 'protesta', 'protestas', 'incendio', 'incendios', 
-    'atropello', 'atropellos', 'crimen', 'crímenes', 'estafa', 'estafas', 'pérdida', 'pérdidas', 'caída', 'baja', 
-    'tensión', 'riesgo', 'riesgos', 'peligro', 'peligros', 'inseguro', 'inseguridad', 'sucio', 'abandono',
-    'cierre', 'cierran', 'despido', 'despidos', 'rechazo', 'rechazos', 'oposición', 'enfrentamiento', 'enfrentamientos',
-    'delito', 'delitos', 'delincuente', 'delincuencia', 'víctima', 'victima', 'víctimas', 'victimas', 'violencia', 'violento',
-    'bochorno', 'canícula', 'sequía', 'sequia', 'asfixiante', 'saturación', 'saturado', 'saturada', 'saturados', 'saturadas'
-}
-
-FRASES_NEGATIVAS = [
-    'ola de calor', 'olas de calor', 'calor extremo', 'golpe de calor', 'golpes de calor',
-    'alerta por calor', 'temperaturas extremas', 'calor asfixiante', 'calor sofocante',
-    'elevadas temperaturas', 'altas temperaturas', 'temperaturas elevadas', 'exceso de calor',
-    'calor intenso', 'intenso calor', 'el calor dispara', 'bochorno',
-    'alerta amarilla por calor', 'alerta naranja por calor', 'alerta roja por calor',
-    'intento de robo', 'intentan robarle', 'intento de hurto', 'robarle el móvil', 'robar el móvil',
-    'agresión física', 'brutal agresión', 'violencia callejera', 'rompen la nariz'
-]
-
-NEGACIONES = {'no', 'ni', 'nunca', 'tampoco', 'sin'}
-
 def clean_thinking_tags(text):
     """Elimina bloques <think>...</think> que genera Qwen en modo thinking."""
     if not text:
         return text
     return re.sub(r'<think>[\s\S]*?(?:</think>|$)', '', text).strip()
 
-def heuristic_fallback(text):
-    """Calcula el sentimiento mediante análisis heurístico de términos positivos, negativos, frases complejas y temas religiosos."""
+
+def normalize_sentiment_result(data):
+    """Valida la respuesta del LLM y mantiene la coherencia entre etiqueta y score."""
+    valid_categories = {
+        'Política', 'Economía', 'Sociedad', 'Deportes',
+        'Cultura', 'Sucesos', 'Urbanismo',
+    }
+    sentiment = str(data.get('sentiment', 'neutral')).lower()
+    if sentiment not in {'positiva', 'negativa', 'neutral'}:
+        sentiment = 'neutral'
+
+    try:
+        score = max(-1.0, min(1.0, float(data.get('score', 0.0))))
+    except (TypeError, ValueError):
+        score = 0.0
+
+    if sentiment == 'positiva':
+        score = max(0.05, abs(score))
+    elif sentiment == 'negativa':
+        score = min(-0.05, -abs(score))
+    else:
+        score = 0.0
+
+    category = data.get('category', 'Sociedad')
+    if category not in valid_categories:
+        category = 'Sociedad'
+
+    return sentiment, round(score, 4), category
+
+
+def analyze_sentiment(text, strict=False):
+    """Analiza el sentimiento y la categoría exclusivamente con el LLM."""
     if not text:
         return 'neutral', 0.0, 'Sociedad'
-    
-    text_lower = text.lower()
 
-    # Clasificamos noticias relacionadas con la religión como negativas (-0.8) según la regla establecida
-    if re.search(r'\b(iglesia|iglesias|cura|curas|obispo|obispos|religioso|religiosa|religiosos|religiosas|religión|convento|conventos|clarisa|clarisas|peregrinación|peregrinar|diócesis|semana santa|misa|misas|católico|católica|cofradía|vaticano|papa|procesión|culto)\b', text_lower):
-        return 'negativa', -0.8, 'Sociedad'
-    
-    pos_count = 0
-    neg_count = 0
-    
-    # Verificamos coincidencias en frases compuestas de fuerte impacto negativo (como robos o eventos climáticos)
-    for frase in FRASES_NEGATIVAS:
-        if frase in text_lower:
-            neg_count += 2
-
-    words = re.findall(r'\w+', text_lower)
-    for i, word in enumerate(words):
-        if word in PALABRAS_POSITIVAS:
-            if i > 0 and words[i-1] in NEGACIONES:
-                neg_count += 1
-            else:
-                pos_count += 1
-        elif word in PALABRAS_NEGATIVAS:
-            if i > 0 and words[i-1] in NEGACIONES:
-                pos_count += 1
-            else:
-                neg_count += 1
-
-    total = pos_count + neg_count
-    # Si la presencia de términos es muy escasa, dejamos que la IA tome la decisión
-    if total <= 1:
-        return 'neutral', 0.0, 'Sociedad'
-    
-    score = (pos_count - neg_count) / total
-    if score > 0.05:
-        return 'positiva', round(score, 4), 'Sociedad'
-    elif score < -0.05:
-        return 'negativa', round(score, 4), 'Sociedad'
-    else:
-        return 'neutral', round(score, 4), 'Sociedad'
-
-def analyze_sentiment(text):
-    """Analiza sentimiento y categoría. Primero pasa por el modelo heurístico y, si es neutral, pasa por la IA."""
-    # 1. Analizamos con la heurística primero
-    heur_sentiment, heur_score, heur_category = heuristic_fallback(text)
-    if heur_sentiment in ('positiva', 'negativa'):
-        return heur_sentiment, heur_score, heur_category
-        
-    # 2. Si el resultado es neutral, pasamos a consultar el modelo de IA
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            keys = [
-                os.environ.get("GROQ_REWRITE_2"), os.environ.get("GROQ_REWRITE_3"),
-                os.environ.get("GROQ_REWRITE_KEY"), os.environ.get("groq_KEY"), 
-                os.environ.get("GROQ_TRANSLATION_KEY"), os.environ.get("GROQ_POLISH_KEY"),
-                os.environ.get("GROQ_EUSKERA2"), os.environ.get("GROQ_POLISH2"),
-                os.environ.get("GROQ_API_KEY")
-            ]
-            keys.extend(get_extra_keys())
-            valid_keys = [k for k in keys if k]
-            if not valid_keys:
-                return heur_sentiment, heur_score, heur_category
+            mistral_keys = get_mistral_sentiment_keys()
+            if not mistral_keys:
+                if strict:
+                    raise RuntimeError('No hay claves MISTRAL_VALORACION configuradas')
+                return 'neutral', 0.0, 'Sociedad'
                 
-            api_key = get_next_key(valid_keys, "sentiment")
+            api_key = get_next_key(mistral_keys, "mistral_sentiment")
             
-            client = Groq(api_key=api_key)
-            system_prompt = """Eres un clasificador experto de sentimiento para noticias de Vitoria-Gasteiz y Álava.
+            client = Mistral(api_key=api_key)
+            system_prompt = """Eres un clasificador experto de noticias de Vitoria-Gasteiz y Álava.
 Responde ÚNICAMENTE en JSON: {"sentiment": "positiva/negativa/neutral", "score": -1.0 a 1.0, "category": "Política/Economía/Sociedad/Deportes/Cultura/Sucesos/Urbanismo"}
-- Noticias de celebraciones, fiestas, victorias deportivas o mejoras de servicios son POSITIVAS.
-- Noticias de delitos (robos, agresiones, atracos, palizas), accidentes o alertas meteorológicas (olas de calor, incendios) son NEGATIVAS.
-REGLA ESPECIAL: Cualquier noticia relacionada con temas religiosos (Iglesia, Curas, Obispos, Diócesis, Peregrinación, Convento, Religiosas, Clarisas, Misa, Semana Santa, Católico, Cofradía, etc.) debe ser clasificada siempre como "negativa" con un score de -0.8."""
+
+Valora el hecho principal y sus consecuencias, no palabras aisladas ni el tono del medio. Dos textos sobre el mismo hecho deben recibir una valoración equivalente.
+- POSITIVA: el hecho aporta un beneficio claro, una mejora, una celebración o un logro.
+- NEGATIVA: el hecho causa daño, riesgo, conflicto, pérdida, delito, accidente o deterioro.
+- NEUTRAL: información descriptiva, anuncios o hechos sin un efecto claramente favorable o perjudicial.
+
+REGLA EDITORIAL RELIGIOSA:
+- Clasifica como NEGATIVA con score -0.8 las noticias cuyo asunto principal sea la Iglesia como institución, el clero, curas, obispos, la diócesis, doctrina religiosa, congregaciones o conflictos internos religiosos.
+- EXCEPCIÓN: no apliques esa penalización cuando la referencia religiosa sea solo el contexto de fiestas patronales o celebraciones en honor a santos, conciertos, exposiciones, visitas culturales, patrimonio, turismo o actos sociales, vecinales, benéficos o culturales celebrados en una iglesia o edificio religioso. En esos casos valora normalmente el hecho principal.
+- No interpretes apellidos como Iglesias ni palabras parecidas a términos religiosos como una referencia a la religión."""
             
-            completion = client.chat.completions.create(
-                model="qwen/qwen3.6-27b",
-                messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text[:1000]}],
-                temperature=0.1,
+            completion = client.chat.complete(
+                model="mistral-small-latest",
+                messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text[:4000]}],
+                temperature=0.0,
                 response_format={"type": "json_object"},
-                extra_body={"reasoning_effort": "none"}
             )
             raw_response = clean_thinking_tags(completion.choices[0].message.content)
             data = json.loads(raw_response)
-            return data.get('sentiment', 'neutral'), data.get('score', 0.0), data.get('category', 'Sociedad')
+            return normalize_sentiment_result(data)
         except Exception as e:
             if attempt == max_retries - 1:
-                print(f"Error clasificando con Groq: {e}. Usamos el resultado heurístico original.")
-                return heur_sentiment, heur_score, heur_category
+                if strict:
+                    raise RuntimeError(f'Error clasificando con Mistral: {e}') from e
+                print(f"Error clasificando con Mistral: {e}. Dejamos la noticia como neutral.")
+                return 'neutral', 0.0, 'Sociedad'
             time.sleep(2)
 
 
@@ -378,6 +319,16 @@ def get_extra_keys():
         if val and val not in extra_keys:
             extra_keys.append(val)
     return extra_keys
+
+
+def get_mistral_sentiment_keys():
+    """Obtiene las claves dedicadas a la valoración y elimina duplicados."""
+    keys = []
+    for var in ["MISTRAL_VALORACION", "MISTRAL_VALORACION2"]:
+        value = os.environ.get(var)
+        if value and value not in keys:
+            keys.append(value)
+    return keys
 
 
 def get_mistral_keys():

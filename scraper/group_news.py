@@ -5,12 +5,54 @@ import random
 import re
 import urllib.parse
 from collections import defaultdict
+from datetime import datetime, timezone
 from groq import Groq
 from dotenv import load_dotenv
 from key_rotator import get_next_key
+from analyze_sentiment import analyze_sentiment
 
 # Cargar variables de entorno
 load_dotenv()
+
+
+def harmonize_group_sentiments(items):
+    """Valora una sola vez cada hecho agrupado y comparte el score entre sus fuentes."""
+    groups = defaultdict(list)
+    for item in items:
+        if item.get('group_id'):
+            groups[item['group_id']].append(item)
+
+    for group_id, group in groups.items():
+        if len(group) < 2:
+            continue
+        if all(
+            item.get('sentiment_group_verified')
+            and item.get('sentiment_model') == 'mistral-small-latest'
+            for item in group
+        ):
+            continue
+
+        parts = []
+        for item in group:
+            title = item.get('title', '')
+            body = item.get('body', '')[:1500]
+            parts.append(f'TITULAR: {title}\nTEXTO: {body}')
+        text = '\n\nOTRA FUENTE DEL MISMO HECHO:\n\n'.join(parts)
+
+        try:
+            sentiment, score, _category = analyze_sentiment(text, strict=True)
+        except Exception as error:
+            print(f'    [Mistral] No se pudo unificar {group_id}: {error}')
+            continue
+
+        updated_at = datetime.now(timezone.utc).isoformat()
+        for item in group:
+            item['sentiment'] = score
+            item['sentiment_label'] = sentiment
+            item['sentiment_model'] = 'mistral-small-latest'
+            item['sentiment_updated_at'] = updated_at
+            item['sentiment_group_verified'] = True
+        print(f'    [Mistral] Sentimiento unificado para {group_id}: {score:+.2f}')
 
 def clean_thinking_tags(text):
     """Elimina bloques <think>...</think> que genera Qwen en modo thinking."""
@@ -408,6 +450,9 @@ def group_news():
     # Reensamblar en el orden original de las noticias
     ordered_ids = [item['id'] for item in regular_items]
     final_regular = [updated_items_map[iid] for iid in ordered_ids]
+
+    # Igualamos la valoración de las fuentes que cuentan el mismo hecho.
+    harmonize_group_sentiments(final_regular)
     
     # Unir con resúmenes del día
     final_news = summary_items + final_regular

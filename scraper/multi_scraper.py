@@ -10,15 +10,14 @@ import cloudscraper
 import requests
 from bs4 import BeautifulSoup
 
-# Importar el analizador de sentimiento español basado en Groq/Qwen
+# Importamos el analizador de sentimiento basado en Mistral
 try:
-    from scraper.analyze_sentiment import analyze_sentiment as groq_analyze_sentiment, heuristic_fallback
+    from scraper.analyze_sentiment import analyze_sentiment as llm_analyze_sentiment
 except ImportError:
     try:
-        from analyze_sentiment import analyze_sentiment as groq_analyze_sentiment, heuristic_fallback
+        from analyze_sentiment import analyze_sentiment as llm_analyze_sentiment
     except ImportError:
-        groq_analyze_sentiment = None
-        heuristic_fallback = None
+        llm_analyze_sentiment = None
 
 class MultiScraper:
     def __init__(self):
@@ -1274,45 +1273,14 @@ class MultiScraper:
 
         return "\n\n".join(clean_p)
 
-    # Contador de llamadas para rotar entre las dos keys de sentimiento
-    _sentiment_call_count = 0
-
     def _analyze_sentiment(self, text):
-        """Analiza sentimiento rotando entre todas las llaves de Groq disponibles.
-        Fallback a heurística española si Groq no está disponible."""
-        sentiment_keys = [
-            os.environ.get("GROQ_REWRITE_2"), os.environ.get("GROQ_REWRITE_3"),
-            os.environ.get("GROQ_REWRITE_KEY"), os.environ.get("groq_KEY"), 
-            os.environ.get("GROQ_TRANSLATION_KEY"), os.environ.get("GROQ_POLISH_KEY"),
-            os.environ.get("GROQ_EUSKERA2"), os.environ.get("GROQ_POLISH2"),
-            os.environ.get("GROQ_API_KEY")
-        ]
-        valid_keys = [k for k in sentiment_keys if k]
-
-        if groq_analyze_sentiment and valid_keys:
-            # Rotar por número de llamada para distribuir carga
-            api_key = valid_keys[MultiScraper._sentiment_call_count % len(valid_keys)]
-            MultiScraper._sentiment_call_count += 1
+        """Analiza el sentimiento con el LLM y devuelve neutral si no está disponible."""
+        if llm_analyze_sentiment:
             try:
-                import os as _os
-                _orig = _os.environ.get("GROQ_API_KEY")
-                _os.environ["GROQ_API_KEY"] = api_key
-                _sentiment_label, score, _category = groq_analyze_sentiment(text[:1000])
-                if _orig is not None:
-                    _os.environ["GROQ_API_KEY"] = _orig
-                else:
-                    _os.environ.pop("GROQ_API_KEY", None)
+                _sentiment_label, score, _category = llm_analyze_sentiment(text[:1000])
                 return round(score, 4)
             except Exception as e:
-                print(f"  Groq sentiment falló ({api_key[:8]}...): {e}, usando heurística")
-
-        # Fallback heurístico español
-        if heuristic_fallback:
-            try:
-                _label, score, _cat = heuristic_fallback(text)
-                return round(score, 4)
-            except:
-                pass
+                print(f"  Mistral sentiment falló: {e}. Dejamos la noticia como neutral")
         return 0
 
     def _parse_date(self, date_str):
