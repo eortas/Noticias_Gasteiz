@@ -41,9 +41,9 @@ graph TD
 - Divide inteligentemente grupos mixtos erróneos (por ejemplo, separando detenciones ocurridas por delitos y personas distintas en diferentes barrios).
 - Añade a los artículos validados un `group_id` único y marca con `grouped_verified: true` para cachear la decisión y evitar llamadas repetidas al LLM en futuros runs del pipeline.
 
-### 5. Análisis de Sentimiento de Doble Capa ([analyze_sentiment.py](file:///c:/Users/ortas/OneDrive/Documentos/Noticias_Gasteiz/scraper/analyze_sentiment.py))
-- **Capa Heurística**: Evalúa el texto mediante diccionarios locales de términos positivos y negativos en español. Aplica reglas especiales inmediatas (por ejemplo, clasifica automáticamente como negativas noticias de sucesos violentos, accidentes o conflictos políticos concretos).
-- **Capa de IA (Groq/Qwen)**: Si el resultado de la primera capa es neutral o indefinido, consulta un modelo de lenguaje para una evaluación de sentimiento precisa (`positiva`, `negativa`, `neutral`), puntuación cuantitativa y asignación de categoría (Política, Economía, Sociedad, Deportes, Cultura, etc.).
+### 5. Análisis de Sentimiento con IA ([analyze_sentiment.py](file:///c:/Users/ortas/OneDrive/Documentos/Noticias_Gasteiz/scraper/analyze_sentiment.py))
+- **Mistral**: Evalúa directamente el hecho principal de cada noticia y devuelve una valoración (`positiva`, `negativa`, `neutral`), una puntuación cuantitativa y una categoría (Política, Economía, Sociedad, Deportes, Cultura, etc.). Las claves `MISTRAL_VALORACION` y `MISTRAL_VALORACION2` se rotan entre llamadas. No se usan diccionarios de palabras positivas o negativas.
+- **Regla editorial religiosa**: Los asuntos centrados en la Iglesia, el clero o la doctrina se valoran como negativos. Las fiestas en honor a santos y los actos culturales, sociales o benéficos celebrados en templos se valoran normalmente según su hecho principal.
 
 ### 6. Resumen Diario Inteligente ([generate_summary.py](file:///c:/Users/ortas/OneDrive/Documentos/Noticias_Gasteiz/scraper/generate_summary.py))
 - Genera de forma incremental o desde cero un boletín editorial estructurado con las noticias del día sobre Álava y Deportes.

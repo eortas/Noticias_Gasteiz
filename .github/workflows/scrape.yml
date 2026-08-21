@@ -65,6 +65,8 @@ jobs:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
           MISTRAL_KEY: ${{ secrets.MISTRAL_KEY }}
           MISTRAL_TITULARES: ${{ secrets.MISTRAL_TITULARES }}
+          MISTRAL_VALORACION: ${{ secrets.MISTRAL_VALORACION }}
+          MISTRAL_VALORACION2: ${{ secrets.MISTRAL_VALORACION2 }}
           MISTRAL1: ${{ secrets.MISTRAL1 }}
           MISTRAL2: ${{ secrets.MISTRAL2 }}
           MISTRAL3: ${{ secrets.MISTRAL3 }}
