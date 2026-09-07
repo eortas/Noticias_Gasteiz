@@ -67,6 +67,9 @@ jobs:
           MISTRAL_TITULARES: ${{ secrets.MISTRAL_TITULARES }}
           MISTRAL_VALORACION: ${{ secrets.MISTRAL_VALORACION }}
           MISTRAL_VALORACION2: ${{ secrets.MISTRAL_VALORACION2 }}
+          GROQ_VALORACION1: ${{ secrets.GROQ_VALORACION1 }}
+          GROQ_VALORACION2: ${{ secrets.GROQ_VALORACION2 }}
+          GROQ_TITULARES: ${{ secrets.GROQ_TITULARES }}
           MISTRAL1: ${{ secrets.MISTRAL1 }}
           MISTRAL2: ${{ secrets.MISTRAL2 }}
           MISTRAL3: ${{ secrets.MISTRAL3 }}

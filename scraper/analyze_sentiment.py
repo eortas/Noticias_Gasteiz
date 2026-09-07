@@ -51,23 +51,11 @@ def normalize_sentiment_result(data):
 
 
 def analyze_sentiment(text, strict=False):
-    """Analiza el sentimiento y la categoría exclusivamente con el LLM."""
+    """Analiza el sentimiento y la categoría. Usa Mistral primero; si falla, Groq/Qwen como fallback."""
     if not text:
         return 'neutral', 0.0, 'Sociedad'
 
-    max_retries = 3
-    for attempt in range(max_retries):
-        try:
-            mistral_keys = get_mistral_sentiment_keys()
-            if not mistral_keys:
-                if strict:
-                    raise RuntimeError('No hay claves MISTRAL_VALORACION configuradas')
-                return 'neutral', 0.0, 'Sociedad'
-                
-            api_key = get_next_key(mistral_keys, "mistral_sentiment")
-            
-            client = Mistral(api_key=api_key)
-            system_prompt = """Eres un clasificador experto de noticias de Vitoria-Gasteiz y Álava.
+    system_prompt = """Eres un clasificador experto de noticias de Vitoria-Gasteiz y Álava.
 Responde ÚNICAMENTE en JSON: {"sentiment": "positiva/negativa/neutral", "score": -1.0 a 1.0, "category": "Política/Economía/Sociedad/Deportes/Cultura/Sucesos/Urbanismo"}
 
 Valora el hecho principal y sus consecuencias, no palabras aisladas ni el tono del medio. Dos textos sobre el mismo hecho deben recibir una valoración equivalente.
@@ -79,23 +67,56 @@ REGLA EDITORIAL RELIGIOSA:
 - Clasifica como NEGATIVA con score -0.8 las noticias cuyo asunto principal sea la Iglesia como institución, el clero, curas, obispos, la diócesis, doctrina religiosa, congregaciones o conflictos internos religiosos.
 - EXCEPCIÓN: no apliques esa penalización cuando la referencia religiosa sea solo el contexto de fiestas patronales o celebraciones en honor a santos, conciertos, exposiciones, visitas culturales, patrimonio, turismo o actos sociales, vecinales, benéficos o culturales celebrados en una iglesia o edificio religioso. En esos casos valora normalmente el hecho principal.
 - No interpretes apellidos como Iglesias ni palabras parecidas a términos religiosos como una referencia a la religión."""
-            
-            completion = client.chat.complete(
-                model=MISTRAL_MODEL,
-                messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text[:4000]}],
-                temperature=0.0,
-                response_format={"type": "json_object"},
-            )
-            raw_response = clean_thinking_tags(completion.choices[0].message.content)
-            data = json.loads(raw_response)
-            return normalize_sentiment_result(data)
-        except Exception as e:
-            if attempt == max_retries - 1:
-                if strict:
-                    raise RuntimeError(f'Error clasificando con Mistral: {e}') from e
-                print(f"Error clasificando con Mistral: {e}. Dejamos la noticia como neutral.")
-                return 'neutral', 0.0, 'Sociedad'
-            time.sleep(2)
+
+    # Intentamos primero con Mistral
+    mistral_keys = get_mistral_sentiment_keys()
+    if mistral_keys:
+        for attempt in range(3):
+            try:
+                api_key = get_next_key(mistral_keys, "mistral_sentiment")
+                client = Mistral(api_key=api_key)
+                completion = client.chat.complete(
+                    model=MISTRAL_MODEL,
+                    messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text[:4000]}],
+                    temperature=0.0,
+                    response_format={"type": "json_object"},
+                )
+                raw_response = clean_thinking_tags(completion.choices[0].message.content)
+                data = json.loads(raw_response)
+                return normalize_sentiment_result(data)
+            except Exception as e:
+                if attempt == 2:
+                    print(f"[Mistral FAIL valoración]: {e}. Probando fallback con Groq...", flush=True)
+                else:
+                    time.sleep(2)
+
+    # Fallback: Groq con Qwen3.8-27b
+    groq_keys = get_groq_valoracion_keys()
+    if groq_keys:
+        for attempt in range(max(3, len(groq_keys))):
+            try:
+                api_key = get_next_key(groq_keys, "groq_valoracion")
+                client = Groq(api_key=api_key)
+                completion = client.chat.completions.create(
+                    model="qwen/qwen3.8-27b",
+                    messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text[:4000]}],
+                    temperature=0.0,
+                    max_tokens=200,
+                    extra_body={"reasoning_effort": "none"},
+                )
+                raw_response = clean_thinking_tags(completion.choices[0].message.content)
+                data = json.loads(raw_response)
+                return normalize_sentiment_result(data)
+            except Exception as e:
+                if attempt == max(3, len(groq_keys)) - 1:
+                    print(f"[Groq FAIL valoración]: {e}.", flush=True)
+                else:
+                    time.sleep(2)
+
+    if strict:
+        raise RuntimeError('Error clasificando: Mistral y Groq fallaron')
+    print("Error clasificando con Mistral y Groq. Dejamos la noticia como neutral.", flush=True)
+    return 'neutral', 0.0, 'Sociedad'
 
 
 def sanitize_media_references(text):
@@ -334,6 +355,16 @@ def get_mistral_sentiment_keys():
     return keys
 
 
+def get_groq_valoracion_keys():
+    """Obtiene las claves de Groq como fallback para la valoración de sentimiento."""
+    keys = []
+    for var in ["GROQ_VALORACION1", "GROQ_VALORACION2"]:
+        val = os.environ.get(var)
+        if val and val not in keys:
+            keys.append(val)
+    return keys
+
+
 def get_mistral_keys():
     """Obtiene todas las claves de Mistral (MISTRAL_API_KEY, MISTRAL_KEY, MISTRAL1 a MISTRAL10) para rotación."""
     keys = []
@@ -345,6 +376,15 @@ def get_mistral_keys():
         val = os.environ.get(f"MISTRAL{i}") or os.environ.get(f"mistral{i}")
         if val and val not in keys:
             keys.append(val)
+    return keys
+
+
+def get_groq_titulares_keys():
+    """Obtiene las claves de Groq como fallback para la auditoría de titulares."""
+    keys = []
+    val = os.environ.get("GROQ_TITULARES")
+    if val:
+        keys.append(val)
     return keys
 
 
@@ -430,6 +470,44 @@ Formato de respuesta JSON obligatorio:
                 time.sleep(1)
             else:
                 print(f"      [Mistral FAIL Auditoría Titular]: {e}", flush=True)
+
+    # Fallback: Groq con Qwen3.8-27b si Mistral falló completamente
+    groq_keys = get_groq_titulares_keys()
+    if groq_keys:
+        groq_max = max(2, len(groq_keys))
+        for attempt in range(groq_max):
+            try:
+                api_key = get_next_key(groq_keys, "groq_titulares")
+                client = Groq(api_key=api_key)
+                response = client.chat.completions.create(
+                    model="qwen/qwen3.8-27b",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_content}
+                    ],
+                    temperature=0.1,
+                    max_tokens=200,
+                    extra_body={"reasoning_effort": "none"},
+                )
+                raw_text = clean_thinking_tags(response.choices[0].message.content)
+                data = json.loads(raw_text)
+
+                final_title = data.get("final_title") or (rewritten_title if data.get("is_faithful") else original_title)
+                final_title = final_title.strip()
+                if final_title.startswith('"') and final_title.endswith('"'):
+                    final_title = final_title[1:-1].strip()
+
+                final_title = fix_grammar_errors(sanitize_media_references(final_title))
+
+                if not is_headline_rewritten(original_title, final_title):
+                    if attempt < groq_max - 1:
+                        continue
+
+                print(f"      [Groq OK] Titular auditado con Qwen fallback.", flush=True)
+                return final_title
+
+            except Exception as e:
+                print(f"      [Groq FAIL Auditoría Titular]: {e}", flush=True)
 
     return fix_grammar_errors(sanitize_media_references(rewritten_title))
 

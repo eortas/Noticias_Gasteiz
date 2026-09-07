@@ -95,6 +95,44 @@ class SentimentTests(unittest.TestCase):
 
         self.assertEqual(keys, ['first-key', 'second-key'])
 
+    def test_groq_fallback_when_mistral_fails(self):
+        """Si Mistral falla en todos los intentos, se usa Groq/Qwen como fallback."""
+        class FailingChat:
+            def complete(self, **kwargs):
+                raise RuntimeError('Mistral overloaded')
+
+        class FailingMistral:
+            def __init__(self, api_key):
+                self.chat = FailingChat()
+
+        class FakeCompletions:
+            def create(self, **kwargs):
+                result = {'sentiment': 'negativa', 'score': -0.6, 'category': 'Sucesos'}
+                message = SimpleNamespace(content=json.dumps(result))
+                return SimpleNamespace(choices=[SimpleNamespace(message=message)])
+
+        class FakeGroq:
+            def __init__(self, api_key):
+                self.chat = SimpleNamespace(completions=FakeCompletions())
+
+        env = {'MISTRAL_VALORACION': 'mk', 'GROQ_VALORACION1': 'gk'}
+        with patch.dict(os.environ, env, clear=True):
+            with patch.object(analyze_sentiment, 'Mistral', FailingMistral):
+                with patch.object(analyze_sentiment, 'Groq', FakeGroq):
+                    with patch.object(analyze_sentiment, 'get_next_key', side_effect=lambda keys, pool: keys[0]):
+                        with patch.object(analyze_sentiment, 'time') as mock_time:
+                            mock_time.sleep = lambda s: None
+                            result = analyze_sentiment.analyze_sentiment('Un robo con heridos graves')
+
+        self.assertEqual(result, ('negativa', -0.6, 'Sucesos'))
+
+    def test_groq_valoracion_keys(self):
+        env = {'GROQ_VALORACION1': 'key1', 'GROQ_VALORACION2': 'key2'}
+        with patch.dict(os.environ, env, clear=True):
+            keys = analyze_sentiment.get_groq_valoracion_keys()
+
+        self.assertEqual(keys, ['key1', 'key2'])
+
 
 if __name__ == '__main__':
     unittest.main()
