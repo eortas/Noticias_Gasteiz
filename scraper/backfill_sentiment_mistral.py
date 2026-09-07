@@ -65,8 +65,11 @@ def analyze_unit(items):
 
 
 def run_backfill(days=5, workers=2):
-    if len(get_mistral_sentiment_keys()) < 2:
-        raise RuntimeError('Se necesitan MISTRAL_VALORACION y MISTRAL_VALORACION2')
+    from analyze_sentiment import get_groq_valoracion_keys
+    mistral_keys = get_mistral_sentiment_keys()
+    groq_keys = get_groq_valoracion_keys()
+    if not mistral_keys and not groq_keys:
+        raise RuntimeError('Se necesita al menos MISTRAL_VALORACION o GROQ_VALORACION1')
 
     with open(NEWS_FILE, 'r', encoding='utf-8') as file:
         news = json.load(file)
