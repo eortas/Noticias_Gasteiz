@@ -27,7 +27,7 @@ def harmonize_group_sentiments(items):
             continue
         if all(
             item.get('sentiment_group_verified')
-            and item.get('sentiment_model') == 'mistral-small-latest'
+            and item.get('sentiment_model') in {'open-mistral-nemo', 'mistral-small-latest'}
             for item in group
         ):
             continue
@@ -49,7 +49,7 @@ def harmonize_group_sentiments(items):
         for item in group:
             item['sentiment'] = score
             item['sentiment_label'] = sentiment
-            item['sentiment_model'] = 'mistral-small-latest'
+            item['sentiment_model'] = os.getenv('MISTRAL_MODEL', 'open-mistral-nemo')
             item['sentiment_updated_at'] = updated_at
             item['sentiment_group_verified'] = True
         print(f'    [Mistral] Sentimiento unificado para {group_id}: {score:+.2f}')

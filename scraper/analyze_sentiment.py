@@ -11,6 +11,9 @@ from grammar_cleaner import fix_grammar_errors
 
 load_dotenv()
 
+# Configuramos el modelo de Mistral para valoración y auditorías
+MISTRAL_MODEL = os.getenv("MISTRAL_MODEL", "open-mistral-nemo")
+
 def clean_thinking_tags(text):
     """Elimina bloques <think>...</think> que genera Qwen en modo thinking."""
     if not text:
@@ -78,7 +81,7 @@ REGLA EDITORIAL RELIGIOSA:
 - No interpretes apellidos como Iglesias ni palabras parecidas a términos religiosos como una referencia a la religión."""
             
             completion = client.chat.complete(
-                model="mistral-small-latest",
+                model=MISTRAL_MODEL,
                 messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text[:4000]}],
                 temperature=0.0,
                 response_format={"type": "json_object"},
@@ -381,7 +384,7 @@ Formato de respuesta JSON obligatorio:
             client = Mistral(api_key=api_key)
 
             response = client.chat.complete(
-                model="mistral-small-latest",
+                model=MISTRAL_MODEL,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_content}
@@ -477,7 +480,7 @@ Rules:
             client = Mistral(api_key=api_key)
             
             response = client.chat.complete(
-                model="mistral-small-latest",
+                model=MISTRAL_MODEL,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_content}

@@ -8,7 +8,7 @@ from analyze_sentiment import analyze_sentiment, get_mistral_sentiment_keys
 
 
 NEWS_FILE = 'data/news.json'
-MODEL_NAME = 'mistral-small-latest'
+MODEL_NAME = os.getenv("MISTRAL_MODEL", "open-mistral-nemo")
 
 
 def parse_date(value):
