@@ -71,11 +71,11 @@ def update_mood_history():
             if not scores:
                 continue
 
-            # Si el día es pasado y ya se guardó en el historial, mantenemos su valor persistido
-            if day < today_str and day in history_dict[sec]:
+            # Si el día es pasado y ya se guardó con una puntuación real (!= 0.0), mantenemos su valor persistido
+            if day < today_str and day in history_dict[sec] and history_dict[sec][day] != 0.0:
                 continue
 
-            # Calculamos o actualizamos la nota media solo para el día de hoy (o días no registrados)
+            # Calculamos o actualizamos la nota media para el día de hoy, días no registrados o días con 0.0 previo
             avg_score = sum(scores) / len(scores)
             history_dict[sec][day] = round(avg_score, 2)
 
