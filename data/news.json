@@ -180,7 +180,8 @@
     "sentiment_label": "positiva",
     "sentiment_model": "open-mistral-nemo",
     "sentiment_updated_at": "2026-09-14T06:06:18.858952+00:00",
-    "sentiment_group_verified": true
+    "sentiment_group_verified": true,
+    "grouped_verified": true
   },
   {
     "id": "3bf6808b75",
