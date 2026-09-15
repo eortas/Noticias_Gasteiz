@@ -266,7 +266,7 @@ def _rewrite_chunk(text, type_label, context_title=None):
                 user_content = f"NOTICIA: {context_title}\n\nTEXTO A REESCRIBIR:\n{text}"
 
             completion = client.chat.completions.create(
-                model="qwen/qwen3.6-27b",
+                model="qwen/qwen3.8-27b",
                 messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_content}],
                 temperature=0.6,
                 max_tokens=4000,
@@ -672,7 +672,7 @@ def replace_vitoria_basque(text):
 def translate_text(text, target_lang, type_label, context_title=None):
     """Traduce un fragmento de texto al euskera ('eu'), polaco ('pl'), francés ('fr') o inglés ('en') usando las llaves dedicadas."""
     max_retries = 3
-    model_name = "qwen/qwen3.6-27b"
+    model_name = "qwen/qwen3.8-27b"
     
     if target_lang == "eu":
         lang_name = "Basque (euskara batua)"
