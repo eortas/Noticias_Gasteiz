@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Lector GasteizLive",
+  "version": "1.0",
+  "description": "Abre la pestaña actual en el lector",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "icons": {
+    "128": "images/icon-light-128.png"
+  },
+  "action": {
+    "default_title": "Desbloquear noticia completa",
+    "theme_icons": [
+      {
+        "light": "images/icon-light-128.png",
+        "dark": "images/icon-dark-128.png",
+        "size": 128
+      }
+    ]
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
