@@ -183,7 +183,7 @@ def rewrite_article(title, body):
     
     for p in paragraphs:
         if not p.strip(): continue
-        if current_length + len(p) > 2500 and current_chunk:
+        if current_length + len(p) > 3500 and current_chunk:
             chunks.append("\n\n".join(current_chunk))
             current_chunk = [p]
             current_length = len(p)
@@ -193,6 +193,12 @@ def rewrite_article(title, body):
             
     if current_chunk:
         chunks.append("\n\n".join(current_chunk))
+
+    # Limitamos a un máximo de fragmentos para no saturar las APIs ni exceder tiempos
+    max_chunks = 4
+    if len(chunks) > max_chunks:
+        print(f"      [AVISO] Artículo excesivamente largo ({len(chunks)} fragmentos). Limitamos a los primeros {max_chunks} fragmentos.", flush=True)
+        chunks = chunks[:max_chunks]
 
     rewritten_chunks = []
     for i, chunk in enumerate(chunks):
@@ -798,7 +804,7 @@ def translate_article(title, body, target_lang="eu"):
     
     for p in paragraphs:
         if not p.strip(): continue
-        if current_length + len(p) > 2500 and current_chunk:
+        if current_length + len(p) > 3500 and current_chunk:
             chunks.append("\n\n".join(current_chunk))
             current_chunk = [p]
             current_length = len(p)
@@ -808,6 +814,12 @@ def translate_article(title, body, target_lang="eu"):
             
     if current_chunk:
         chunks.append("\n\n".join(current_chunk))
+
+    # Limitamos a un máximo de fragmentos para no saturar las APIs ni exceder tiempos
+    max_chunks = 4
+    if len(chunks) > max_chunks:
+        print(f"      [AVISO] Artículo excesivamente largo ({len(chunks)} fragmentos). Limitamos a los primeros {max_chunks} fragmentos.", flush=True)
+        chunks = chunks[:max_chunks]
 
     translated_chunks = []
     for i, chunk in enumerate(chunks):

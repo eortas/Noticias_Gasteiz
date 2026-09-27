@@ -1271,6 +1271,11 @@ class MultiScraper:
         if cut_index < len(clean_p):
             clean_p = clean_p[:cut_index]
 
+        # Limitamos el número de párrafos a un máximo razonable para evitar guías masivas
+        max_paragraphs = 20
+        if len(clean_p) > max_paragraphs:
+            clean_p = clean_p[:max_paragraphs]
+
         return "\n\n".join(clean_p)
 
     def _analyze_sentiment(self, text):
