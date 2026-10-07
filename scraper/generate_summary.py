@@ -448,65 +448,27 @@ def add_summary_to_news(news_data, summary_data):
         'summarized_news_ids': summary_data.get('summarized_news_ids', [])
     }
     
-    # Traducir el resumen al euskera de forma inmediata
+    # Traducimos concurrentemente el resumen a los 4 idiomas aprovechando los pools de claves
     try:
-        from analyze_sentiment import translate_article
-        print("Traduciendo resumen diario al euskera...", flush=True)
-        title_eu, body_eu = translate_article(summary_data['title'], summary_data['body'], target_lang="eu")
-        if title_eu and body_eu:
-            summary_entry['title_eu'] = title_eu
-            summary_entry['body_eu'] = body_eu
-            summary_entry['translated_eu'] = True
-            print("Resumen diario traducido al euskera con éxito.", flush=True)
-        else:
-            print("No se pudo obtener traducción del resumen al euskera.", flush=True)
+        from analyze_sentiment import translate_article_to_languages
+        print("Traduciendo resumen diario concurrentemente a euskera, polaco, francés e inglés...", flush=True)
+        summary_translations = translate_article_to_languages(
+            summary_data['title'],
+            summary_data['body'],
+            target_langs=("eu", "pl", "fr", "en"),
+            max_workers=4
+        )
+        for lang in ("eu", "pl", "fr", "en"):
+            t_tr, b_tr = summary_translations.get(lang, (None, None))
+            if t_tr and b_tr:
+                summary_entry[f'title_{lang}'] = t_tr
+                summary_entry[f'body_{lang}'] = b_tr
+                summary_entry[f'translated_{lang}'] = True
+                print(f"Resumen diario traducido al {lang} con éxito.", flush=True)
+            else:
+                print(f"No se pudo obtener traducción del resumen al {lang}.", flush=True)
     except Exception as e:
-        print(f"Error al traducir el resumen diario al euskera: {e}", flush=True)
-
-    # Traducir el resumen al polaco de forma inmediata
-    try:
-        from analyze_sentiment import translate_article
-        print("Traduciendo resumen diario al polaco...", flush=True)
-        title_pl, body_pl = translate_article(summary_data['title'], summary_data['body'], target_lang="pl")
-        if title_pl and body_pl:
-            summary_entry['title_pl'] = title_pl
-            summary_entry['body_pl'] = body_pl
-            summary_entry['translated_pl'] = True
-            print("Resumen diario traducido al polaco con éxito.", flush=True)
-        else:
-            print("No se pudo obtener traducción del resumen al polaco.", flush=True)
-    except Exception as e:
-        print(f"Error al traducir el resumen diario al polaco: {e}", flush=True)
-
-    # Traducir el resumen al francés de forma inmediata
-    try:
-        from analyze_sentiment import translate_article
-        print("Traduciendo resumen diario al francés...", flush=True)
-        title_fr, body_fr = translate_article(summary_data['title'], summary_data['body'], target_lang="fr")
-        if title_fr and body_fr:
-            summary_entry['title_fr'] = title_fr
-            summary_entry['body_fr'] = body_fr
-            summary_entry['translated_fr'] = True
-            print("Resumen diario traducido al francés con éxito.", flush=True)
-        else:
-            print("No se pudo obtener traducción del resumen al francés.", flush=True)
-    except Exception as e:
-        print(f"Error al traducir el resumen diario al francés: {e}", flush=True)
-
-    # Traducir el resumen al inglés de forma inmediata
-    try:
-        from analyze_sentiment import translate_article
-        print("Traduciendo resumen diario al inglés...", flush=True)
-        title_en, body_en = translate_article(summary_data['title'], summary_data['body'], target_lang="en")
-        if title_en and body_en:
-            summary_entry['title_en'] = title_en
-            summary_entry['body_en'] = body_en
-            summary_entry['translated_en'] = True
-            print("Resumen diario traducido al inglés con éxito.", flush=True)
-        else:
-            print("No se pudo obtener traducción del resumen al inglés.", flush=True)
-    except Exception as e:
-        print(f"Error al traducir el resumen diario al inglés: {e}", flush=True)
+        print(f"Error al traducir el resumen diario: {e}", flush=True)
 
     # Insert summary at the beginning
     news_data.insert(0, summary_entry)

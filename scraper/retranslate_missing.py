@@ -4,9 +4,16 @@ import sys
 import time
 from datetime import datetime, timedelta, timezone
 
-# Agregar la carpeta actual al path para importar
+# Agregamos la carpeta actual al path para importar
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from analyze_sentiment import translate_article
+try:
+    from analyze_sentiment import translate_article, translate_article_to_languages
+except (ImportError, AttributeError):
+    try:
+        from analyze_sentiment import translate_article
+    except ImportError:
+        translate_article = None
+    translate_article_to_languages = None
 
 def retranslate_missing_news():
     news_file = 'data/news.json'
@@ -17,14 +24,13 @@ def retranslate_missing_news():
     with open(news_file, 'r', encoding='utf-8') as f:
         news = json.load(f)
 
-    # Solo traducir noticias de las últimas 24h (no gastar API en artículos viejos)
+    # Solo traducimos noticias de las últimas 24h para optimizar consumo
     now = datetime.now(timezone.utc)
     cutoff = now - timedelta(hours=24)
 
-    # Identificar noticias recientes que necesitan traducción
+    # Identificamos noticias recientes que necesitan traducción
     to_retranslate = []
     for item in news:
-        # Filtrar por fecha: ignorar noticias antiguas
         try:
             date_value = item.get('date') or ''
             item_date = datetime.fromisoformat(date_value.replace('Z', '+00:00'))
@@ -45,38 +51,10 @@ def retranslate_missing_news():
         title_en = item.get('title_en', '')
         body_en = item.get('body_en', '')
         
-        # Evaluar necesidades por idioma
-        needs_eu = False
-        if not item.get('translated_eu'):
-            needs_eu = True
-        elif not title_eu or not body_eu:
-            needs_eu = True
-        elif body_eu == body and len(body) > 100:
-            needs_eu = True
-            
-        needs_pl = False
-        if not item.get('translated_pl'):
-            needs_pl = True
-        elif not title_pl or not body_pl:
-            needs_pl = True
-        elif body_pl == body and len(body) > 100:
-            needs_pl = True
-            
-        needs_fr = False
-        if not item.get('translated_fr'):
-            needs_fr = True
-        elif not title_fr or not body_fr:
-            needs_fr = True
-        elif body_fr == body and len(body) > 100:
-            needs_fr = True
-            
-        needs_en = False
-        if not item.get('translated_en'):
-            needs_en = True
-        elif not title_en or not body_en:
-            needs_en = True
-        elif body_en == body and len(body) > 100:
-            needs_en = True
+        needs_eu = not item.get('translated_eu') or not title_eu or not body_eu or (body_eu == body and len(body) > 100)
+        needs_pl = not item.get('translated_pl') or not title_pl or not body_pl or (body_pl == body and len(body) > 100)
+        needs_fr = not item.get('translated_fr') or not title_fr or not body_fr or (body_fr == body and len(body) > 100)
+        needs_en = not item.get('translated_en') or not title_en or not body_en or (body_en == body and len(body) > 100)
             
         if needs_eu or needs_pl or needs_fr or needs_en:
             to_retranslate.append((item, needs_eu, needs_pl, needs_fr, needs_en))
@@ -86,8 +64,7 @@ def retranslate_missing_news():
         print("Todas las noticias ya están correctamente traducidas al euskera, polaco, francés e inglés.")
         return
 
-    # Si hay demasiadas noticias pendientes, limitamos para evitar bloqueos/esperas largas
-    # Priorizamos todos los resúmenes y los últimos 15 artículos de noticias (más recientes)
+    # Si hay demasiadas noticias pendientes, limitamos para agilizar el pipeline
     if total > 15:
         print(f"Detectadas {total} noticias con traducción pendiente.")
         print("Limitando a resúmenes y a los 15 artículos más recientes para agilizar el pipeline.")
@@ -96,11 +73,11 @@ def retranslate_missing_news():
         to_retranslate = summaries + non_summaries[:15]
         total = len(to_retranslate)
 
-    # Priorizar resúmenes para que se traduzcan en primer lugar
+    # Priorizamos resúmenes
     to_retranslate.sort(key=lambda x: 0 if x[0].get('is_summary') else 1)
 
     print(f"Detectadas {total} noticias con traducción pendiente o incompleta.")
-    print("Iniciando traducción secuencial controlada para respetar el TPM de 8000 en Groq...")
+    print("Iniciando traducción concurrente por artículo aprovechando pools dedicados de claves...")
 
     processed_count = 0
     for item, needs_eu, needs_pl, needs_fr, needs_en in to_retranslate:
@@ -109,71 +86,48 @@ def retranslate_missing_news():
         body_cast = item.get('body', '')
         
         processed_count += 1
-        langs_str = []
-        if needs_eu: langs_str.append("Euskera")
-        if needs_pl: langs_str.append("Polaco")
-        if needs_fr: langs_str.append("Francés")
-        if needs_en: langs_str.append("Inglés")
-        print(f"\n[{processed_count}/{total}] Traduciendo a {', '.join(langs_str)}: {url}")
+        needed_langs = []
+        if needs_eu: needed_langs.append("eu")
+        if needs_pl: needed_langs.append("pl")
+        if needs_fr: needed_langs.append("fr")
+        if needs_en: needed_langs.append("en")
+
+        print(f"\n[{processed_count}/{total}] Traduciendo a {', '.join(needed_langs)}: {url}")
         
         try:
-            # 1. Traducir al euskera si es necesario
-            if needs_eu:
-                title_eu, body_eu = translate_article(title_cast, body_cast, target_lang="eu")
-                if title_eu and body_eu and body_eu != body_cast:
-                    item['title_eu'] = title_eu
-                    item['body_eu'] = body_eu
-                    item['translated_eu'] = True
-                    print(f"  [Euskera - OK] Traducido con éxito.")
-                else:
-                    print(f"  [Euskera - FALLÓ] Resultado vacío o fallback en castellano.")
-                time.sleep(1.0) # Separación preventiva
-                
-            # 2. Traducir al polaco si es necesario
-            if needs_pl:
-                title_pl, body_pl = translate_article(title_cast, body_cast, target_lang="pl")
-                if title_pl and body_pl and body_pl != body_cast:
-                    item['title_pl'] = title_pl
-                    item['body_pl'] = body_pl
-                    item['translated_pl'] = True
-                    print(f"  [Polaco - OK] Traducido con éxito.")
-                else:
-                    print(f"  [Polaco - FALLÓ] Resultado vacío o fallback en castellano.")
-                time.sleep(1.0)
-                
-            # 3. Traducir al francés si es necesario
-            if needs_fr:
-                title_fr, body_fr = translate_article(title_cast, body_cast, target_lang="fr")
-                if title_fr and body_fr and body_fr != body_cast:
-                    item['title_fr'] = title_fr
-                    item['body_fr'] = body_fr
-                    item['translated_fr'] = True
-                    print(f"  [Francés - OK] Traducido con éxito.")
-                else:
-                    print(f"  [Francés - FALLÓ] Resultado vacío o fallback en castellano.")
-                time.sleep(1.0)
-                
-            # 4. Traducir al inglés si es necesario
-            if needs_en:
-                title_en, body_en = translate_article(title_cast, body_cast, target_lang="en")
-                if title_en and body_en and body_en != body_cast:
-                    item['title_en'] = title_en
-                    item['body_en'] = body_en
-                    item['translated_en'] = True
-                    print(f"  [Inglés - OK] Traducido con éxito.")
-                else:
-                    print(f"  [Inglés - FALLÓ] Resultado vacío o fallback en castellano.")
-                    
-            # Guardar progresivamente después de cada noticia para no perder avance
+            if translate_article_to_languages and len(needed_langs) > 0:
+                translations = translate_article_to_languages(title_cast, body_cast, target_langs=needed_langs)
+                for lang in needed_langs:
+                    t_res, b_res = translations.get(lang, (None, None))
+                    if t_res and b_res and b_res != body_cast:
+                        item[f'title_{lang}'] = t_res
+                        item[f'body_{lang}'] = b_res
+                        item[f'translated_{lang}'] = True
+                        print(f"  [{lang.upper()} - OK] Traducido con éxito.")
+                    else:
+                        print(f"  [{lang.upper()} - FALLÓ] Resultado vacío o fallback en castellano.")
+            elif translate_article:
+                # Fallback secuencial
+                for lang in needed_langs:
+                    t_res, b_res = translate_article(title_cast, body_cast, target_lang=lang)
+                    if t_res and b_res and b_res != body_cast:
+                        item[f'title_{lang}'] = t_res
+                        item[f'body_{lang}'] = b_res
+                        item[f'translated_{lang}'] = True
+                        print(f"  [{lang.upper()} - OK] Traducido con éxito.")
+                    else:
+                        print(f"  [{lang.upper()} - FALLÓ] Resultado vacío o fallback en castellano.")
+                    time.sleep(0.5)
+
+            # Guardamos tras cada noticia
             with open(news_file, 'w', encoding='utf-8') as f:
                 json.dump(news, f, indent=2, ensure_ascii=False)
                 
-            # Sleep de cortesía entre noticias; el retry gestiona rate limits reales
-            time.sleep(1.5)
+            time.sleep(0.5)
             
         except Exception as e:
             print(f"  Error al procesar la noticia: {e}")
-            time.sleep(2.0)
+            time.sleep(1.0)
 
     print("\nProceso de traducción corrector finalizado con éxito.")
 

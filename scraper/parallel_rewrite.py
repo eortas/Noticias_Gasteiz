@@ -8,9 +8,10 @@ from analyze_sentiment import (
     rewrite_article,
     rewrite_headline,
     translate_article,
+    translate_article_to_languages,
 )
 
-def parallel_rewrite_news(max_workers=3):
+def parallel_rewrite_news(max_workers=2, max_batch=20):
     news_file = 'data/news.json'
     if not os.path.exists(news_file):
         print(f"No se encontró {news_file}")
@@ -19,7 +20,7 @@ def parallel_rewrite_news(max_workers=3):
     with open(news_file, 'r', encoding='utf-8') as f:
         news = json.load(f)
 
-    # Incluimos también titulares que siguen siendo iguales al original.
+    # Identificamos noticias pendientes de reescritura, traducción o con titular no modificado
     to_process = []
     for item in news:
         original_title = item.get('original_title')
@@ -29,18 +30,30 @@ def parallel_rewrite_news(max_workers=3):
             and not is_headline_rewritten(original_title, current_title)
         )
 
-        if not item.get('rewritten') or not item.get('translated_eu') or title_needs_rewrite:
+        needs_any_translation = not (
+            item.get('translated_eu')
+            and item.get('translated_pl')
+            and item.get('translated_fr')
+            and item.get('translated_en')
+        )
+
+        if not item.get('rewritten') or needs_any_translation or title_needs_rewrite:
             to_process.append(item)
     
     if not to_process:
         print("Todas las noticias ya están reescritas y traducidas.")
         return
 
+    # Si hay acumulación extraordinaria, limitamos al lote máximo para garantizar la finalización dentro de la ventana de 20 minutos
+    if len(to_process) > max_batch:
+        print(f"Detectadas {len(to_process)} noticias pendientes. Limitamos a un lote de {max_batch} para mantener el ciclo en unos 5-7 minutos.")
+        to_process = to_process[:max_batch]
+
     total = len(to_process)
     print(f"Iniciando reescritura/traducción paralela de {total} noticias con {max_workers} hilos...", flush=True)
 
     def process_item(item):
-        # Priorizar siempre los originales si ya existen para evitar reescribir sobre reescrito
+        # Priorizamos originales para evitar reescribir sobre reescrito
         title_orig = item.get('original_title') or item.get('title', '')
         body_orig = item.get('original_body') or item.get('body', '')
         url = item.get('url', 'URL desconocida')
@@ -50,11 +63,10 @@ def parallel_rewrite_news(max_workers=3):
 
         success = False
         try:
-            # 1. Reescribir si no se ha hecho
+            # 1. Reescribir en castellano si no se ha hecho
             if not item.get('rewritten'):
                 new_title, new_body = rewrite_article(title_orig, body_orig)
                 if new_title and new_body:
-                    # Guardar originales por si acaso
                     if 'original_title' not in item:
                         item['original_title'] = title_orig
                     if 'original_body' not in item:
@@ -67,7 +79,6 @@ def parallel_rewrite_news(max_workers=3):
                     _label, new_score, _cat = analyze_sentiment(new_title + " " + new_body)
                     item['sentiment'] = round(new_score, 4)
                     
-                    # Marcamos como reescrita solo si realmente cambió respecto al original
                     if new_title != title_orig or new_body != body_orig:
                         item['rewritten'] = True
                     else:
@@ -76,7 +87,7 @@ def parallel_rewrite_news(max_workers=3):
                 else:
                     return False
             else:
-                # Si el cuerpo ya estaba reescrito, corregimos solo el titular idéntico.
+                # Si el cuerpo ya estaba reescrito, corregimos solo el titular idéntico
                 if item.get('original_title') and not is_headline_rewritten(
                     title_orig,
                     item.get('title', ''),
@@ -92,53 +103,35 @@ def parallel_rewrite_news(max_workers=3):
                     )
                     item['sentiment'] = round(new_score, 4)
 
-                success = True # Ya estaba reescrita, procedemos con traducción
+                success = True
 
             current_title = item.get('title', '')
             current_body = item.get('body', '')
 
-            # 2. Traducir al euskera si no se ha hecho
-            if success and not item.get('translated_eu'):
-                title_eu, body_eu = translate_article(current_title, current_body, target_lang="eu")
-                if title_eu and body_eu:
-                    item['title_eu'] = title_eu
-                    item['body_eu'] = body_eu
-                    item['translated_eu'] = True
-                else:
-                    success = False
-                time.sleep(1.0) # Cortesía para no saturar TPM de Groq
+            # 2. Identificamos qué idiomas faltan por traducir
+            target_langs = []
+            if not item.get('translated_eu'):
+                target_langs.append('eu')
+            if not item.get('translated_pl'):
+                target_langs.append('pl')
+            if not item.get('translated_fr'):
+                target_langs.append('fr')
+            if not item.get('translated_en'):
+                target_langs.append('en')
 
-            # 3. Traducir al polaco si no se ha hecho
-            if success and not item.get('translated_pl'):
-                title_pl, body_pl = translate_article(current_title, current_body, target_lang="pl")
-                if title_pl and body_pl:
-                    item['title_pl'] = title_pl
-                    item['body_pl'] = body_pl
-                    item['translated_pl'] = True
-                else:
-                    success = False
-                time.sleep(1.0)
-
-            # 4. Traducir al francés si no se ha hecho
-            if success and not item.get('translated_fr'):
-                title_fr, body_fr = translate_article(current_title, current_body, target_lang="fr")
-                if title_fr and body_fr:
-                    item['title_fr'] = title_fr
-                    item['body_fr'] = body_fr
-                    item['translated_fr'] = True
-                else:
-                    success = False
-                time.sleep(1.0)
-
-            # 5. Traducir al inglés si no se ha hecho
-            if success and not item.get('translated_en'):
-                title_en, body_en = translate_article(current_title, current_body, target_lang="en")
-                if title_en and body_en:
-                    item['title_en'] = title_en
-                    item['body_en'] = body_en
-                    item['translated_en'] = True
-                else:
-                    success = False
+            # Traducimos concurrentemente todos los idiomas pendientes
+            if success and target_langs:
+                translations = translate_article_to_languages(
+                    current_title, current_body, target_langs=target_langs
+                )
+                for lang in target_langs:
+                    t_lang, b_lang = translations.get(lang, (None, None))
+                    if t_lang and b_lang:
+                        item[f'title_{lang}'] = t_lang
+                        item[f'body_{lang}'] = b_lang
+                        item[f'translated_{lang}'] = True
+                    else:
+                        success = False
 
             return success
         except Exception as e:
@@ -157,8 +150,8 @@ def parallel_rewrite_news(max_workers=3):
             status = "OK" if success else "FALLÓ"
             print(f"[{processed_count}/{total}] {status}: {item.get('url')}", flush=True)
             
-            # Guardar cada 5 finalizados para no perder progreso
-            if processed_count % 5 == 0:
+            # Guardamos cada 2 finalizados para asegurar el progreso sin sobrecargar el disco
+            if processed_count % 2 == 0:
                 with open(news_file, 'w', encoding='utf-8') as f:
                     json.dump(news, f, indent=2, ensure_ascii=False)
                 print(f"--- Progreso guardado ({processed_count}/{total}) ---", flush=True)
@@ -170,5 +163,5 @@ def parallel_rewrite_news(max_workers=3):
     print(f"\nProceso completado. {processed_count} noticias procesadas.", flush=True)
 
 if __name__ == "__main__":
-    # Usamos 3 workers en lugar de 6 para evitar rate limit de Groq al traducir múltiples idiomas a la vez
-    parallel_rewrite_news(max_workers=3)
+    # Procesamos de 2 en 2 artículos con traducciones multilingües concurrentes
+    parallel_rewrite_news(max_workers=2, max_batch=20)

@@ -6,7 +6,7 @@ import time
 from groq import Groq
 from mistralai.client.sdk import Mistral
 from dotenv import load_dotenv
-from key_rotator import get_next_key
+from key_rotator import get_next_key, report_key_rate_limited
 from grammar_cleaner import fix_grammar_errors
 
 load_dotenv()
@@ -307,11 +307,12 @@ def _rewrite_chunk(text, type_label, context_title=None):
             return rewritten
         except Exception as e:
             if "429" in str(e) or "limit" in str(e).lower():
+                report_key_rate_limited(api_key, cooldown_seconds=25)
                 if attempt < max_attempts - 1:
                     print(f"      [Rate Limit Groq] Probando siguiente clave de reescritura en rotación...", flush=True)
                     continue
                 else:
-                    time.sleep(5)
+                    time.sleep(3)
             elif attempt < max_attempts - 1:
                 time.sleep(1)
             else:
@@ -467,11 +468,12 @@ Formato de respuesta JSON obligatorio:
         except Exception as e:
             error_str = str(e)
             if "429" in error_str or "rate" in error_str.lower() or "limit" in error_str.lower():
+                report_key_rate_limited(api_key, cooldown_seconds=25)
                 if attempt < max_attempts - 1:
                     print(f"      [Mistral Rate Limit] Probando siguiente clave en rotación...", flush=True)
                     continue
                 else:
-                    time.sleep(5)
+                    time.sleep(3)
             elif attempt < max_attempts - 1:
                 time.sleep(1)
             else:
@@ -583,11 +585,12 @@ Rules:
         except Exception as e:
             error_str = str(e)
             if "429" in error_str or "rate" in error_str.lower() or "limit" in error_str.lower():
+                report_key_rate_limited(api_key, cooldown_seconds=25)
                 if attempt < max_attempts - 1:
                     print(f"      [Mistral Rate Limit] Probando siguiente clave Mistral en rotación...", flush=True)
                     continue
                 else:
-                    time.sleep(5)
+                    time.sleep(3)
             elif attempt < max_attempts - 1:
                 time.sleep(1)
             else:
@@ -599,7 +602,7 @@ Rules:
 
 
 def get_translation_keys(target_lang):
-    """Obtiene todas las claves de API de Groq configuradas para un idioma específico."""
+    """Obtenemos todas las claves de API de Groq configuradas para un idioma específico."""
     prefixes = {
         "eu": "TRADUCCION_EUSKARA",
         "pl": "TRADUCCION_POLACO",
@@ -613,19 +616,31 @@ def get_translation_keys(target_lang):
         
     keys = []
     
-    # 1. Intentar obtener clave base (sin número al final, ej. TRADUCCION_FRANCAIS)
+    # 1. Variables de entorno dedicadas o alias configurados en secrets
+    alias_map = {
+        "eu": ["GROQ_EUSKERA2", "GROQ_EUSKERA"],
+        "pl": ["GROQ_POLISH_KEY", "GROQ_POLISH2", "GROQ_POLISH"],
+        "fr": ["GROQ_FRANCAIS", "GROQ_FRANCAIS2"],
+        "en": ["GROQ_TRANSLATION_KEY", "GROQ_ENGLISH"]
+    }
+    for alias_var in alias_map.get(target_lang, []):
+        val = os.environ.get(alias_var)
+        if val and val not in keys:
+            keys.append(val)
+
+    # 2. Clave base estándar (ej. TRADUCCION_FRANCAIS)
     base_key = os.environ.get(prefix)
-    if base_key:
+    if base_key and base_key not in keys:
         keys.append(base_key)
         
-    # 2. Intentar obtener claves numeradas (ej. TRADUCCION_FRANCAIS1, TRADUCCION_FRANCAIS2, etc. hasta el 10)
+    # 3. Claves numeradas estándar (ej. TRADUCCION_FRANCAIS1..10)
     for i in range(1, 11):
         key_name = f"{prefix}{i}"
         key_val = os.environ.get(key_name)
         if key_val and key_val not in keys:
             keys.append(key_val)
             
-    # 3. Mezclar las claves genéricas extras como fallback
+    # 4. Mezclar las claves genéricas extras como fallback
     for extra_key in get_extra_keys():
         if extra_key not in keys:
             keys.append(extra_key)
@@ -756,12 +771,13 @@ CRITICAL INSTRUCTIONS:
                 return translated
         except Exception as e:
             if "429" in str(e) or "limit" in str(e).lower():
+                report_key_rate_limited(api_key, cooldown_seconds=25)
                 if attempt < max_attempts - 1:
                     print(f"      [Rate Limit Groq] Probando siguiente clave de traducción ({target_lang}) en rotación...", flush=True)
                     continue
                 else:
-                    sleep_time = 10
-                    print(f"      [Rate Limit Groq] Todas las claves agotadas, esperando {sleep_time}s...", flush=True)
+                    sleep_time = 4
+                    print(f"      [Rate Limit Groq] Claves en enfriamiento, esperando {sleep_time}s...", flush=True)
                     time.sleep(sleep_time)
             elif attempt < max_attempts - 1:
                 time.sleep(1)
@@ -827,8 +843,46 @@ def translate_article(title, body, target_lang="eu"):
         tr_chunk = translate_text(chunk, target_lang, "CUERPO", context_title=title_tr)
         translated_chunks.append(tr_chunk or chunk)
         # Delay de cortesía entre fragmentos; el retry gestiona rate limits reales
-        time.sleep(0.5)
+        time.sleep(0.3)
             
     return title_tr, "\n\n".join(translated_chunks)
+
+
+def translate_article_to_languages(title, body, target_langs=("eu", "pl", "fr", "en"), max_workers=4):
+    """
+    Traducimos un artículo a los idiomas indicados de forma concurrente.
+    Aprovechamos que cada idioma dispone de su propio pool de API keys independiente.
+    Devolvemos un diccionario con las traducciones: {lang: (title_tr, body_tr)}.
+    """
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    valid_langs = [l for l in target_langs if l in {"eu", "pl", "fr", "en"}]
+    if not valid_langs:
+        return {}
+
+    # Si solo hay un idioma, lo ejecutamos directamente sin abrir un pool
+    if len(valid_langs) == 1:
+        lang = valid_langs[0]
+        t_tr, b_tr = translate_article(title, body, target_lang=lang)
+        return {lang: (t_tr, b_tr)}
+
+    results = {}
+    workers = min(len(valid_langs), max_workers)
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        future_to_lang = {
+            executor.submit(translate_article, title, body, lang): lang
+            for lang in valid_langs
+        }
+        for future in as_completed(future_to_lang):
+            lang = future_to_lang[future]
+            try:
+                t_tr, b_tr = future.result()
+                results[lang] = (t_tr, b_tr)
+            except Exception as e:
+                print(f"      [ERROR concurrente traduccion {lang}]: {e}", flush=True)
+                results[lang] = (title, body)
+
+    return results
+
 
 
