@@ -91,6 +91,15 @@ jobs:
         run: |
           python scraper/fix_missing_images_ddg.py
 
+      - name: Cleanup old Vercel deployments
+        if: always()
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID || 'gasteizlive' }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
+        run: |
+          python scraper/cleanup_vercel.py
+
       - name: Commit and push changes
         if: always() && steps.scraper_step.outcome != 'skipped'
         env:
