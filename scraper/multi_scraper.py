@@ -496,6 +496,56 @@ class MultiScraper:
         return None
 
 
+    def _detect_section(self, title, url, categories=None, body=None):
+        cats_str = " ".join(categories or []).lower()
+        title_lower = (title or "").lower()
+        url_lower = (url or "").lower()
+        body_lower = (body or "")[:300].lower()
+
+        if "baskonia" in title_lower or "baskonista" in title_lower or "baskonia" in url_lower or "baskonia" in cats_str:
+            return "deportes", "Deportes"
+
+        if (
+            "/alaves/" in url_lower
+            or "alaves-futbol" in cats_str
+            or re.search(r'\b(el\s+alav[eé]s|del\s+alav[eé]s|al\s+alav[eé]s|deportivo\s+alav[eé]s)\b', title, re.I)
+            or (
+                re.search(r'\balav[eé]s\b', title, re.I)
+                and not re.search(r'\balaves[ea]s?\b', title, re.I)
+                and (
+                    re.search(r'\b(partido|copa|liga|laliga|entrenador|fichaje|plantilla|rival|once|triunfo|derrota|goleada|goles|azkoitia|mendizorroza|mendizorrotza|albiazul|glorioso|fútbol|futbol|segunda|primera)\b', title_lower + " " + body_lower)
+                    or re.search(r'^alav[eé]s\b', title.strip(), re.I)
+                    or re.search(r'\bvs\.?\s*alav[eé]s\b', title_lower)
+                    or re.search(r'\balav[eé]s\s*vs\.?', title_lower)
+                )
+            )
+            or ("gasteizhoy.com" in url_lower and (
+                "gasteizhoy.com/alaves-" in url_lower
+                or bool(re.search(r'-alaves-(copa|laliga|liga|jornada|acb|fichaje|plantilla)', url_lower))
+                or bool(re.search(r'-(anaitasuna|valencia|girona|madrid|barca|barcelona|sevilla|betis|athletic|osasuna|eibar)-alaves', url_lower))
+            ))
+        ):
+            return "deportes", "Deportes"
+
+        if (
+            "/deportes/" in url_lower
+            or "seccion/deportes" in url_lower
+            or any(c in cats_str for c in ["deportes", "baloncesto", "futbol", "hockey", "atletismo", "ciclismo", "triatlon", "pelota"])
+            or re.search(r'\b(euroliga|liga\s+endesa|acb|laliga|copa\s+del\s+rey)\b', title_lower)
+        ):
+            return "deportes", "Deportes"
+
+        if "/economia/" in url_lower or any(c in cats_str for c in ["economía", "economia"]):
+            return "economia", "Economía"
+
+        if "/cultura" in url_lower or any(c in cats_str for c in ["cultura", "teatro", "cine", "concierto", "música", "musica"]):
+            return "cultura", "Cultura"
+
+        if "/sociedad/" in url_lower or any(c in cats_str for c in ["sociedad", "sucesos"]):
+            return "sociedad", "Sociedad"
+
+        return "alava", None
+
     def _scrape_el_correo_section(self, url, section_name, source_section, is_alava=False):
         import urllib.request
         print(f"Scrapeando El Correo ({section_name or 'Portada Alava'}): {url}")
@@ -553,6 +603,14 @@ class MultiScraper:
                     # Imagen
                     image = self._get_og_image(art) or self._get_ddg_proxy_url(art.find('img').get('src') if art.find('img') else None)
 
+                    sec = source_section
+                    cat = section_name
+                    if sec == 'alava' or not sec:
+                        det_sec, det_cat = self._detect_section(title, full_url, body=body_text)
+                        if det_sec == 'deportes':
+                            sec = 'deportes'
+                            cat = 'Deportes'
+
                     item = {
                         'id': article_id,
                         'title': title,
@@ -562,11 +620,11 @@ class MultiScraper:
                         'date': datetime.now(timezone.utc).isoformat(),
                         'sentiment': self._analyze_sentiment(title + " " + body_text),
                         'image': image,
-                        'source_section': source_section
+                        'source_section': sec
                     }
                     
-                    if section_name:
-                        item['category'] = section_name
+                    if cat:
+                        item['category'] = cat
 
                     self.news_data.append(item)
                     self.history.add(full_url)
@@ -623,12 +681,23 @@ class MultiScraper:
                             img = featured[0].get('source_url')
                     except: pass
 
+                    cats = []
+                    try:
+                        for term_list in post.get('_embedded', {}).get('wp:term', []):
+                            for term in term_list:
+                                if term.get('taxonomy') == 'category':
+                                    cats.append(term.get('name', ''))
+                                    cats.append(term.get('slug', ''))
+                    except Exception:
+                        pass
+
                     links_data[url] = {
                         'url': url,
                         'title': title,
                         'body_html': body_html,
                         'date_str': date_iso,
-                        'image_url': self._get_ddg_proxy_url(img) if img else None
+                        'image_url': self._get_ddg_proxy_url(img) if img else None,
+                        'categories': cats
                     }
                 if links_data:
                     break
@@ -685,12 +754,14 @@ class MultiScraper:
                                         img_rss = tag['url']
                                         break
                             
+                            cats_rss = [c.get_text().strip() for c in item.find_all('category') if c.get_text()]
                             links_data[url] = {
                                 'url': url,
                                 'title': title,
                                 'body_html': body_html,
                                 'date_str': date_iso,
-                                'image_url': self._get_ddg_proxy_url(img_rss) if img_rss else None
+                                'image_url': self._get_ddg_proxy_url(img_rss) if img_rss else None,
+                                'categories': cats_rss
                             }
                             rss_count += 1
                 else:
@@ -986,7 +1057,8 @@ class MultiScraper:
             return None
 
         sentiment = self._analyze_sentiment(title + " " + body)
-        return {
+        sec, cat = self._detect_section(title, url, link_info.get('categories'), body)
+        item = {
             'id': hashlib.md5(url.encode()).hexdigest()[:10],
             'title': title,
             'url': url,
@@ -994,8 +1066,12 @@ class MultiScraper:
             'body': body,
             'date': date,
             'sentiment': sentiment,
-            'image': image_url
+            'image': image_url,
+            'source_section': sec
         }
+        if cat:
+            item['category'] = cat
+        return item
 
     def _extract_gasteiz_hoy_markdown(self, link_info, markdown):
         url = link_info['url']
@@ -1057,7 +1133,8 @@ class MultiScraper:
         if any(x in content_lower for x in ['el boulevard', 'publirreportaje', 'patrocinado']):
             return None
 
-        return {
+        sec, cat = self._detect_section(title, url, link_info.get('categories'), body)
+        item = {
             'id': hashlib.md5(url.encode()).hexdigest()[:10],
             'title': title,
             'url': url,
@@ -1065,8 +1142,12 @@ class MultiScraper:
             'body': body,
             'date': link_info.get('date_str') or datetime.now(timezone.utc).isoformat(),
             'sentiment': self._analyze_sentiment(title + " " + body),
-            'image': image_url
+            'image': image_url,
+            'source_section': sec
         }
+        if cat:
+            item['category'] = cat
+        return item
 
     def scrape_diario_de_noticias(self):
         print("Scrapeando Diario de Noticias de Álava y Vitoria-Gasteiz...")
@@ -1204,6 +1285,7 @@ class MultiScraper:
                     
                     article_id = hashlib.md5(full_url.encode()).hexdigest()[:10]
                     
+                    det_sec, det_cat = self._detect_section(title, full_url, body=body_text)
                     item = {
                         'id': article_id,
                         'title': title,
@@ -1213,8 +1295,10 @@ class MultiScraper:
                         'date': date,
                         'sentiment': sentiment,
                         'image': image_url,
-                        'source_section': 'alava'
+                        'source_section': det_sec or 'alava'
                     }
+                    if det_cat:
+                        item['category'] = det_cat
                     
                     self.news_data.append(item)
                     self.history.add(full_url)

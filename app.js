@@ -536,18 +536,86 @@ document.addEventListener('DOMContentLoaded', () => {
         'Cultura': 'cultura'
     };
 
+    function isSportsItem(item) {
+        if (!item) return false;
+        if (item.source_section === 'deportes') return true;
+
+        const cat = (item.category || '').toLowerCase();
+        if (cat.includes('deporte') || cat.includes('baskonia') || cat.includes('alaves-futbol') || cat.includes('baloncesto') || cat.includes('futbol') || cat.includes('fútbol')) return true;
+
+        const url = (item.url || '').toLowerCase();
+        if (url.includes('/deportes/') || url.includes('/baskonia/') || url.includes('/alaves/') || url.includes('seccion/deportes')) return true;
+        if (url.includes('baskonia')) return true;
+
+        if (url.includes('gasteizhoy.com') && (
+            /gasteizhoy\.com\/alaves-/.test(url) ||
+            /-alaves-(copa|laliga|liga|jornada|acb|fichaje|plantilla)/.test(url) ||
+            /-(anaitasuna|valencia|girona|madrid|barca|barcelona|sevilla|betis|athletic|osasuna|eibar)-alaves/.test(url)
+        )) {
+            return true;
+        }
+
+        const title = (item.title || '') + ' ' + (item.original_title || '');
+        const titleLower = title.toLowerCase();
+        if (titleLower.includes('baskonia') || titleLower.includes('baskonista')) return true;
+
+        if (/\b(el\s+alav[eé]s|del\s+alav[eé]s|al\s+alav[eé]s|deportivo\s+alav[eé]s)\b/i.test(title)) {
+            return true;
+        }
+        if (/\balav[eé]s\b/i.test(title) && !/\balaves[ea]s?\b/i.test(title)) {
+            if (/\b(partido|copa|liga|laliga|entrenador|fichaje|plantilla|rival|once|triunfo|derrota|goleada|goles|azkoitia|mendizorroza|mendizorrotza|albiazul|glorioso|fútbol|futbol|segunda|primera)\b/i.test(titleLower)) {
+                return true;
+            }
+            if (/^alav[eé]s\b/i.test(title.trim())) return true;
+            if (/\bvs\.?\s*alav[eé]s\b/i.test(titleLower) || /\balav[eé]s\s*vs\.?/i.test(titleLower)) return true;
+        }
+
+        if (/\b(euroliga|liga\s+endesa|acb|laliga|copa\s+del\s+rey)\b/i.test(titleLower)) return true;
+
+        return false;
+    }
+
+    function getSportsGroupIds() {
+        const ids = new Set();
+        if (!Array.isArray(newsData)) return ids;
+        newsData.forEach(item => {
+            if (item.group_id && isSportsItem(item)) {
+                ids.add(item.group_id);
+            }
+        });
+        return ids;
+    }
+
+    function getItemSection(item, sportsGroupIds) {
+        if (!item) return '';
+        if (isSportsItem(item)) return 'deportes';
+        if (item.group_id && sportsGroupIds && sportsGroupIds.has(item.group_id)) return 'deportes';
+
+        if (item.source_section && Object.values(SECTION_MAP).includes(item.source_section)) {
+            return item.source_section;
+        }
+
+        const cat = (item.category || '').toLowerCase();
+        if (cat.includes('econom')) return 'economia';
+        if (cat.includes('sociedad') || cat.includes('sucesos')) return 'sociedad';
+        if (cat.includes('cultur')) return 'cultura';
+
+        return item.source_section || '';
+    }
+
     function getSectionData() {
         // Separate summary items - they always show
         const summaryItems = newsData.filter(item => item.is_summary);
+        const sportsGroupIds = getSportsGroupIds();
         
         let regularItems;
         if (currentCategory) {
             const key = SECTION_MAP[currentCategory] || currentCategory.toLowerCase();
-            regularItems = newsData.filter(item => !item.is_summary && item.source_section === key);
+            regularItems = newsData.filter(item => !item.is_summary && getItemSection(item, sportsGroupIds) === key);
         } else {
             // Default: mostrar todo EXCEPTO artículos que pertenecen explícitamente a otra sección
             const sectionKeys = Object.values(SECTION_MAP);
-            regularItems = newsData.filter(item => !item.is_summary && !sectionKeys.includes(item.source_section));
+            regularItems = newsData.filter(item => !item.is_summary && !sectionKeys.includes(getItemSection(item, sportsGroupIds)));
         }
         
         return { summaryItems, regularItems };
@@ -773,7 +841,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { label: 'Cultura',  key: 'cultura', translationKey: 'catCultura' }
         ];
 
-        const availableSections = new Set(newsData.map(item => item.source_section).filter(Boolean));
+        const sportsGroupIds = getSportsGroupIds();
+        const availableSections = new Set(newsData.map(item => getItemSection(item, sportsGroupIds)).filter(Boolean));
 
         categoriesContainer.innerHTML = allCategories.map(cat => {
             const hasData = availableSections.has(cat.key);

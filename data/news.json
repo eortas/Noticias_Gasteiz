@@ -191,7 +191,9 @@
     "translated_en": true,
     "group_id": null,
     "grouped_verified": true,
-    "telegram_sent": true
+    "telegram_sent": true,
+    "source_section": "deportes",
+    "category": "Deportes"
   },
   {
     "id": "bd35b67f36",
@@ -1510,7 +1512,9 @@
     "translated_en": true,
     "group_id": null,
     "grouped_verified": true,
-    "telegram_sent": true
+    "telegram_sent": true,
+    "source_section": "deportes",
+    "category": "Deportes"
   },
   {
     "id": "77bcd58ac3",
@@ -4365,7 +4369,9 @@
     "sentiment_model": "open-mistral-nemo",
     "sentiment_updated_at": "2026-11-11T21:01:57.882607+00:00",
     "sentiment_group_verified": true,
-    "telegram_sent": true
+    "telegram_sent": true,
+    "source_section": "deportes",
+    "category": "Deportes"
   },
   {
     "id": "a6e8e9bbe1",
@@ -4720,7 +4726,9 @@
     "sentiment_model": "open-mistral-nemo",
     "sentiment_updated_at": "2026-11-11T21:01:57.882607+00:00",
     "sentiment_group_verified": true,
-    "telegram_sent": true
+    "telegram_sent": true,
+    "source_section": "deportes",
+    "category": "Deportes"
   },
   {
     "id": "88bf5a388d",
@@ -5841,7 +5849,9 @@
     "sentiment_model": "open-mistral-nemo",
     "sentiment_updated_at": "2026-11-10T20:33:19.839307+00:00",
     "sentiment_group_verified": true,
-    "telegram_sent": true
+    "telegram_sent": true,
+    "source_section": "deportes",
+    "category": "Deportes"
   },
   {
     "id": "fe9d88e858",

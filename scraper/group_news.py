@@ -54,6 +54,26 @@ def harmonize_group_sentiments(items):
             item['sentiment_group_verified'] = True
         print(f'    [Mistral] Sentimiento unificado para {group_id}: {score:+.2f}')
 
+def harmonize_group_sections(items):
+    """Sincronizamos la sección de los grupos si algún medio lo clasifica como deportes."""
+    groups = defaultdict(list)
+    for item in items:
+        if item.get('group_id'):
+            groups[item['group_id']].append(item)
+
+    for group_id, group in groups.items():
+        if len(group) < 2:
+            continue
+        is_sports = any(
+            item.get('source_section') == 'deportes'
+            or (item.get('category') or '').lower() == 'deportes'
+            for item in group
+        )
+        if is_sports:
+            for item in group:
+                item['source_section'] = 'deportes'
+                item['category'] = 'Deportes'
+
 def clean_thinking_tags(text):
     """Elimina bloques <think>...</think> que genera Qwen en modo thinking."""
     if not text:
@@ -453,6 +473,7 @@ def group_news():
 
     # Igualamos la valoración de las fuentes que cuentan el mismo hecho.
     harmonize_group_sentiments(final_regular)
+    harmonize_group_sections(final_regular)
     
     # Unir con resúmenes del día
     final_news = summary_items + final_regular
