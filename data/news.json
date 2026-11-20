@@ -947,7 +947,7 @@
     "source": "Diario de Noticias",
     "body": "Desde el viernes pasado, la plaza de la Virgen Blanca ha comenzado a transformar su fisonomía habitual para dar paso a la escenografía festiva que definirá la próxima Navidad en el centro de Vitoria. Los trabajos de instalación de la noria y del carrusel, dos elementos que volverán a ser los protagonistas indiscutibles de estas fechas, han arrancado con el objetivo de tener los atracciones listas para recibir a vecinos y visitantes.",
     "date": "2026-11-20T13:22:10+01:00",
-    "sentiment": 0.0,
+    "sentiment": 0.7,
     "image": "https://external-content.duckduckgo.com/iu/?u=https%3A//estaticosgn-cdn.deia.eus/clip/4665c891-29fc-4442-80a1-53046bcc0468_16-9-aspect-ratio_default_0.jpg",
     "source_section": "alava",
     "original_title": "En imágenes: Arranca el montaje de la noria y el carrusel de Navidad en la Virgen Blanca",
@@ -967,7 +967,11 @@
     "translated_en": true,
     "group_id": "group_50def93963",
     "grouped_verified": true,
-    "telegram_sent": true
+    "telegram_sent": true,
+    "sentiment_label": "positiva",
+    "sentiment_model": "open-mistral-nemo",
+    "sentiment_updated_at": "2026-11-20T16:01:58.366118+00:00",
+    "sentiment_group_verified": true
   },
   {
     "id": "dc2233bcf0",
@@ -2276,7 +2280,7 @@
     "grouped_verified": true,
     "sentiment_label": "positiva",
     "sentiment_model": "open-mistral-nemo",
-    "sentiment_updated_at": "2026-11-20T08:03:39.273602+00:00",
+    "sentiment_updated_at": "2026-11-20T16:01:58.366118+00:00",
     "sentiment_group_verified": true,
     "telegram_sent": true
   },
